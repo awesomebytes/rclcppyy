@@ -2,7 +2,7 @@ import cppyy
 import os
 import re
 from typing import Any, List, Optional, Set, Dict
-from ament_index_python.packages import get_package_prefix
+from ament_index_python.packages import get_package_prefix, get_packages_with_prefixes
 
 RCLCPP_BRINGUP_DONE = False
 
@@ -18,38 +18,15 @@ def add_ros2_include_paths() -> bool:
     ROS2_INCLUDE_PATH = get_ros2_include_path()
     ROS2_LIB_PATH = get_package_prefix("rclcpp") + "/lib"
     # All of these are needed for rclcpp to work
-    minimal_rclcpp_includes = [
-        'rclcpp',
-        'std_msgs', 
-        'rcl_interfaces',
-        'rosidl_runtime_cpp',
-        'rosidl_runtime_c',
-        'service_msgs',
-        'builtin_interfaces',
-        'rosidl_typesupport_interface',
-        'rcutils',
-        'rcl',
-        'rmw',
-        'rcpputils',
-        'rcl_yaml_param_parser',
-        'type_description_interfaces',
-        'rosidl_dynamic_typesupport',
-        'tracetools',
-        'libstatistics_collector',
-        'statistics_msgs',
-        'rosidl_typesupport_introspection_cpp'
-    ]
-    for include in minimal_rclcpp_includes:
-        cppyy.add_include_path(os.path.join(ROS2_INCLUDE_PATH, include))
-    
-    for pkg in minimal_rclcpp_includes:
-        try:
-            cppyy.load_library(os.path.join(ROS2_LIB_PATH, f"lib{pkg}.so"))
-        except Exception as e:
-            # Some packages are header-only, so we can ignore the error
-            # TODO: double-check if this is needed at all
-            # I don't think it is, but it takes no time to load them
-            pass
+
+    # Instead of hardcoding the list, just get all the available packages
+    pkgs_with_prefixes = get_packages_with_prefixes()
+    for pkg, prefix in pkgs_with_prefixes.items():
+        include_path = os.path.join(prefix, "include", pkg)
+        # The path may not exist if its a Python package (or simply does not have headers)
+        if os.path.exists(include_path):
+            cppyy.add_include_path(include_path)
+
     return True
 
 def force_symbol_discovery(namespace: Any, known_symbols: Set[str] = None) -> Dict[str, Any]:
@@ -146,10 +123,10 @@ def explore_known_rclcpp_classes(verbose: bool = False):
     Force discovery of commonly known rclcpp classes to trigger their loading.
     """
     known_classes = [
-        'Node', 'NodeOptions', 'Publisher', 'Subscription', 'Timer', 'Client', 'Service',
+        'Node', 'NodeOptions', 'Publisher', 'Subscription', 'Client', 'Service',
         'QoS', 'KeepAll', 'KeepLast', 'Clock', 'Time', 'Duration', 'Rate',
         'Logger', 'Parameter', 'ParameterValue', 'CallbackGroup', 'Executor',
-         'Context'
+        'Context'
     ]
     # Not found:
     # 'SingleThreadedExecutor', 'MultiThreadedExecutor', 'Timer'
@@ -186,7 +163,7 @@ def _is_msg_python(message_type):
     """
     Check if the message type is a Python ROS message class.
     """
-    if hasattr(message_type, '__module__') and 'msg' in str(message_type.__module__):
+    if hasattr(message_type, '__module__') and '.msg.' in str(message_type.__module__):
         return True
     return False
 
@@ -241,9 +218,14 @@ def _resolve_message_type(message_type):
             
             # Build C++ type string and include header
             cpp_type_str = f"{package}::msg::{msg_name}"
-            header_path = f"{package}/msg/{msg_name_lower}.hpp"
-            
+            # module_parts looks like:
+            # std_msgs.msg._multi_array_layout or rcl_interfaces.msg._parameter_event
+            hpp_file_name = f"{module_parts[2][1:]}.hpp"
+            header_path = f"{package}/msg/{hpp_file_name}"
+            # print(f"header_path: {header_path}, package: {package}, msg_name: {msg_name}, msg_name_lower: {msg_name_lower}, cpp_type_str: {cpp_type_str}, module_parts: {module_parts}, hpp_file_name: {hpp_file_name}")
+            cppyy.add_include_path(os.path.join(get_package_prefix(package), "include", package))
             cppyy.include(header_path)
+            # print(f"included header: {header_path}")
             
             # Get the C++ type
             cppyy_type = getattr(getattr(getattr(cppyy.gbl, package), 'msg'), msg_name)
@@ -430,14 +412,15 @@ def bringup_rclcpp():
     add_ros2_include_paths()
     print("Including rclcpp.hpp with cppyy, this may take a few seconds... WIP to remove this slowdown")
     cppyy.include("rclcpp/rclcpp.hpp")
+    cppyy.include("rcl_interfaces/msg/parameter_event.hpp")
     cppyy.include("chrono")
     cppyy.include("functional")
     print("Done bringing up rclcpp.")
     explore_known_rclcpp_classes()
-    recursive_symbol_discovery(cppyy.gbl.rclcpp, "rclcpp", max_depth=3)
+    recursive_symbol_discovery(cppyy.gbl.rclcpp, "rclcpp", max_depth=5)
     adapt_rclcpp_to_python(cppyy.gbl.rclcpp)
-    adapt_node_pub_sub_to_python(cppyy.gbl.rclcpp)
-    adapt_timer_to_python(cppyy.gbl.rclcpp)
+    # adapt_node_pub_sub_to_python(cppyy.gbl.rclcpp)
+    adapt_timer_to_python(cppyy.gbl.rclcpp) # Note: can only have 1 timer as of now
     adapt_get_logger_to_python(cppyy.gbl.rclcpp)
 
     RCLCPP_BRINGUP_DONE = True
