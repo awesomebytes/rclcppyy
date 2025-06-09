@@ -18,44 +18,47 @@ For example you will be able to:
     * Timer
     * Messages (without converting Python<>C++, always working on the C++ representation)
     * Loaned messages (TODO!)
+    * init/spin/shutdown
 
-Replace your `rclpy` with `rclcpp` ones just by placing at the top of your Python file:
+To automatically replace your `rclpy` with `rclcpp` classes/methods just place at the top of your Python file:
 ```python
 import rclcppyy; rclcppyy.enable_cpp_acceleration()
+# Rest of your code doing import rclpy, from sensor_msgs.msg import Image... etc
 ```
 
-And overall, to work with `cppyy` the code looks like (excerpt from an example):
+To get an idea of how working with `cppyy` (without the quality of life features of `rclcppyy`) the code looks like (excerpt from an example):
 ```python
 import cppyy
 # include/import your stuff and then...
 
 if not cppyy.gbl.rclcpp.ok():
     cppyy.gbl.rclcpp.init(len(sys.argv), sys.argv)
-    
-self.node = cppyy.gbl.rclcpp.Node("node_exmaple")
-self.publisher = self.node.create_publisher[cppyy.gbl.std_msgs.msg.String](
-    "pub_topic", 10)
-    
-# Define the callback wrapper with proper Python.h include
-cppyy.cppdef("""
-    #include <Python.h>
-    #include <functional>
-    
-    static std::function<void()> create_timer_callback(PyObject* self) {
-        return [self]() {
-            if (self && PyObject_HasAttrString(self, "timer_callback")) {
-                PyObject_CallMethod(self, "timer_callback", nullptr);
-            }
-        };
-    }
-""")
 
-callback = cppyy.gbl.create_timer_callback(self)
-self.timer = self.node.create_wall_timer(
-    cppyy.gbl.std.chrono.nanoseconds(10000),
-    callback)
+    # Some code in a class...
+    self.node = cppyy.gbl.rclcpp.Node("node_exmaple")
+    self.publisher = self.node.create_publisher[cppyy.gbl.std_msgs.msg.String](
+        "pub_topic", 10)
+        
+    # Define the callback wrapper with proper Python.h include
+    cppyy.cppdef("""
+        #include <Python.h>
+        #include <functional>
+        
+        static std::function<void()> create_timer_callback(PyObject* self) {
+            return [self]() {
+                if (self && PyObject_HasAttrString(self, "timer_callback")) {
+                    PyObject_CallMethod(self, "timer_callback", nullptr);
+                }
+            };
+        }
+    """)
 
-self.start_time = cppyy.gbl.std.chrono.steady_clock.now()
+    callback = cppyy.gbl.create_timer_callback(self)
+    self.timer = self.node.create_wall_timer(
+        cppyy.gbl.std.chrono.nanoseconds(10000),
+        callback)
+
+    self.start_time = cppyy.gbl.std.chrono.steady_clock.now()
 ```
 
 ## Examples
