@@ -14,12 +14,12 @@ This repository aims to expose useful ROS2 C++ (and related) APIs via automatic 
 
 * Benchmarks (ran on a Intel® Core™ Ultra 7 165H × 22 on "Performance" mode on Ubuntu 24.04)
     * Running a publisher and a subscriber at 1khz
-    [!](media/benchmark_pub_sub_1k_hz.png)
+    ![Benchmark results for 1kHz publishing and subscribing](media/benchmark_pub_sub_1k_hz.png)
         * rclpy uses 15~% CPU for the publisher, and 18~% CPU for the subscriber
         * rclccpyy uses 4~% CPU for the publisher, and 4~% CPU for the subscriber
 
     * Running a publisher and a subscriber at 10khz
-    [!](media/benchmark_pub_sub_1k_hz.png)
+    ![Benchmark results for 10kHz publishing and subscribing](media/benchmark_pub_sub_10k_hz.png)
         * rclpy uses 86~% CPU for the publisher, and 88~% CPU for the subscriber
         * rclccpyy uses 26~% CPU for the publisher, and 22~% CPU for the subscriber
 
