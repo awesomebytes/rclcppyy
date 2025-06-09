@@ -1,6 +1,6 @@
 # rclcppyy
 
-ROS 2 package providing rclcpp bindings via cppyy and examples on how to use cppyy in ROS2.
+ROS 2 package providing `rclcpp` bindings via [cppyy](https://cppyy.readthedocs.io/en/latest/) and examples on how to use `cppyy` in ROS2.
 
 * Tired of writing python wrappers for your C++ code?
 * Missing features from C++ APIs that you'd like to call in Python?
@@ -61,21 +61,65 @@ self.start_time = cppyy.gbl.std.chrono.steady_clock.now()
 ## Examples
 
 * Benchmarks (ran on a Intel® Core™ Ultra 7 165H × 22 on "Performance" mode on Ubuntu 24.04)
-    * Running a publisher and a subscriber at 1khz
+    * Running a publisher and a subscriber (small `std_msgs/String`) at **1khz**
     ![Benchmark results for 1kHz publishing and subscribing](media/benchmark_pub_sub_1k_hz.png)
-        * rclpy uses 15~% CPU for the publisher, and 18~% CPU for the subscriber
-        * rclccpyy uses 4~% CPU for the publisher, and 4~% CPU for the subscriber
+        * `rclpy` uses 15~% CPU for the publisher, and 18~% CPU for the subscriber
+        * `rclcppyy` uses 4~% CPU for the publisher, and 4~% CPU for the subscriber
 
-    * Running a publisher and a subscriber at 10khz
+    * Running a publisher and a subscriber (small `std_msgs/String`) at **10khz**
     ![Benchmark results for 10kHz publishing and subscribing](media/benchmark_pub_sub_10k_hz.png)
-        * rclpy uses 86~% CPU for the publisher, and 88~% CPU for the subscriber
-        * rclccpyy uses 26~% CPU for the publisher, and 22~% CPU for the subscriber
+        * `rclpy` uses 86~% CPU for the publisher, and 88~% CPU for the subscriber
+        * `rclcppyy` uses 26~% CPU for the publisher, and 22~% CPU for the subscriber
 
 * The `publisher_member_function.py` [Writing a simple publisher and subscriber (Python)](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html) tutorial using `rclcppyy` as backend. [scripts/ros_tutorials/publisher_member_function.py](scripts/ros_tutorials/publisher_member_function.py).
+* Note that the `rclpy` publisher benchmark [bench_pub_rclpy.py](scripts/benchmarks/bench_pub_rclpy.py) can be switched to the `rclcppyy` backend by uncommenting the `enable_cpp_acceleration` line at the top.
 
 
 ## Run demos
 Easiest way to test by yourself is using a Pixi workspace. TODO: make a repo with the Pixi workspace ready to use, with this repo as a git submodule.
+
+For now one can take this `pixi.toml`:
+```toml
+[workspace]
+authors = ["Sam Pfeiffer <sammypfeiffer@gmail.com>"]
+channels = ["conda-forge", "robostack-jazzy"]
+name = "rclcppyy_ws"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+ros-jazzy-ros-base = ">=0.11.0,<0.12"
+opencv = ">=4.11.0,<5"
+
+[activation]
+scripts = ["fix_cppyy_api_path.sh"]
+# To silence warning: non-portable path to file '"cpycppyy/API.h"'; specified path differs in case from file name on disk [-Wnonportable-include-path]
+# From patching the wrong path due to capitalisation from the current cppyy packaged version
+env = { EXTRA_CLING_ARGS = "-Wno-nonportable-include-path" }
+
+[pypi-dependencies]
+cppyy = ">=3.5.0, <4"
+```
+
+And do:
+```bash
+# If you haven't installed pixi:
+curl -fsSL https://pixi.sh/install.sh | sh
+source ~/.bashrc
+
+# Clone this repo
+mkdir -p rclcppyy_ws/src
+cd rclcppyy_ws/src
+git clone https://github.com/awesomebytes/rclcppyy
+cd ..
+# Copy the `pixi.toml` here and
+pixi install
+pixi shell
+# You'll be in a shell with the environment fully ready after a few seconds
+```
+
 
 ### Build
 
