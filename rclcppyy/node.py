@@ -4,9 +4,10 @@ from typing import Type, Union, Optional, Callable, Any, List
 import rclpy
 from rclpy import init, shutdown, spin, spin_once, create_node
 from rclpy.callback_groups import CallbackGroup
-from rclpy.event_handler import PublisherEventCallbacks
+from rclpy.event_handler import PublisherEventCallbacks, SubscriptionEventCallbacks
 from rclpy.node import Node
 from rclpy.publisher import Publisher
+from rclpy.subscription import Subscription
 from rclpy.qos import QoSProfile, HistoryPolicy, ReliabilityPolicy, DurabilityPolicy, LivelinessPolicy
 from rclpy.context import Context
 from rclpy.qos_overriding_options import QoSOverridingOptions
@@ -77,22 +78,26 @@ class RclcppyyNode(Node):
         """
         self._cpp_timers = {}
 
-
-        # self._subscription_cpp_template = """
-        #     #include <Python.h>
-        #     #include <functional>
+        # Subscription callback template for dynamic C++ callback generation
+        # For String messages, extract the data field and pass it as a string
+        self._subscription_cpp_template = """
+            #include <Python.h>
+            #include <functional>
             
-        #     static std::function<void(const PLACEHOLDER_MSG_TYPE::SharedPtr)> 
-        #     create_subscription_callback_PLACEHOLDER_UUID(PyObject* self) {
-        #         return [self](const PLACEHOLDER_MSG_TYPE::SharedPtr msg) {
-        #             if (self && PyObject_HasAttrString(self, "_subscription_callback_PLACEHOLDER_UUID")) {
-        #                 PyObject* py_data = PyUnicode_FromString(msg->data.c_str());
-        #                 PyObject_CallMethod(self, "_subscription_callback_PLACEHOLDER_UUID", "O", py_data);
-        #                 Py_XDECREF(py_data);
-        #             }
-        #         };
-        #     }
-        # """
+            static std::function<void(const PLACEHOLDER_MSG_TYPE::SharedPtr)> 
+            create_subscription_callback_PLACEHOLDER_UUID(PyObject* self) {
+                return [self](const PLACEHOLDER_MSG_TYPE::SharedPtr msg) {
+                    if (self && PyObject_HasAttrString(self, "_subscription_callback_PLACEHOLDER_UUID")) {
+                        // For std_msgs::String, extract the data field
+                        PyObject* py_data = PyUnicode_FromString(msg->data.c_str());
+                        PyObject_CallMethod(self, "_subscription_callback_PLACEHOLDER_UUID", "O", py_data);
+                        Py_XDECREF(py_data);
+                    }
+                };
+            }
+        """
+        self._cpp_subscriptions = {}
+        self._subscription_callbacks = {}
         
         # Now we create the rclpy node
         super().__init__(node_name,
@@ -312,17 +317,111 @@ class RclcppyyNode(Node):
         
         return wall_timer
 
-    # def create_subscription(self, 
-    #                         msg_type: Type[rclpy.Message],
-    #                         topic: str, 
-    #                         callback: Callable[[rclpy.Message], None],
-    #                         qos_profile: QoSProfile | int,
-    #                         *,
-    #                         callback_group: CallbackGroup | None = None,
-    #                         event_callbacks: SubscriptionEventCallbacks | None = None,
-    #                         qos_overriding_options: QoSOverridingOptions | None = None,
-    #                         subscription_class: type[Subscription] = ...) -> Subscription:
-    #     pass
+    def create_subscription(self, 
+                            msg_type: Any,
+                            topic: str, 
+                            callback: Callable[[Any], None],
+                            qos_profile: QoSProfile | int,
+                            *,
+                            callback_group: CallbackGroup | None = None,
+                            event_callbacks: SubscriptionEventCallbacks | None = None,
+                            qos_overriding_options: QoSOverridingOptions | None = None,
+                            raw: bool = False) -> Any:
+        """
+        Create a subscription using the C++ rclcpp subscription.
+        """
+        # Validate and process inputs like rclpy does
+        qos_profile = self._validate_qos_or_depth_parameter(qos_profile)
+
+        # Resolve the topic name
+        try:
+            final_topic = self.resolve_topic_name(topic)
+        except RuntimeError:
+            try:
+                self._validate_topic_or_service_name(topic)
+            except InvalidTopicNameException as ex:
+                raise ex from None
+            raise
+
+        # Convert rclpy message to rclcpp message type
+        rclcpp_msg_type, rclcpp_msg_class = _resolve_message_type(msg_type)
+        
+        # Generate a unique UUID for the subscription
+        uuid_str = str(uuid.uuid4()).replace("-", "_")
+        
+        # Replace placeholders in the C++ template
+        cpp_subscription_template = self._subscription_cpp_template.replace(
+            "PLACEHOLDER_MSG_TYPE", rclcpp_msg_type
+        ).replace("PLACEHOLDER_UUID", uuid_str)
+        
+        # Compile the C++ callback wrapper
+        cppyy.cppdef(cpp_subscription_template)
+        
+        # Create a wrapper callback that handles message conversion
+        def subscription_callback_wrapper(msg_data):
+            """Wrapper that converts extracted message data to a message object"""
+            try:
+                # Create a message-like object for compatibility
+                class MessageWrapper:
+                    def __init__(self, data):
+                        self.data = data
+                
+                # Create the message wrapper with the extracted string data
+                msg_wrapper = MessageWrapper(msg_data)
+                
+                # Call the original callback with the wrapped message
+                callback(msg_wrapper)
+                
+            except Exception as e:
+                print(f"Error in subscription callback: {e}")
+                print(f"Message data: {msg_data}")
+                import traceback
+                traceback.print_exc()
+        
+        # Store the callback wrapper on the node instance
+        callback_method_name = f"_subscription_callback_{uuid_str}"
+        setattr(self, callback_method_name, subscription_callback_wrapper)
+        
+        # Create the C++ callback wrapper
+        cpp_callback = getattr(cppyy.gbl, f"create_subscription_callback_{uuid_str}")(self)
+        
+        # Create subscription options for rclcpp
+        options = self._rclcpp.SubscriptionOptionsWithAllocator["std::allocator<void>"]()
+        if callback_group:
+            # TODO: Convert callback group from rclpy to rclcpp if needed
+            pass
+        if qos_overriding_options:
+            # TODO: Handle QoS overriding options
+            pass
+        
+        # Convert QoS profile to rclcpp QoS
+        rclcpp_qos = self._convert_qos_to_rclcpp(qos_profile)
+        
+        # Create the actual rclcpp subscription
+        subscription = self._rclcpp.create_subscription[rclcpp_msg_type](
+            self._rclcpp_node,
+            final_topic,
+            rclcpp_qos,
+            cpp_callback,
+            options
+        )
+        
+        # Store the subscription and callback reference
+        self._cpp_subscriptions[subscription] = {
+            'callback': callback,
+            'wrapper': subscription_callback_wrapper,
+            'uuid': uuid_str,
+            'msg_type': rclcpp_msg_type
+        }
+        self._subscription_callbacks[uuid_str] = callback
+        
+        # Add to subscriptions list for compatibility
+        self._subscriptions.append(subscription)
+        
+        # Wake executor like rclpy does
+        self._wake_executor()
+        
+        return subscription
 
     def _validate_topic_or_service_name(self, name: str) -> None:
         """
