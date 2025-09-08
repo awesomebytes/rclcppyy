@@ -14,11 +14,11 @@ For example you will be able to:
 * Transparently use `rclcpp`'s
     * Node
     * Publisher
-    * Subscriber (WIP, not monkeypatched yet, just manual example in [bench_sub_rclcppyy.py)](scripts/benchmarks/bench_sub_rclcppyy.py))
+    * Subscriber
     * Timer
-    * Messages (without converting Python<>C++, always working on the C++ representation)
-    * Loaned messages (TODO!)
+    * Messages (without converting Python<>C++, always working on the C++ representation!)
     * init/spin/shutdown
+    * Loaned messages (TODO!)
 
 To automatically replace your `rclpy` with `rclcpp` classes/methods just place at the top of your Python file:
 ```python
@@ -152,15 +152,25 @@ ros2 run rclcppyy publisher_member_function.py
 
 [x] Benchmark pub/sub
 
-[x] (WIP) Get rclpy tutorials code to run with rclcppyy backend (Got the publisher one!).
+[x] Get rclpy tutorials code to run with rclcppyy backend.
 
-[ ] (WIP) Monkeypatch/substitute rclpy with rclcppyy and make your Python nodes use less CPU!
+[x] Monkeypatch/substitute rclpy with rclcppyy and make your Python nodes use less CPU!
 
 [x] Monkeypatch/substitute rclpy messages for rclcpp messages (so to avoid conversions).
 
 [ ] (WIP) Generate stubs to get IDE autocompletion.
 
 [ ] (WIP) Demo images (these big images ones should be done with loaned or zero-cost copy messages).
+
+[ ] Demo use python testing packages with C++.
+
+[ ] Demo use python CLI generator with C++.
+
+[ ] Demo use C++ Markers classes from Python.
+
+[ ] Demo use zero-copy torch.
+
+[ ] Demo use C++ rosbag reader (to C++ messages).
 
 [ ] Demo pointclouds.
 
