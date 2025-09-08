@@ -11,6 +11,7 @@ from rclcppyy.bringup_rclcpp import bringup_rclcpp
 
 # Store original functions
 _original_create_node = rclpy.create_node
+_original_node_create_subscription = Node.create_subscription
 
 def patch_ros2():
     """
@@ -32,6 +33,9 @@ def patch_ros2():
     # Monkey-patch rclpy.spin
     rclpy.spin = _spin_wrapper
     
+    # Monkey-patch Node.create_subscription
+    Node.create_subscription = _create_subscription_wrapper
+    
     print("ROS2 C++ acceleration enabled!")
     return True
 
@@ -49,6 +53,16 @@ def _spin_wrapper(*args, **kwargs):
     rclcpp = bringup_rclcpp()
     node = args[0]
     rclcpp.spin(node._rclcpp_node)
+
+def _create_subscription_wrapper(self, *args, **kwargs):
+    """
+    Wrapper for Node.create_subscription that uses RclcppyyNode implementation
+    when the node is an RclcppyyNode, otherwise falls back to original.
+    """
+    if isinstance(self, RclcppyyNode):
+        return self.create_subscription(*args, **kwargs)
+    else:
+        return _original_node_create_subscription(self, *args, **kwargs)
 
 def patch_node_class():
     """
