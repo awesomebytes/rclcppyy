@@ -1,6 +1,7 @@
 import cppyy
 import os
 import re
+from functools import lru_cache
 from typing import Any, List, Optional, Set, Dict
 from ament_index_python.packages import get_package_prefix, get_packages_with_prefixes
 
@@ -167,6 +168,7 @@ def _is_msg_python(message_type):
         return True
     return False
 
+@lru_cache(maxsize=1000)
 @staticmethod
 def _resolve_message_type(message_type):
     """
