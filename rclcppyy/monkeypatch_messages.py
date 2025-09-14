@@ -146,7 +146,7 @@ def convert_already_imported_python_msgs_to_cpp(target_globals=None):
             
             # Apply keyword argument monkey-patch
             enable_kwargs_for_cpp_msg(cpp_msg_class)
-            add_python_compatibility(cpp_msg_class, msg_class)
+            add_python_compatibility(cpp_msg_class, py_msg_class)
             
             # Replace in globals
             target_globals[name] = cpp_msg_class

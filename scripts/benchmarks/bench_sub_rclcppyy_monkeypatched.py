@@ -32,7 +32,7 @@ class PythonPerfSubscriber:
         # Create the subscription using standard rclpy API - but it will use C++ under the hood
         self.subscription = self.node.create_subscription(
             String,
-            "perf_topic_pythonic", 
+            "perf_topic_rclcppyy", 
             self.subscription_callback,
             500  # QoS depth
         )

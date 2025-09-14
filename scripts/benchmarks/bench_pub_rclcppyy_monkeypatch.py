@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Enable using C++ with just this one liner
-# import rclcppyy; rclcppyy.enable_cpp_acceleration(patch_node=True)
+import rclcppyy; rclcppyy.enable_cpp_acceleration(patch_node=True)
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
@@ -11,7 +11,7 @@ import sys
 class PerfPublisher(Node):
     def __init__(self, rate_hz=1000):
         super().__init__('perf_publisher_py')
-        self.publisher = self.create_publisher(String, 'perf_topic_py', 10)
+        self.publisher = self.create_publisher(String, 'perf_topic_rclcppyy', 10)
         self.rate_hz = rate_hz
         self.timer_period = 1.0 / rate_hz
         self.timer = self.create_timer(self.timer_period, self.timer_callback)

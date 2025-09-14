@@ -225,23 +225,27 @@ class RclcppyyNode(Node):
         # Wake executor like rclpy does
         self._wake_executor()
 
-        # Replace the publish method so we translate the message to rclcpp message if needed
-        original_publish = publisher.publish
-        def publish_wrapper(msg: Any) -> Any:
-            """
-            Make sure that when calling publish, the message is converted to rclcpp message if needed
-            """
-            if _is_msg_python(msg):
-                print("Converting message to C++")
-                _, rclcpp_msg_class = _resolve_message_type(msg)
-                # Inefficient, but it works, ideally we should monkeypatch the imported messages to convert them to cpp from the start
-                cpp_msg = rclcpp_msg_class()
-                cpp_msg = self._convert_msg_to_cpp(msg, cpp_msg)
-            else:
-                cpp_msg = msg
-            return original_publish(cpp_msg)
-            
-        publisher.publish = publish_wrapper
+        # Only wrap publish method if the message type is Python (which shouldn't happen with proper import hooks)
+        if _is_msg_python(msg_type):
+            # Replace the publish method so we translate the message to rclcpp message if needed
+            original_publish = publisher.publish
+            def publish_wrapper(msg: Any) -> Any:
+                """
+                Make sure that when calling publish, the message is converted to rclcpp message if needed
+                """
+                if _is_msg_python(msg):
+                    print("Converting message to C++")
+                    _, rclcpp_msg_class = _resolve_message_type(msg)
+                    # Inefficient, but it works, ideally we should monkeypatch the imported messages to convert them to cpp from the start
+                    cpp_msg = rclcpp_msg_class()
+                    cpp_msg = self._convert_msg_to_cpp(msg, cpp_msg)
+                else:
+                    cpp_msg = msg
+                return original_publish(cpp_msg)
+                
+            publisher.publish = publish_wrapper
+        # else: no wrapping needed, publish directly uses C++ messages
+        
         return publisher
 
     @staticmethod

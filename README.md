@@ -137,12 +137,19 @@ source install/setup.bash
 ### Run
 
 ```bash
+# Default is fastrtps
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+export ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST
+
 # One on each shell probably
 ros2 run rclcppyy bench_pub_rclpy.py 10000
 ros2 run rclcppyy bench_sub_rclpy.py
 
-ros2 run rclcppyy bench_pub_rclcppyy.py 10000
-ros2 run rclcppyy bench_sub_rclcppyy.py
+ros2 run rclcppyy bench_pub_rclcppyy_monkeypatched.py 10000
+ros2 run rclcppyy bench_sub_rclcppyy_monkeypatched.py
+
+# Monitor with
+# top -c -p $(pgrep -d, -f bench_)
 
 # Or the tutorial example
 ros2 run rclcppyy publisher_member_function.py

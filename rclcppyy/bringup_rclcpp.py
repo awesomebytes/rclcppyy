@@ -154,21 +154,21 @@ def explore_known_rclcpp_classes(verbose: bool = False):
 def _is_msg_cpp(message_type):
     """
     Check if the message type is a C++ cppyy message class.
+    Fast check using unique cppyy attributes.
     """
-    if hasattr(message_type, '__module__') and 'cppyy.gbl' in str(message_type.__module__):
-        return True
-    return False
+    # Fast check: cppyy objects have __smartptr__ attribute that Python messages don't
+    return hasattr(message_type, '__smartptr__')
 
 @staticmethod
 def _is_msg_python(message_type):
     """
     Check if the message type is a Python ROS message class.
+    Fast check using __slots__ attribute that cppyy messages don't have.
     """
-    if hasattr(message_type, '__module__') and '.msg.' in str(message_type.__module__):
-        return True
-    return False
+    # Fast check: Python ROS messages have __slots__ attribute that cppyy messages don't
+    return hasattr(message_type, '__slots__')
 
-@lru_cache(maxsize=1000)
+# @lru_cache(maxsize=1000)
 @staticmethod
 def _resolve_message_type(message_type):
     """
@@ -336,54 +336,6 @@ def adapt_node_pub_sub_to_python(rclcpp: Any):
     rclcpp.Node.create_publisher = create_publisher_wrapper
     rclcpp.Node.create_subscription = create_subscription_wrapper
 
-def adapt_timer_to_python(rclcpp: Any):
-    """
-    Adapt the rclcpp timer class so it can be called the python way.
-    # rclpy way
-    self.timer = self.create_timer(1, self.timer_callback)
-    def timer_callback(self):
-        print("timer_callback")
-    """
-    # Define the C++ callback wrapper template only once
-    cppyy.cppdef("""
-        #include <Python.h>
-        #include <functional>
-        
-        static std::function<void()> create_timer_callback(PyObject* self) {
-            return [self]() {
-                if (self && PyObject_HasAttrString(self, "timer_callback")) {
-                    PyObject_CallMethod(self, "timer_callback", nullptr);
-                }
-            };
-        }
-    """)
-
-    def create_timer_wrapper(self, period_seconds, callback):
-        """
-        Python-style timer creation that matches rclpy's API:
-        create_timer(period_seconds: float, callback: Callable)
-        """
-        # Convert period to nanoseconds for rclcpp  
-        period_ns = int(period_seconds * 1e9)
-        
-        # Store the callback directly on the node object
-        # This is simpler than the unique method name approach
-        self.timer_callback = callback
-        
-        # Create the C++ callback wrapper
-        cpp_callback = cppyy.gbl.create_timer_callback(self)
-        
-        # Create the timer exactly like the working benchmark does
-        # Directly call create_wall_timer on the node
-        wall_timer =self.create_wall_timer(
-            cppyy.gbl.std.chrono.nanoseconds(period_ns),
-            cpp_callback
-        )
-        return wall_timer
-
-    # Add create_timer method to Node class (it might not exist in rclcpp)
-    rclcpp.Node.create_timer = create_timer_wrapper
-
 def adapt_get_logger_to_python(rclcpp: Any):
     """
     Adapt the rclcpp get_logger method so it can be called the python way.
@@ -422,7 +374,6 @@ def bringup_rclcpp():
     recursive_symbol_discovery(cppyy.gbl.rclcpp, "rclcpp", max_depth=5)
     adapt_rclcpp_to_python(cppyy.gbl.rclcpp)
     # adapt_node_pub_sub_to_python(cppyy.gbl.rclcpp)
-    adapt_timer_to_python(cppyy.gbl.rclcpp) # Note: can only have 1 timer as of now
     adapt_get_logger_to_python(cppyy.gbl.rclcpp)
 
     RCLCPP_BRINGUP_DONE = True
