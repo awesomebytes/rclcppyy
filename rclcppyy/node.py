@@ -19,6 +19,7 @@ from rclpy.parameter import Parameter
 import cppyy
 from rclcppyy import bringup_rclcpp
 from rclcppyy.bringup_rclcpp import _resolve_message_type, _is_msg_python
+from rclcppyy.monkeypatch_messages import add_python_compatibility
 
 class RclcppyyNode(Node):
     """
@@ -79,7 +80,6 @@ class RclcppyyNode(Node):
         self._cpp_timers = {}
 
         # Subscription callback template for dynamic C++ callback generation
-        # For String messages, extract the data field and pass it as a string
         self._subscription_cpp_template = """
             #include <Python.h>
             #include <functional>
@@ -88,10 +88,13 @@ class RclcppyyNode(Node):
             create_subscription_callback_PLACEHOLDER_UUID(PyObject* self) {
                 return [self](const PLACEHOLDER_MSG_TYPE::SharedPtr msg) {
                     if (self && PyObject_HasAttrString(self, "_subscription_callback_PLACEHOLDER_UUID")) {
-                        // For std_msgs::String, extract the data field
-                        PyObject* py_data = PyUnicode_FromString(msg->data.c_str());
-                        PyObject_CallMethod(self, "_subscription_callback_PLACEHOLDER_UUID", "O", py_data);
-                        Py_XDECREF(py_data);
+                        // Acquire the GIL before calling into Python to avoid crashes
+                        PyGILState_STATE gstate = PyGILState_Ensure();
+                        // Pass the raw pointer as a Python int; Python will bind it back to a proxy
+                        PyObject* py_ptr = PyLong_FromVoidPtr(reinterpret_cast<void*>(msg.get()));
+                        PyObject_CallMethod(self, "_subscription_callback_PLACEHOLDER_UUID", "O", py_ptr);
+                        Py_XDECREF(py_ptr);
+                        PyGILState_Release(gstate);
                     }
                 };
             }
@@ -349,6 +352,8 @@ class RclcppyyNode(Node):
 
         # Convert rclpy message to rclcpp message type
         rclcpp_msg_type, rclcpp_msg_class = _resolve_message_type(msg_type)
+        # We could make this optional for efficiency
+        # add_python_compatibility(cpp_msg, msg_type)
         
         # Generate a unique UUID for the subscription
         uuid_str = str(uuid.uuid4()).replace("-", "_")
@@ -361,30 +366,21 @@ class RclcppyyNode(Node):
         # Compile the C++ callback wrapper
         cppyy.cppdef(cpp_subscription_template)
         
-        # Create a wrapper callback that handles message conversion
-        def subscription_callback_wrapper(msg_data):
-            """Wrapper that converts extracted message data to a message object"""
+        # Store a Python wrapper that translates raw pointer (int) back to C++ proxy and calls user callback
+        def _cpp_bound_subscription_callback(py_ptr):
             try:
-                # Create a message-like object for compatibility
-                class MessageWrapper:
-                    def __init__(self, data):
-                        self.data = data
-                
-                # Create the message wrapper with the extracted string data
-                msg_wrapper = MessageWrapper(msg_data)
-                
-                # Call the original callback with the wrapped message
-                callback(msg_wrapper)
-                
+                # Resolve cpp class for binding
+                # _, cpp_msg_class = _resolve_message_type(msg_type)
+                # Rebind raw pointer (Python int) to a cppyy proxy
+                cpp_msg = cppyy.bind_object(py_ptr, rclcpp_msg_class)
+                callback(cpp_msg)
             except Exception as e:
                 print(f"Error in subscription callback: {e}")
-                print(f"Message data: {msg_data}")
                 import traceback
                 traceback.print_exc()
-        
-        # Store the callback wrapper on the node instance
-        callback_method_name = f"_subscription_callback_{uuid_str}"
-        setattr(self, callback_method_name, subscription_callback_wrapper)
+
+        # Store the wrapper on the node instance
+        setattr(self, f"_subscription_callback_{uuid_str}", _cpp_bound_subscription_callback)
         
         # Create the C++ callback wrapper
         cpp_callback = getattr(cppyy.gbl, f"create_subscription_callback_{uuid_str}")(self)
@@ -413,7 +409,6 @@ class RclcppyyNode(Node):
         # Store the subscription and callback reference
         self._cpp_subscriptions[subscription] = {
             'callback': callback,
-            'wrapper': subscription_callback_wrapper,
             'uuid': uuid_str,
             'msg_type': rclcpp_msg_type
         }

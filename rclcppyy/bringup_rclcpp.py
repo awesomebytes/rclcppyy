@@ -310,23 +310,10 @@ def adapt_node_pub_sub_to_python(rclcpp: Any):
             msg_type, topic, callback, qos = args
             cpp_type_str, cppyy_type = _resolve_message_type(msg_type)
             
-            # Create a C++ callback wrapper that will call the Python callback
-            cppyy.cppdef("""
-                #include <Python.h>
-                #include <functional>
-                
-                template<typename T>
-                static std::function<void(const typename T::SharedPtr)> 
-                create_subscription_callback_wrapper(PyObject* callback) {
-                    return [callback](const typename T::SharedPtr msg) {
-                        if (callback && PyCallable_Check(callback)) {
-                            PyObject_CallFunction(callback, "O", msg);
-                        }
-                    };
-                }
-            """)
-            
-            cpp_callback = getattr(cppyy.gbl, f"create_subscription_callback_wrapper<{cpp_type_str}>")(callback)
+            # Use the generic callback template
+            # Need to use the template with bracket syntax for cppyy
+            make_callback = cppyy.gbl.make_py_sub_callback[cpp_type_str]
+            cpp_callback = make_callback(callback)
             return original_create_subscription[cppyy_type](self, topic, qos, cpp_callback)
         # Handle rclcpp style: create_subscription[msg_type](topic, qos, callback)
         else:
@@ -370,6 +357,7 @@ def bringup_rclcpp():
     cppyy.include("chrono")
     cppyy.include("functional")
     print("Done bringing up rclcpp.")
+    
     explore_known_rclcpp_classes()
     recursive_symbol_discovery(cppyy.gbl.rclcpp, "rclcpp", max_depth=5)
     adapt_rclcpp_to_python(cppyy.gbl.rclcpp)
