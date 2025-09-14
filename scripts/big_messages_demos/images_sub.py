@@ -21,7 +21,7 @@ class ImageSubscriber(Node):
     def _on_image(self, msg: Image) -> None:
         print(f"callback, received image: {msg.width}x{msg.height}, encoding: {msg.encoding}")
         print(msg)
-        print(msg.__dict__)
+        print(dir(msg))
         self.message_count += 1
         if self.message_count % 100 == 0:
             width = getattr(msg, "width", 0)

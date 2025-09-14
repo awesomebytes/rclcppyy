@@ -32,8 +32,6 @@ def enable_kwargs_for_cpp_msg(msg_class):
 
 def add_python_compatibility(cpp_msg_class, py_msg_class):
     """Add Python message methods to C++ message class for compatibility"""
-    print(f"Adding Python compatibility to {cpp_msg_class} and {py_msg_class}")
-    print(f"py_msg_class.__dict__: {py_msg_class.__dict__}")
     if hasattr(py_msg_class, '__repr__'):
         cpp_msg_class.__repr__ = py_msg_class.__repr__
 
