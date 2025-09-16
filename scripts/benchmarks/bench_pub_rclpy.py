@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Enable using C++ with just this one liner
-# import rclcppyy; rclcppyy.enable_cpp_acceleration(patch_node=True)
+# import rclcppyy; rclcppyy.enable_cpp_acceleration()
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String

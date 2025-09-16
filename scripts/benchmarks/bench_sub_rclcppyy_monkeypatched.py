@@ -84,7 +84,7 @@ class PythonPerfSubscriber:
                 avg_latency = np.mean(recent_latencies)
                 p99_latency = np.percentile(recent_latencies, 99)
                 
-                print(f"(rclcppyy-monkeypatched) Messages: {self.count}, Rate: {rate:.2f} msgs/sec, "
+                print(f"(rclcppyy) Messages: {self.count}, Rate: {rate:07.1f} msgs/sec, "
                       f"Latency (μs) - Avg: {avg_latency:.1f}, P99: {p99_latency:.1f}, "
                       f"Dropped: {self.dropped_msgs}")
                 

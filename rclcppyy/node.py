@@ -237,7 +237,7 @@ class RclcppyyNode(Node):
                 Make sure that when calling publish, the message is converted to rclcpp message if needed
                 """
                 if _is_msg_python(msg):
-                    print("Converting message to C++")
+                    print(f"Converting message to C++: {type(msg)}")
                     _, rclcpp_msg_class = _resolve_message_type(msg)
                     # Inefficient, but it works, ideally we should monkeypatch the imported messages to convert them to cpp from the start
                     cpp_msg = rclcpp_msg_class()

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Enable using C++ with just this one liner
+# import rclcppyy; rclcppyy.enable_cpp_acceleration()
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
@@ -14,7 +16,7 @@ class PerfSubscriber(Node):
             String,
             'perf_topic_py',
             self.listener_callback,
-            250)
+            500)
         
         self.count = 0
         self.start_time = time.time()
@@ -49,7 +51,7 @@ class PerfSubscriber(Node):
             avg_latency = np.mean(recent_latencies)
             p99_latency = np.percentile(recent_latencies, 99)
             
-            print(f"(rclpy) Messages: {self.count}, Rate: {rate:.2f} msgs/sec, "
+            print(f"(rclpy) Messages: {self.count}, Rate: {rate:07.1f} msgs/sec, "
                   f"Latency (μs) - Avg: {avg_latency:.1f}, P99: {p99_latency:.1f}, "
                   f"Dropped: {self.dropped_msgs}")
             
