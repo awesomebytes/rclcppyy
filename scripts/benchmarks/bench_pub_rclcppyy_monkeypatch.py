@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Enable using C++ with just this one liner
-# import rclcppyy; rclcppyy.enable_cpp_acceleration()
+import rclcppyy; rclcppyy.enable_cpp_acceleration()
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
@@ -10,8 +10,8 @@ import sys
 
 class PerfPublisher(Node):
     def __init__(self, rate_hz=1000):
-        super().__init__('perf_publisher_py')
-        self.publisher = self.create_publisher(String, 'perf_topic_py', 10)
+        super().__init__('perf_publisher_cppyy')
+        self.publisher = self.create_publisher(String, 'perf_topic_rclcppyy', 10)
         self.rate_hz = rate_hz
         self.timer_period = 1.0 / rate_hz
         self.timer = self.create_timer(self.timer_period, self.timer_callback)
@@ -31,7 +31,7 @@ class PerfPublisher(Node):
         if self.count % self.rate_hz == 0:
             elapsed = time.time() - self.start_time
             rate = self.count / elapsed
-            print(f"(rclpy) Messages: {self.count}, Rate: {rate:.2f} msgs/sec")
+            print(f"(rclcppyy) Messages: {self.count}, Rate: {rate:.2f} msgs/sec")
             # Reset start time and counter, so we check on every period
             self.start_time = time.time()
             self.count = 0
