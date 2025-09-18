@@ -8,6 +8,8 @@ to existing code.
 
 # Public API
 from rclcppyy.bringup_rclcpp import bringup_rclcpp
+from rclcppyy import rosbag2_cpp
+from rclcppyy import serialization
 from rclcppyy.node import RclcppyyNode
 from rclcppyy.monkey import patch_ros2, patch_node_class
 
@@ -54,5 +56,7 @@ __all__ = [
     'RclcppyyNode',
     'enable_cpp_acceleration',
     'patch_ros2',
-    'patch_node_class'
+    'patch_node_class',
+    'rosbag2_cpp',
+    'serialization'
 ]

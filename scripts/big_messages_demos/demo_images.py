@@ -50,7 +50,7 @@ class ImagePublisher(Node):
         self.publisher = self.create_publisher(Image, "image", 10)
         # Convert the image to a ROS2 Image message
         self.image_msg = get_image_from_disk(os.path.join(get_path_of_this_file(), "pr2_robot_magic_lab.jpg"))
-        self.hz = 100
+        self.hz = 4
         self.timer = self.create_timer(1.0 / self.hz, self.timer_callback)
 
     def timer_callback(self):

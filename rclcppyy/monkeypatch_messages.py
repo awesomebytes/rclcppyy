@@ -11,6 +11,14 @@ from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from rclcppyy.bringup_rclcpp import _resolve_message_type, _is_msg_python
 
+def _running_in_ipython():
+    try:
+        get_ipython
+    except NameError:
+        return False
+    else:
+        return True
+
 def enable_kwargs_for_cpp_msg(msg_class):
     """Enable keyword arguments for C++ message constructors"""
     original_init = msg_class.__init__
@@ -119,7 +127,10 @@ def convert_already_imported_python_msgs_to_cpp(target_globals=None):
     
     if target_globals is None:
         # Get the caller's globals
-        frame = inspect.currentframe().f_back
+        if not _running_in_ipython:
+            frame = inspect.currentframe()
+        else:
+            frame = inspect.currentframe().f_back
         target_globals = frame.f_globals
     
     # Find all Python ROS message classes in globals
@@ -146,7 +157,7 @@ def convert_already_imported_python_msgs_to_cpp(target_globals=None):
             
             # Apply keyword argument monkey-patch
             enable_kwargs_for_cpp_msg(cpp_msg_class)
-            add_python_compatibility(cpp_msg_class, msg_class)
+            add_python_compatibility(cpp_msg_class, py_msg_class)
             
             # Replace in globals
             target_globals[name] = cpp_msg_class
