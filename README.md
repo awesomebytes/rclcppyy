@@ -1,5 +1,9 @@
 # rclcppyy
 
+**!IMPORTANT!**
+
+**Note: If you come from ROSCON UK and are aiming to try this, I need a few days to clean up the repo and make it ready to use as you saw it in the presentation.**
+
 ROS 2 package providing `rclcpp` bindings via [cppyy](https://cppyy.readthedocs.io/en/latest/) and examples on how to use `cppyy` in ROS2.
 
 * Tired of writing python wrappers for your C++ code?
@@ -97,6 +101,7 @@ ros-jazzy-ros-base = ">=0.11.0,<0.12"
 opencv = ">=4.11.0,<5"
 
 [activation]
+# Comment out this line on first build
 scripts = ["fix_cppyy_api_path.sh"]
 # To silence warning: non-portable path to file '"cpycppyy/API.h"'; specified path differs in case from file name on disk [-Wnonportable-include-path]
 # From patching the wrong path due to capitalisation from the current cppyy packaged version
@@ -105,6 +110,7 @@ env = { EXTRA_CLING_ARGS = "-Wno-nonportable-include-path" }
 [pypi-dependencies]
 cppyy = ">=3.5.0, <4"
 ```
+**Workaround needed**: Comment out the `scripts = ["fix_cppyy_api_path.sh"]` line on the first build as it will fail otherwise. There's an issue with cppyy packaging and the capitalisation of the `cpycppyy` directory.
 
 And do:
 ```bash
@@ -116,9 +122,12 @@ source ~/.bashrc
 mkdir -p rclcppyy_ws/src
 cd rclcppyy_ws/src
 git clone https://github.com/awesomebytes/rclcppyy
+# workaround...
+cp rclcppyy/fix_cppyy_api_path.sh ..
 cd ..
-# Copy the `pixi.toml` here and
+# Copy the `pixi.toml` here and (apply the workaround mentioned above)
 pixi install
+# Undo the workaround done before, e.g. uncomment the line
 pixi shell
 # You'll be in a shell with the environment fully ready after a few seconds
 ```
@@ -137,7 +146,7 @@ source install/setup.bash
 ### Run
 
 ```bash
-# Default is fastrtps
+# Default is fastrtps, which has random latency issues, and big messages don't pass through
 export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 export ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST
 
@@ -169,17 +178,17 @@ ros2 run rclcppyy publisher_member_function.py
 
 [ ] (WIP) Demo images (these big images ones should be done with loaned or zero-cost copy messages).
 
-[ ] Demo use python testing packages with C++.
+[x] Demo use python testing packages with C++.
 
-[ ] Demo use python CLI generator with C++.
+[x] Demo use python CLI generator with C++.
 
 [ ] Demo use C++ Markers classes from Python.
 
 [ ] Demo use zero-copy torch.
 
-[ ] Demo use C++ rosbag reader (to C++ messages).
+[x] (WIP) Demo use C++ rosbag reader (to C++ messages).
 
-[ ] Demo pointclouds.
+[x] Demo pointclouds.
 
 [ ] Demo Nav2.
 
