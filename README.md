@@ -6,6 +6,9 @@
 
 ROS 2 package providing `rclcpp` bindings via [cppyy](https://cppyy.readthedocs.io/en/latest/) and examples on how to use `cppyy` in ROS2.
 
+![](media/rclcppyy_presentation_logo.png)
+
+
 * Tired of writing python wrappers for your C++ code?
 * Missing features from C++ APIs that you'd like to call in Python?
 * Do you like to prototype and test in Python but you use a lot of C++ code?
