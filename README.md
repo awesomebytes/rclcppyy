@@ -6,7 +6,7 @@
 
 ROS 2 package providing `rclcpp` bindings via [cppyy](https://cppyy.readthedocs.io/en/latest/) and examples on how to use `cppyy` in ROS2.
 
-![](media/rclcppyy_presentation_logo.png)
+![](media/rclcppyy_presentation_logo.jpg)
 
 
 * Tired of writing python wrappers for your C++ code?
