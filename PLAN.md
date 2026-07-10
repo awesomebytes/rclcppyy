@@ -71,13 +71,19 @@ Locked: cppyy 3.5.0, cppyy-cling 6.32.8, ros-jazzy-ros-base 0.11.0, python 3.12.
 
 ## Phase 2 — Examples & benchmarks in a couple of commands
 
-- [ ] **Blocker found during Phase 1 validation:** the plain-bringup rclpy-style
+- [x] **Blocker found during Phase 1 validation:** the plain-bringup rclpy-style
       API is broken — `adapt_node_pub_sub_to_python()` is commented out
       (`bringup_rclcpp.py:364`), so `create_publisher(String, …)` fails with
       "Template method resolution failed", which breaks
       `publisher_member_function.py`. Enable/fix the adapter (or route the
       tutorial through the working monkeypatch path) without regressing
       `enable_cpp_acceleration()`.
+      **Resolved 2026-07-10 (cc3b52b, a021d17):** adapters reworked and
+      re-enabled — descriptor-based `create_publisher`/`create_subscription`
+      supporting both rclpy-style calls and the native `[MsgT]` template
+      syntax (verified non-regressed), rclpy-style `create_timer`,
+      `destroy_node` shim, callback keep-alive pinning. Tutorial runs
+      unmodified; monkeypatch path unchanged (1 kHz smoke: 0 dropped).
 - [ ] Benchmark runner (`scripts/benchmarks/run_benchmarks.py`): spawns
       pub+sub pairs (rclpy vs rclcppyy), samples CPU via `psutil` for N
       seconds, prints a comparison table matching the README numbers.
@@ -94,14 +100,16 @@ Locked: cppyy 3.5.0, cppyy-cling 6.32.8, ros-jazzy-ros-base 0.11.0, python 3.12.
       `hypothesis`) so the default env stays lean. Mark `roscon_uk_2025/` as a
       presentation archive (needs external bag file / cloudini checkout) —
       exclude from install.
-- [ ] Repo/packaging hygiene:
-  - fix `test/test_node.py` (export `Node = RclcppyyNode` alias or fix import)
-  - add smoke tests: bringup, rclpy-API pub/sub roundtrip through C++ backend,
-    message monkeypatch, serialization parity
-  - delete unused `setup.py`; fix `CMakeLists.txt` install to
-    `FILES_MATCHING PATTERN "*.py"`; remove `scripts/target`
-  - complete `package.xml` deps (`ament_index_python`, `rosidl_runtime_py`,
-    `rosbag2_py`, `std_msgs`, `sensor_msgs`, `python3-numpy`); bump to 0.1.0
+- [x] Repo/packaging hygiene (done 2026-07-10, cb2114d + a021d17):
+  `Node` alias exported and `test_node.py` green (the alias exposed a real
+  `RclcppyyNode.destroy_node` bug — cppyy publishers stored in rclpy's
+  `_publishers` broke rclpy teardown — fixed); `setup.py` and `scripts/target`
+  removed; CMake install now `FILES_MATCHING PATTERN "*.py"` (verified: only
+  .py files install); `package.xml` deps completed from actual imports,
+  version bumped to 0.1.0.
+- [ ] Add smoke tests: rclpy-API pub/sub roundtrip through C++ backend,
+  message monkeypatch, serialization parity (today only `test_bringup.py`
+  and `test_node.py` exist)
 
 **Acceptance:** `pixi run bench` produces the rclpy-vs-rclcppyy CPU table in
 one command; every demo listed in the README runs via a single `pixi run` task.
