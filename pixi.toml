@@ -101,6 +101,9 @@ ros-jazzy-behaviortree-cpp = ">=4.9,<5" # BehaviorTree.CPP v4 (headers + libbeha
 demo-bt-t01 = "python scripts/bt_kit_demos/t01_first_tree.py"
 # Official BT.CPP ports tutorial written in short Python via bt_kit.
 demo-bt-t02 = "python scripts/bt_kit_demos/t02_ports.py"
+# Mixed-language tree: a Python leaf, a JIT'd C++ leaf, and a leaf that drives
+# existing C++ (publishes a ROS 2 message via rclcpp) from inside the tick.
+demo-bt-t03 = "python scripts/bt_kit_demos/t03_mixed_tree.py"
 # ticks/sec micro-benchmark: C++ JIT leaves vs Python leaves through the kit.
 bench-bt = "python scripts/bt_kit_demos/bench_bt.py"
 
