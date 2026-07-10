@@ -100,11 +100,19 @@ Locked: cppyy 3.5.0, cppyy-cling 6.32.8, ros-jazzy-ros-base 0.11.0, python 3.12.
       (pub/sub CPU); 10 kHz — rclpy 71.9/76.9 % vs rclcppyy 14.6/18.7 %.
       The README's ~4–5× CPU reduction reproduced. `--json` output available
       for CI assertions; full default `pixi run bench` ≈ 81 s wall.
-- [ ] Optional `demos` feature/environment for heavy extras (`opencv`,
+- [x] Optional `demos` feature/environment for heavy extras (`opencv`,
       `ros-jazzy-pcl-conversions`, `pcl`, `gstreamer`/`pygobject`, `typer`,
       `hypothesis`) so the default env stays lean. Mark `roscon_uk_2025/` as a
       presentation archive (needs external bag file / cloudini checkout) —
       exclude from install.
+      **Done (3d097cb, 01c0d05, merged d44ea72):** `demos` env with
+      solve-group "default" (default env's 462-package lock byte-identical);
+      tasks `demo-images` (runs fully, 1280x720 bgr8 roundtrip verified),
+      `demo-hypothesis` (runs fully), `demo-pointcloud-voxelgrid` (PCL JIT
+      compile + node spin validated; needs external bag for data flow).
+      gstreamer / cloudini / pointcloud-passthrough documented as
+      external-dependency demos. PCL include path made version-robust
+      (glob `pcl-*`). Notable versions: opencv 5.0.0 headless, pcl 1.15.1.
 - [x] Repo/packaging hygiene (done 2026-07-10, cb2114d + a021d17):
   `Node` alias exported and `test_node.py` green (the alias exposed a real
   `RclcppyyNode.destroy_node` bug — cppyy publishers stored in rclpy's
