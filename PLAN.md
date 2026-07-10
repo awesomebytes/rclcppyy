@@ -248,6 +248,27 @@ mechanically, not by discipline.
   construction can SIGSEGV; unique_ptr ownership across the boundary fails) —
   strongest argument FOR the curated-kit strategy of hiding cppyy.
 
+- **bt_kit deep pass (2026-07-11, f77f422/87c67b9/4eba875):** 7/8 gaps closed —
+  typed ports, per-tree-node stateful instances, observability (cout/file
+  loggers, TreeObserver, Groot2Publisher — robostack's .so links ZMQ), GIL
+  characterized (leaves tick on the tree thread; Parallel is cooperative;
+  sleeping leaves release the GIL, no deadlock), readable `BtXmlError`,
+  subtrees + v4 scripting free, kit test suite (auto-skips outside the bt env;
+  `test-bt` = 7 green). AOT probe (honest partial): a ROOT dictionary builds
+  and loads in 0.02 s but does NOT skip the 0.83 s header parse — Cling
+  lazily parses on first class use; real L1 freeze needs a Cling C++
+  module/PCH for the header (documented as a dedicated next step).
+- **pcl_kit spike (2026-07-11, GO; 3febabf/0595306/2c4f7bf, merged 1ae684d):**
+  PCL from Python via cppyy — on-demand template instantiation incl. point
+  types no wrapper ever shipped and a custom `POINT_CLOUD_REGISTER`'d struct;
+  NumPy→cloud floor is one C++ memcpy (0.49 ms @100k pts; a Python loop is
+  ~90× worse); zero-copy view out. Showcase, clean-machine re-measure
+  (subscribe → VoxelGrid → publish, 100k pts @10 Hz): pcl_kit 3.85 ms avg /
+  6.5 % CPU vs rclpy+NumPy 57.0 ms / 61.3 % CPU — **14.8× lower latency,
+  9.4× less CPU, at 76 vs 77 user LOC**. Docs mirror bt_kit
+  (`docs/pcl_kit/`). Next: `cppyy_kit` common-patterns layer reconciled from
+  both kits' generic-lessons sections.
+
 ## Risks & mitigations
 
 - **conda-forge cppyy behaves differently from the pip wheel** (cling resource
