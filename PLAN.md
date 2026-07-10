@@ -186,12 +186,13 @@ mechanically, not by discipline.
       `cppyy.load_library` of librclcpp / per-message typesupport /
       librosbag2_storage at bringup — `add_library_path` alone is NOT
       scanned for call-time resolution; LD-stripped full suite passes.
-- [ ] Create prefix.dev channel (e.g. `https://prefix.dev/channels/rclcppyy`);
+- [ ] Create prefix.dev channel (`https://prefix.dev/channels/awesomebytes`);
       upload via `rattler-build upload prefix`.
-      **USER-MANUAL STEPS (documented in release.yml header):** 1) create
-      channel `rclcppyy` on prefix.dev (or rename in release.yml + README),
-      2) add repo secret `PREFIX_API_KEY` with write access. Until then,
-      release builds+tests run but the upload step fails.
+      **Channel name decided 2026-07-10: `awesomebytes`** (already what
+      release.yml + README use). Channel created by Sam; repo secret
+      `PREFIX_API_KEY` must have write access to it — if missing, release
+      builds+tests still run and only the upload step fails. Check off once
+      the first upload lands.
 - [x] Release workflow: on git tag → build → test → upload (with
       `PREFIX_API_KEY` secret).
       **Done (1a54dbc):** release.yml on `v*` tags — pkg-build → artifact
@@ -199,7 +200,7 @@ mechanically, not by discipline.
       Unexercised on GitHub until first push + tag.
 - [x] README "Install" section:
       ```toml
-      channels = ["https://prefix.dev/channels/rclcppyy", "robostack-jazzy", "conda-forge"]
+      channels = ["https://prefix.dev/channels/awesomebytes", "robostack-jazzy", "conda-forge"]
       [dependencies]
       ros-jazzy-rclcppyy = "*"
       ```
