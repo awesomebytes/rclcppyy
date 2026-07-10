@@ -140,13 +140,16 @@ one command; every demo listed in the README runs via a single `pixi run` task.
       Suggested smoke: `pixi run bench --variants rclcppyy --rate 1000
       --duration 3 --warmup-timeout 120 --json` (~10–15 s + cold JIT; bump
       the warmup timeout on slow runners; assert `msgs_received > 0`).
-- [ ] Lint job (existing `ament_lint_auto` via `colcon test`).
-      **Deferred deliberately:** local `colcon test` shows 2712/2758 lint
-      failures (flake8 2327 — mostly style codes Q000/W293/E501/import-order,
-      but 64 real F401 unused-imports and 22 F841 unused-vars; pep257 381),
-      spanning the whole tree incl. the roscon_uk_2025 archive. Shipping the
-      job now would be red-by-default. Needs its own cleanup task: relax/configure
-      style codes, scope lint to `rclcppyy/` + `test/`, fix the real findings.
+- [x] Lint job (existing `ament_lint_auto` via `colcon test`).
+      Initially deferred: local `colcon test` showed 2712/2758 lint failures
+      (mostly style codes; 64 real F401 + 22 F841), spanning the whole tree.
+      **Done (6ef5dc3):** plain `flake8` with a committed `.flake8` (120 cols;
+      style/pydocstyle codes relaxed by config; A003 exempted because
+      `rosbag2_py_compat` deliberately mirrors the rosbag2_py API), scoped to
+      `rclcppyy/` + `test/`. ~45 real findings fixed (F401/F841/F811, bare
+      except, E402 with justified noqa in test helpers). `pixi run lint` exits
+      0 and is wired into ci.yml. `colcon test`'s ament_lint_auto remains red
+      and intentionally unused; scripts/ + roscon_uk_2025/ out of lint scope.
 - [x] Badge in README.
 
 **Status: CI authored (f8bf71a)** — ci.yml: checkout → setup-pixi@v0.10.0
