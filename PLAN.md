@@ -227,6 +227,26 @@ mechanically, not by discipline.
 5. **Split demos from core** (roadmap item): `rclcppyy` (core) +
    `rclcppyy_demos` once the core API stabilizes.
 
+## Experiments (exploratory, beyond the release plan)
+
+- **bt_kit spike (2026-07-10, GO):** BehaviorTree.CPP 4.9 driven from Python
+  via cppyy — official tutorials run verbatim (XML unchanged) with Python leaf
+  nodes in 16–24 user LOC; bringup ~0.85 s; ~630k ticks/s with Python leaves
+  (~1.28M with C++-JIT leaves) — boundary cost irrelevant at robot rates.
+  API decision: **thin C++-mirror** (the kit patches cppyy's real
+  `BehaviorTreeFactory`; `registerSimpleAction`/`createTreeFromText`/
+  `tickWhileRunning` keep their C++ names, snake_case aliases accepted) —
+  chosen over a decorator DSL because an LLM's existing BT.CPP knowledge
+  transfers 1:1 and there's no hidden registry state; only stateful nodes
+  deviate (`register_stateful`, since `registerNodeType<T>` can't take a
+  Python class). Full probe matrix, benchmark, API comparison, gaps:
+  `docs/bt_kit/REPORT.md`; LLM cheat sheet: `docs/bt_kit/KIT.md`.
+  Kit: `rclcppyy/kits/bt_kit.py` (optional `bt` pixi env; default env
+  untouched). Key findings: Python can author leaves only (BT marks tick()
+  final → no cross-inheritance); cppyy has sharp edges (container
+  construction can SIGSEGV; unique_ptr ownership across the boundary fails) —
+  strongest argument FOR the curated-kit strategy of hiding cppyy.
+
 ## Risks & mitigations
 
 - **conda-forge cppyy behaves differently from the pip wheel** (cling resource
