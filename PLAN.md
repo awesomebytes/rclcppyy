@@ -84,7 +84,7 @@ Locked: cppyy 3.5.0, cppyy-cling 6.32.8, ros-jazzy-ros-base 0.11.0, python 3.12.
       syntax (verified non-regressed), rclpy-style `create_timer`,
       `destroy_node` shim, callback keep-alive pinning. Tutorial runs
       unmodified; monkeypatch path unchanged (1 kHz smoke: 0 dropped).
-- [ ] Benchmark runner (`scripts/benchmarks/run_benchmarks.py`): spawns
+- [x] Benchmark runner (`scripts/benchmarks/run_benchmarks.py`): spawns
       pub+sub pairs (rclpy vs rclcppyy), samples CPU via `psutil` for N
       seconds, prints a comparison table matching the README numbers.
       Replaces the current 4-shells-plus-`top` workflow. Note: the existing
@@ -93,8 +93,13 @@ Locked: cppyy 3.5.0, cppyy-cling 6.32.8, ros-jazzy-ros-base 0.11.0, python 3.12.
       lifecycle and not treat teardown exit codes as benchmark failure.
       - `pixi run bench` → full comparison at 1 kHz and 10 kHz
       - `pixi run bench -- --rate 10000` → parameterized
-- [ ] Demo tasks: `pixi run demo-tutorial` (publisher_member_function),
+- [x] Demo tasks: `pixi run demo-tutorial` (publisher_member_function),
       `pixi run demo-pubsub` (pub+sub pair in one command).
+      **Done (7ddc580, cd1a416).** Measured on this machine (15 s/rate,
+      0 dropped everywhere): 1 kHz — rclpy 18.1/20.6 % vs rclcppyy 3.8/4.8 %
+      (pub/sub CPU); 10 kHz — rclpy 71.9/76.9 % vs rclcppyy 14.6/18.7 %.
+      The README's ~4–5× CPU reduction reproduced. `--json` output available
+      for CI assertions; full default `pixi run bench` ≈ 81 s wall.
 - [ ] Optional `demos` feature/environment for heavy extras (`opencv`,
       `ros-jazzy-pcl-conversions`, `pcl`, `gstreamer`/`pygobject`, `typer`,
       `hypothesis`) so the default env stays lean. Mark `roscon_uk_2025/` as a
@@ -119,6 +124,9 @@ one command; every demo listed in the README runs via a single `pixi run` task.
 - [ ] GitHub Actions using `prefix-dev/setup-pixi` with pixi-env caching:
       `pixi run build` + `pixi run test` + a short headless `pixi run bench`
       smoke (few seconds, assert rclcppyy actually publishes) on linux-64.
+      Suggested smoke: `pixi run bench --variants rclcppyy --rate 1000
+      --duration 3 --warmup-timeout 120 --json` (~10–15 s + cold JIT; bump
+      the warmup timeout on slow runners; assert `msgs_received > 0`).
 - [ ] Lint job (existing `ament_lint_auto` via `colcon test`).
 - [ ] Badge in README.
 
