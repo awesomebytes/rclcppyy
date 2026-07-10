@@ -10,6 +10,9 @@ exists — py_trees is a separate, incompatible library)?
 strategy, provided the kit hides cppyy from the user (several raw cppyy operations
 segfault the process). The v0 API deliberately **mirrors the C++ API** — see §2.
 
+(For the motivation and a C++-vs-Python side-by-side, see [WHY.md](WHY.md); for the
+API, see [KIT.md](KIT.md).)
+
 ---
 
 ## 1. Possible at all? — capability probe matrix
