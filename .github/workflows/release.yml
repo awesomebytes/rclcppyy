@@ -6,8 +6,8 @@ name: Release
 #
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │ MANUAL SETUP REQUIRED before the first release will succeed:              │
-# │   1. Create the prefix.dev channel `rclcppyy`:                            │
-# │        https://prefix.dev/channels/rclcppyy                               │
+# │   1. Create the prefix.dev channel `awesomebytes`:                        │
+# │        https://prefix.dev/channels/awesomebytes                           │
 # │      (rename here and in README if you pick a different channel name).    │
 # │   2. Add a repository secret PREFIX_API_KEY — a prefix.dev API token with │
 # │      write access to that channel (Settings → Secrets and variables →     │
@@ -87,10 +87,10 @@ jobs:
           cd "$workdir"
           pixi run python smoke.py
 
-      - name: Upload to the prefix.dev channel `rclcppyy`
+      - name: Upload to the prefix.dev channel `awesomebytes`
         env:
           PREFIX_API_KEY: ${{ secrets.PREFIX_API_KEY }}
         run: |
           set -euxo pipefail
-          pixi run -e pkg rattler-build upload prefix --channel rclcppyy \
+          pixi run -e pkg rattler-build upload prefix --channel awesomebytes \
             $(find output -name '*.conda')
