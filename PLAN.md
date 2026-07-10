@@ -234,11 +234,18 @@ mechanically, not by discipline.
   typesupport on demand; librosbag2_storage for serialization), so nothing
   depends on `LD_LIBRARY_PATH` anymore. The activation line stays in
   pixi.toml as belt-and-braces only.
-- **Known limitation (found in Phase 4 proof):** the plain-bringup publish
-  wrapper does a shallow field copy — nested Python messages (Header/Time
-  fields etc.) don't auto-convert; flat messages work. The monkeypatch path
-  converts recursively (`RclcppyyNode._convert_msg_to_cpp`) — reuse it in the
-  plain-bringup wrapper. Tracked as a follow-up task.
+- ~~**Known limitation (found in Phase 4 proof):** nested Python messages
+  don't auto-convert on the plain-bringup publish path.~~
+  **RESOLVED (bca982e):** one shared recursive converter
+  (`convert_python_msg_to_cpp` in `bringup_rclcpp.py`) now serves both the
+  plain-bringup publish wrapper and `RclcppyyNode`; nested-message regression
+  test added (suite = 6 tests, LD-stripped sanity re-verified).
+- **Known limitation (remaining, tracked in backlog):** the shared converter
+  resolves any non-empty sequence element as a *message*, so non-empty
+  primitive arrays (e.g. `float64[]`) raise during Python→C++ conversion on
+  the plain-bringup publish path — preserved as-is for parity with the
+  original monkeypatch-path behavior. Fix: detect primitive element types and
+  fill `std::vector<primitive>` directly.
 - **cppyy has no rosdep key**, so `package.xml` can't declare it portably.
   Acceptable: distribution targets conda/pixi where the recipe declares it
   directly; document apt/rosdep as unsupported for now.
