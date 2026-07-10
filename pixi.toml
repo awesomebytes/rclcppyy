@@ -107,10 +107,23 @@ demo-bt-t03 = "python scripts/bt_kit_demos/t03_mixed_tree.py"
 # ticks/sec micro-benchmark: C++ JIT leaves vs Python leaves through the kit.
 bench-bt = "python scripts/bt_kit_demos/bench_bt.py"
 
+# Optional "pcl" feature/environment: Point Cloud Library for the pcl_kit cppyy
+# spike (rclcppyy/kits/pcl_kit.py). Same opt-in pattern as the bt feature.
+# Enable with `pixi install -e pcl` and run tasks with `pixi run -e pcl <task>`.
+[feature.pcl.dependencies]
+pcl = "*"                       # Point Cloud Library (headers + libpcl_*.so)
+ros-jazzy-pcl-conversions = "*" # pcl <-> sensor_msgs/PointCloud2 bridge
+eigen = "*"                     # PCL dependency (eigen3 headers)
+
+[feature.pcl.tasks]
+# pcl_kit tasks are added by the pcl_kit spike.
+
 [environments]
 # solve-group = "default" pins every shared package to the exact same version as
 # the default env, so enabling demos never re-resolves the core ROS/cppyy stack.
 demos = { features = ["demos"], solve-group = "default" }
+# PCL spike env, same additive pattern as bt.
+pcl = { features = ["pcl"], solve-group = "default" }
 # no-default-feature: the packaging tooling doesn't need the ROS/cppyy stack.
 pkg = { features = ["pkg"], no-default-feature = true }
 # BehaviorTree.CPP spike env. solve-group "default" keeps the shared ROS/cppyy
