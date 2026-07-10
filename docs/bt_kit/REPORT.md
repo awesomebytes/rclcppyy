@@ -164,41 +164,68 @@ rate (typically 10–1000 Hz), so the boundary cost is a non-issue in practice.
 
 ---
 
-## 5. GAPS — what an LLM-agent user hits next
+## 5. Gap resolution — deep pass (2026-07-11)
 
-1. **`registerNodeType<T>()` is impossible for a Python `T`.** BT.CPP's primary
-   extension point is a compile-time template over your C++ node class. A Python
-   class can't be that `T`. **Consequence:** every custom node goes through
-   `registerSimpleAction`/`registerSimpleCondition` (functors) or a JIT'd C++
-   shim; custom **control nodes and decorators** authored in Python are not
-   reachable this way. The kit papers over the common async case with
-   `register_stateful`, but arbitrary node types need C++.
-2. **Python cross-inheritance from any class with `final` virtuals fails**
-   (probe 4a). The **only** route to stateful/async nodes from Python is the C++
-   shim + `std::function` hooks (which `register_stateful` provides).
-3. **cppyy container construction segfaults.** Building `PortsList` in Python
-   crashed the process. The kit keeps all map/pair work in a C++ helper. An agent
-   must **never** be handed raw cppyy for this — segfaults give no Python
-   traceback. This is the single strongest reason the kit must wrap cppyy.
-4. **Typed ports beyond string.** v0 models only string, bidirectional ports.
-   Int/double/enum/struct/JSON ports need per-type `getInput<T>`/`setOutput<T>`
-   and BT's type registration (`RegisterJsonDefinition`), none wired yet.
-5. **GIL vs parallel/reactive nodes.** Python leaves hold the GIL. A `ParallelNode`
-   ticking Python leaves gets no real concurrency; a `ThreadedAction` in Python
-   would contend/deadlock on the GIL. Fine for sequential/reactive orchestration.
-6. **Multi-instance stateful nodes share one Python object.** `register_stateful`
-   binds a single Python instance per registered *ID*; two `<CountTo>` nodes in
-   one tree share state. Per-node instances need the builder to construct a fresh
-   Python object per node (doable, deferred).
-7. **Groot2 / `TreeNodesModel` / loggers not exposed.** Python-registered nodes
-   carry manifests (so `writeTreeNodesModelXML` *should* work), but no Groot2
-   publisher, file logger, or model export is wired.
-8. **XML validation errors are C++-flavored.** Malformed XML / unknown node IDs
-   surface as `BT::RuntimeError` translated by cppyy into a Python exception —
-   usable, but messages read as C++ and line info is coarse.
-9. **Keep-alive discipline.** Unpinned Python functors are collected →
-   `callable was deleted`. The kit hides this (pins on factory→tree); any manual
-   cppyy use reintroduces it.
+The v0 GAPS were systematically attacked. Evidence for the "WORKS" verdicts is the
+kit test suite `test/test_bt_kit.py` (7 tests; `pixi run -e bt test-bt` → all green;
+auto-skips without BT so the default suite stays 6 passed) plus the probes noted.
+Numbers are provisional — a parallel kit spike shared this machine.
+
+| Gap | Verdict | Evidence |
+|---|:--:|---|
+| 1. Typed ports (int/double/bool/vectors) | **WORKS** | `ports={"count": int, "items": [float]}`; `get_input(k, int)` and `set_output` (type inferred). int/double/bool/`vector<double>` parsed from XML literals + typed blackboard roundtrip. `test_typed_ports_roundtrip`. |
+| 2. Stateful multi-instance | **WORKS** | Builder calls back into Python per node → a fresh object per node instance (handle-dispatched). Two `<CountTo n="2"/"4">` keep independent counts. `test_stateful_multi_instance`. |
+| 3. Observability | **WORKS** | `add_cout_logger` / `add_file_logger` (7.6 KB `.btlog`) / `observe().counts()` / `add_groot2_publisher`. The `.so` is built with ZMQ (libzmq linked); Groot2Publisher constructs and binds. `test_observer_counts`. |
+| 4. GIL / Parallel + Reactive | **WORKS (characterized)** | Parallel and ReactiveSequence tick Python leaves on the single tick thread; a sleeping leaf releases the GIL and a background-thread spin does not deadlock (main thread ran 40 iters concurrently). Rules below. |
+| 5. XML error ergonomics | **WORKS** | `BtXmlError` with one clean line (`RuntimeError: Error at line 4: -> Node not recognized: X`), no C++ signature wall. `test_xml_error_is_readable`. |
+| 6. Subtrees + v4 scripting/preconditions | **WORKS** | SubTree composition (needs `main_tree_to_execute`), `<Script code="x:=42"/>`, `_skipIf` preconditions — engine-side, free through the kit. `test_subtree_composition`. |
+| 7. Kit tests + `test-bt` | **WORKS** | `test/test_bt_kit.py` auto-skips without BT (default suite: 6 passed / 7 skipped); `pixi run -e bt test-bt` → 7 passed. |
+| 8. JIT→AOT "freeze" | **PARTIAL / BLOCKED** | Dictionary builds and loads (~0.02 s) but does **not** skip the header parse — see below. |
+
+### Rules of thumb (Gap 4 — GIL/concurrency)
+- Kit leaves (SimpleAction/SimpleCondition, `register_stateful`) are always ticked
+  in the tree's own thread — no leaf runs on a C++ worker thread, so the GIL is a
+  non-issue in normal use. BT's `ParallelNode` is cooperative bookkeeping, not OS
+  threads: Python leaves under it run sequentially (no true parallelism, but no
+  contention either).
+- A leaf must not busy-block: return `RUNNING` and let the tick loop re-enter. A
+  leaf that sleeps / does I/O releases the GIL and is safe even when the tree is
+  spun from a background Python thread (verified: no deadlock).
+- `ThreadedAction` is deliberately not exposed (it would run the callback on a C++
+  worker thread and need explicit GIL handling).
+
+### Residual gaps (still true)
+- `registerNodeType<T>` for a Python `T` remains impossible → custom **control
+  nodes / decorators** authored in Python still need a JIT'd C++ shim.
+- Ports are bidirectional and string/scalar/vector-typed; **directioned**
+  declarations and arbitrary **struct/JSON** port types need a C++ type (via
+  `RegisterJsonDefinition`), so Python-defined struct ports aren't reachable.
+- Groot2 publishing binds but was not verified against a live Groot2 GUI (none
+  available locally — binding is the signal).
+- Keep-alive discipline (pin Python callables) and the container-segfault rule are
+  handled inside the kit; any raw-cppyy use reintroduces them.
+
+### Gap 8 — JIT→AOT freeze probe (findings)
+Bringup is **89% header JIT-parse**: `cppyy.include("bt_factory.h")` **0.826 s**,
+`load_library` 0.015 s, `cppdef(glue)` 0.044 s, first factory+tick 0.041 s
+(total ~0.93 s). Tooling present: `genreflex`, `rootcling`, `cppyy-generator`,
+`cppyy.load_reflection_info`. A ROOT dictionary was built end-to-end:
+- `#pragma link C++ defined_in "<header>"` captured only the namespace (rootcling
+  skips classes with deleted copy-ctors/templates); explicit `#pragma link C++
+  class BT::X+;` is required and does capture them.
+- `rootcling` → `dict.cxx` + `_rdict.pcm` + `.rootmap`, compiled to a `.so`;
+  `load_reflection_info` loads it in **~0.02 s**.
+- **The header parse is not eliminated.** With the dict loaded and *no*
+  `cppyy.include`, the first `BehaviorTreeFactory()` still cost **0.799 s** — Cling
+  lazily parses the header on first class use regardless of the ROOT dictionary.
+  The dict supplies reflection/autoload metadata, not a precompiled AST.
+
+**Verdict: PARTIAL / BLOCKED.** The ROOT-dictionary route does not deliver the L1
+freeze. Skipping the parse needs Cling to load a **precompiled header / C++ module**
+for `bt_factory.h` (the mechanism cppyy uses for its own std PCH): a
+`module.modulemap` + `-fmodules` build of the BT headers, or a Cling PCH,
+version-matched to cppyy-cling 6.32.8. That is a dedicated sub-project, not a quick
+win; the ~0.85 s bringup is one-time and idempotent per process in the meantime.
 
 ---
 
@@ -222,6 +249,64 @@ nodes, Groot) rather than *feasibility*. Two findings shape the strategy:
   cppyy would produce process crashes with no traceback. The kit removes every
   sharp edge encountered here while keeping the user code C++-shaped.
 
-**Next investments, in priority order:** (a) typed ports; (b) per-node stateful
-instances; (c) Python-authored control/decorator nodes via generated C++ shims;
-(d) Groot2/logger passthrough; (e) precompiled dictionary to drop the ~0.85 s JIT.
+The deep pass (2026-07-11, §5) closed most of the v0 gaps: typed ports, per-node
+stateful instances, loggers/Groot2/observer, readable XML errors, subtrees, and a
+skip-safe test suite all landed. What remains is genuinely harder — Python-authored
+control/decorator node *types* (need generated C++ shims) and the L1 "freeze"
+(needs a Cling C++ module/PCH, not a ROOT dictionary — §5 Gap 8). Neither is a
+blocker for using the kit today.
+
+**Next investments, in priority order:** (a) Python-authored control/decorator
+nodes via generated C++ shims; (b) directioned + struct/JSON ports; (c) the L1
+freeze via a Cling C++ module for `bt_factory.h`; (d) live Groot2 verification.
+
+---
+
+## 7. Generic lessons for cppyy_kit
+
+Patterns confirmed here that should generalize to any cppyy "kit" (`pcl_kit`,
+`ompl_kit`, `ceres_kit`, …). Written to merge cleanly with a sibling kit's lessons.
+
+- **Bringup recipe (three steps).** (1) locate the install — ament index
+  `get_package_prefix` or a known prefix; (2) `add_include_path(prefix/include)`
+  and `add_library_path(prefix/lib)`, then `cppyy.include(main_header)`; (3)
+  `cppyy.load_library("libX.so")` — cppyy resolves symbols by owning-library
+  lookup at call time, so load the `.so` explicitly rather than trusting
+  `LD_LIBRARY_PATH`. Compile any glue with one `cppyy.cppdef` block.
+- **Cost model / AOT.** Bringup time is dominated by the header JIT-parse (here
+  89%, 0.83 s). ROOT dictionaries (`rootcling` + `load_reflection_info`) give
+  reflection/autoload but do **not** skip the parse (it's deferred to first class
+  use). A real freeze needs a Cling C++ module/PCH for the header set.
+- **Keep-alive.** cppyy does not keep Python callables (nor their `std::function`
+  wrappers) alive; pin them on a long-lived C++-owned object (here: factory →
+  tree). Symptom when missing: `callable was deleted` at call time.
+- **Passing functions across the boundary.** Python → C++ as
+  `std::function<...>` works for value/reference params and int/enum/void returns.
+  C++ → Python callbacks run **in the calling C++ thread**; cppyy takes the GIL.
+  For a single-threaded driver (a tick loop, a spin) there is no contention.
+- **Ownership must not cross into Python.** Returning a `std::unique_ptr<T>` *from*
+  a Python-side `std::function` fails (`C++ type cannot be converted to memory`).
+  Keep ownership-creating lambdas entirely in C++; pass only value/reference hooks
+  across. To give each C++ object its own Python peer, have C++ call a Python
+  builder that returns an **int handle** and dispatch later calls by handle.
+- **Build STL containers in C++, not Python.** Constructing/inserting maps
+  (`unordered_map`, and building from pairs) from Python can **SIGSEGV** with no
+  traceback (`MapFromPairs`). Do it in a `cppdef` helper; pass **parallel
+  `vector<string>`** (safe) instead of `vector<pair>`/maps.
+- **Cross-inheritance limits.** Python subclassing of a C++ class fails if any
+  virtual in the hierarchy is `final` (`no python-side overrides supported`), and
+  `registerNodeType<T>`-style templates cannot take a Python class. Escape hatch:
+  a JIT'd C++ shim subclass holding `std::function` slots, registered via a
+  C++-side builder.
+- **Template members & Expected.** `obj.method[T](args)` calls a C++ template
+  member from Python; unwrap `Expected<T>`/optional-like returns with
+  `has_value()` / `value()`.
+- **Error ergonomics.** cppyy prefixes C++ exceptions with the mangled call
+  signature and ` => `; split on ` => ` and collapse whitespace for a readable
+  one-line message, re-raised as a kit-specific exception.
+- **Enums & ints.** C++ enums compare equal to their int values; expose plain-int
+  constants for convenience while keeping the real enum available.
+- **API mirroring.** Patch the library's real classes so the methods keep their
+  C++ names (add snake_case aliases); an LLM/user then transfers existing
+  knowledge of the library 1:1 and there is no DSL to learn or hidden state to
+  misuse.

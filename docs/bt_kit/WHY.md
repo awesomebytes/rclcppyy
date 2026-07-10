@@ -268,9 +268,13 @@ Grounded in the spike's measured numbers (see [REPORT.md](REPORT.md) §3–4):
 
 ## Limits
 
-bt_kit is a v0 spike. String-only ports, one Python instance per stateful node
-ID, Python leaves hold the GIL (so no true parallelism for `ParallelNode`),
-custom node *types* and Groot manifests need C++, and a few raw cppyy operations
-segfault (which is exactly why the kit keeps cppyy behind a curated surface). The
-full, honest list — with the reasons and what an agent hits next — is in
-[REPORT.md](REPORT.md) §5.
+A 2026-07-11 deep pass closed most of the v0 limits: typed ports
+(int/float/bool/vectors), per-node stateful instances, loggers + Groot2 publishing
++ a tick observer, readable XML errors, and subtrees/scripting all work now (see
+[REPORT.md](REPORT.md) §5, with a skip-safe test suite). What remains: Python
+leaves run under the GIL on the tree thread (so `ParallelNode` gives no true
+parallelism — fine for orchestration), custom node *types* (control/decorator)
+still need C++, directioned and struct/JSON ports aren't modelled, and startup
+pays a one-time ~0.85 s header JIT (the AOT "freeze" needs a Cling C++ module, not
+just a dictionary — §5 Gap 8). Raw cppyy still has segfault edges, which is exactly
+why the kit keeps it behind a curated surface.
