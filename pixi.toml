@@ -48,3 +48,36 @@ bench = "python scripts/benchmarks/run_benchmarks.py"
 demo-tutorial = "python scripts/ros_tutorials/publisher_member_function.py"
 # One-command live pub/sub demo (rclcppyy monkeypatched backend).
 demo-pubsub = "python scripts/benchmarks/run_benchmarks.py --demo"
+
+# Optional "demos" feature/environment: heavy extras used only by the example
+# scripts under scripts/big_messages_demos/ and roscon_uk_2025/. Kept out of the
+# default env so a plain `pixi install` stays lean. Enable with `pixi install -e
+# demos` and run the tasks with `pixi run -e demos <task>`.
+[feature.demos.dependencies]
+opencv = "*"                    # cv2 for the image demo
+ros-jazzy-pcl-conversions = "*" # pcl <-> sensor_msgs/PointCloud2 bridge (headers)
+pcl = "*"                       # Point Cloud Library headers (voxelgrid demo)
+eigen = "*"                     # PCL/pcl_conversions dependency (eigen3 headers)
+gstreamer = "*"                 # gstreamer demo pipeline
+gst-plugins-base = "*"          # videoconvert / appsrc / appsink elements
+gst-plugins-good = "*"          # v4l2src / autovideosink elements
+pygobject = "*"                 # the `gi` bindings (gi.repository.Gst)
+typer = "*"                     # CLI wrapper used by the gstreamer / cloudini demos
+hypothesis = "*"                # property-based testing demo
+
+[feature.demos.tasks]
+# Publishes a real JPEG as a sensor_msgs/Image at 4 Hz via the rclcppyy C++
+# backend (loads the image relative to the script, prints its size on startup).
+demo-images = "python scripts/big_messages_demos/demo_images.py"
+# Property-based testing of a JIT-compiled C++ function with Hypothesis. Runs
+# to completion on its own.
+demo-hypothesis = "python roscon_uk_2025/presentation/5_hypothesis_test.py"
+# PCL VoxelGrid downsampling node. JIT-compiles the pcl/pcl_conversions kernel
+# on startup (the interesting part), then waits for PointCloud2 messages on
+# /lexus3/os_center/points — needs an external bag to produce output.
+demo-pointcloud-voxelgrid = "python roscon_uk_2025/presentation/2_pointcloud_voxelgrid.py"
+
+[environments]
+# solve-group = "default" pins every shared package to the exact same version as
+# the default env, so enabling demos never re-resolves the core ROS/cppyy stack.
+demos = { features = ["demos"], solve-group = "default" }
