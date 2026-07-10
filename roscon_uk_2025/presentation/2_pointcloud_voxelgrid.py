@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 import os
+import glob
 import rclcppyy; rclcppyy.enable_cpp_acceleration()
 import rclpy
 from rclpy.node import Node
@@ -9,8 +10,18 @@ from sensor_msgs.msg import PointCloud2
 
 def prepare():
     print("including pcl headers")
-    cppyy.add_include_path(f"{os.environ["CONDA_PREFIX"]}/include/pcl-1.15")
-    cppyy.add_include_path(f"{os.environ["CONDA_PREFIX"]}/include/eigen3")
+    conda_prefix = os.environ["CONDA_PREFIX"]
+    # PCL installs headers under include/pcl-<major>.<minor>; the minor version
+    # tracks the conda-forge build (e.g. pcl-1.15), so discover it with a glob
+    # instead of hardcoding a version that drifts.
+    pcl_include_dirs = sorted(glob.glob(f"{conda_prefix}/include/pcl-*"))
+    if not pcl_include_dirs:
+        raise RuntimeError(
+            f"No PCL include dir (pcl-*) found under {conda_prefix}/include. "
+            "Install the demos environment first: pixi install -e demos"
+        )
+    cppyy.add_include_path(pcl_include_dirs[-1])
+    cppyy.add_include_path(f"{conda_prefix}/include/eigen3")
     cppyy.include("pcl/point_types.h")
     cppyy.include("pcl/point_cloud.h")
     cppyy.include("pcl/filters/voxel_grid.h")

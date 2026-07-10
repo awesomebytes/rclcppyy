@@ -175,6 +175,39 @@ Without entering a shell, any command can be run through pixi directly, e.g.
 `pixi run ros2 run rclcppyy bench_sub_rclcppyy_monkeypatched.py`.
 </details>
 
+### Extra demos (optional env)
+
+The heavier example scripts (OpenCV, PCL, GStreamer, typer, hypothesis) live in
+an optional `demos` environment so the default `pixi install` stays lean. Enable
+it once, then run any demo task with `pixi run -e demos <task>`:
+
+```bash
+pixi install -e demos       # adds opencv, pcl, pcl_conversions, eigen,
+                            # gstreamer, pygobject, typer, hypothesis
+```
+
+| Task | What it does |
+|---|---|
+| `pixi run -e demos demo-images` | Publishes a real JPEG as a `sensor_msgs/Image` at 4 Hz through the rclcppyy C++ backend (builds the message straight into a C++ `std::vector`, no Python<>C++ copy). Pair it with `pixi run -e demos python scripts/big_messages_demos/images_sub.py` to see it received. |
+| `pixi run -e demos demo-hypothesis` | Drives a JIT-compiled C++ function with [Hypothesis](https://hypothesis.readthedocs.io) property-based testing. Intentionally finds the failing input (`"DDS"`) and reports it as a falsifying example, so it exits non-zero on purpose — that's the demo. |
+| `pixi run -e demos demo-pointcloud-voxelgrid` | JIT-compiles a PCL `VoxelGrid` filter (via `pcl_conversions`) and runs it as a ROS 2 node. The JIT/compile step runs on startup; it then waits for `PointCloud2` messages on `/lexus3/os_center/points`, so it needs an external bag to actually downsample anything (see below). |
+
+`roscon_uk_2025/` is the archive of the ROSCon UK 2025 presentation. Some of its
+demos need external data that is not in this repo and therefore have no `pixi
+run` task:
+
+- `1_pointcloud_passthrough.py` / `2_pointcloud_voxelgrid.py` — need a live
+  `PointCloud2` source (the talk used a bag published on
+  `/lexus3/os_center/points`; `0_setup_pointcloud.sh` shows the `ros2 bag play`
+  + RViz setup).
+- `3_cloudini_cli.py` — a typer CLI over the C++
+  [cloudini](https://github.com/facontidavide/cloudini) point-cloud compressor;
+  needs a cloudini colcon workspace checked out and built alongside it (it
+  auto-discovers the workspace root and loads the built `.so`).
+- `4_gstreamer_cli.py` — a typer CLI that JIT-compiles a C++ pixel kernel and
+  runs it inside a GStreamer pipeline; needs a V4L2 camera at `/dev/video0` (and
+  a display for the default `--viz` output).
+
 ## Roadmap
 
 [x] Benchmark pub/sub
