@@ -9,95 +9,196 @@ library), so this capability does not otherwise exist — and because it is the
 (Groot2, the Nav2 behavior trees, plugins) stays compatible.
 
 This doc explains what that gives you over the C++ workflow, and the two distinct
-ways to use it. For the API, see [KIT.md](KIT.md); for the feasibility evidence,
-gaps, and benchmarks, see [REPORT.md](REPORT.md).
+ways to use it. For the API, see [BT.CPP_KIT.md](BT.CPP_KIT.md); for the
+feasibility evidence, gaps, and benchmarks, see [REPORT.md](REPORT.md).
 
 ---
 
-## Side by side: tutorial 1 in C++ vs in Python
+## Side by side: the complete tutorial-1 program, C++ vs Python
 
-Below is the official ["first tree" tutorial](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_01_first_tree)
-(abridged from behaviortree.dev — comments trimmed), then the complete bt_kit
-equivalent that this repo ships and runs (`scripts/bt_kit_demos/t01_first_tree.py`).
+These are the **complete programs**, not fragments. On the left, the official
+["first tree" tutorial](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_01_first_tree)
+from behaviortree.dev. On the right, the complete runnable file this repo ships,
+`scripts/bt_kit_demos/t01_first_tree.py`. Read them together: with the thin
+C++-mirror API, the Python is almost a line-for-line transliteration of the C++
+`main()` — minus the build system and the class boilerplate.
 
-### C++ (the official tutorial)
+### C++ — `first_tree.cpp` (official tutorial)
 
 ```cpp
 #include "behaviortree_cpp/bt_factory.h"
 using namespace BT;
 
-// A custom SyncActionNode, created by inheritance.
-class ApproachObject : public BT::SyncActionNode {
+// A custom SyncActionNode, created by inheritance (the recommended way).
+class ApproachObject : public BT::SyncActionNode
+{
 public:
   ApproachObject(const std::string& name) : BT::SyncActionNode(name, {}) {}
-  BT::NodeStatus tick() override {
+
+  // You must override the virtual function tick().
+  BT::NodeStatus tick() override
+  {
     std::cout << "ApproachObject: " << this->name() << std::endl;
     return BT::NodeStatus::SUCCESS;
   }
 };
 
 // A plain function used as a condition.
-BT::NodeStatus CheckBattery() {
+BT::NodeStatus CheckBattery()
+{
   std::cout << "[ Battery: OK ]" << std::endl;
   return BT::NodeStatus::SUCCESS;
 }
 
 // Methods of an existing class, wrapped as actions.
-class GripperInterface {
+class GripperInterface
+{
 public:
-  NodeStatus open()  { std::cout << "GripperInterface::open"  << std::endl; return NodeStatus::SUCCESS; }
-  NodeStatus close() { std::cout << "GripperInterface::close" << std::endl; return NodeStatus::SUCCESS; }
+  GripperInterface() : _open(true) {}
+
+  NodeStatus open()
+  {
+    _open = true;
+    std::cout << "GripperInterface::open" << std::endl;
+    return NodeStatus::SUCCESS;
+  }
+  NodeStatus close()
+  {
+    std::cout << "GripperInterface::close" << std::endl;
+    _open = false;
+    return NodeStatus::SUCCESS;
+  }
+private:
+  bool _open;
 };
 
-int main() {
+static const char* xml_text = R"(
+ <root BTCPP_format="4">
+   <BehaviorTree ID="MainTree">
+     <Sequence name="root_sequence">
+       <CheckBattery   name="check_battery"/>
+       <OpenGripper    name="open_gripper"/>
+       <ApproachObject name="approach_object"/>
+       <CloseGripper   name="close_gripper"/>
+     </Sequence>
+   </BehaviorTree>
+ </root>
+ )";
+
+int main()
+{
   BehaviorTreeFactory factory;
+
   factory.registerNodeType<ApproachObject>("ApproachObject");
-  factory.registerSimpleCondition("CheckBattery", [&](TreeNode&){ return CheckBattery(); });
+  factory.registerSimpleCondition("CheckBattery", [&](TreeNode&) { return CheckBattery(); });
+
   GripperInterface gripper;
-  factory.registerSimpleAction("OpenGripper",  [&](TreeNode&){ return gripper.open();  });
-  factory.registerSimpleAction("CloseGripper", [&](TreeNode&){ return gripper.close(); });
-  auto tree = factory.createTreeFromFile("./my_tree.xml");
+  factory.registerSimpleAction("OpenGripper",  [&](TreeNode&) { return gripper.open();  });
+  factory.registerSimpleAction("CloseGripper", [&](TreeNode&) { return gripper.close(); });
+
+  auto tree = factory.createTreeFromText(xml_text);
   tree.tickWhileRunning();
   return 0;
 }
 ```
-…plus a `CMakeLists.txt` (`find_package(behaviortree_cpp)`, `add_executable`,
-`target_link_libraries`) and a build step — `cmake . && make` (or `colcon build`)
-— that produces a binary before anything runs.
 
-### Python (bt_kit, shipped as t01_first_tree.py — 24 lines, no build)
+…and this does not run yet. It needs a `CMakeLists.txt`
+(`find_package(behaviortree_cpp REQUIRED)`, `add_executable(first_tree ...)`,
+`target_link_libraries(first_tree BT::behaviortree_cpp)`) and a build —
+`colcon build` (or `cmake . && make`) — to compile and link a binary before you
+can execute it.
+
+### Python — `t01_first_tree.py` (bt_kit, shipped in this repo)
 
 ```python
+#!/usr/bin/env python
+"""
+BehaviorTree.CPP official tutorial 1 ("Your first behavior tree"), in Python via
+rclcppyy's bt_kit. This mirrors the C++ tutorial line-for-line -- same factory,
+same registerSimpleAction / registerSimpleCondition, same createTreeFromText /
+tickWhileRunning -- only the leaf callbacks are Python.
+"""
 from rclcppyy.kits import bt_kit
+
 bt = bt_kit.bringup_bt()
 
-def check_battery(node):   print("[ Battery: OK ]");             return bt.NodeStatus.SUCCESS
-def open_gripper(node):    print("GripperInterface::open");      return bt.NodeStatus.SUCCESS
-def approach_object(node): print("ApproachObject: approach_object"); return bt.NodeStatus.SUCCESS
-def close_gripper(node):   print("GripperInterface::close");     return bt.NodeStatus.SUCCESS
+XML = """
+<root BTCPP_format="4">
+  <BehaviorTree ID="MainTree">
+    <Sequence name="root_sequence">
+      <CheckBattery   name="check_battery"/>
+      <OpenGripper    name="open_gripper"/>
+      <ApproachObject name="approach_object"/>
+      <CloseGripper   name="close_gripper"/>
+    </Sequence>
+  </BehaviorTree>
+</root>
+"""
 
-factory = bt.BehaviorTreeFactory()
-factory.registerSimpleCondition("CheckBattery", check_battery)
-factory.registerSimpleAction("OpenGripper", open_gripper)
-factory.registerSimpleAction("ApproachObject", approach_object)
-factory.registerSimpleAction("CloseGripper", close_gripper)
-tree = factory.createTreeFromText(XML)   # same XML the C++ version loads
-tree.tickWhileRunning()
+
+def check_battery(node):
+    print("[ Battery: OK ]")
+    return bt.NodeStatus.SUCCESS
+
+
+def open_gripper(node):
+    print("GripperInterface::open")
+    return bt.NodeStatus.SUCCESS
+
+
+def approach_object(node):
+    print("ApproachObject: approach_object")
+    return bt.NodeStatus.SUCCESS
+
+
+def close_gripper(node):
+    print("GripperInterface::close")
+    return bt.NodeStatus.SUCCESS
+
+
+def main():
+    factory = bt.BehaviorTreeFactory()
+    factory.registerSimpleCondition("CheckBattery", check_battery)
+    factory.registerSimpleAction("OpenGripper", open_gripper)
+    factory.registerSimpleAction("ApproachObject", approach_object)
+    factory.registerSimpleAction("CloseGripper", close_gripper)
+
+    tree = factory.createTreeFromText(XML)
+    tree.tickWhileRunning()
+
+
+if __name__ == "__main__":
+    main()
 ```
 
-Same factory, same method names, same XML, same output — but it runs the instant
-you type `python t01_first_tree.py`: no CMakeLists, no compile, no link step. The
-kit brings the C++ library up under cppyy in ~0.85 s (once) and JIT-compiles only
-what you touch.
+Run it directly: `pixi run -e bt demo-bt-t01`. Same output as the C++ program
+(`[ Battery: OK ] / GripperInterface::open / ApproachObject: approach_object /
+GripperInterface::close`).
 
-**What the C++ version buys that this one doesn't.** `registerNodeType<ApproachObject>`
-uses a *compile-time* C++ type, which gives static type checking and a full node
-*manifest* — the metadata Groot2 uses to populate its editor palette and that
-BT.CPP writes into a `TreeNodesModel`. From Python you register via functors /
-`register_stateful` instead (a Python class can't be a C++ template argument), so
-Python-defined nodes don't yet contribute a manifest, and custom control/decorator
-node *types* still have to be written in C++. See [REPORT.md](REPORT.md) §5 for the
-full list.
+### What we gain (right here, from the comparison above)
+
+- **No compile step.** The C++ program needs a CMakeLists and a `colcon build`
+  before it can run; the Python file runs the instant you invoke it. The only
+  startup cost is a one-time **~0.85 s** cppyy bringup (JIT-including the header +
+  loading the `.so`), and only what you touch is JIT-compiled.
+- **No wrapper, no codegen.** Nothing is generated. `factory`,
+  `registerSimpleAction`, `registerSimpleCondition`, `createTreeFromText`,
+  `tickWhileRunning` are the library's own names — the Python reads like the C++.
+- **Same XML, same engine.** The tree text is identical and is parsed and ticked
+  by the same `libbehaviortree_cpp.so`, so Groot2 / Nav2 ecosystem compatibility
+  is unchanged.
+- **Mixed C++/Python leaves in one tree.** You can keep some leaves in Python and
+  drop others to C++ (JIT'd, or existing libraries) in the *same* tree — see
+  Mode B and `t03_mixed_tree.py` below.
+
+**What the C++ version buys that this one doesn't.**
+`registerNodeType<ApproachObject>` uses a *compile-time* C++ type, which gives
+static type checking and a full node *manifest* — the metadata Groot2 uses to
+populate its editor palette and that BT.CPP writes into a `TreeNodesModel`. From
+Python you register via functors / `register_stateful` instead (a Python class
+can't be a C++ template argument), so Python-defined nodes don't yet contribute a
+manifest, and custom control/decorator node *types* still have to be written in
+C++. See [REPORT.md](REPORT.md) §5 for the full list.
 
 ---
 
