@@ -85,13 +85,11 @@ if not cppyy.gbl.rclcpp.ok():
 
 ## Install (pixi, no build needed)
 
-> Available after the first tagged release publishes to the channel.
-
 If you just want to *use* `rclcppyy` (no clone, no `colcon build`), add the
 prefix.dev channel and the package to your own pixi workspace:
 
 ```toml
-channels = ["https://prefix.dev/channels/awesomebytes", "robostack-jazzy", "conda-forge"]
+channels = ["https://repo.prefix.dev/awesomebytes", "robostack-jazzy", "conda-forge"]
 
 [dependencies]
 ros-jazzy-rclcppyy = "*"

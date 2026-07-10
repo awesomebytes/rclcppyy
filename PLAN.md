@@ -186,13 +186,17 @@ mechanically, not by discipline.
       `cppyy.load_library` of librclcpp / per-message typesupport /
       librosbag2_storage at bringup — `add_library_path` alone is NOT
       scanned for call-time resolution; LD-stripped full suite passes.
-- [ ] Create prefix.dev channel (`https://prefix.dev/channels/awesomebytes`);
-      upload via `rattler-build upload prefix`.
-      **Channel name decided 2026-07-10: `awesomebytes`** (already what
-      release.yml + README use). Channel created by Sam; repo secret
-      `PREFIX_API_KEY` must have write access to it — if missing, release
-      builds+tests still run and only the upload step fails. Check off once
-      the first upload lands.
+- [x] Create prefix.dev channel (`awesomebytes`); upload via
+      `rattler-build upload prefix`.
+      **RELEASED 2026-07-10:** `ros-jazzy-rclcppyy-0.1.0-hb0f4dca_0.conda`
+      live on the channel. Auth via OIDC trusted publishing (prefix.dev
+      Repository Access authorizes awesomebytes/rclcppyy release.yml;
+      `id-token: write` in the workflow; no stored tokens — the initial
+      PREFIX_API_KEY attempt was replaced, 9474f1d). Verified end-to-end from
+      a fresh workspace: install from `https://repo.prefix.dev/awesomebytes`
+      → `enable_cpp_acceleration()` works. NOTE the conda channel URL is
+      `https://repo.prefix.dev/awesomebytes` — the `prefix.dev/channels/...`
+      form is the web UI only and 404s for conda clients.
 - [x] Release workflow: on git tag → build → test → upload (with
       `PREFIX_API_KEY` secret).
       **Done (1a54dbc):** release.yml on `v*` tags — pkg-build → artifact
@@ -200,7 +204,7 @@ mechanically, not by discipline.
       Unexercised on GitHub until first push + tag.
 - [x] README "Install" section:
       ```toml
-      channels = ["https://prefix.dev/channels/awesomebytes", "robostack-jazzy", "conda-forge"]
+      channels = ["https://repo.prefix.dev/awesomebytes", "robostack-jazzy", "conda-forge"]
       [dependencies]
       ros-jazzy-rclcppyy = "*"
       ```
