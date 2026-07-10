@@ -45,7 +45,10 @@ Notes / limits:
 import os
 
 import cppyy
-from ament_index_python.packages import get_package_prefix
+
+from rclcppyy.kits import cppyy_kit
+
+_MISSING = object()
 
 # NodeStatus enum values. Exposed as plain ints for convenience, so user code can
 # `return bt_kit.SUCCESS`. `bt.NodeStatus.SUCCESS` (the real enum, mirroring C++)
@@ -64,14 +67,6 @@ _BRINGUP_DONE = False
 class BtXmlError(ValueError):
     """Raised for malformed XML or an unregistered node ID, with just the
     BehaviorTree.CPP message (not the cppyy C++ signature wrapper)."""
-
-
-def _clean_bt_error(exc):
-    """Strip cppyy's `<C++ signature> =>` prefix, leaving the BT what() message."""
-    msg = str(exc)
-    if "=>" in msg:
-        msg = msg.split("=>", 1)[1]
-    return " ".join(msg.split()).strip() or str(exc)
 
 # C++ glue compiled once at bringup. makePorts keeps the (segfault-prone in
 # cppyy) unordered_map<string, PortInfo> construction on the C++ side.
@@ -167,8 +162,8 @@ class _Node:
         `get_input("count", int)` == `getInput<int>("count")`. Also float/bool/str
         and `[int]`/`[float]`/... for vector ports; returns a Python value."""
         tag, to_python = _resolve_type(cast)
-        expected = self.raw.getInput[tag](key)
-        return to_python(expected.value()) if expected.has_value() else default
+        raw = cppyy_kit.unwrap_expected(self.raw.getInput[tag](key), _MISSING)
+        return default if raw is _MISSING else to_python(raw)
 
     def set_output(self, key, value, cast=None):
         """Write an output port. The C++ type is inferred from `value`
@@ -247,22 +242,10 @@ def _make_ports(ports):
     return cppyy.gbl.rclcppyy_btkit.makePorts(svec(names), svec(types))
 
 
-def _pin(obj, *items):
-    """Pin Python callables + their std::function wrappers on a cppyy object so
-    cppyy does not collect them (else 'callable was deleted' at tick time)."""
-    store = getattr(obj, "_bt_kit_pins", None)
-    if store is None:
-        store = []
-        obj._bt_kit_pins = store
-    store.extend(items)
-
-
 def _tick_functor(fn):
-    functor_t = cppyy.gbl.std.function["BT::NodeStatus(BT::TreeNode&)"]
-
     def tick(cpp_node):
         return _coerce_status(fn(_Node(cpp_node)))
-    return tick, functor_t(tick)
+    return tick, cppyy_kit.std_function("BT::NodeStatus(BT::TreeNode&)", tick)
 
 
 def _adapt_factory(BT):
@@ -280,12 +263,12 @@ def _adapt_factory(BT):
 
     def register_simple_action(self, name, fn, ports=None):
         tick, cpp_fn = _tick_functor(fn)
-        _pin(self, tick, cpp_fn)
+        cppyy_kit.keep_alive(self, tick, cpp_fn)
         self._orig_register_simple_action(name, cpp_fn, _make_ports(ports))
 
     def register_simple_condition(self, name, fn, ports=None):
         tick, cpp_fn = _tick_functor(fn)
-        _pin(self, tick, cpp_fn)
+        cppyy_kit.keep_alive(self, tick, cpp_fn)
         self._orig_register_simple_condition(name, cpp_fn, _make_ports(ports))
 
     def register_stateful(self, name, node_class, ports=None):
@@ -297,15 +280,17 @@ def _adapt_factory(BT):
         A fresh instance is created per tree-node instance, so two nodes with the
         same registered ID in one tree keep independent state. `node_class` should
         be a class (a factory callable also works)."""
-        instances = {}
+        # C++ builds each node and calls back with an int handle; the per-instance
+        # Python object lives in a registry, dispatched by handle -- ownership never
+        # crosses into Python (see cppyy_kit.HandleRegistry).
+        registry = cppyy_kit.HandleRegistry()
 
         def build(_node_name):
-            instances[len(instances)] = node_class()
-            return len(instances) - 1
+            return registry.add(node_class())
 
         def phase(camel, snake):
             def call(handle, node):
-                inst = instances[handle]
+                inst = registry.get(handle)
                 method = getattr(inst, camel, None) or getattr(inst, snake, None)
                 return _coerce_status(method(_Node(node)))
             return call
@@ -319,34 +304,34 @@ def _adapt_factory(BT):
             return int(running(handle, node))
 
         def f_halted(handle, node):
-            inst = instances[handle]
+            inst = registry.get(handle)
             method = getattr(inst, "onHalted", None) or getattr(inst, "on_halted", None)
             if method is not None:
                 method(_Node(node))
 
-        int_fn = cppyy.gbl.std.function["int(const std::string&)"]
-        hook_fn = cppyy.gbl.std.function["int(int, BT::TreeNode&)"]
-        void_fn = cppyy.gbl.std.function["void(int, BT::TreeNode&)"]
-        b, fs, fr, fh = int_fn(build), hook_fn(f_start), hook_fn(f_running), void_fn(f_halted)
-        _pin(self, instances, build, f_start, f_running, f_halted, b, fs, fr, fh)
+        b = cppyy_kit.std_function("int(const std::string&)", build)
+        fs = cppyy_kit.std_function("int(int, BT::TreeNode&)", f_start)
+        fr = cppyy_kit.std_function("int(int, BT::TreeNode&)", f_running)
+        fh = cppyy_kit.std_function("void(int, BT::TreeNode&)", f_halted)
+        cppyy_kit.keep_alive(self, registry, build, f_start, f_running, f_halted, b, fs, fr, fh)
         cppyy.gbl.rclcppyy_btkit.registerStateful(self, name, _make_ports(ports), b, fs, fr, fh)
 
     def create_tree_from_text(self, xml, *args):
         try:
             tree = self._orig_create_tree_from_text(_read_xml(xml), *args)
         except Exception as exc:  # cppyy.gbl.BT.RuntimeError / LogicError
-            raise BtXmlError(_clean_bt_error(exc)) from None
-        # cppyy will not keep the leaf callbacks alive; carry the factory's pins
-        # onto the tree, which owns the nodes that hold them.
-        tree._bt_kit_pins = list(getattr(self, "_bt_kit_pins", []))
+            raise BtXmlError(cppyy_kit.pretty_cpp_error(exc)) from None
+        # cppyy will not keep the leaf callbacks alive; carry the factory's pinned
+        # objects onto the tree, which owns the nodes that hold them.
+        cppyy_kit.keep_alive(tree, *getattr(self, "_cppyy_kit_kept_alive", []))
         return tree
 
     def create_tree_from_file(self, path, *args):
         try:
             tree = self._orig_create_tree_from_file(str(path), *args)
         except Exception as exc:
-            raise BtXmlError(_clean_bt_error(exc)) from None
-        tree._bt_kit_pins = list(getattr(self, "_bt_kit_pins", []))
+            raise BtXmlError(cppyy_kit.pretty_cpp_error(exc)) from None
+        cppyy_kit.keep_alive(tree, *getattr(self, "_cppyy_kit_kept_alive", []))
         return tree
 
     # Keep the exact C++ names, and add snake_case aliases.
@@ -376,13 +361,12 @@ def bringup_bt():
     if _BRINGUP_DONE:
         return _BT
 
-    prefix = get_package_prefix("behaviortree_cpp")
+    prefix = cppyy_kit.package_prefix("behaviortree_cpp")
     cppyy.add_include_path(os.path.join(prefix, "include"))
-    cppyy.add_library_path(os.path.join(prefix, "lib"))
     cppyy.include("behaviortree_cpp/bt_factory.h")
-    # cppyy resolves symbols at call time by owning-library lookup; load it
-    # explicitly rather than relying on LD_LIBRARY_PATH (see bringup_rclcpp).
-    cppyy.load_library("libbehaviortree_cpp.so")
+    # cppyy resolves symbols at call time by owning-library lookup; load the .so
+    # explicitly rather than relying on LD_LIBRARY_PATH (see cppyy_kit).
+    cppyy_kit.load_libraries(["libbehaviortree_cpp.so"], [os.path.join(prefix, "lib")])
     cppyy.cppdef(_CPP_GLUE)
 
     _BT = cppyy.gbl.BT
@@ -418,7 +402,7 @@ def add_cout_logger(tree):
     """Print every node status transition to stdout while `tree` ticks."""
     _ensure_loggers()
     logger = _BT.StdCoutLogger(tree)
-    _pin(tree, logger)
+    cppyy_kit.keep_alive(tree, logger)
     return logger
 
 
@@ -426,7 +410,7 @@ def add_file_logger(tree, path):
     """Record transitions to a .btlog file (replayable in Groot2)."""
     _ensure_loggers()
     logger = _BT.FileLogger2(tree, str(path))
-    _pin(tree, logger)
+    cppyy_kit.keep_alive(tree, logger)
     return logger
 
 
@@ -434,7 +418,7 @@ def add_groot2_publisher(tree, port=1667):
     """Publish live tree state for the Groot2 monitor (ZMQ on `port`)."""
     _ensure_loggers()
     publisher = _BT.Groot2Publisher(tree, port)
-    _pin(tree, publisher)
+    cppyy_kit.keep_alive(tree, publisher)
     return publisher
 
 
@@ -445,7 +429,7 @@ class _Observer:
         _ensure_loggers()
         self._tree = tree
         self._obs = _BT.TreeObserver(tree)
-        _pin(tree, self._obs)
+        cppyy_kit.keep_alive(tree, self._obs)
 
     def stats(self, node_path):
         s = self._obs.getStatistics(node_path)
