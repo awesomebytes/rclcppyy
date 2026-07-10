@@ -106,9 +106,10 @@ demo-bt-t02 = "python scripts/bt_kit_demos/t02_ports.py"
 demo-bt-t03 = "python scripts/bt_kit_demos/t03_mixed_tree.py"
 # ticks/sec micro-benchmark: C++ JIT leaves vs Python leaves through the kit.
 bench-bt = "python scripts/bt_kit_demos/bench_bt.py"
-# Run the bt_kit test suite in the bt env (behaviortree_cpp present). The same
-# file auto-skips under the default `pixi run test`, which has no BT.
-test-bt = "pytest test/test_bt_kit.py -v"
+# Run the bt_kit + cppyy_kit (common layer) test suites in the bt env
+# (behaviortree_cpp present). Both files auto-skip under the default
+# `pixi run test`, which has no BT.
+test-bt = "pytest test/test_bt_kit.py test/test_cppyy_kit.py -v"
 
 # Optional "pcl" feature/environment: Point Cloud Library for the pcl_kit cppyy
 # spike (rclcppyy/kits/pcl_kit.py). Same opt-in pattern as the bt feature.
