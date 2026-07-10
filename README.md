@@ -83,6 +83,25 @@ if not cppyy.gbl.rclcpp.ok():
 * Note that the `rclpy` publisher benchmark [bench_pub_rclpy.py](scripts/benchmarks/bench_pub_rclpy.py) can be switched to the `rclcppyy` backend by uncommenting the `enable_cpp_acceleration` line at the top.
 
 
+## Install (pixi, no build needed)
+
+> Available after the first tagged release publishes to the channel.
+
+If you just want to *use* `rclcppyy` (no clone, no `colcon build`), add the
+prefix.dev channel and the package to your own pixi workspace:
+
+```toml
+channels = ["https://prefix.dev/channels/rclcppyy", "robostack-jazzy", "conda-forge"]
+
+[dependencies]
+ros-jazzy-rclcppyy = "*"
+```
+
+Then `import rclcppyy; rclcppyy.enable_cpp_acceleration()` works out of the box —
+no `LD_LIBRARY_PATH` or activation setup required. Message packages you publish
+or subscribe (e.g. `ros-jazzy-std-msgs`) are separate dependencies, as in any
+ROS 2 project.
+
 ## Setup
 
 The workspace is a self-contained [pixi](https://pixi.sh) project: the manifest
