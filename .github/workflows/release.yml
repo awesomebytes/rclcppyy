@@ -1,0 +1,96 @@
+name: Release
+
+# On a version tag (v*): build the ros-jazzy-rclcppyy conda package, prove the
+# artifact installs and runs from a channel with no repo checkout, then upload
+# it to the prefix.dev channel.
+#
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │ MANUAL SETUP REQUIRED before the first release will succeed:              │
+# │   1. Create the prefix.dev channel `rclcppyy`:                            │
+# │        https://prefix.dev/channels/rclcppyy                               │
+# │      (rename here and in README if you pick a different channel name).    │
+# │   2. Add a repository secret PREFIX_API_KEY — a prefix.dev API token with │
+# │      write access to that channel (Settings → Secrets and variables →     │
+# │      Actions → New repository secret).                                    │
+# │ Until both exist the build + artifact-test steps still run; only the      │
+# │ upload step fails.                                                        │
+# └─────────────────────────────────────────────────────────────────────────┘
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: build, prove artifact, upload
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          pixi-version: v0.70.0
+          # Only the packaging env; it doesn't pull the ROS/cppyy stack.
+          environments: pkg
+
+      # rattler-build also runs the recipe's import smoke test in a fresh env.
+      - name: Build conda package
+        run: pixi run -e pkg pkg-build
+
+      # The point of releasing: a user with no clone gets a working install from
+      # the channel alone. Reproduce that in a throwaway pixi workspace whose
+      # channels include the freshly built local output, with no repo on
+      # PYTHONPATH and no LD_LIBRARY_PATH hand-holding.
+      - name: Prove the artifact installs and runs from a channel
+        run: |
+          set -euxo pipefail
+          workdir="$(mktemp -d)"
+          cat > "$workdir/pixi.toml" <<EOF
+          [workspace]
+          name = "rclcppyy-artifact-test"
+          channels = ["file://$GITHUB_WORKSPACE/output", "robostack-jazzy", "conda-forge"]
+          platforms = ["linux-64"]
+          version = "0.0.0"
+
+          [dependencies]
+          ros-jazzy-rclcppyy = "*"
+          EOF
+          cat > "$workdir/smoke.py" <<'PY'
+          # import + enable, then a flat-message pub/sub roundtrip, all from the
+          # channel-installed package (builtin_interfaces ships transitively).
+          import sys, time, cppyy
+          import rclcppyy
+          rclcppyy.enable_cpp_acceleration()
+          from rclcppyy.bringup_rclcpp import bringup_rclcpp
+          from builtin_interfaces.msg import Time
+          r = bringup_rclcpp(); r.init([])
+          pub_node = r.Node("ci_pub"); sub_node = r.Node("ci_sub")
+          got = []
+          pub = pub_node.create_publisher(Time, "ci_topic", 10)
+          sub = sub_node.create_subscription(Time, "ci_topic", lambda m: got.append(int(m.sec)), 10)
+          exe = r.executors.SingleThreadedExecutor()
+          exe.add_node(sub_node.get_node_base_interface())
+          for i in range(5):
+              m = Time(); m.sec = 100 + i; pub.publish(m)
+              for _ in range(5):
+                  exe.spin_some(cppyy.gbl.std.chrono.nanoseconds(20000000)); time.sleep(0.02)
+          print("received:", got)
+          sys.exit(0 if got == [100, 101, 102, 103, 104] else 1)
+          PY
+          cd "$workdir"
+          pixi run python smoke.py
+
+      - name: Upload to the prefix.dev channel `rclcppyy`
+        env:
+          PREFIX_API_KEY: ${{ secrets.PREFIX_API_KEY }}
+        run: |
+          set -euxo pipefail
+          pixi run -e pkg rattler-build upload prefix --channel rclcppyy \
+            $(find output -name '*.conda')
