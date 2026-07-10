@@ -31,9 +31,14 @@ Ports (tutorial 2)::
         return bt_kit.SUCCESS
     factory.registerSimpleAction("SaySomething", say, ports=["message"])
 
-Notes / limits (v0):
-    * Ports are string-typed and bidirectional (readable via `node.get_input`,
-      writable via `node.set_output`). Typed/directioned ports are not modelled.
+Ports may be string (the default) or typed: pass a dict to `ports`, e.g.
+`ports={"count": int, "ratio": float, "items": [float]}`, then read/write with the
+matching cast: `node.get_input("count", int)` / `node.set_output("ratio", 0.5)`.
+Supported: int, float (double), bool, str, and lists of those (vector ports).
+
+Notes / limits:
+    * Ports are bidirectional. Directioned (input-only/output-only) declarations
+      and arbitrary struct/JSON port types are not modelled (see REPORT.md gaps).
     * Leaf logic runs in Python (holds the GIL); use it for orchestration, not
       hot inner loops. For fast leaves, register a JIT'd C++ functor instead.
 """
@@ -55,6 +60,19 @@ _BT = None
 _STATUS = {}
 _BRINGUP_DONE = False
 
+
+class BtXmlError(ValueError):
+    """Raised for malformed XML or an unregistered node ID, with just the
+    BehaviorTree.CPP message (not the cppyy C++ signature wrapper)."""
+
+
+def _clean_bt_error(exc):
+    """Strip cppyy's `<C++ signature> =>` prefix, leaving the BT what() message."""
+    msg = str(exc)
+    if "=>" in msg:
+        msg = msg.split("=>", 1)[1]
+    return " ".join(msg.split()).strip() or str(exc)
+
 # C++ glue compiled once at bringup. makePorts keeps the (segfault-prone in
 # cppyy) unordered_map<string, PortInfo> construction on the C++ side.
 # PyStatefulShim exposes the pure-virtual StatefulActionNode hooks as
@@ -64,39 +82,65 @@ _BRINGUP_DONE = False
 _CPP_GLUE = r"""
 namespace rclcppyy_btkit {
 
-inline BT::PortsList makePorts(const std::vector<std::string>& names) {
+// Add one bidirectional port of the requested type. Dispatching on a string tag
+// keeps the (segfault-prone in cppyy) PortsList/map construction on the C++ side
+// while still letting Python choose the port type. Types beyond these fall back
+// to a std::string port (BT's convertFromString still parses the literal).
+inline void addPort(BT::PortsList& p, const std::string& name, const std::string& t) {
+  if      (t == "int")                      p.insert(BT::BidirectionalPort<int>(name));
+  else if (t == "double")                   p.insert(BT::BidirectionalPort<double>(name));
+  else if (t == "bool")                     p.insert(BT::BidirectionalPort<bool>(name));
+  else if (t == "std::vector<int>")         p.insert(BT::BidirectionalPort<std::vector<int>>(name));
+  else if (t == "std::vector<double>")      p.insert(BT::BidirectionalPort<std::vector<double>>(name));
+  else if (t == "std::vector<bool>")        p.insert(BT::BidirectionalPort<std::vector<bool>>(name));
+  else if (t == "std::vector<std::string>") p.insert(BT::BidirectionalPort<std::vector<std::string>>(name));
+  else                                      p.insert(BT::BidirectionalPort<std::string>(name));
+}
+
+// Two parallel std::vector<std::string> (names, types) -- passing a
+// vector<pair> or building the map from Python is what segfaults.
+inline BT::PortsList makePorts(const std::vector<std::string>& names,
+                               const std::vector<std::string>& types) {
   BT::PortsList ports;
-  for (const auto& n : names) {
-    ports.insert(BT::BidirectionalPort<std::string>(n));
+  for (size_t i = 0; i < names.size(); ++i) {
+    addPort(ports, names[i], types[i]);
   }
   return ports;
 }
 
+// Each tree-node instance gets its own Python object: when the builder runs
+// (once per node in the XML), it calls back into Python to create a fresh
+// instance and returns an integer handle; the shim carries that handle and the
+// onStart/onRunning/onHalted hooks dispatch on it. This gives per-instance state
+// rather than one shared Python object per registered ID.
 class PyStatefulShim : public BT::StatefulActionNode {
 public:
-  std::function<int(BT::TreeNode&)> f_start, f_running;
-  std::function<void(BT::TreeNode&)> f_halted;
-  PyStatefulShim(const std::string& name, const BT::NodeConfig& cfg)
-    : BT::StatefulActionNode(name, cfg) {}
-  BT::NodeStatus onStart() override { return static_cast<BT::NodeStatus>(f_start(*this)); }
-  BT::NodeStatus onRunning() override { return static_cast<BT::NodeStatus>(f_running(*this)); }
-  void onHalted() override { if (f_halted) f_halted(*this); }
+  int handle;
+  std::function<int(int, BT::TreeNode&)> f_start, f_running;
+  std::function<void(int, BT::TreeNode&)> f_halted;
+  PyStatefulShim(const std::string& name, const BT::NodeConfig& cfg, int h,
+                 std::function<int(int, BT::TreeNode&)> fs,
+                 std::function<int(int, BT::TreeNode&)> fr,
+                 std::function<void(int, BT::TreeNode&)> fh)
+    : BT::StatefulActionNode(name, cfg), handle(h),
+      f_start(fs), f_running(fr), f_halted(fh) {}
+  BT::NodeStatus onStart() override { return static_cast<BT::NodeStatus>(f_start(handle, *this)); }
+  BT::NodeStatus onRunning() override { return static_cast<BT::NodeStatus>(f_running(handle, *this)); }
+  void onHalted() override { if (f_halted) f_halted(handle, *this); }
 };
 
 inline void registerStateful(BT::BehaviorTreeFactory& factory,
                              const std::string& id,
                              const BT::PortsList& ports,
-                             std::function<int(BT::TreeNode&)> fs,
-                             std::function<int(BT::TreeNode&)> fr,
-                             std::function<void(BT::TreeNode&)> fh) {
+                             std::function<int(const std::string&)> builder,
+                             std::function<int(int, BT::TreeNode&)> fs,
+                             std::function<int(int, BT::TreeNode&)> fr,
+                             std::function<void(int, BT::TreeNode&)> fh) {
   factory.registerBuilder(BT::CreateManifest<PyStatefulShim>(id, ports),
-    [fs, fr, fh](const std::string& name, const BT::NodeConfig& cfg)
+    [builder, fs, fr, fh](const std::string& name, const BT::NodeConfig& cfg)
         -> std::unique_ptr<BT::TreeNode> {
-      auto node = std::make_unique<PyStatefulShim>(name, cfg);
-      node->f_start = fs;
-      node->f_running = fr;
-      node->f_halted = fh;
-      return node;
+      int h = builder(name);
+      return std::make_unique<PyStatefulShim>(name, cfg, h, fs, fr, fh);
     });
 }
 
@@ -118,12 +162,22 @@ class _Node:
     def __init__(self, cpp_node):
         self.raw = cpp_node
 
-    def get_input(self, key, default=None):
-        expected = self.raw.getInput["std::string"](key)
-        return str(expected.value()) if expected.has_value() else default
+    def get_input(self, key, cast=str, default=None):
+        """Read an input port. `cast` mirrors the C++ template arg:
+        `get_input("count", int)` == `getInput<int>("count")`. Also float/bool/str
+        and `[int]`/`[float]`/... for vector ports; returns a Python value."""
+        tag, to_python = _resolve_type(cast)
+        expected = self.raw.getInput[tag](key)
+        return to_python(expected.value()) if expected.has_value() else default
 
-    def set_output(self, key, value):
-        self.raw.setOutput["std::string"](key, str(value))
+    def set_output(self, key, value, cast=None):
+        """Write an output port. The C++ type is inferred from `value`
+        (int/float/bool/str/list) unless `cast` is given."""
+        tag = _resolve_type(cast)[0] if cast is not None else _infer_tag(value)
+        if tag.startswith("std::vector<"):
+            elem = tag[len("std::vector<"):-1]
+            value = cppyy.gbl.std.vector[elem](list(value))
+        self.raw.setOutput[tag](key, value)
 
     # camelCase aliases mirroring the C++ method names.
     getInput = get_input
@@ -149,9 +203,48 @@ def _coerce_status(result):
     return _STATUS[int(result)]
 
 
-def _make_ports(names):
-    vec = cppyy.gbl.std.vector["std::string"]([str(n) for n in (names or [])])
-    return cppyy.gbl.rclcppyy_btkit.makePorts(vec)
+# Python type -> (C++ getInput/port tag, function turning the C++ value into a
+# Python value). float maps to double, and a Python list [T] means a vector port.
+_SCALAR_TAG = {int: "int", float: "double", bool: "bool", str: "std::string"}
+
+
+def _resolve_type(spec):
+    """Map a port/cast spec to (cpp_tag, to_python). `spec` is a Python type
+    (int/float/bool/str), a [T] list for a vector, or a raw C++ tag string."""
+    if isinstance(spec, str):
+        return spec, (lambda v: v)
+    if isinstance(spec, (list, tuple)):
+        elem = spec[0] if spec else str
+        return "std::vector<%s>" % _SCALAR_TAG[elem], (lambda v: list(v))
+    if spec is str:
+        return "std::string", (lambda v: str(v))
+    return _SCALAR_TAG[spec], (lambda v: v)
+
+
+def _infer_tag(value):
+    """C++ tag to setOutput a Python value with (bool before int -- bool is an int)."""
+    if isinstance(value, bool):
+        return "bool"
+    if isinstance(value, int):
+        return "int"
+    if isinstance(value, float):
+        return "double"
+    if isinstance(value, (list, tuple)):
+        return _resolve_type([type(value[0]) if value else str])[0]
+    return "std::string"
+
+
+def _make_ports(ports):
+    """Build a PortsList from either a list of names (string ports) or a dict
+    {name: type} for typed ports. type is a Python type, a [T] list, or a tag."""
+    if isinstance(ports, dict):
+        names = list(ports.keys())
+        types = [_resolve_type(ports[n])[0] for n in names]
+    else:
+        names = [str(n) for n in (ports or [])]
+        types = ["std::string"] * len(names)
+    svec = cppyy.gbl.std.vector["std::string"]
+    return cppyy.gbl.rclcppyy_btkit.makePorts(svec(names), svec(types))
 
 
 def _pin(obj, *items):
@@ -199,41 +292,60 @@ def _adapt_factory(BT):
         """Register an asynchronous (multi-tick) node whose behaviour is a Python
         class exposing onStart/onRunning/onHalted (snake_case accepted too), each
         returning a status. This is the kit's stand-in for the C++
-        `registerNodeType<StatefulActionNode>`, which cannot take a Python type."""
-        instance = node_class() if isinstance(node_class, type) else node_class
+        `registerNodeType<StatefulActionNode>`, which cannot take a Python type.
 
-        def hook(camel, snake):
-            return getattr(instance, camel, None) or getattr(instance, snake, None)
+        A fresh instance is created per tree-node instance, so two nodes with the
+        same registered ID in one tree keep independent state. `node_class` should
+        be a class (a factory callable also works)."""
+        instances = {}
 
-        start = hook("onStart", "on_start")
-        running = hook("onRunning", "on_running")
-        halted = hook("onHalted", "on_halted")
+        def build(_node_name):
+            instances[len(instances)] = node_class()
+            return len(instances) - 1
 
-        def f_start(node):
-            return int(_coerce_status(start(_Node(node))))
+        def phase(camel, snake):
+            def call(handle, node):
+                inst = instances[handle]
+                method = getattr(inst, camel, None) or getattr(inst, snake, None)
+                return _coerce_status(method(_Node(node)))
+            return call
 
-        def f_running(node):
-            return int(_coerce_status(running(_Node(node))))
+        start, running = phase("onStart", "on_start"), phase("onRunning", "on_running")
 
-        def f_halted(node):
-            if halted is not None:
-                halted(_Node(node))
+        def f_start(handle, node):
+            return int(start(handle, node))
 
-        int_fn = cppyy.gbl.std.function["int(BT::TreeNode&)"]
-        void_fn = cppyy.gbl.std.function["void(BT::TreeNode&)"]
-        fs, fr, fh = int_fn(f_start), int_fn(f_running), void_fn(f_halted)
-        _pin(self, instance, f_start, f_running, f_halted, fs, fr, fh)
-        cppyy.gbl.rclcppyy_btkit.registerStateful(self, name, _make_ports(ports), fs, fr, fh)
+        def f_running(handle, node):
+            return int(running(handle, node))
+
+        def f_halted(handle, node):
+            inst = instances[handle]
+            method = getattr(inst, "onHalted", None) or getattr(inst, "on_halted", None)
+            if method is not None:
+                method(_Node(node))
+
+        int_fn = cppyy.gbl.std.function["int(const std::string&)"]
+        hook_fn = cppyy.gbl.std.function["int(int, BT::TreeNode&)"]
+        void_fn = cppyy.gbl.std.function["void(int, BT::TreeNode&)"]
+        b, fs, fr, fh = int_fn(build), hook_fn(f_start), hook_fn(f_running), void_fn(f_halted)
+        _pin(self, instances, build, f_start, f_running, f_halted, b, fs, fr, fh)
+        cppyy.gbl.rclcppyy_btkit.registerStateful(self, name, _make_ports(ports), b, fs, fr, fh)
 
     def create_tree_from_text(self, xml, *args):
-        tree = self._orig_create_tree_from_text(_read_xml(xml), *args)
+        try:
+            tree = self._orig_create_tree_from_text(_read_xml(xml), *args)
+        except Exception as exc:  # cppyy.gbl.BT.RuntimeError / LogicError
+            raise BtXmlError(_clean_bt_error(exc)) from None
         # cppyy will not keep the leaf callbacks alive; carry the factory's pins
         # onto the tree, which owns the nodes that hold them.
         tree._bt_kit_pins = list(getattr(self, "_bt_kit_pins", []))
         return tree
 
     def create_tree_from_file(self, path, *args):
-        tree = self._orig_create_tree_from_file(str(path), *args)
+        try:
+            tree = self._orig_create_tree_from_file(str(path), *args)
+        except Exception as exc:
+            raise BtXmlError(_clean_bt_error(exc)) from None
         tree._bt_kit_pins = list(getattr(self, "_bt_kit_pins", []))
         return tree
 
@@ -282,6 +394,79 @@ def bringup_bt():
     _adapt_factory(_BT)
     _BRINGUP_DONE = True
     return _BT
+
+
+# --- Observability -------------------------------------------------------
+# Loggers/observers attach to a tree at construction (RAII) and must outlive the
+# ticking, so each helper pins the object on the tree. The logger headers are
+# JIT-included lazily (they pull in zmq/flatbuffers) so plain bringup stays fast.
+_LOGGERS_INCLUDED = False
+
+
+def _ensure_loggers():
+    global _LOGGERS_INCLUDED
+    if _LOGGERS_INCLUDED:
+        return
+    bringup_bt()
+    for header in ("bt_cout_logger.h", "bt_file_logger_v2.h",
+                   "bt_observer.h", "groot2_publisher.h"):
+        cppyy.include("behaviortree_cpp/loggers/%s" % header)
+    _LOGGERS_INCLUDED = True
+
+
+def add_cout_logger(tree):
+    """Print every node status transition to stdout while `tree` ticks."""
+    _ensure_loggers()
+    logger = _BT.StdCoutLogger(tree)
+    _pin(tree, logger)
+    return logger
+
+
+def add_file_logger(tree, path):
+    """Record transitions to a .btlog file (replayable in Groot2)."""
+    _ensure_loggers()
+    logger = _BT.FileLogger2(tree, str(path))
+    _pin(tree, logger)
+    return logger
+
+
+def add_groot2_publisher(tree, port=1667):
+    """Publish live tree state for the Groot2 monitor (ZMQ on `port`)."""
+    _ensure_loggers()
+    publisher = _BT.Groot2Publisher(tree, port)
+    _pin(tree, publisher)
+    return publisher
+
+
+class _Observer:
+    """Thin wrapper over BT::TreeObserver: per-node tick/success/failure counts."""
+
+    def __init__(self, tree):
+        _ensure_loggers()
+        self._tree = tree
+        self._obs = _BT.TreeObserver(tree)
+        _pin(tree, self._obs)
+
+    def stats(self, node_path):
+        s = self._obs.getStatistics(node_path)
+        return {"transitions": int(s.transitions_count),
+                "success": int(s.success_count),
+                "failure": int(s.failure_count)}
+
+    def counts(self):
+        """{node_full_path: stats} for every node in the tree."""
+        out = {}
+        for subtree in self._tree.subtrees:
+            for node in subtree.nodes:
+                path = str(node.fullPath())
+                out[path] = self.stats(path)
+        return out
+
+
+def observe(tree):
+    """Attach a TreeObserver to `tree` and return an object exposing per-node
+    tick/success/failure counts via .stats(path) and .counts()."""
+    return _Observer(tree)
 
 
 def _read_xml(xml):
