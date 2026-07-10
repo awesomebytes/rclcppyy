@@ -240,7 +240,8 @@ mechanically, not by discipline.
   transfers 1:1 and there's no hidden registry state; only stateful nodes
   deviate (`register_stateful`, since `registerNodeType<T>` can't take a
   Python class). Full probe matrix, benchmark, API comparison, gaps:
-  `docs/bt_kit/REPORT.md`; LLM cheat sheet: `docs/bt_kit/KIT.md`.
+  `docs/bt_kit/REPORT.md`; explainer with C++-vs-Python side-by-side:
+  `docs/bt_kit/WHY.md`; LLM cheat sheet: `docs/bt_kit/BT.CPP_KIT.md`.
   Kit: `rclcppyy/kits/bt_kit.py` (optional `bt` pixi env; default env
   untouched). Key findings: Python can author leaves only (BT marks tick()
   final → no cross-inheritance); cppyy has sharp edges (container
