@@ -18,7 +18,7 @@ ament_python_install_package(${PROJECT_NAME})
 install(DIRECTORY scripts/
   DESTINATION lib/${PROJECT_NAME}
   USE_SOURCE_PERMISSIONS
-  PATTERN "*.py"
+  FILES_MATCHING PATTERN "*.py"
 )
 
 if(BUILD_TESTING)
