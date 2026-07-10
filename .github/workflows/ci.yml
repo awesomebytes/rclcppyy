@@ -43,6 +43,11 @@ jobs:
       - name: Build
         run: pixi run build
 
+      # flake8 scoped to rclcppyy/ + test/ (see .flake8); style codes relaxed,
+      # real defects (unused imports/locals, etc.) are enforced.
+      - name: Lint
+        run: pixi run lint
+
       - name: Test (pub/sub roundtrip, monkeypatch, serialization parity)
         run: pixi run test
 

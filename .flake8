@@ -1,0 +1,19 @@
+[flake8]
+max-line-length = 120
+extend-ignore =
+    # Quote style (flake8-quotes) — this codebase mixes single/double quotes.
+    Q000,
+    # Trailing/blank whitespace and end-of-file newline conventions.
+    W291, W292, W293, W391,
+    # Import grouping/order (flake8-import-order) — not enforced here.
+    I100, I101, I201, I202,
+    # Blank-line-count style around defs/classes.
+    E302, E303, E305, E306,
+    # Continuation-line indentation style; fixing would require reformatting
+    # existing multi-line call/def sites rather than a real code change.
+    E121, E122, E123, E124, E125, E126, E127, E128, E129, E131,
+    # pydocstyle (flake8-docstrings) — this project does not enforce docstrings.
+    D,
+    # flake8-builtins: rosbag2_py_compat.py deliberately mirrors rosbag2_py's
+    # real attribute names (id/type/open) for API compatibility.
+    A003

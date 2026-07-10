@@ -10,7 +10,6 @@ Goals:
 
 from __future__ import annotations
 
-import ctypes
 from dataclasses import dataclass
 from typing import Any, Iterable, List, Optional, Tuple
 
@@ -281,12 +280,16 @@ class SequentialWriter:
         try:
             # cppyy proxies expose get_rcl_serialized_message
             _ = message.get_rcl_serialized_message  # attribute exists
-            cppyy.gbl.rclcppyy_writer_write_serialized_message(self._cxx, topic_name, message, int(recv_timestamp), int(send_timestamp))
+            cppyy.gbl.rclcppyy_writer_write_serialized_message(
+                self._cxx, topic_name, message, int(recv_timestamp), int(send_timestamp)
+            )
             return
         except Exception:
             pass
         # Fallback: assume bytes-like
-        cppyy.gbl.rclcppyy_writer_write_bytes(self._cxx, topic_name, message, len(message), int(recv_timestamp), int(send_timestamp))
+        cppyy.gbl.rclcppyy_writer_write_bytes(
+            self._cxx, topic_name, message, len(message), int(recv_timestamp), int(send_timestamp)
+        )
 
     # Convenience fast-path for serialized bag messages
     def write_serialized(self, sbm: Any) -> None:
