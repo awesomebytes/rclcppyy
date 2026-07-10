@@ -1,0 +1,70 @@
+schema_version: 1
+
+context:
+  name: ros-jazzy-rclcppyy
+  # Keep in sync with package.xml <version>.
+  version: "0.1.0"
+
+package:
+  name: ${{ name }}
+  version: ${{ version }}
+
+source:
+  # The repo root (this recipe lives in recipe/). Gitignored dirs (.pixi/,
+  # build/, install/, log/) are skipped, so the multi-GB pixi env is not copied.
+  path: ..
+  use_gitignore: true
+
+build:
+  number: 0
+  # build.sh (auto-detected) runs the ament_cmake build.
+
+requirements:
+  build:
+    # rclcppyy compiles none of its own sources, but cmake project() enables
+    # C/CXX so a compiler must be present at configure time.
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - cmake
+    - ninja
+  host:
+    - python
+    - setuptools <81
+    - ros-jazzy-ament-cmake
+    - ros-jazzy-ament-cmake-python
+    - ros-jazzy-ament-index-python
+    - ros-jazzy-rclcpp
+    - ros-jazzy-rclpy
+  run:
+    - python
+    - cppyy >=3.5,<4
+    - ros-jazzy-ament-index-python
+    - ros-jazzy-rclcpp
+    - ros-jazzy-rclpy
+
+tests:
+  - script:
+      # Import-only smoke: exercises the package's transitive imports (cppyy,
+      # rclpy, ament_index_python) in a fresh env with just the run deps. The
+      # full "install from channel and run pub/sub" proof lives outside the
+      # recipe (a fresh pixi workspace) since it needs an RMW + workspace
+      # activation.
+      - python -c "import rclcppyy; print('rclcppyy', rclcppyy.__file__)"
+
+about:
+  homepage: https://github.com/awesomebytes/rclcppyy
+  repository: https://github.com/awesomebytes/rclcppyy
+  license: BSD-3-Clause
+  # Vendored copy of the repo-root LICENSE; rattler-build resolves license_file
+  # relative to the (copied) recipe directory, so ../LICENSE does not resolve.
+  license_file: LICENSE
+  summary: rclcpp bindings via cppyy — use ROS 2 C++ APIs from Python
+  description: |
+    rclcppyy exposes rclcpp (and related ROS 2 C++ APIs) to Python via cppyy,
+    letting rclpy-style code run on the C++ backend for lower CPU usage. It also
+    provides an enable_cpp_acceleration() monkeypatch so existing rclpy code can
+    use the C++ backend with a single line.
+
+extra:
+  recipe-maintainers:
+    - awesomebytes
