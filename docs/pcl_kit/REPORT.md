@@ -202,42 +202,14 @@ single-threaded pipeline could sustain flat-out.
 
 ## 6. Generic lessons for cppyy_kit
 
-*(Patterns that generalize beyond PCL — written for merging with the bt_kit
-agent's list. A reconciliation pass will de-dup.)*
-
-- **The three-ingredient recipe holds.** bringup (locate -> `include` ->
-  `load_library`), hide the library's specific cppyy sharp edges, mirror the C++
-  API. PCL is the second independent confirmation after bt_kit.
-- **`load_library` is mandatory, `add_library_path` is not enough.** cppyy resolves
-  a symbol by finding its *owning* `.so` at call time. Every library whose symbols
-  you call must be `load_library`'d by soname (find them in `$CONDA_PREFIX/lib`).
-  For PCL that's the `libpcl_common/octree/kdtree/search/sample_consensus/filters`
-  set (filters pulls the others transitively at runtime).
-- **Keep all buffer/container work in C++; pass raw addresses as `uintptr_t`.** The
-  fast, safe way to move bulk data across the boundary is a `cppdef` helper that
-  takes `reinterpret_cast`-able integer addresses (`arr.ctypes.data`) and does the
-  `memcpy`/strided copy in C++. Per-element Python loops are ~90x slower and
-  building STL/aligned storage from Python can SIGSEGV with no traceback.
-- **Include *impl* headers to unlock on-demand template instantiation.** A
-  precompiled `.so` only carries the specializations its authors compiled. To let
-  Cling instantiate `Template<UserType>` at JIT time, include the library's
-  `impl/*.hpp` (or `*.hxx`). This is what makes the "any type, on demand" claim
-  real — the difference between a fixed-surface binding and cppyy.
-- **Cling's parser is an older clang; trailing type-attributes bite.** `struct { ...
-  } ATTR;` can parse-error, and a failed `cppdef` can crash during *transaction
-  revert* (no Python traceback). Prefer prefix attributes (`struct alignas(16) X`),
-  and probe risky `cppdef` in isolation before shipping.
-- **Call C++ function templates directly; let cppyy deduce.** `pcl.toROSMsg(cloud,
-  msg)` / `pcl.fromROSMsg(msg, cloud)` work from Python with the template argument
-  deduced from a runtime argument — no explicit `[T]` and no C++ wrapper needed.
-  Reach for a `cppdef` helper only when a template arg *can't* be deduced or when
-  ownership (`unique_ptr`) must not cross into Python.
-- **Split bringup into cheap/expensive stages.** PCL core JITs in ~1.3 s; pulling
-  in ROS message headers (`pcl_conversions`) adds ~1.9 s. A `with_ros` flag lets a
-  NumPy-only user skip the expensive stage. Generalize: gate the heavy includes.
-- **Mirror, don't sugar.** As with bt_kit, exposing the library's real names beats
-  a bespoke DSL: PCL knowledge (and an LLM's training on PCL) transfers 1:1, and
-  the kit carries no hidden state.
+These generalized beyond PCL and are now maintained as the shared,
+library-independent catalog in **[../kits/COMMON_PATTERNS.md](../kits/COMMON_PATTERNS.md)**
+(the recipe, `load_library` rule, containers-in-C++/`uintptr_t` bulk copy,
+on-demand template instantiation via impl headers, Cling attribute/`cppdef`
+traps, direct template-function calls, and mirror-don't-sugar) — implemented in
+`rclcppyy/kits/cppyy_kit.py` and confirmed by both pcl_kit and bt_kit. The
+PCL-specific evidence stays in this report (§1 probe matrix, §3 copy accounting,
+§4 showcase benchmark, §5 gaps).
 
 ---
 
