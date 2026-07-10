@@ -264,49 +264,11 @@ freeze via a Cling C++ module for `bt_factory.h`; (d) live Groot2 verification.
 
 ## 7. Generic lessons for cppyy_kit
 
-Patterns confirmed here that should generalize to any cppyy "kit" (`pcl_kit`,
-`ompl_kit`, `ceres_kit`, …). Written to merge cleanly with a sibling kit's lessons.
+These generalized beyond BT.CPP and are now maintained as the shared,
+library-independent catalog in **[../kits/COMMON_PATTERNS.md](../kits/COMMON_PATTERNS.md)**
+(the recipe, keep-alive, function crossing both ways, container/segfault traps,
+templates, GIL rules, error prettify, and the AOT/L1 finding) — implemented in
+`rclcppyy/kits/cppyy_kit.py` and confirmed by both bt_kit and pcl_kit. The
+BT-specific evidence stays in this report (§1 probe matrix, §5 deep-pass verdicts,
+§5 Gap 8 AOT probe).
 
-- **Bringup recipe (three steps).** (1) locate the install — ament index
-  `get_package_prefix` or a known prefix; (2) `add_include_path(prefix/include)`
-  and `add_library_path(prefix/lib)`, then `cppyy.include(main_header)`; (3)
-  `cppyy.load_library("libX.so")` — cppyy resolves symbols by owning-library
-  lookup at call time, so load the `.so` explicitly rather than trusting
-  `LD_LIBRARY_PATH`. Compile any glue with one `cppyy.cppdef` block.
-- **Cost model / AOT.** Bringup time is dominated by the header JIT-parse (here
-  89%, 0.83 s). ROOT dictionaries (`rootcling` + `load_reflection_info`) give
-  reflection/autoload but do **not** skip the parse (it's deferred to first class
-  use). A real freeze needs a Cling C++ module/PCH for the header set.
-- **Keep-alive.** cppyy does not keep Python callables (nor their `std::function`
-  wrappers) alive; pin them on a long-lived C++-owned object (here: factory →
-  tree). Symptom when missing: `callable was deleted` at call time.
-- **Passing functions across the boundary.** Python → C++ as
-  `std::function<...>` works for value/reference params and int/enum/void returns.
-  C++ → Python callbacks run **in the calling C++ thread**; cppyy takes the GIL.
-  For a single-threaded driver (a tick loop, a spin) there is no contention.
-- **Ownership must not cross into Python.** Returning a `std::unique_ptr<T>` *from*
-  a Python-side `std::function` fails (`C++ type cannot be converted to memory`).
-  Keep ownership-creating lambdas entirely in C++; pass only value/reference hooks
-  across. To give each C++ object its own Python peer, have C++ call a Python
-  builder that returns an **int handle** and dispatch later calls by handle.
-- **Build STL containers in C++, not Python.** Constructing/inserting maps
-  (`unordered_map`, and building from pairs) from Python can **SIGSEGV** with no
-  traceback (`MapFromPairs`). Do it in a `cppdef` helper; pass **parallel
-  `vector<string>`** (safe) instead of `vector<pair>`/maps.
-- **Cross-inheritance limits.** Python subclassing of a C++ class fails if any
-  virtual in the hierarchy is `final` (`no python-side overrides supported`), and
-  `registerNodeType<T>`-style templates cannot take a Python class. Escape hatch:
-  a JIT'd C++ shim subclass holding `std::function` slots, registered via a
-  C++-side builder.
-- **Template members & Expected.** `obj.method[T](args)` calls a C++ template
-  member from Python; unwrap `Expected<T>`/optional-like returns with
-  `has_value()` / `value()`.
-- **Error ergonomics.** cppyy prefixes C++ exceptions with the mangled call
-  signature and ` => `; split on ` => ` and collapse whitespace for a readable
-  one-line message, re-raised as a kit-specific exception.
-- **Enums & ints.** C++ enums compare equal to their int values; expose plain-int
-  constants for convenience while keeping the real enum available.
-- **API mirroring.** Patch the library's real classes so the methods keep their
-  C++ names (add snake_case aliases); an LLM/user then transfers existing
-  knowledge of the library 1:1 and there is no DSL to learn or hidden state to
-  misuse.
