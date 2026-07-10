@@ -1,0 +1,42 @@
+[workspace]
+authors = ["Sam Pfeiffer <sammypfeiffer@gmail.com>"]
+name = "rclcppyy_ws"
+channels = ["robostack-jazzy", "conda-forge"]
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[dependencies]
+ros-jazzy-ros-base = ">=0.11"
+ros-jazzy-rmw-cyclonedds-cpp = "*"
+cppyy = ">=3.5,<4"
+colcon-common-extensions = "*"
+cmake = "*"
+ninja = "*"
+make = "*"
+compilers = "*"
+pkg-config = "*"
+python = "3.12.*"
+# robostack-jazzy's launch_testing / launch_ros pytest plugins use hook
+# signatures removed in pytest 8, so keep pytest on the 7.x line.
+pytest = ">=7.4,<8"
+numpy = "*"
+setuptools = "<81"
+
+[activation]
+scripts = ["workspace_activation.sh"]
+
+[activation.env]
+# fastrtps (the ROS default) has intermittent latency issues and drops big
+# messages; cyclonedds on LOCALHOST is the reliable default for this workspace.
+RMW_IMPLEMENTATION = "rmw_cyclonedds_cpp"
+ROS_AUTOMATIC_DISCOVERY_RANGE = "LOCALHOST"
+# cppyy resolves C++ symbols at call time by scanning LD_LIBRARY_PATH for the
+# owning shared library (e.g. librclcpp.so). conda/robostack rely on RPATH and
+# leave LD_LIBRARY_PATH unset, so without this cppyy.gbl.rclcpp calls fail with
+# "failed to resolve function". Point it at the env's lib dir.
+LD_LIBRARY_PATH = "$CONDA_PREFIX/lib"
+
+[tasks]
+build = "colcon build --packages-select rclcppyy"
+clean = "rm -rf build install log"
+test = "pytest test/"

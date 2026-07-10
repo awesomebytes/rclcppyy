@@ -1,0 +1,14 @@
+# pixi
+.pixi/
+
+# colcon
+build/
+install/
+log/
+
+# python
+__pycache__/
+*.pyc
+
+# hypothesis
+.hypothesis/
