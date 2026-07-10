@@ -1,9 +1,5 @@
 # rclcppyy
 
-**!IMPORTANT!**
-
-**Note: If you come from ROSCON UK and are aiming to try this, I need a few days to clean up the repo and make it ready to use as you saw it in the presentation.**
-
 ROS 2 package providing `rclcpp` bindings via [cppyy](https://cppyy.readthedocs.io/en/latest/) and examples on how to use `cppyy` in ROS2.
 
 ![](media/rclcppyy_presentation_logo.jpg)
@@ -85,79 +81,52 @@ if not cppyy.gbl.rclcpp.ok():
 * Note that the `rclpy` publisher benchmark [bench_pub_rclpy.py](scripts/benchmarks/bench_pub_rclpy.py) can be switched to the `rclcppyy` backend by uncommenting the `enable_cpp_acceleration` line at the top.
 
 
-## Run demos
-Easiest way to test by yourself is using a Pixi workspace. TODO: make a repo with the Pixi workspace ready to use, with this repo as a git submodule.
+## Setup
 
-For now one can take this `pixi.toml`:
-```toml
-[workspace]
-authors = ["Sam Pfeiffer <sammypfeiffer@gmail.com>"]
-channels = ["conda-forge", "robostack-jazzy"]
-name = "rclcppyy_ws"
-platforms = ["linux-64"]
-version = "0.1.0"
+The workspace is a self-contained [pixi](https://pixi.sh) project: the manifest
+(`pixi.toml`) and lockfile (`pixi.lock`) live in this repo, so `pixi install`
+reproduces the exact environment (ROS 2 Jazzy from robostack, `cppyy` from
+conda-forge, compilers, colcon). No manual steps, no workarounds.
 
-[tasks]
-
-[dependencies]
-ros-jazzy-ros-base = ">=0.11.0,<0.12"
-opencv = ">=4.11.0,<5"
-
-[activation]
-# Comment out this line on first build
-scripts = ["fix_cppyy_api_path.sh"]
-# To silence warning: non-portable path to file '"cpycppyy/API.h"'; specified path differs in case from file name on disk [-Wnonportable-include-path]
-# From patching the wrong path due to capitalisation from the current cppyy packaged version
-env = { EXTRA_CLING_ARGS = "-Wno-nonportable-include-path" }
-
-[pypi-dependencies]
-cppyy = ">=3.5.0, <4"
-```
-**Workaround needed**: Comment out the `scripts = ["fix_cppyy_api_path.sh"]` line on the first build as it will fail otherwise. There's an issue with cppyy packaging and the capitalisation of the `cpycppyy` directory.
-
-And do:
 ```bash
 # If you haven't installed pixi:
 curl -fsSL https://pixi.sh/install.sh | sh
 source ~/.bashrc
 
-# Clone this repo
-mkdir -p rclcppyy_ws/src
-cd rclcppyy_ws/src
 git clone https://github.com/awesomebytes/rclcppyy
-# workaround...
-cp rclcppyy/fix_cppyy_api_path.sh ..
-cd ..
-# Copy the `pixi.toml` here and (apply the workaround mentioned above)
-pixi install
-# Undo the workaround done before, e.g. uncomment the line
-pixi shell
-# You'll be in a shell with the environment fully ready after a few seconds
+cd rclcppyy
+pixi install        # downloads the environment (a few GB the first time)
+pixi run build      # colcon build --packages-select rclcppyy
 ```
 
-
-### Build
-
-Once in the pixi workspace or in a system with all dependencies...
+`pixi run build` builds the package into `install/`. To get an interactive shell
+with the environment (and the built workspace) already activated:
 
 ```bash
-cd /path/to/workspace
-colcon build --packages-select rclcppyy
-source install/setup.bash
+pixi shell
 ```
+
+Inside `pixi shell` the workspace overlay is sourced automatically and the
+recommended middleware defaults are already set (`RMW_IMPLEMENTATION=rmw_cyclonedds_cpp`,
+`ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST`) — the ROS default fastrtps has random
+latency issues and big messages don't pass through, so cyclonedds on LOCALHOST is
+the default here.
+
+Tasks: `pixi run build`, `pixi run test` (runs pytest on `test/`), `pixi run clean`
+(removes `build/ install/ log/`).
 
 ### Run
 
-```bash
-# Default is fastrtps, which has random latency issues, and big messages don't pass through
-export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-export ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST
+Enter the environment with `pixi shell` (middleware defaults and the workspace
+overlay are applied automatically), then, one per shell:
 
-# One on each shell probably
+```bash
+# rclpy baseline
 ros2 run rclcppyy bench_pub_rclpy.py 10000
 ros2 run rclcppyy bench_sub_rclpy.py
 
-ros2 run rclcppyy bench_pub_rclcppyy_monkeypatched.py 10000
+# rclcppyy (monkeypatched rclpy → C++ backend)
+ros2 run rclcppyy bench_pub_rclcppyy_monkeypatch.py 10000
 ros2 run rclcppyy bench_sub_rclcppyy_monkeypatched.py
 
 # Monitor with
@@ -166,6 +135,9 @@ ros2 run rclcppyy bench_sub_rclcppyy_monkeypatched.py
 # Or the tutorial example
 ros2 run rclcppyy publisher_member_function.py
 ```
+
+Without entering a shell, any command can be run through pixi directly, e.g.
+`pixi run ros2 run rclcppyy bench_sub_rclcppyy_monkeypatched.py`.
 
 ## Roadmap
 
