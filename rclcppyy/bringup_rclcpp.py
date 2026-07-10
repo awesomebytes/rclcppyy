@@ -255,73 +255,207 @@ def adapt_rclcpp_to_python(rclcpp: Any):
             # rclcpp style: init(argc, argv)
             return rclcpp_init(*args)
         else:
-            # rclpy style: init(args=None, *, context=None) 
+            # rclpy style: init(args=None, *, context=None)
             return rclpy_init(*args, **kwargs)
 
     rclcpp.init = init_wrapper
 
+    # rclcpp::spin needs a shared_ptr-managed node. cppyy can hand it one for a
+    # directly-created rclcpp.Node, but not for a Python subclass of rclcpp.Node
+    # (as the rclpy tutorials write them). In that case fall back to the node's
+    # base interface, which spin also accepts.
+    rclcpp_spin = rclcpp.spin
+    def spin_wrapper(node, *args, **kwargs):
+        try:
+            return rclcpp_spin(node, *args, **kwargs)
+        except TypeError:
+            if hasattr(node, "get_node_base_interface"):
+                return rclcpp_spin(node.get_node_base_interface(), *args, **kwargs)
+            raise
+
+    rclcpp.spin = spin_wrapper
+
+def _keep_alive(node: Any, *objs: Any) -> None:
+    """
+    Keep Python objects referenced for as long as the node lives.
+
+    cppyy's std::function wrappers do not reliably hold a strong reference to the
+    underlying Python callable, so without this the callback can be garbage
+    collected and firing it later raises "callable was deleted".
+    """
+    store = getattr(node, "_rclcppyy_kept_alive", None)
+    if store is None:
+        store = []
+        node._rclcppyy_kept_alive = store
+    store.extend(objs)
+
+
+def _wrap_publish_for_python_msgs(publisher: Any) -> None:
+    """
+    Wrap a publisher's publish() so that, if handed an rclpy (Python) message,
+    it is converted to the equivalent rclcpp (C++) message before publishing.
+    C++ messages are published directly with no conversion overhead.
+    """
+    original_publish = publisher.publish
+
+    def publish_wrapper(msg):
+        if _is_msg_cpp(msg):
+            return original_publish(msg)
+        # Convert the Python message to its C++ equivalent (top-level fields).
+        # Nested messages/arrays need recursive handling (see
+        # RclcppyyNode._convert_msg_to_cpp); this simple path covers flat messages.
+        _, cppyy_type = _resolve_message_type(msg)
+        cpp_msg = cppyy_type()
+        for field_name in msg.get_fields_and_field_types():
+            setattr(cpp_msg, field_name, getattr(msg, field_name))
+        return original_publish(cpp_msg)
+
+    publisher.publish = publish_wrapper
+
+
+# The native templated methods are stashed under these names so the bound
+# handlers can invoke them through the node instance (cppyy binds `this` for us,
+# which subscription template-argument deduction requires).
+_ORIG_CREATE_PUBLISHER = "_rclcppyy_orig_create_publisher"
+_ORIG_CREATE_SUBSCRIPTION = "_rclcppyy_orig_create_subscription"
+
+
+class _BoundCreatePublisher:
+    """Per-node handler installed by the create_publisher descriptor."""
+
+    def __init__(self, node: Any):
+        self._node = node
+
+    def _orig(self):
+        # Native templated create_publisher, bound to this node.
+        return getattr(self._node, _ORIG_CREATE_PUBLISHER)
+
+    def __getitem__(self, msg_type):
+        # Native rclcpp template syntax: node.create_publisher[MsgT](topic, qos, ...)
+        return self._orig()[msg_type]
+
+    def __call__(self, msg_type, topic, qos, *args, **kwargs):
+        # rclpy style: node.create_publisher(MsgType, topic, qos)
+        _, cppyy_type = _resolve_message_type(msg_type)
+        publisher = self._orig()[cppyy_type](topic, qos, *args, **kwargs)
+        # Only the rclpy-style path may be handed Python messages, so this is
+        # where we install the (opt-in) publish conversion wrapper.
+        _wrap_publish_for_python_msgs(publisher)
+        return publisher
+
+
+class _BoundCreateSubscription:
+    """Per-node handler installed by the create_subscription descriptor."""
+
+    def __init__(self, node: Any):
+        self._node = node
+
+    def _orig(self):
+        # Native templated create_subscription, bound to this node.
+        return getattr(self._node, _ORIG_CREATE_SUBSCRIPTION)
+
+    def __getitem__(self, msg_type):
+        # Native rclcpp template syntax: node.create_subscription[MsgT](topic, qos, cb)
+        return self._orig()[msg_type]
+
+    def __call__(self, msg_type, topic, callback, qos, *args, **kwargs):
+        # rclpy style: node.create_subscription(MsgType, topic, callback, qos)
+        cpp_type_str, cppyy_type = _resolve_message_type(msg_type)
+        # cppyy delivers the C++ message proxy straight to the Python callback and
+        # manages the GIL, so no manual pointer rebinding is needed.
+        cpp_callback = cppyy.gbl.std.function[
+            f"void(std::shared_ptr<const {cpp_type_str}>)"
+        ](callback)
+        subscription = self._orig()[cppyy_type](topic, qos, cpp_callback, *args, **kwargs)
+        _keep_alive(self._node, callback, cpp_callback)
+        return subscription
+
+
+class _NodeMethodDescriptor:
+    """
+    Descriptor placed on rclcpp.Node that hands out a per-instance handler. The
+    handler preserves the native ``method[MsgT](...)`` template syntax while also
+    accepting rclpy-style positional calls (see the bound handlers).
+    """
+
+    def __init__(self, bound_cls):
+        self._bound_cls = bound_cls
+
+    def __get__(self, instance, owner=None):
+        if instance is None:
+            return self
+        return self._bound_cls(instance)
+
+
 def adapt_node_pub_sub_to_python(rclcpp: Any):
     """
-    Adapt the rclcpp publisher and subscriber classes so they automatically
-    adapt to the message types and when someone calls either the rclpy Node api
-    self.publisher_ = self.create_publisher(String, 'topic', 10)
-    or the rclcpp Node api
-    self.publisher = self.node.create_publisher[cppyy.gbl.std_msgs.msg.String](
-        "perf_topic_pythonic", 10)
-    It just works.
+    Make rclcpp.Node.create_publisher / create_subscription accept the rclpy
+    calling convention in addition to the native rclcpp template syntax, so the
+    same node object works with either API:
+
+        # rclpy style (Python message classes auto-resolved to C++):
+        pub = node.create_publisher(String, 'topic', 10)
+        sub = node.create_subscription(String, 'topic', cb, 10)
+
+        # native rclcpp style (unchanged, still zero-overhead):
+        pub = node.create_publisher[cppyy.gbl.std_msgs.msg.String]('topic', 10)
+
+    Idempotent: applying it more than once is a no-op.
     """
-    # Store original methods
-    original_create_publisher = rclcpp.Node.create_publisher
-    original_create_subscription = rclcpp.Node.create_subscription
+    if getattr(rclcpp.Node, "_rclcppyy_pubsub_adapted", False):
+        return
+    setattr(rclcpp.Node, _ORIG_CREATE_PUBLISHER, rclcpp.Node.create_publisher)
+    setattr(rclcpp.Node, _ORIG_CREATE_SUBSCRIPTION, rclcpp.Node.create_subscription)
+    rclcpp.Node.create_publisher = _NodeMethodDescriptor(_BoundCreatePublisher)
+    rclcpp.Node.create_subscription = _NodeMethodDescriptor(_BoundCreateSubscription)
+    rclcpp.Node._rclcppyy_pubsub_adapted = True
 
-    def create_publisher_wrapper(self, *args, **kwargs):
-        # Handle rclpy style: create_publisher(msg_type, topic, qos)
-        if len(args) == 3:
-            msg_type, topic, qos = args
-            cpp_type_str, cppyy_type = _resolve_message_type(msg_type)
-            ret_publisher = original_create_publisher[cppyy_type](self, topic, qos)
-        # Handle rclcpp style: create_publisher[msg_type](topic, qos)
-        else:
-            ret_publisher = original_create_publisher(*args, **kwargs)
-        
-        # We need to make sure that the Publisher.publish, if its given a Python message, we convert it to a C++ message
-        # and then call the original publish method.
-        original_publish = ret_publisher.publish
-        def publish_wrapper(msg):
-            if _is_msg_cpp(msg):
-                return original_publish(msg)
-            else:
-                cpp_type_str, cppyy_type = _resolve_message_type(msg)
-                cpp_msg = cppyy_type()
 
-                # Note: this is not very efficient, but it works.
-                # We should instead monkeypatch the imported messages to convert them to cpp from the start
-                # That way we will work directly with cpp objects and we avoid this overhead
-                for dict_key, dict_val in msg.get_fields_and_field_types().items():
-                    setattr(cpp_msg, dict_key, getattr(msg, dict_key))
+def adapt_node_timer_to_python(rclcpp: Any):
+    """
+    Let timers be created the rclpy way on a plain rclcpp.Node:
 
-            return original_publish(cpp_msg)
-        ret_publisher.publish = publish_wrapper
-        return ret_publisher
+        self.timer = node.create_timer(period_seconds, callback)
 
-    def create_subscription_wrapper(self, *args, **kwargs):
-        # Handle rclpy style: create_subscription(msg_type, topic, callback, qos)
-        if len(args) == 4:
-            msg_type, topic, callback, qos = args
-            cpp_type_str, cppyy_type = _resolve_message_type(msg_type)
-            
-            # Use the generic callback template
-            # Need to use the template with bracket syntax for cppyy
-            make_callback = cppyy.gbl.make_py_sub_callback[cpp_type_str]
-            cpp_callback = make_callback(callback)
-            return original_create_subscription[cppyy_type](self, topic, qos, cpp_callback)
-        # Handle rclcpp style: create_subscription[msg_type](topic, qos, callback)
-        else:
-            return original_create_subscription(*args, **kwargs)
+    backed by rclcpp's create_wall_timer plus a std::function wrapping the Python
+    callable. Idempotent.
+    """
+    if getattr(rclcpp.Node, "_rclcppyy_timer_adapted", False):
+        return
 
-    # Replace the original methods with our wrappers
-    rclcpp.Node.create_publisher = create_publisher_wrapper
-    rclcpp.Node.create_subscription = create_subscription_wrapper
+    def create_timer_wrapper(self, timer_period_sec, callback, *args, **kwargs):
+        period_ns = int(timer_period_sec * 1e9)
+        cpp_callback = cppyy.gbl.std.function["void()"](callback)
+        timer = self.create_wall_timer(
+            cppyy.gbl.std.chrono.nanoseconds(period_ns), cpp_callback)
+        _keep_alive(self, callback, cpp_callback)
+        return timer
+
+    rclcpp.Node.create_timer = create_timer_wrapper
+    rclcpp.Node._rclcppyy_timer_adapted = True
+
+
+def adapt_node_lifecycle_to_python(rclcpp: Any):
+    """
+    Provide the rclpy Node lifecycle method destroy_node() on a plain rclcpp.Node.
+
+    rclcpp nodes clean up via RAII when they (and the entities holding their
+    shared_ptrs) are released, so there is no explicit destroy step; this shim
+    releases the Python callbacks we pinned and is otherwise a no-op, letting
+    unmodified rclpy tutorial code (minimal_publisher.destroy_node()) run.
+    Idempotent.
+    """
+    if getattr(rclcpp.Node, "_rclcppyy_lifecycle_adapted", False):
+        return
+
+    def destroy_node_wrapper(self, *args, **kwargs):
+        store = getattr(self, "_rclcppyy_kept_alive", None)
+        if store is not None:
+            store.clear()
+
+    rclcpp.Node.destroy_node = destroy_node_wrapper
+    rclcpp.Node._rclcppyy_lifecycle_adapted = True
+
 
 def adapt_get_logger_to_python(rclcpp: Any):
     """
@@ -361,7 +495,9 @@ def bringup_rclcpp():
     explore_known_rclcpp_classes()
     recursive_symbol_discovery(cppyy.gbl.rclcpp, "rclcpp", max_depth=5)
     adapt_rclcpp_to_python(cppyy.gbl.rclcpp)
-    # adapt_node_pub_sub_to_python(cppyy.gbl.rclcpp)
+    adapt_node_pub_sub_to_python(cppyy.gbl.rclcpp)
+    adapt_node_timer_to_python(cppyy.gbl.rclcpp)
+    adapt_node_lifecycle_to_python(cppyy.gbl.rclcpp)
     adapt_get_logger_to_python(cppyy.gbl.rclcpp)
 
     RCLCPP_BRINGUP_DONE = True
