@@ -14,7 +14,7 @@ from rclpy.validate_topic_name import validate_topic_name
 from rclpy.parameter import Parameter
 import cppyy
 from rclcppyy import bringup_rclcpp
-from rclcppyy.bringup_rclcpp import _resolve_message_type, _is_msg_python
+from rclcppyy.bringup_rclcpp import _resolve_message_type, _is_msg_python, convert_python_msg_to_cpp
 
 class RclcppyyNode(Node):
     """
@@ -240,7 +240,7 @@ class RclcppyyNode(Node):
                     # Inefficient, but it works, ideally we should monkeypatch
                     # the imported messages to convert them to cpp from the start
                     cpp_msg = rclcpp_msg_class()
-                    cpp_msg = self._convert_msg_to_cpp(msg, cpp_msg)
+                    cpp_msg = convert_python_msg_to_cpp(msg, cpp_msg)
                 else:
                     cpp_msg = msg
                 return original_publish(cpp_msg)
@@ -249,53 +249,6 @@ class RclcppyyNode(Node):
         # else: no wrapping needed, publish directly uses C++ messages
         
         return publisher
-
-    @staticmethod
-    def _convert_msg_to_cpp(msg_py: Any, msg_cpp: Any) -> Any:
-        """
-        Convert a rclpy message to a rclcpp message, recursively iterating over the message fields
-        """
-        for dict_key, _ in msg_py.get_fields_and_field_types().items():
-            field = getattr(msg_py, dict_key)
-            # If the field is a message, it will have a get_fields_and_field_types method, so we recursively convert it
-            if hasattr(field, "get_fields_and_field_types"):
-                setattr(msg_cpp, dict_key, RclcppyyNode._convert_msg_to_cpp(field, getattr(msg_cpp, dict_key)))
-            else:
-                # Check if the field is a list of some python type of list, as if
-                # it is, we will need to convert each element (superslow)
-                if isinstance(field, list) or isinstance(field, tuple):
-                    # Get the field type of this field, as its an array, the
-                    # instance if its an empty list does not tell us the type
-                    field_type_py = msg_py.__class__.get_fields_and_field_types().get(dict_key)
-                    # Looks like: 'sequence<rcl_interfaces/Parameter>'
-                    # Translate to the rclcpp type like rcl_interfaces::Parameter
-                    field_type_py_without_sequence = field_type_py.replace("sequence<", "").replace(">", "")
-                    # Map Python primitive types to C++ types
-                    primitive_type_map = {
-                        'octet': 'unsigned char',
-                        'boolean': 'bool', 
-                        'int64': 'int64_t',
-                        'double': 'double',
-                        'string': 'std::string'
-                    }
-                    
-                    rclcpp_field_type = primitive_type_map.get(
-                        field_type_py_without_sequence,
-                        field_type_py_without_sequence.replace("/", "::msg::")
-                    )
-                    # We need the empty vector for C++ no matter what, so we create it here
-                    rclcpp_vector = cppyy.gbl.std.vector[rclcpp_field_type]()
-                    # If we have some element, we will need to convert them to rclcpp,
-                    # we check once to avoid resolving for every element
-                    if len(field) > 0:
-                        rclcpp_field_type, rclcpp_field_class = _resolve_message_type(field[0])
-                    for i, element in enumerate(field):
-                        rclcpp_vector.push_back(RclcppyyNode._convert_msg_to_cpp(element, rclcpp_field_class()))
-                    setattr(msg_cpp, dict_key, rclcpp_vector)
-                # Yay, its just a normal member
-                else:
-                    setattr(msg_cpp, dict_key, field)
-        return msg_cpp
 
     def create_timer(
         self, period: float, callback: Callable[[], None], *,

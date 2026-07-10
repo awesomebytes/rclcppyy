@@ -29,6 +29,16 @@ class TestPubSubRoundtrip(unittest.TestCase):
         self.assertIn("PLAIN_PUBSUB_OK", out, format_output(proc))
         self.assertEqual(proc.returncode, 0, format_output(proc))
 
+    def test_nested_message_roundtrip_through_cpp(self):
+        # A nested message (std_msgs/Header -> builtin_interfaces/Time stamp +
+        # frame_id) must convert recursively on the plain-bringup publish path;
+        # a shallow field copy would fail to assign the nested Time.
+        proc = run_helper("_pubsub_nested_helper.py")
+        out = proc.stdout
+        self.assertIn("PLAIN_NESTED_MSG_OK", out, format_output(proc))
+        self.assertIn("PLAIN_NESTED_OK", out, format_output(proc))
+        self.assertEqual(proc.returncode, 0, format_output(proc))
+
 
 if __name__ == "__main__":
     unittest.main()
