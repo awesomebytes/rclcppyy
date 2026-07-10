@@ -116,7 +116,14 @@ ros-jazzy-pcl-conversions = "*" # pcl <-> sensor_msgs/PointCloud2 bridge
 eigen = "*"                     # PCL dependency (eigen3 headers)
 
 [feature.pcl.tasks]
-# pcl_kit tasks are added by the pcl_kit spike.
+# Minimal NumPy path: NumPy cloud -> PCL VoxelGrid -> NumPy, printed sizes.
+demo-pcl-voxel = "python scripts/pcl_kit_demos/d01_voxel_numpy.py"
+# THE SHOWCASE: a self-contained ROS 2 pipeline (synthetic 100k-pt publisher +
+# subscribe/VoxelGrid/republish) where the cloud stays in C++ end to end.
+demo-pcl-pipeline = "python scripts/pcl_kit_demos/d02_ros_pipeline.py"
+# Compare the pcl_kit pipeline (d02) vs the plain rclpy+NumPy baseline (d03):
+# per-frame latency, CPU%, derived max throughput, and user LOC in one table.
+bench-pcl = "python scripts/pcl_kit_demos/bench_pcl_pipeline.py"
 
 [environments]
 # solve-group = "default" pins every shared package to the exact same version as
