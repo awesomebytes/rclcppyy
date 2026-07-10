@@ -117,6 +117,41 @@ Tasks: `pixi run build`, `pixi run test` (runs pytest on `test/`), `pixi run cle
 
 ### Run
 
+Everything runs in a single command from a clean checkout — no juggling four
+shells and watching `top`:
+
+```bash
+pixi run bench           # rclpy vs rclcppyy CPU comparison table (1 kHz + 10 kHz)
+pixi run demo-tutorial   # the rclpy pub/sub tutorial, on the rclcppyy C++ backend
+pixi run demo-pubsub     # a live pub/sub pair (rclcppyy backend), stats streamed
+```
+
+`pixi run bench` spawns each publisher/subscriber pair as separate child
+processes, warms up (the rclcppyy variants JIT-compile `rclcpp` on first
+bringup, ~2 s, excluded from the measurement), samples each process's CPU with
+`psutil` while parsing the subscriber's throughput/latency, kills the children
+itself, and prints a table per rate:
+
+```
+  Benchmark @ 1000 Hz target
+  =======================================================================================
+  variant                   pub CPU%  sub CPU%  msgs recv  eff Hz    dropped  avg lat us
+  ---------------------------------------------------------------------------------------
+  rclpy                     18.1      20.6      15000      995.4     0        227.9
+  rclcppyy (monkeypatched)  3.8       4.8       15000      967.7     0        130.1
+```
+
+Flags pass straight through the pixi task:
+
+```bash
+pixi run bench --rate 5000 --duration 10                       # custom rate / window
+pixi run bench --variants rclpy,rclcppyy,rclcppyy-templated    # add the pure-cppyy pair
+pixi run bench --json                                          # machine-readable output
+```
+
+<details>
+<summary>Advanced: run the individual bench scripts by hand</summary>
+
 Enter the environment with `pixi shell` (middleware defaults and the workspace
 overlay are applied automatically), then, one per shell:
 
@@ -138,6 +173,7 @@ ros2 run rclcppyy publisher_member_function.py
 
 Without entering a shell, any command can be run through pixi directly, e.g.
 `pixi run ros2 run rclcppyy bench_sub_rclcppyy_monkeypatched.py`.
+</details>
 
 ## Roadmap
 
