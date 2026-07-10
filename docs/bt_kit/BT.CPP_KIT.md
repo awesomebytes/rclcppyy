@@ -89,6 +89,22 @@ value)` writes `str(value)`. `node["key"]` / `node["key"] = v` and the camelCase
 `getInput`/`setOutput` work too. Ports are bidirectional — the same declared name
 serves both reading and writing.
 
+**Typed ports** (tutorial-3 style). Pass a dict to declare types, then read with a
+cast (mirrors `getInput<T>`); `set_output` infers the C++ type from the value:
+```python
+def compute(node):
+    total = node.get_input("a", int) + node.get_input("b", float)  # getInput<int>, <double>
+    node.set_output("sum", total)          # double inferred
+    node.set_output("ok", total > 0)       # bool inferred
+    return bt_kit.SUCCESS
+
+factory.registerSimpleAction("Compute", compute,
+                             ports={"a": int, "b": float, "sum": float, "ok": bool})
+```
+Supported casts: `int`, `float` (double), `bool`, `str`, and `[int]`/`[float]`/
+`[bool]`/`[str]` for vector ports (e.g. XML `items="1.5;2.5;3.5"` →
+`node.get_input("items", [float])` → `[1.5, 2.5, 3.5]`).
+
 ---
 
 ## Pattern 3 — asynchronous / stateful leaf (returns RUNNING over many ticks)
@@ -111,8 +127,8 @@ class CountTo:
 factory.register_stateful("CountTo", CountTo, ports=["count"])
 ```
 (`onStart`/`onRunning`/`onHalted` mirror C++; snake_case `on_start`/... also work.)
-Caveat: v0 uses **one instance per registered ID** — two `<CountTo>` nodes in one
-tree share state. Give them distinct IDs if you need independent state.
+Each tree-node instance gets its **own** Python object, so two `<CountTo>` nodes in
+one tree keep independent state.
 
 ---
 
@@ -142,12 +158,35 @@ tree.tickWhileRunning()                         # returns a BT::NodeStatus
 
 ---
 
+## Pattern 5 — observability and errors
+*Use for:* watching a tree run, recording a trace, live monitoring, or per-node
+tick counts; and for catching malformed-XML / unknown-node errors cleanly.
+
+```python
+tree = factory.create_tree_from_text(XML)
+bt_kit.add_cout_logger(tree)                 # print transitions to stdout
+bt_kit.add_file_logger(tree, "run.btlog")    # record a Groot2-replayable trace
+bt_kit.add_groot2_publisher(tree, 1667)      # live monitor over ZMQ (default port)
+obs = bt_kit.observe(tree)                    # per-node statistics
+tree.tickWhileRunning()
+print(obs.counts())    # {node_path: {"transitions": n, "success": n, "failure": n}}
+
+# XML / registration errors raise a readable one-line exception:
+try:
+    factory.create_tree_from_text('<root BTCPP_format="4">...<Nope/>...</root>')
+except bt_kit.BtXmlError as e:
+    print(e)   # e.g. "RuntimeError: Error at line 4: -> Node not recognized: Nope"
+```
+Loggers attach at construction and are pinned on the `tree`; keep the tree alive.
+
 ## Gotchas (short version)
 - **Don't** subclass BT C++ node classes in Python (`class X(BT.StatefulActionNode)`)
   — fails to compile (`final` virtuals). Use `register_stateful` (Pattern 3).
 - **Don't** build a `PortsList`/`std::map` in Python — it **segfaults** the
-  process. Use `ports=[...]`, or do container work inside `cppyy.cppdef` C++.
+  process. Use `ports=[...]` / `ports={...}`, or do container work in `cppyy.cppdef`.
 - Keep the `tree` (and `factory`) referenced while ticking; dropping them can free
-  the callbacks.
+  the callbacks and the loggers.
+- Multiple `<BehaviorTree>` defs in one XML need the root's
+  `main_tree_to_execute="…"` attribute (else you get a clear `BtXmlError`).
 - `tree.tickWhileRunning()` returns a `BT::NodeStatus`; it compares equal to the
   `bt_kit.SUCCESS` / `FAILURE` / `RUNNING` ints and to `bt.NodeStatus.*`.
