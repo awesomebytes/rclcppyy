@@ -77,7 +77,20 @@ demo-hypothesis = "python roscon_uk_2025/presentation/5_hypothesis_test.py"
 # /lexus3/os_center/points — needs an external bag to produce output.
 demo-pointcloud-voxelgrid = "python roscon_uk_2025/presentation/2_pointcloud_voxelgrid.py"
 
+# Optional "pkg" feature/environment: tooling to build the conda package from
+# recipe/. Standalone (no default ROS/cppyy stack), so it stays lean and doesn't
+# perturb the default env's lock.
+[feature.pkg.dependencies]
+rattler-build = ">=0.68,<0.69"
+
+[feature.pkg.tasks]
+# Build the ros-jazzy-rclcppyy conda package from recipe/ into ./output.
+# Channels match the workspace. Run with `pixi run -e pkg pkg-build`.
+pkg-build = "rattler-build build --recipe recipe/recipe.yaml -c robostack-jazzy -c conda-forge --output-dir output"
+
 [environments]
 # solve-group = "default" pins every shared package to the exact same version as
 # the default env, so enabling demos never re-resolves the core ROS/cppyy stack.
 demos = { features = ["demos"], solve-group = "default" }
+# no-default-feature: the packaging tooling doesn't need the ROS/cppyy stack.
+pkg = { features = ["pkg"], no-default-feature = true }
