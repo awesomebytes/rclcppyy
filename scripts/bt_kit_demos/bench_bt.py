@@ -66,12 +66,13 @@ def build_cpp_tree(cppyy, BT):
     return factory.createTreeFromText(XML), factory
 
 
-def build_kit_tree():
+def build_kit_tree(bt):
     """Variant (b): a leaf implemented in Python through the kit."""
-    @bt_kit.action_node("Leaf")
-    def leaf(bb):
+    def leaf(node):
         return bt_kit.SUCCESS
-    return bt_kit.tree_from_xml(XML)
+    factory = bt.BehaviorTreeFactory()
+    factory.registerSimpleAction("Leaf", leaf)
+    return factory.createTreeFromText(XML)
 
 
 def build_pure_python():
@@ -106,7 +107,7 @@ def main():
     print(f"bringup_bt (JIT include + load + cppdef): {bringup_s:.3f} s\n")
 
     cpp_tree, _factory = build_cpp_tree(cppyy, BT)
-    kit_tree = build_kit_tree()
+    kit_tree = build_kit_tree(BT)
     py_tick = build_pure_python()
 
     # Warm each once (first tick may lazily resolve things).

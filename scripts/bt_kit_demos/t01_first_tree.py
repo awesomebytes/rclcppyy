@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 """
-BehaviorTree.CPP official tutorial 1 ("Your first behavior tree"), written in
-short Python via rclcppyy's bt_kit. The four leaf actions run in Python; the C++
-engine parses the XML and ticks the tree.
+BehaviorTree.CPP official tutorial 1 ("Your first behavior tree"), in Python via
+rclcppyy's bt_kit. This mirrors the C++ tutorial line-for-line -- same factory,
+same registerSimpleAction / registerSimpleCondition, same createTreeFromText /
+tickWhileRunning -- only the leaf callbacks are Python.
 
 Reference: https://www.behaviortree.dev/docs/tutorial-basics/tutorial_01_first_tree
 Run:       pixi run -e bt demo-bt-t01
 """
 from rclcppyy.kits import bt_kit
+
+bt = bt_kit.bringup_bt()
 
 # The tutorial XML, verbatim.
 XML = """
@@ -24,33 +27,35 @@ XML = """
 """
 
 
-@bt_kit.condition_node("CheckBattery")
-def check_battery(bb):
+def check_battery(node):
     print("[ Battery: OK ]")
-    return bt_kit.SUCCESS
+    return bt.NodeStatus.SUCCESS
 
 
-@bt_kit.action_node("OpenGripper")
-def open_gripper(bb):
+def open_gripper(node):
     print("GripperInterface::open")
-    return bt_kit.SUCCESS
+    return bt.NodeStatus.SUCCESS
 
 
-@bt_kit.action_node("ApproachObject")
-def approach_object(bb):
+def approach_object(node):
     print("ApproachObject: approach_object")
-    return bt_kit.SUCCESS
+    return bt.NodeStatus.SUCCESS
 
 
-@bt_kit.action_node("CloseGripper")
-def close_gripper(bb):
+def close_gripper(node):
     print("GripperInterface::close")
-    return bt_kit.SUCCESS
+    return bt.NodeStatus.SUCCESS
 
 
 def main():
-    tree = bt_kit.tree_from_xml(XML)
-    bt_kit.tick_while_running(tree)
+    factory = bt.BehaviorTreeFactory()
+    factory.registerSimpleCondition("CheckBattery", check_battery)
+    factory.registerSimpleAction("OpenGripper", open_gripper)
+    factory.registerSimpleAction("ApproachObject", approach_object)
+    factory.registerSimpleAction("CloseGripper", close_gripper)
+
+    tree = factory.createTreeFromText(XML)
+    tree.tickWhileRunning()
 
 
 if __name__ == "__main__":
