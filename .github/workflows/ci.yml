@@ -1,0 +1,54 @@
+name: CI
+
+# Enforce the Phase 1 guarantee mechanically: a clean checkout must build,
+# pass the smoke suite, and actually publish over the C++ backend, with no
+# manual steps beyond `pixi run`.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A newer push to the same branch/PR cancels the in-flight run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: build + test + bench smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          # Pin pixi to the version that generated and validated pixi.lock
+          # locally, so CI resolves the same environment.
+          pixi-version: v0.70.0
+          # Default environment only. The `demos` env pulls multi-GB extras
+          # (opencv / pcl / gstreamer) that none of the CI steps below need.
+          environments: default
+          # setup-pixi caches the solved environment keyed on pixi.lock. Only
+          # write the cache from main so PR runs restore it without racing to
+          # overwrite the shared entry.
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
+      # The pixi environment's activation provides RMW_IMPLEMENTATION,
+      # ROS_AUTOMATIC_DISCOVERY_RANGE and LD_LIBRARY_PATH (see pixi.toml
+      # [activation.env]); every `pixi run` below inherits them, so the
+      # workflow deliberately sets no ROS env vars of its own.
+      - name: Build
+        run: pixi run build
+
+      - name: Test (pub/sub roundtrip, monkeypatch, serialization parity)
+        run: pixi run test
+
+      # End-to-end proof that rclcppyy actually publishes over the C++ backend.
+      # Cold cppyy JIT of rclcpp on a 2-core hosted runner is far slower than a
+      # dev box, so the warmup budget is generous; run_benchmarks.py already
+      # exits non-zero if the subscriber never receives a message.
+      - name: Bench smoke (assert rclcppyy publishes)
+        run: pixi run bench --variants rclcppyy --rate 1000 --duration 3 --warmup-timeout 300 --json
