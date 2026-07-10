@@ -21,6 +21,7 @@ python = "3.12.*"
 pytest = ">=7.4,<8"
 numpy = "*"
 setuptools = "<81"
+psutil = ">=7.2.2,<8"
 
 [activation]
 scripts = ["workspace_activation.sh"]
@@ -40,3 +41,10 @@ LD_LIBRARY_PATH = "$CONDA_PREFIX/lib"
 build = "colcon build --packages-select rclcppyy"
 clean = "rm -rf build install log"
 test = "pytest test/"
+# rclpy-vs-rclcppyy CPU comparison in one command (default: 1 kHz + 10 kHz).
+# Extra flags pass straight through, e.g. `pixi run bench --rate 5000 --duration 10`.
+bench = "python scripts/benchmarks/run_benchmarks.py"
+# The rclpy publisher/subscriber tutorial, running on the rclcppyy C++ backend.
+demo-tutorial = "python scripts/ros_tutorials/publisher_member_function.py"
+# One-command live pub/sub demo (rclcppyy monkeypatched backend).
+demo-pubsub = "python scripts/benchmarks/run_benchmarks.py --demo"
