@@ -112,9 +112,14 @@ Locked: cppyy 3.5.0, cppyy-cling 6.32.8, ros-jazzy-ros-base 0.11.0, python 3.12.
   removed; CMake install now `FILES_MATCHING PATTERN "*.py"` (verified: only
   .py files install); `package.xml` deps completed from actual imports,
   version bumped to 0.1.0.
-- [ ] Add smoke tests: rclpy-API pub/sub roundtrip through C++ backend,
+- [x] Add smoke tests: rclpy-API pub/sub roundtrip through C++ backend,
   message monkeypatch, serialization parity (today only `test_bringup.py`
-  and `test_node.py` exist)
+  and `test_node.py` exist).
+  **Done (f98db15):** 3 new test modules + subprocess helpers (monkeypatch is
+  process-global/irreversible, so contaminating scenarios run in throwaway
+  subprocesses asserting on marker output; helpers `os._exit(0)` past the
+  known cppyy shutdown wart). Deadline-bounded spins, discovery-gated
+  publishing. 4 consecutive full-suite runs green, ~15.5 s each.
 
 **Acceptance:** `pixi run bench` produces the rclpy-vs-rclcppyy CPU table in
 one command; every demo listed in the README runs via a single `pixi run` task.
