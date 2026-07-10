@@ -10,7 +10,7 @@ import os
 import cppyy
 from ament_index_python.packages import get_package_prefix
 
-from rclcppyy.bringup_rclcpp import bringup_rclcpp, _resolve_message_type
+from rclcppyy.bringup_rclcpp import bringup_rclcpp, _resolve_message_type, load_ros_library
 
 
 def _ensure_headers_for_msg(package: str, python_msg_module: str) -> None:
@@ -79,6 +79,9 @@ def _ensure_serialization_helpers() -> None:
     if _HELPERS_DEFINED:
         return
     bringup_rclcpp()
+    # rosbag2_storage::make_serialized_message lives in librosbag2_storage; load it
+    # explicitly so the helpers resolve without LD_LIBRARY_PATH.
+    load_ros_library('librosbag2_storage.so')
     # Helper C++ functions to convert between bytes and rclcpp::SerializedMessage
     cppyy.include('rclcpp/serialized_message.hpp')
     cppyy.include('rosbag2_storage/serialized_bag_message.hpp')

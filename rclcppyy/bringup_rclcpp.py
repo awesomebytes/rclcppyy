@@ -30,6 +30,68 @@ def add_ros2_include_paths() -> bool:
 
     return True
 
+
+def get_ros2_lib_path() -> str:
+    return os.path.join(get_package_prefix("rclcpp"), "lib")
+
+
+# Track what we've already handed to cppyy so bringup / message resolution stay
+# idempotent.
+_ROS_CORE_LIBS_LOADED = False
+_LOADED_MSG_TYPESUPPORT: Set[str] = set()
+
+
+def ensure_ros_libraries_loaded() -> None:
+    """
+    Make cppyy resolve rclcpp/rcl symbols without relying on LD_LIBRARY_PATH.
+
+    cppyy discovers which shared library owns a symbol by scanning
+    LD_LIBRARY_PATH at call-time resolution. The pixi workspace sets
+    LD_LIBRARY_PATH=$CONDA_PREFIX/lib in activation, but an installed conda
+    package has no such activation, so calls like rclcpp::init would fail with
+    "failed to resolve function". Instead, add the ROS lib dir to cppyy's own
+    library search path and eagerly load librclcpp (whose RPATH pulls in
+    rcl/rmw/rcutils/... and the typesupport rclcpp itself needs). Per-message
+    typesupport is loaded on demand in _resolve_message_type. Harmless (and
+    idempotent) when LD_LIBRARY_PATH is already set.
+    """
+    global _ROS_CORE_LIBS_LOADED
+    if _ROS_CORE_LIBS_LOADED:
+        return
+    cppyy.add_library_path(get_ros2_lib_path())
+    cppyy.load_library("librclcpp.so")
+    _ROS_CORE_LIBS_LOADED = True
+
+
+def load_ros_library(libname: str) -> None:
+    """
+    Load a ROS shared library by name (e.g. "librosbag2_storage.so") via cppyy,
+    so its symbols resolve without LD_LIBRARY_PATH. Ensures the ROS lib dir is on
+    cppyy's search path first. No-op if the library is missing.
+    """
+    ensure_ros_libraries_loaded()
+    try:
+        cppyy.load_library(libname)
+    except Exception:
+        pass
+
+
+def _load_message_typesupport(package: str) -> None:
+    """
+    Load a message package's C++ typesupport library so cppyy can resolve its
+    rosidl_typesupport_cpp::get_message_type_support_handle<...> symbol without
+    LD_LIBRARY_PATH. No-op if already handled or if the package ships no such
+    library (e.g. pure-Python message packages).
+    """
+    if package in _LOADED_MSG_TYPESUPPORT:
+        return
+    _LOADED_MSG_TYPESUPPORT.add(package)
+    try:
+        cppyy.load_library(f"lib{package}__rosidl_typesupport_cpp.so")
+    except Exception:
+        pass
+
+
 def force_symbol_discovery(namespace: Any, known_symbols: Set[str] = None) -> Dict[str, Any]:
     """
     Force discovery of all symbols in a cppyy namespace by accessing them.
@@ -195,7 +257,8 @@ def _resolve_message_type(message_type):
             # Remove template parameters like '_<std::allocator<void>>'
             msg_name = re.sub(r'_<.*?>$', '', class_name)
             cpp_type_str = f"{package}::msg::{msg_name}"
-            
+
+            _load_message_typesupport(package)
             # Since the cppyy type is already available and the header is included, just return it
             return cpp_type_str, message_type
         else:
@@ -227,8 +290,9 @@ def _resolve_message_type(message_type):
             # print(f"header_path: {header_path}, package: {package}, msg_name: {msg_name}, msg_name_lower: {msg_name_lower}, cpp_type_str: {cpp_type_str}, module_parts: {module_parts}, hpp_file_name: {hpp_file_name}")
             cppyy.add_include_path(os.path.join(get_package_prefix(package), "include", package))
             cppyy.include(header_path)
+            _load_message_typesupport(package)
             # print(f"included header: {header_path}")
-            
+
             # Get the C++ type
             cppyy_type = getattr(getattr(getattr(cppyy.gbl, package), 'msg'), msg_name)
             return cpp_type_str, cppyy_type
@@ -485,6 +549,7 @@ def bringup_rclcpp():
         return cppyy.gbl.rclcpp
     
     add_ros2_include_paths()
+    ensure_ros_libraries_loaded()
     print("Including rclcpp.hpp with cppyy, this may take a few seconds... WIP to remove this slowdown")
     cppyy.include("rclcpp/rclcpp.hpp")
     cppyy.include("rcl_interfaces/msg/parameter_event.hpp")
