@@ -56,6 +56,8 @@ import os
 
 import cppyy
 
+from rclcppyy.kits import cppyy_kit
+
 # The libpcl_*.so set whose symbols the common filters (VoxelGrid, PCLBase,
 # getMinMax3D, ...) resolve against. cppyy discovers a symbol's owning library by
 # scanning its search path at call time, so every .so we call into must be loaded
@@ -147,11 +149,10 @@ def _ensure_core():
     conda = os.environ["CONDA_PREFIX"]
     cppyy.add_include_path(_pcl_include_dir())
     cppyy.add_include_path(os.path.join(conda, "include", "eigen3"))
-    cppyy.add_library_path(os.path.join(conda, "lib"))
     for header in _PCL_HEADERS:
         cppyy.include(header)
-    for lib in _PCL_LIBS:
-        cppyy.load_library(lib)
+    # Load the .so set so cppyy resolves their symbols at call time (see cppyy_kit).
+    cppyy_kit.load_libraries(_PCL_LIBS, [os.path.join(conda, "lib")])
     cppyy.cppdef(_CPP_GLUE)
     _PCL = cppyy.gbl.pcl
     _CORE_DONE = True
@@ -244,11 +245,8 @@ def cloud_to_numpy(cloud, copy=True):
     addr = int(glue.xyz_data_addr(cloud))
     buf = (ctypes.c_float * (n * 4)).from_address(addr)
     # Pin the cloud on the backing buffer so the view does not outlive its
-    # storage silently (best-effort keep-alive; ctypes objects accept attrs).
-    try:
-        buf._rclcppyy_pcl_cloud = cloud
-    except (AttributeError, TypeError):
-        pass
+    # storage silently (see cppyy_kit.keep_alive).
+    cppyy_kit.keep_alive(buf, cloud)
     view = np.frombuffer(buf, dtype=np.float32).reshape(n, 4)
     return view[:, :3]
 
