@@ -89,9 +89,28 @@ rattler-build = ">=0.68,<0.69"
 # Channels match the workspace. Run with `pixi run -e pkg pkg-build`.
 pkg-build = "rattler-build build --recipe recipe/recipe.yaml -c robostack-jazzy -c conda-forge --output-dir output"
 
+# Optional "bt" feature/environment: BehaviorTree.CPP v4 for the bt_kit cppyy
+# spike (rclcppyy/kits/bt_kit.py). Kept out of the default env so a plain
+# `pixi install` stays lean and BT stays an opt-in dependency. Enable with
+# `pixi install -e bt` and run tasks with `pixi run -e bt <task>`.
+[feature.bt.dependencies]
+ros-jazzy-behaviortree-cpp = ">=4.9,<5" # BehaviorTree.CPP v4 (headers + libbehaviortree_cpp.so)
+
+[feature.bt.tasks]
+# Official BT.CPP tutorial 1 (first tree) written in short Python via bt_kit.
+demo-bt-t01 = "python scripts/bt_kit_demos/t01_first_tree.py"
+# Official BT.CPP ports tutorial written in short Python via bt_kit.
+demo-bt-t02 = "python scripts/bt_kit_demos/t02_ports.py"
+# ticks/sec micro-benchmark: C++ JIT leaves vs Python leaves through the kit.
+bench-bt = "python scripts/bt_kit_demos/bench_bt.py"
+
 [environments]
 # solve-group = "default" pins every shared package to the exact same version as
 # the default env, so enabling demos never re-resolves the core ROS/cppyy stack.
 demos = { features = ["demos"], solve-group = "default" }
 # no-default-feature: the packaging tooling doesn't need the ROS/cppyy stack.
 pkg = { features = ["pkg"], no-default-feature = true }
+# BehaviorTree.CPP spike env. solve-group "default" keeps the shared ROS/cppyy
+# stack pinned identically to the default env (behaviortree-cpp is purely
+# additive on top).
+bt = { features = ["bt"], solve-group = "default" }
