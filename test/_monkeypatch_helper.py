@@ -18,9 +18,11 @@ import time
 import rclcppyy
 rclcppyy.enable_cpp_acceleration()
 
-import rclpy
-from std_msgs.msg import String
-from rclcppyy.node import RclcppyyNode
+# Must be imported after enable_cpp_acceleration() installs the message/node
+# patches, so the ordering below is intentional, not an oversight.
+import rclpy  # noqa: E402
+from std_msgs.msg import String  # noqa: E402
+from rclcppyy.node import RclcppyyNode  # noqa: E402
 
 SPIN_DEADLINE_S = 15.0
 N_MESSAGES = 5
@@ -47,7 +49,7 @@ def main():
     def on_msg(msg):
         received.append(str(msg.data))
 
-    sub = node.create_subscription(String, TOPIC, on_msg, 10)
+    sub = node.create_subscription(String, TOPIC, on_msg, 10)  # noqa: F841 - keep alive
     pub = node.create_publisher(String, TOPIC, 10)
 
     rclcpp = rclcppyy.bringup_rclcpp()

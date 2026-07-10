@@ -3,7 +3,6 @@ This file handles monkey-patching rclpy to use rclcpp implementations.
 """
 
 import rclpy
-import sys
 from rclpy.node import Node
 from rclcppyy.node import RclcppyyNode
 from rclcppyy.monkeypatch_messages import install_ros_message_hook, convert_already_imported_python_msgs_to_cpp
@@ -19,8 +18,8 @@ def patch_ros2():
     This makes existing Python ROS2 code use C++ under the hood.
     """
     # Initialize rclcpp
-    rclcpp = bringup_rclcpp()
-    
+    bringup_rclcpp()
+
     # Set up automatic message conversion
     install_ros_message_hook()
     

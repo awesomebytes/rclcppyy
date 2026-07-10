@@ -52,7 +52,7 @@ def add_python_compatibility(cpp_msg_class, py_msg_class):
         setattr(cpp_msg_class, attr_name, getattr(py_msg_class, attr_name))
 
     # Special case for service messages, they depend on their __class__ having the following attributes
-    if hasattr(py_msg_class.__class__,"_TYPE_SUPPORT"):
+    if hasattr(py_msg_class.__class__, "_TYPE_SUPPORT"):
         cpp_msg_class.__class__._TYPE_SUPPORT = py_msg_class.__class__._TYPE_SUPPORT
     if hasattr(py_msg_class.__class__, "__import_type_support__"):
         cpp_msg_class.__class__.__import_type_support__ = py_msg_class.__class__.__import_type_support__

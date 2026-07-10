@@ -11,8 +11,8 @@ from rclcppyy.bringup_rclcpp import bringup_rclcpp
 from rclcppyy import rosbag2_cpp
 from rclcppyy import serialization
 from rclcppyy.node import RclcppyyNode
-Node = RclcppyyNode
 from rclcppyy.monkey import patch_ros2, patch_node_class
+Node = RclcppyyNode
 
 def enable_cpp_acceleration(patch_node=True):
     """

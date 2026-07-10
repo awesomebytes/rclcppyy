@@ -45,7 +45,7 @@ def main():
         received.append(str(msg.data))
 
     # rclpy-style calls on a plain rclcpp.Node, backed by the C++ adapters.
-    sub = node.create_subscription(String, TOPIC, on_msg, 10)
+    sub = node.create_subscription(String, TOPIC, on_msg, 10)  # noqa: F841 - keep alive
     pub = node.create_publisher(String, TOPIC, 10)
 
     executor = rclcpp.executors.SingleThreadedExecutor()

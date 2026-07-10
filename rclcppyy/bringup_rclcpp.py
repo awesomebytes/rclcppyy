@@ -1,7 +1,6 @@
 import cppyy
 import os
 import re
-from functools import lru_cache
 from typing import Any, List, Optional, Set, Dict
 from ament_index_python.packages import get_package_prefix, get_packages_with_prefixes
 
@@ -16,8 +15,6 @@ def add_ros2_include_path() -> bool:
     return cppyy.add_include_path(ROS2_INCLUDE_PATH)
 
 def add_ros2_include_paths() -> bool:
-    ROS2_INCLUDE_PATH = get_ros2_include_path()
-    ROS2_LIB_PATH = get_package_prefix("rclcpp") + "/lib"
     # All of these are needed for rclcpp to work
 
     # Instead of hardcoding the list, just get all the available packages
@@ -125,7 +122,7 @@ def force_symbol_discovery(namespace: Any, known_symbols: Set[str] = None) -> Di
                 try:
                     class_methods = dir(symbol)
                     discovered[symbol_name]['methods'] = [m for m in class_methods if not m.startswith('__')]
-                except:
+                except Exception:
                     pass
             elif symbol_type == 'CPPScope':
                 discovered[symbol_name] = {'type': 'namespace', 'object': symbol}
@@ -138,7 +135,9 @@ def force_symbol_discovery(namespace: Any, known_symbols: Set[str] = None) -> Di
     return discovered
 
 
-def recursive_symbol_discovery(namespace: Any, namespace_name: str = "", max_depth: int = 3, current_depth: int = 0) -> Dict[str, Dict]:
+def recursive_symbol_discovery(
+    namespace: Any, namespace_name: str = "", max_depth: int = 3, current_depth: int = 0
+) -> Dict[str, Dict]:
     """
     Recursively discover symbols in nested namespaces.
     """
@@ -200,7 +199,7 @@ def explore_known_rclcpp_classes(verbose: bool = False):
     
     for class_name in known_classes:
         try:
-            cls = getattr(cppyy.gbl.rclcpp, class_name)
+            getattr(cppyy.gbl.rclcpp, class_name)
             discovered_classes.append(class_name)
             if verbose:
                 print(f"  ✓ Found: {class_name}")
@@ -278,16 +277,12 @@ def _resolve_message_type(message_type):
             else:
                 msg_name = class_name
             
-            # Convert to lowercase for header file
-            msg_name_lower = msg_name.lower()
-            
             # Build C++ type string and include header
             cpp_type_str = f"{package}::msg::{msg_name}"
             # module_parts looks like:
             # std_msgs.msg._multi_array_layout or rcl_interfaces.msg._parameter_event
             hpp_file_name = f"{module_parts[2][1:]}.hpp"
             header_path = f"{package}/msg/{hpp_file_name}"
-            # print(f"header_path: {header_path}, package: {package}, msg_name: {msg_name}, msg_name_lower: {msg_name_lower}, cpp_type_str: {cpp_type_str}, module_parts: {module_parts}, hpp_file_name: {hpp_file_name}")
             cppyy.add_include_path(os.path.join(get_package_prefix(package), "include", package))
             cppyy.include(header_path)
             _load_message_typesupport(package)
@@ -525,7 +520,6 @@ def adapt_get_logger_to_python(rclcpp: Any):
     """
     Adapt the rclcpp get_logger method so it can be called the python way.
     """
-    original_get_logger = rclcpp.Node.get_logger
     def get_logger_wrapper(this_self, *args, **kwargs):
         # we need to return a logger that can do all the levels
         # debug, info, warn, error, fatal

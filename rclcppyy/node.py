@@ -1,25 +1,20 @@
 import inspect
 import uuid
-from typing import Type, Union, Optional, Callable, Any, List
+from typing import Union, Optional, Callable, Any, List
 import rclpy
-from rclpy import init, shutdown, spin, spin_once, create_node
 from rclpy.callback_groups import CallbackGroup
 from rclpy.event_handler import PublisherEventCallbacks, SubscriptionEventCallbacks
 from rclpy.node import Node
 from rclpy.publisher import Publisher
-from rclpy.subscription import Subscription
 from rclpy.qos import QoSProfile, HistoryPolicy, ReliabilityPolicy, DurabilityPolicy, LivelinessPolicy
 from rclpy.context import Context
 from rclpy.qos_overriding_options import QoSOverridingOptions
 from rclpy.exceptions import InvalidTopicNameException
 from rclpy.validate_topic_name import validate_topic_name
-from rclpy.type_support import check_is_valid_msg_type
-from rclpy.qos_overriding_options import _declare_qos_parameters
 from rclpy.parameter import Parameter
 import cppyy
 from rclcppyy import bringup_rclcpp
 from rclcppyy.bringup_rclcpp import _resolve_message_type, _is_msg_python
-from rclcppyy.monkeypatch_messages import add_python_compatibility
 
 class RclcppyyNode(Node):
     """
@@ -38,7 +33,8 @@ class RclcppyyNode(Node):
         allow_undeclared_parameters: bool = False,
         automatically_declare_parameters_from_overrides: bool = False,
         enable_logger_service: bool = False) -> None:
-        # Before creating the rclpy node, we create the rclcpp node (as internally it calls create_publisher for the parameters)
+        # Before creating the rclpy node, we create the rclcpp node (as
+        # internally it calls create_publisher for the parameters)
         self._rclcpp = bringup_rclcpp()
         # We need to init rclcpp if we havent already
         if not self._rclcpp.ok():
@@ -112,7 +108,9 @@ class RclcppyyNode(Node):
                          start_parameter_services=start_parameter_services,
                          parameter_overrides=parameter_overrides,
                          allow_undeclared_parameters=allow_undeclared_parameters,
-                         automatically_declare_parameters_from_overrides=automatically_declare_parameters_from_overrides,
+                         automatically_declare_parameters_from_overrides=(
+                             automatically_declare_parameters_from_overrides
+                         ),
                          enable_logger_service=enable_logger_service)
 
     # TODO: deal with spinners, if spinning on one, we should spin on both
@@ -239,7 +237,8 @@ class RclcppyyNode(Node):
                 if _is_msg_python(msg):
                     print(f"Converting message to C++: {type(msg)}")
                     _, rclcpp_msg_class = _resolve_message_type(msg)
-                    # Inefficient, but it works, ideally we should monkeypatch the imported messages to convert them to cpp from the start
+                    # Inefficient, but it works, ideally we should monkeypatch
+                    # the imported messages to convert them to cpp from the start
                     cpp_msg = rclcpp_msg_class()
                     cpp_msg = self._convert_msg_to_cpp(msg, cpp_msg)
                 else:
@@ -262,9 +261,11 @@ class RclcppyyNode(Node):
             if hasattr(field, "get_fields_and_field_types"):
                 setattr(msg_cpp, dict_key, RclcppyyNode._convert_msg_to_cpp(field, getattr(msg_cpp, dict_key)))
             else:
-                # Check if the field is a list of some python type of list, as if it is, we will need to convert each element (superslow)
+                # Check if the field is a list of some python type of list, as if
+                # it is, we will need to convert each element (superslow)
                 if isinstance(field, list) or isinstance(field, tuple):
-                    # Get the field type of this field, as its an array, the instance if its an empty list does not tell us the type
+                    # Get the field type of this field, as its an array, the
+                    # instance if its an empty list does not tell us the type
                     field_type_py = msg_py.__class__.get_fields_and_field_types().get(dict_key)
                     # Looks like: 'sequence<rcl_interfaces/Parameter>'
                     # Translate to the rclcpp type like rcl_interfaces::Parameter
@@ -284,7 +285,8 @@ class RclcppyyNode(Node):
                     )
                     # We need the empty vector for C++ no matter what, so we create it here
                     rclcpp_vector = cppyy.gbl.std.vector[rclcpp_field_type]()
-                    # If we have some element, we will need to convert them to rclcpp, we check once to avoid resolving for every element
+                    # If we have some element, we will need to convert them to rclcpp,
+                    # we check once to avoid resolving for every element
                     if len(field) > 0:
                         rclcpp_field_type, rclcpp_field_class = _resolve_message_type(field[0])
                     for i, element in enumerate(field):
@@ -295,7 +297,10 @@ class RclcppyyNode(Node):
                     setattr(msg_cpp, dict_key, field)
         return msg_cpp
 
-    def create_timer(self, period: float, callback: Callable[[], None], *, oneshot: bool = False, callback_group: CallbackGroup | None = None):
+    def create_timer(
+        self, period: float, callback: Callable[[], None], *,
+        oneshot: bool = False, callback_group: CallbackGroup | None = None
+    ):
         """
         Create a timer using the C++ rclcpp timer.
         """
@@ -482,7 +487,8 @@ def enable_kwargs_for_cpp_msg(msg_class):
 
 def add_python_msg_sugar_to_cpp_msg(cpp_msg_class, py_msg_class):
     """
-    Python messages pretty print and also you can check the fields and field types, so lets forward that to the C++ messages
+    Python messages pretty print and also you can check the fields and field
+    types, so lets forward that to the C++ messages
     """
     cpp_msg_class.__repr__ = py_msg_class.__repr__
     cpp_msg_class.SLOT_TYPES = py_msg_class.SLOT_TYPES
@@ -505,8 +511,6 @@ def convert_python_msgs_to_cpp(target_globals=None):
     Args:
         target_globals: The globals dict to modify. If None, uses caller's globals().
     """
-    import inspect
-    
     if target_globals is None:
         # Get the caller's globals
         frame = inspect.currentframe().f_back
@@ -633,7 +637,6 @@ if __name__ == "__main__":
     print("=== Manual Approach ===")
     rclcpp = bringup_rclcpp()
     # from std_msgs.msg import String
-    import cppyy
     cppyy.include("std_msgs/msg/string.hpp")
     CppString = cppyy.gbl.std_msgs.msg.String
     enable_kwargs_for_cpp_msg(CppString)
@@ -661,8 +664,6 @@ if __name__ == "__main__":
     print("\n=== Automatic Import Hook ===")
     setup_automatic_cpp_conversion()  # Enable the import hook
 
-    from diagnostic_msgs.msg import DiagnosticStatus
-    from nav_msgs.msg import Odometry
     from sensor_msgs.msg import Image, PointCloud2, JointState
     print(f"Image: {Image}")
     print(f"PointCloud2: {PointCloud2}")

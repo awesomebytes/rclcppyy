@@ -14,7 +14,7 @@ import os
 import glob
 import sys
 import ctypes
-from typing import Iterable, Tuple, Dict, Any, Optional, List, Set
+from typing import Iterable, Dict, Any, List, Set
 
 import cppyy
 from ament_index_python.packages import get_packages_with_prefixes, get_package_prefix
@@ -88,7 +88,6 @@ def _preload_rosbag2_libraries() -> None:
     }
 
     for pkg_group in pkg_load_order:
-        loaded_any = False
         for pkg in pkg_group:
             try:
                 prefix = get_package_prefix(pkg)
@@ -98,13 +97,13 @@ def _preload_rosbag2_libraries() -> None:
             patterns = pkg_to_patterns.get(pkg, [])
             if patterns:
                 _glob_and_load(lib_dir, patterns)
-                loaded_any = True
         # Continue regardless of whether group was found; some groups are optional
 
     # Optionally, load rosbag2_py extensions (can carry symbols) from all known prefixes
     try:
         for _, prefix in get_packages_with_prefixes().items():
-            site_pkgs = os.path.join(prefix, 'lib', f'python{sys.version_info.major}.{sys.version_info.minor}', 'site-packages')
+            py_ver = f'python{sys.version_info.major}.{sys.version_info.minor}'
+            site_pkgs = os.path.join(prefix, 'lib', py_ver, 'site-packages')
             rosbag2_py_dir = os.path.join(site_pkgs, 'rosbag2_py')
             if os.path.isdir(rosbag2_py_dir):
                 for so_path in sorted(glob.glob(os.path.join(rosbag2_py_dir, '*.so'))):
@@ -261,7 +260,10 @@ def open_writer(uri: str, *, storage_id: str = 'mcap', serialization: str = 'cdr
     return writer
 
 
-def create_topic(writer: Any, name: str, type_: str, *, serialization_format: str = 'cdr', offered_qos_profiles: str = '') -> None:
+def create_topic(
+    writer: Any, name: str, type_: str, *,
+    serialization_format: str = 'cdr', offered_qos_profiles: str = ''
+) -> None:
     """
     Create a topic on a C++ rosbag2_cpp::Writer.
     """
