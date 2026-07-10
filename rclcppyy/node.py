@@ -422,6 +422,24 @@ class RclcppyyNode(Node):
         
         return subscription
 
+    def destroy_node(self):
+        """
+        Destroy the node.
+
+        The publishers/subscriptions this node creates are rclcpp (cppyy) objects
+        that we keep in the rclpy ``self._publishers`` / ``self._subscriptions``
+        lists for API compatibility. rclpy's ``destroy_publisher`` /
+        ``destroy_subscription`` assume rclpy objects (e.g. ``.event_handlers``),
+        so let RAII reclaim the C++ entities and drop them from the rclpy
+        bookkeeping before delegating to the rclpy node teardown.
+        """
+        self._publishers.clear()
+        self._subscriptions.clear()
+        self._cpp_publishers.clear()
+        self._cpp_subscriptions.clear()
+        self._cpp_timers.clear()
+        super().destroy_node()
+
     def _validate_topic_or_service_name(self, name: str) -> None:
         """
         Validate a topic or service name.
