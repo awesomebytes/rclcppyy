@@ -162,19 +162,39 @@ mechanically, not by discipline.
 
 ## Phase 4 — Conda package on prefix.dev
 
-- [ ] Write a `rattler-build` `recipe/recipe.yaml`, robostack-style:
+- [x] Write a `rattler-build` `recipe/recipe.yaml`, robostack-style:
       package `ros-jazzy-rclcppyy`, standard ament_cmake build script,
       `host`/`run` deps on `ros-jazzy-rclcpp`, `ros-jazzy-rclpy`,
       `ros-jazzy-ament-index-python`, `cppyy >=3.5,<4`. (Hand-written recipe;
       vinca not needed for a single package.)
-- [ ] Local proof: `rattler-build build` then install the artifact into a
+      **Done (06ceef1):** recipe/ (recipe.yaml schema v1 + build.sh +
+      vendored LICENSE); optional pixi `pkg` env with rattler-build and a
+      `pkg-build` task (no-default-feature, default lock untouched). Builds
+      `ros-jazzy-rclcppyy-0.1.0-hb0f4dca_0.conda` (~135 KiB), recipe import
+      test green.
+- [x] Local proof: `rattler-build build` then install the artifact into a
       fresh pixi env and run the smoke test — the package must work **without
       colcon build** (that's the point of releasing it).
+      **Done:** fresh workspace outside the repo, channels = [local file://
+      output, robostack-jazzy, conda-forge], single dep — `pixi install`,
+      import + `enable_cpp_acceleration()`, and a 5/5 pub/sub roundtrip
+      (builtin_interfaces/Time) with LD_LIBRARY_PATH empty and no repo on
+      PYTHONPATH. Prerequisite fixed first (063f1a9): explicit
+      `cppyy.load_library` of librclcpp / per-message typesupport /
+      librosbag2_storage at bringup — `add_library_path` alone is NOT
+      scanned for call-time resolution; LD-stripped full suite passes.
 - [ ] Create prefix.dev channel (e.g. `https://prefix.dev/channels/rclcppyy`);
       upload via `rattler-build upload prefix`.
-- [ ] Release workflow: on git tag → build → test → upload (with
+      **USER-MANUAL STEPS (documented in release.yml header):** 1) create
+      channel `rclcppyy` on prefix.dev (or rename in release.yml + README),
+      2) add repo secret `PREFIX_API_KEY` with write access. Until then,
+      release builds+tests run but the upload step fails.
+- [x] Release workflow: on git tag → build → test → upload (with
       `PREFIX_API_KEY` secret).
-- [ ] README "Install" section:
+      **Done (1a54dbc):** release.yml on `v*` tags — pkg-build → artifact
+      proof in a throwaway workspace (mirrors the local proof) → upload.
+      Unexercised on GitHub until first push + tag.
+- [x] README "Install" section:
       ```toml
       channels = ["https://prefix.dev/channels/rclcppyy", "robostack-jazzy", "conda-forge"]
       [dependencies]
@@ -205,11 +225,17 @@ mechanically, not by discipline.
   dir, compiler header lookup). Mitigation: Phase 1 validates before anything
   is deleted; committed `pixi.lock` pins known-good versions; `EXTRA_CLING_ARGS`
   documented as escape hatch.
-- **cppyy needs `LD_LIBRARY_PATH=$CONDA_PREFIX/lib` at runtime** for call-time
-  symbol resolution; the pixi workspace provides it via activation. The Phase 4
-  conda package has no workspace activation — the recipe needs an `activate.d`
-  script, or `bringup_rclcpp` should load the needed libraries explicitly
-  (`cppyy.load_library`), which would also fix it for all install methods.
+- ~~**cppyy needs `LD_LIBRARY_PATH=$CONDA_PREFIX/lib` at runtime**~~
+  **RESOLVED (063f1a9):** `bringup_rclcpp`/`serialization` now explicitly
+  `cppyy.load_library` the needed libs (librclcpp eagerly; per-message
+  typesupport on demand; librosbag2_storage for serialization), so nothing
+  depends on `LD_LIBRARY_PATH` anymore. The activation line stays in
+  pixi.toml as belt-and-braces only.
+- **Known limitation (found in Phase 4 proof):** the plain-bringup publish
+  wrapper does a shallow field copy — nested Python messages (Header/Time
+  fields etc.) don't auto-convert; flat messages work. The monkeypatch path
+  converts recursively (`RclcppyyNode._convert_msg_to_cpp`) — reuse it in the
+  plain-bringup wrapper. Tracked as a follow-up task.
 - **cppyy has no rosdep key**, so `package.xml` can't declare it portably.
   Acceptable: distribution targets conda/pixi where the recipe declares it
   directly; document apt/rosdep as unsupported for now.
