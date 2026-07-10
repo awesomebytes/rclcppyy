@@ -349,6 +349,52 @@ def _keep_alive(node: Any, *objs: Any) -> None:
     store.extend(objs)
 
 
+def convert_python_msg_to_cpp(msg_py: Any, msg_cpp: Any) -> Any:
+    """
+    Recursively fill a pre-constructed rclcpp (C++) message from an rclpy
+    (Python) message, field by field. Nested message fields are converted
+    recursively; sequence/array fields become the matching std::vector. Shared by
+    the plain-bringup publish path and RclcppyyNode so both convert identically.
+    """
+    for field_name in msg_py.get_fields_and_field_types():
+        field = getattr(msg_py, field_name)
+        # Nested message (has get_fields_and_field_types): recurse into the
+        # corresponding C++ sub-message.
+        if hasattr(field, "get_fields_and_field_types"):
+            setattr(msg_cpp, field_name,
+                    convert_python_msg_to_cpp(field, getattr(msg_cpp, field_name)))
+        # Array/sequence: build the matching std::vector. The element type comes
+        # from the declared field type (an empty list carries no instance).
+        elif isinstance(field, (list, tuple)):
+            field_type_py = msg_py.__class__.get_fields_and_field_types().get(field_name)
+            # e.g. 'sequence<rcl_interfaces/Parameter>' -> 'rcl_interfaces/Parameter'
+            element_type_py = field_type_py.replace("sequence<", "").replace(">", "")
+            primitive_type_map = {
+                'octet': 'unsigned char',
+                'boolean': 'bool',
+                'int64': 'int64_t',
+                'double': 'double',
+                'string': 'std::string',
+            }
+            rclcpp_element_type = primitive_type_map.get(
+                element_type_py, element_type_py.replace("/", "::msg::"))
+            rclcpp_vector = cppyy.gbl.std.vector[rclcpp_element_type]()
+            # Resolve the element message class once (avoids re-resolving per
+            # element). Matches the monkeypatch path: non-empty sequences are
+            # treated as message sequences.
+            rclcpp_element_class = None
+            if len(field) > 0:
+                _, rclcpp_element_class = _resolve_message_type(field[0])
+            for element in field:
+                rclcpp_vector.push_back(
+                    convert_python_msg_to_cpp(element, rclcpp_element_class()))
+            setattr(msg_cpp, field_name, rclcpp_vector)
+        # Plain scalar field.
+        else:
+            setattr(msg_cpp, field_name, field)
+    return msg_cpp
+
+
 def _wrap_publish_for_python_msgs(publisher: Any) -> None:
     """
     Wrap a publisher's publish() so that, if handed an rclpy (Python) message,
@@ -360,13 +406,8 @@ def _wrap_publish_for_python_msgs(publisher: Any) -> None:
     def publish_wrapper(msg):
         if _is_msg_cpp(msg):
             return original_publish(msg)
-        # Convert the Python message to its C++ equivalent (top-level fields).
-        # Nested messages/arrays need recursive handling (see
-        # RclcppyyNode._convert_msg_to_cpp); this simple path covers flat messages.
         _, cppyy_type = _resolve_message_type(msg)
-        cpp_msg = cppyy_type()
-        for field_name in msg.get_fields_and_field_types():
-            setattr(cpp_msg, field_name, getattr(msg, field_name))
+        cpp_msg = convert_python_msg_to_cpp(msg, cppyy_type())
         return original_publish(cpp_msg)
 
     publisher.publish = publish_wrapper
