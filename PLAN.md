@@ -134,14 +134,28 @@ one command; every demo listed in the README runs via a single `pixi run` task.
 
 ## Phase 3 — CI
 
-- [ ] GitHub Actions using `prefix-dev/setup-pixi` with pixi-env caching:
+- [x] GitHub Actions using `prefix-dev/setup-pixi` with pixi-env caching:
       `pixi run build` + `pixi run test` + a short headless `pixi run bench`
       smoke (few seconds, assert rclcppyy actually publishes) on linux-64.
       Suggested smoke: `pixi run bench --variants rclcppyy --rate 1000
       --duration 3 --warmup-timeout 120 --json` (~10–15 s + cold JIT; bump
       the warmup timeout on slow runners; assert `msgs_received > 0`).
 - [ ] Lint job (existing `ament_lint_auto` via `colcon test`).
-- [ ] Badge in README.
+      **Deferred deliberately:** local `colcon test` shows 2712/2758 lint
+      failures (flake8 2327 — mostly style codes Q000/W293/E501/import-order,
+      but 64 real F401 unused-imports and 22 F841 unused-vars; pep257 381),
+      spanning the whole tree incl. the roscon_uk_2025 archive. Shipping the
+      job now would be red-by-default. Needs its own cleanup task: relax/configure
+      style codes, scope lint to `rclcppyy/` + `test/`, fix the real findings.
+- [x] Badge in README.
+
+**Status: CI authored (f8bf71a)** — ci.yml: checkout → setup-pixi@v0.10.0
+(pixi 0.70.0, default env only, cache keyed on pixi.lock, cache-write on
+main pushes) → build → test → bench smoke (`--warmup-timeout 300` hedge for
+2-core cold JIT), concurrency-cancel for superseded runs. All three commands
+re-validated green locally before encoding. Estimated ~8–12 min cold /
+~4–6 min cached. NOT yet exercised on GitHub — nothing has been pushed;
+first push to main seeds the cache.
 
 **Acceptance:** PRs get a green/red signal; the Phase 1 guarantee is enforced
 mechanically, not by discipline.
