@@ -11,7 +11,41 @@ strategy, provided the kit hides cppyy from the user (several raw cppyy operatio
 segfault the process). The v0 API deliberately **mirrors the C++ API** — see §2.
 
 (For the motivation and a C++-vs-Python side-by-side, see [WHY.md](WHY.md); for the
-API, see [KIT.md](KIT.md).)
+API, see [BT.CPP_KIT.md](BT.CPP_KIT.md).)
+
+---
+
+## How the kit works
+
+```mermaid
+flowchart TD
+    U["Your Python: leaf callbacks + BT.CPP XML"]
+    subgraph KIT["bt_kit glue — rclcppyy/kits/bt_kit.py"]
+      B["bringup_bt(): locate via ament index → cppyy.include(headers) → cppyy.load_library(libbehaviortree_cpp.so) → cppdef C++ helpers"]
+      F["friction layer: std::function wrapping + keep-alive pinning · PortsList built in a C++ helper · getInput/Expected unwrap via a node wrapper"]
+    end
+    J["cppyy / Cling JIT"]
+    E["libbehaviortree_cpp.so — C++ engine: parse XML, own the tree, tick"]
+    U --> KIT --> J --> E
+    E -. "each tick calls back into the Python leaf" .-> U
+```
+
+Bringup locates the install, JIT-includes the headers, and loads the `.so` so
+calls resolve; the friction layer wraps Python callables as `std::function`s
+(pinned alive), builds the port list in a C++ helper (Python construction
+segfaults — see §1), and unwraps `getInput`/`Expected<T>` behind a small node
+object. The engine parses the XML and ticks; each tick calls back into the
+Python leaf.
+
+**The same recipe generalizes.** Every future kit (`pcl_kit`, `ompl_kit`,
+`ceres_kit`, …) is the same three ingredients: **(1) bringup** — locate the
+install (ament index or known prefix), `cppyy.include` its headers,
+`cppyy.load_library` its `.so`; **(2) hide the sharp edges** cppyy has for that
+library — build STL containers in `cppdef` C++ helpers, keep ownership-crossing
+lambdas in C++, pin callables, unwrap awkward return types; **(3) mirror the
+library's own API** so a user's (or an LLM's) existing knowledge of that library
+transfers 1:1. bt_kit is the worked example — ~180 lines of Python plus a
+~40-line C++ helper.
 
 ---
 
@@ -41,64 +75,26 @@ Each capability was probed in isolation from the `bt` env against the installed
 
 ---
 
-## 2. API design decision — thin C++-mirror (shipped) vs sugared decorator
+## 2. API design — thin C++-mirror (shipped)
 
-Two shapes were prototyped for tutorial 1. Optimization criteria (in order):
-(1) LLM ergonomics — a coding agent should write correct code with minimal
-kit-specific knowledge; (2) readability of the user code; (3) short.
+The v0 API mirrors the C++ library 1:1: `bringup_bt()` returns the patched `BT`
+namespace and you use `BehaviorTreeFactory`, `registerSimpleAction` /
+`registerSimpleCondition`, `createTreeFromText`, `tickWhileRunning` by their real
+C++ names (snake_case aliases exist too), writing the leaf callbacks in Python.
+Status is `bt.NodeStatus.SUCCESS` (the real enum, like C++) or the `bt_kit.SUCCESS`
+int; they compare equal. The one place it cannot mirror C++ is stateful nodes — C++
+uses `registerNodeType<T>()`, impossible for a Python `T` — so the kit adds
+`factory.register_stateful(name, PyClass, ports)` whose class exposes
+`onStart`/`onRunning`/`onHalted`. See [WHY.md](WHY.md) for the complete
+C++-vs-Python side-by-side and [BT.CPP_KIT.md](BT.CPP_KIT.md) for the API.
 
-**(A) Thin C++-mirror — SHIPPED.** The kit patches cppyy's real
-`BehaviorTreeFactory` so the C++-named methods take Python callables and
-list-of-string ports directly; it removes only the cppyy friction (bringup,
-`std::function` wrapping, keep-alive, `PortsList`, `getInput`/`Expected<T>`).
-```python
-from rclcppyy.kits import bt_kit
-bt = bt_kit.bringup_bt()
-
-def check_battery(node):    print("[ Battery: OK ]");            return bt.NodeStatus.SUCCESS
-def approach_object(node):  print("ApproachObject: ...");        return bt.NodeStatus.SUCCESS
-
-factory = bt.BehaviorTreeFactory()
-factory.registerSimpleCondition("CheckBattery", check_battery)
-factory.registerSimpleAction("ApproachObject", approach_object)
-tree = factory.createTreeFromText(XML)
-tree.tickWhileRunning()
-```
-
-**(B) Sugared decorator — prototyped, NOT shipped.** A Python-native DSL:
-decorators register into a module-global registry, materialised by a
-`tree_from_xml` helper.
-```python
-from rclcppyy.kits import bt_kit
-
-@bt_kit.condition_node("CheckBattery")
-def check_battery(bb):   print("[ Battery: OK ]");        return bt_kit.SUCCESS
-
-@bt_kit.action_node("ApproachObject")
-def approach_object(bb): print("ApproachObject: ...");    return bt_kit.SUCCESS
-
-tree = bt_kit.tree_from_xml(XML)
-bt_kit.tick_while_running(tree)
-```
-
-| Axis | (A) thin mirror | (B) decorator |
-|---|---|---|
-| t01 user LOC | 24 | 22 |
-| C++ knowledge transfer | **1:1** — same names/shapes as the official tutorials; an LLM writes it from BT.CPP docs it already knows | must learn a kit-specific DSL |
-| Hidden state | none — registration is explicit and per-factory | **module-global registry**; a footgun across multiple trees / re-import / tests |
-| Likely LLM misuse | low — no magic to get wrong | higher — deferred+global registration, "which factory?", forgetting the tree materialisation step |
-| Readability | reads like the official tutorial (the showcase point) | slightly terser but less obvious *when* registration happens |
-| Multi-tree / isolation | natural (each factory independent) | awkward (shared global registry) |
-
-**Decision: ship (A).** It wins criteria 1 and 2 decisively and loses criterion 3
-by only ~2 lines. The clincher is misuse: (B)'s global registry is exactly the
-kind of hidden state an LLM (and a human) gets wrong, whereas (A) is stateless per
-factory and matches muscle memory from the C++ tutorials 1:1. Status constants are
-available both as `bt.NodeStatus.SUCCESS` (the real enum, exactly like C++) and as
-`bt_kit.SUCCESS` (a plain int); they compare equal. The one place (A) cannot mirror
-C++ is stateful nodes — C++ uses `registerNodeType<T>()`, impossible for a Python
-`T` — so the kit adds `factory.register_stateful(name, PyClass, ports)` whose class
-exposes `onStart`/`onRunning`/`onHalted` (the C++ StatefulActionNode method names).
+**Considered and rejected: a sugared decorator DSL** (`@action_node(...)` +
+`tree_from_xml`). It was ~2 LOC shorter on tutorial 1 but relied on a module-global
+registry (a footgun across multiple trees, re-import, and tests) and forced a
+kit-specific DSL the reader must learn instead of reusing existing BT.CPP
+knowledge. The thin mirror wins decisively on knowledge transfer and carries no
+hidden state, so the decorator shape was dropped entirely — no decorator code
+ships.
 
 ---
 
