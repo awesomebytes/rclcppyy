@@ -91,7 +91,7 @@ If you just want to *use* `rclcppyy` (no clone, no `colcon build`), add the
 prefix.dev channel and the package to your own pixi workspace:
 
 ```toml
-channels = ["https://prefix.dev/channels/rclcppyy", "robostack-jazzy", "conda-forge"]
+channels = ["https://prefix.dev/channels/awesomebytes", "robostack-jazzy", "conda-forge"]
 
 [dependencies]
 ros-jazzy-rclcppyy = "*"
