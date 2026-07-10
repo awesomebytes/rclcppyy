@@ -7,6 +7,8 @@ engine) through `rclcppyy.kits.bt_kit`. The kit **mirrors the C++ API** — the 
 you'd write the C++ tutorial, with the leaf callbacks in Python. You do **not** need
 to know cppyy; the kit removes that friction.
 
+(For *why* this exists and the C++-vs-Python comparison, see [WHY.md](WHY.md).)
+
 **Requires** the `bt` pixi env: `pixi run -e bt python your_script.py`.
 
 **Golden rules**
