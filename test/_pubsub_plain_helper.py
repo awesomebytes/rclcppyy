@@ -9,10 +9,8 @@ backend and reading them back out of a C++ subscription callback.
 
 Run as a subprocess (not collected by pytest); it prints ``PLAIN_PUBSUB_OK``
 as its last line on success. See the sibling test for why this runs in its own
-interpreter and why we exit via os._exit.
+interpreter.
 """
-import os
-import sys
 import time
 
 from rclcppyy.bringup_rclcpp import bringup_rclcpp
@@ -75,12 +73,10 @@ def main():
     assert received == expected, f"payload mismatch: {received!r} != {expected!r}"
 
     print("PLAIN_PUBSUB_OK", flush=True)
-    sys.stdout.flush()
-    sys.stderr.flush()
-    # cppyy/rclcpp C++ static destructors can segfault at interpreter shutdown
-    # (documented teardown wart). The work above is done and verified, so exit
-    # hard to keep the subprocess return code deterministic for the test.
-    os._exit(0)
+    # A normal return exits cleanly: rclcppyy registers an ordered teardown
+    # (rclcppyy.shutdown_rclcpp, via cppyy_kit's atexit hook) that brings the
+    # rclcpp context / DDS layer down before interpreter finalization, so the
+    # subprocess return code is deterministic without an os._exit dodge.
 
 
 if __name__ == "__main__":
