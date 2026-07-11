@@ -105,35 +105,46 @@ ROS 2 project.
 Beyond `rclcpp` itself, this repo uses the same `cppyy` approach to drive other
 C++ robotics libraries from Python: a "kit" is a thin layer that mirrors the
 library's own API and hides only the `cppyy` friction (bringup, lifetime,
-crossing callbacks, teardown), rather than inventing a new one. Three kits exist
-today: [BehaviorTree.CPP](https://www.behaviortree.dev/) (no other Python binding
-of it exists), [PCL](https://pointclouds.org/), and [OMPL](https://ompl.kavrakilab.org/).
-The patterns common to all live in [`rclcppyy/kits/cppyy_kit.py`](rclcppyy/kits/cppyy_kit.py).
+crossing callbacks, teardown), rather than inventing a new one. Six kits exist
+today — [BehaviorTree.CPP](https://www.behaviortree.dev/) (no other Python binding
+of it exists), [PCL](https://pointclouds.org/), [OMPL](https://ompl.kavrakilab.org/),
+[Nav2](https://docs.nav2.org/), [MoveIt 2](https://moveit.ai/), and
+[ros2_control](https://control.ros.org/) — plus a vision loop-closure **tutorial**
+composing OpenCV + DBoW2 + GTSAM. The patterns common to all live in
+[`rclcppyy/kits/cppyy_kit.py`](rclcppyy/kits/cppyy_kit.py).
 
 Measured results:
 
-| What | Number |
-|---|---|
-| BT.CPP official tutorials in Python | 16–24 lines, XML verbatim |
-| BT tree tick rate (Python leaves) | ~630k ticks/s |
-| PCL pipeline vs rclpy+NumPy (100k pts @ 10 Hz) | 14.8× lower latency, 9.4× less CPU, same LOC |
-| OMPL cross-inheritance: Python subclass called by RRT\* | 1M+ calls/solve, ~350 ns/call |
-| OMPL Python validity per-call vs native C++ | ~159× slower — invisible for small plans, lowerable to C++ when it dominates |
-| L1 "freeze" (Cling PCH) header parse | 890 ms → 6 ms (~140×); rclcpp: 1.71 s → 6 ms |
-| L2 lowering (Python leaf → native `.so`) | ~2.8× tick rate, identical output |
+| Kit | What it shows | Number |
+|---|---|---|
+| BT.CPP | official tutorials in Python, XML verbatim | 16–24 lines; ~630k ticks/s (Python leaves) |
+| PCL | NumPy→VoxelGrid→NumPy pipeline vs rclpy+NumPy (100k pts @ 10 Hz) | 14.8× lower latency, 9.4× less CPU, same LOC |
+| OMPL | Python subclass called by RRT\* in its hot loop (cross-inheritance) | 1M+ calls/solve, ~350 ns/call; Python validity ~159× native (lowerable to C++) |
+| Nav2 | your own nav stack — Costmap2D + NavFn from Python, no lifecycle servers | NavFn plan ~80× a Python A\* |
+| MoveIt 2 | full MoveIt C++ API (FK, FCL, real OMPL plan) + collision-aware IK | validity-callback IK that moveit_py cannot express |
+| ros2_control | a Python controller running inside the real `controller_manager` | 100 Hz update loop, solid |
+| vision tutorial | zero-copy ROS `Image`→`cv::Mat` ingest, DBoW2 loop closure, GTSAM back-end | ingest ~155× @1080p; GTSAM ~15× drift fix; optional CUDA ORB ~5.3× |
+| L1 "freeze" (Cling PCH) | header parse eliminated | 890 ms → 6 ms (~140×); rclcpp 1.71 s → 6 ms |
+| L2 lowering | Python leaf → native `.so` | ~2.8× tick rate, identical output |
 
-Quick run:
+Quick run (each kit has its own opt-in pixi env):
 
 ```bash
-pixi install -e bt && pixi run -e bt demo-bt-t01
-pixi run -e bt demo-bt-t03
+pixi run -e bt demo-bt-t01           # + demo-bt-t03 (mixed Python/C++/ROS tree)
 pixi run -e pcl bench-pcl
 pixi run -e ompl demo-ompl-plan
+pixi run -e nav2 demo-nav2-stack
+pixi run -e moveit demo-moveit-plan
+pixi run -e control demo-control-python
+pixi run -e vision demo-vision-loop
 ```
 
-More detail: [docs/kits/COMMON_PATTERNS.md](docs/kits/COMMON_PATTERNS.md),
-[docs/kits/FREEZE.md](docs/kits/FREEZE.md), [docs/bt_kit/WHY.md](docs/bt_kit/WHY.md),
-[docs/pcl_kit/WHY.md](docs/pcl_kit/WHY.md), [docs/ompl_kit/WHY.md](docs/ompl_kit/WHY.md).
+More detail: [docs/kits/COMMON_PATTERNS.md](docs/kits/COMMON_PATTERNS.md) and
+[docs/kits/FREEZE.md](docs/kits/FREEZE.md); the vision walkthrough in
+[docs/tutorials/vision_loop_closure.md](docs/tutorials/vision_loop_closure.md);
+per-kit "why" docs [bt](docs/bt_kit/WHY.md), [pcl](docs/pcl_kit/WHY.md),
+[ompl](docs/ompl_kit/WHY.md), [nav2](docs/nav2_kit/WHY.md),
+[moveit](docs/moveit_kit/WHY.md), [control](docs/control_kit/WHY.md).
 
 ## Setup
 
