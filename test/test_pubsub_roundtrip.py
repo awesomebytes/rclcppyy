@@ -39,6 +39,18 @@ class TestPubSubRoundtrip(unittest.TestCase):
         self.assertIn("PLAIN_NESTED_OK", out, format_output(proc))
         self.assertEqual(proc.returncode, 0, format_output(proc))
 
+    def test_primitive_array_roundtrip_through_cpp(self):
+        # A non-empty primitive sequence field (std_msgs/Float64MultiArray's
+        # `data`, declared `sequence<double>`) must convert on the
+        # plain-bringup publish path: the shared converter used to resolve any
+        # non-empty sequence as a message-element sequence, raising for
+        # primitive elements (backlog #12).
+        proc = run_helper("_pubsub_primitive_array_helper.py")
+        out = proc.stdout
+        self.assertIn("PLAIN_PRIMITIVE_ARRAY_MSG_OK", out, format_output(proc))
+        self.assertIn("PLAIN_PRIMITIVE_ARRAY_OK", out, format_output(proc))
+        self.assertEqual(proc.returncode, 0, format_output(proc))
+
 
 if __name__ == "__main__":
     unittest.main()
