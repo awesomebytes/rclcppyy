@@ -3,7 +3,7 @@ schema_version: 1
 context:
   name: ros-jazzy-rclcppyy
   # Keep in sync with package.xml <version>.
-  version: "0.1.0"
+  version: "0.2.0"
 
 package:
   name: ${{ name }}
@@ -41,14 +41,25 @@ requirements:
     - ros-jazzy-ament-index-python
     - ros-jazzy-rclcpp
     - ros-jazzy-rclpy
+    # 0.2.0: the rclcpp core was carved into rclcpp_kit; rclcppyy re-exports it via
+    # deprecation shims, so the product depends on it at runtime. cppyy-kit comes in
+    # transitively but is pinned so the kit shims (rclcppyy.kits.cppyy_kit / .freeze)
+    # resolve. NOTE (pre-release): both live only in the local rattler-build channel
+    # until the suite publishes to prefix.dev — the pkg-build task and the release
+    # workflow must pass that channel (local file:// now → awesomebytes after
+    # publish; see RELEASING.md).
+    - ros-jazzy-rclcpp-kit ==0.1.0
+    - cppyy-kit ==0.1.0
 
 tests:
   - script:
       # Import-only smoke: exercises the package's transitive imports (cppyy,
-      # rclpy, ament_index_python) in a fresh env with just the run deps. The
-      # full "install from channel and run pub/sub" proof lives outside the
-      # recipe (a fresh pixi workspace) since it needs an RMW + workspace
-      # activation.
+      # rclpy, ament_index_python, and now rclcpp_kit) in a fresh env with just the
+      # run deps. The test env is solved from the channels passed to
+      # `rattler-build build -c ...`, so rclcpp_kit / cppyy-kit resolve only when
+      # that build includes the suite channel (see pkg-build). The full "install
+      # from channel and run pub/sub" proof lives outside the recipe (a fresh pixi
+      # workspace) since it needs an RMW + workspace activation.
       - python -c "import rclcppyy; print('rclcppyy', rclcppyy.__file__)"
 
 about:

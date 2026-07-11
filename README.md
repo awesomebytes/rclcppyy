@@ -100,20 +100,38 @@ no `LD_LIBRARY_PATH` or activation setup required. Message packages you publish
 or subscribe (e.g. `ros-jazzy-std-msgs`) are separate dependencies, as in any
 ROS 2 project.
 
+## Architecture (0.2.0): rclcppyy on top of the cppyy_kit suite
+
+As of **0.2.0**, rclcppyy is the **drop-in rclpy accelerator product** in a larger
+family. The reusable machinery it pioneered was extracted into the
+**[cppyy_kit suite](https://github.com/awesomebytes/cppyy_kit)**:
+
+- **`cppyy_kit`** — the ROS-free base (load/keep-alive/callback/teardown friction
+  primitives, the `freeze` PCH tooling).
+- **`rclcpp_kit`** — the ROS 2 core capability layer (rclcpp bringup, C++ message
+  resolution/conversion, serialization, rosbag2, **tf**).
+- the domain **kits** (`bt_kit`, `pcl_kit`, `ompl_kit`, `nav2_kit`, `moveit_kit`,
+  `control_kit`, `cv_kit`, `dbow_kit`).
+
+rclcppyy keeps the brand and the one-line monkeypatch (`enable_cpp_acceleration`)
+and re-exports the moved pieces through **deprecation shims** — existing
+`from rclcppyy.bringup_rclcpp import ...`, `rclcppyy.tf`, `from rclcppyy.kits import
+bt_kit`, etc. keep working (with a `DeprecationWarning` pointing at the new home).
+New code should import `rclcpp_kit.*` and the standalone kit packages directly. See
+[`RELEASING.md`](RELEASING.md) for the suite/product publish order.
+
 ## Kits
 
-Beyond `rclcpp` itself, this repo uses the same `cppyy` approach to drive other
-C++ robotics libraries from Python: a "kit" is a thin layer that mirrors the
-library's own API and hides only the `cppyy` friction (bringup, lifetime,
-crossing callbacks, teardown), rather than inventing a new one. Six kits exist
-today — [BehaviorTree.CPP](https://www.behaviortree.dev/) (no other Python binding
-of it exists), [PCL](https://pointclouds.org/), [OMPL](https://ompl.kavrakilab.org/),
-[Nav2](https://docs.nav2.org/), [MoveIt 2](https://moveit.ai/), and
-[ros2_control](https://control.ros.org/) — plus a vision loop-closure **tutorial**
-composing OpenCV + DBoW2 + GTSAM. The patterns common to all live in
-[`rclcppyy/kits/cppyy_kit.py`](rclcppyy/kits/cppyy_kit.py).
+The cppyy "kits" — a "kit" is a thin layer that mirrors a C++ library's own API and
+hides only the `cppyy` friction (bringup, lifetime, crossing callbacks, teardown) —
+now live in the **[cppyy_kit repo](https://github.com/awesomebytes/cppyy_kit)**:
+[BehaviorTree.CPP](https://www.behaviortree.dev/) (no other Python binding of it
+exists), [PCL](https://pointclouds.org/), [OMPL](https://ompl.kavrakilab.org/),
+[Nav2](https://docs.nav2.org/), [MoveIt 2](https://moveit.ai/),
+[ros2_control](https://control.ros.org/), plus a vision loop-closure tutorial
+composing OpenCV + DBoW2 + GTSAM. `rclcppyy.kits.*` remains as compatibility shims.
 
-Measured results:
+Measured results (from the suite):
 
 | Kit | What it shows | Number |
 |---|---|---|
@@ -127,24 +145,12 @@ Measured results:
 | L1 "freeze" (Cling PCH) | header parse eliminated | 890 ms → 6 ms (~140×); rclcpp 1.71 s → 6 ms |
 | L2 lowering | Python leaf → native `.so` | ~2.8× tick rate, identical output |
 
-Quick run (each kit has its own opt-in pixi env):
-
-```bash
-pixi run -e bt demo-bt-t01           # + demo-bt-t03 (mixed Python/C++/ROS tree)
-pixi run -e pcl bench-pcl
-pixi run -e ompl demo-ompl-plan
-pixi run -e nav2 demo-nav2-stack
-pixi run -e moveit demo-moveit-plan
-pixi run -e control demo-control-python
-pixi run -e vision demo-vision-loop
-```
-
-More detail: [docs/kits/COMMON_PATTERNS.md](docs/kits/COMMON_PATTERNS.md) and
-[docs/kits/FREEZE.md](docs/kits/FREEZE.md); the vision walkthrough in
-[docs/tutorials/vision_loop_closure.md](docs/tutorials/vision_loop_closure.md);
-per-kit "why" docs [bt](docs/bt_kit/WHY.md), [pcl](docs/pcl_kit/WHY.md),
-[ompl](docs/ompl_kit/WHY.md), [nav2](docs/nav2_kit/WHY.md),
-[moveit](docs/moveit_kit/WHY.md), [control](docs/control_kit/WHY.md).
+Run the kit demos/benchmarks and read the per-kit `SKILL.md` / `WHY.md` / `REPORT.md`
+in the **[cppyy_kit repo](https://github.com/awesomebytes/cppyy_kit)** (each kit has
+its own opt-in pixi env there, e.g. `pixi run -e bt demo-bt-t01`,
+`pixi run -e pcl bench-pcl`, `pixi run -e vision demo-vision-loop`). The common-pattern
+playbook, the L0→L1→L2 freeze ladder, and the vision loop-closure walkthrough live
+there too.
 
 ## Setup
 

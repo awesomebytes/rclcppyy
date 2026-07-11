@@ -18,3 +18,9 @@ output/
 # build/ is already ignored above (DBoW2 lands in build/vendor/); data/ holds the
 # downloaded TUM RGB-D sequence and the ORBvoc vocabulary.
 data/
+
+# M3 pre-release PYTHONPATH bridge (generated symlinks to the sibling cppyy_kit checkout)
+.suite_bridge/
+
+# Local Claude agent state / worktrees
+.claude/

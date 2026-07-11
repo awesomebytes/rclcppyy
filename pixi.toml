@@ -3,7 +3,7 @@ authors = ["Sam Pfeiffer <sammypfeiffer@gmail.com>"]
 name = "rclcppyy_ws"
 channels = ["robostack-jazzy", "conda-forge"]
 platforms = ["linux-64"]
-version = "0.1.0"
+version = "0.2.0"
 
 [dependencies]
 ros-jazzy-ros-base = ">=0.11"
@@ -22,6 +22,15 @@ pytest = ">=7.4,<8"
 numpy = "*"
 setuptools = "<81"
 psutil = ">=7.2.2,<8"
+# M3: rclcppyy's rclcpp core + cppyy kits were carved into the cppyy_kit suite
+# (rclcpp_kit / cppyy_kit). rclcppyy re-exports them via deprecation shims, so both
+# must be IMPORTABLE at runtime. Until the suite is published to prefix.dev, they
+# are NOT conda deps here — a file:// channel in the lock would not resolve on CI /
+# other machines. Instead they are put on PYTHONPATH from a sibling cppyy_kit
+# checkout by workspace_activation.sh (the "PYTHONPATH bridge"; set CPPYY_KIT_SRC to
+# override the default ../cppyy_kit). The SHIPPED conda package DOES carry them as
+# run-deps (recipe/recipe.yaml); that path swaps to the awesomebytes channel after
+# the suite publishes. See RELEASING.md.
 
 [activation]
 scripts = ["workspace_activation.sh"]
@@ -96,8 +105,13 @@ rattler-build = ">=0.68,<0.69"
 
 [feature.pkg.tasks]
 # Build the ros-jazzy-rclcppyy conda package from recipe/ into ./output.
-# Channels match the workspace. Run with `pixi run -e pkg pkg-build`.
-pkg-build = "rattler-build build --recipe recipe/recipe.yaml -c robostack-jazzy -c conda-forge --output-dir output"
+# Channels match the workspace. The recipe's import-smoke test env resolves the
+# 0.2.0 run-deps (ros-jazzy-rclcpp-kit, cppyy-kit) from the suite channel.
+# NOTE (pre-release): that channel is the LOCAL rattler-build output until the suite
+# publishes; after publish, swap the file:// entry for
+# "https://repo.prefix.dev/awesomebytes" (see RELEASING.md, step 2).
+# Run with `pixi run -e pkg pkg-build`.
+pkg-build = "rattler-build build --recipe recipe/recipe.yaml -c robostack-jazzy -c conda-forge -c file:///home/sapf/playground/ros_project/cppyy_kit/output --output-dir output"
 
 # Optional "bt" feature/environment: BehaviorTree.CPP v4 for the bt_kit cppyy
 # spike (rclcppyy/kits/bt_kit.py). Kept out of the default env so a plain
@@ -116,11 +130,9 @@ demo-bt-t02 = "python scripts/bt_kit_demos/t02_ports.py"
 demo-bt-t03 = "python scripts/bt_kit_demos/t03_mixed_tree.py"
 # ticks/sec micro-benchmark: C++ JIT leaves vs Python leaves through the kit.
 bench-bt = "python scripts/bt_kit_demos/bench_bt.py"
-# Run the bt_kit + cppyy_kit (common layer) test suites in the bt env
-# (behaviortree_cpp present). All files auto-skip under the default
-# `pixi run test`, which has no BT; test_bt_freeze also skips until the PCH is
-# built (freeze-bt-build).
-test-bt = "pytest test/test_bt_kit.py test/test_cppyy_kit.py test/test_bt_freeze.py -v"
+# (M3) The bt_kit / cppyy_kit / freeze test suites moved to the cppyy_kit repo
+# (run `pixi run -e bt test-bt` there). rclcppyy only smoke-tests its kit shims,
+# in the default env: `pixi run test` (test/test_kit_shims.py).
 
 # --- L0->L1 "freeze": build a Cling PCH of the bt headers so bringup skips the
 # ~0.83 s header JIT-parse (see docs/kits/FREEZE.md). ---
@@ -133,8 +145,7 @@ freeze-bt-run = "python scripts/freeze/run_frozen.py"
 # L0 (JIT) vs L1 (frozen) bringup numbers: staged wall time, time-to-first-tick,
 # total t01 runtime; median over cold subprocess samples.
 freeze-bench = "python scripts/freeze/bench_freeze.py"
-# The SAME 16 tests as test-bt, but on the frozen path (parse eliminated).
-test-bt-frozen = "python scripts/freeze/run_frozen.py -m pytest test/test_bt_kit.py test/test_cppyy_kit.py -v"
+# (M3) The frozen-path test suite moved to the cppyy_kit repo with the kits.
 # t01 first tree on the frozen path (fast bringup).
 demo-bt-t01-frozen = "python scripts/freeze/run_frozen.py scripts/bt_kit_demos/t01_first_tree.py"
 
@@ -180,10 +191,7 @@ demo-ompl-path = "python scripts/ompl_kit_demos/d02_publish_path.py"
 # (Python via callback / Python subclass / native JIT'd C++). solve time +
 # ns-per-call + calls/sec each.
 bench-ompl = "python scripts/ompl_kit_demos/bench_ompl_validity.py"
-# Run the ompl_kit test suite in the ompl env (OMPL present). It auto-skips under
-# the default `pixi run test`, which has no OMPL. (The common cppyy_kit layer this
-# kit builds on is covered by `pixi run -e bt test-bt`.)
-test-ompl = "pytest test/test_ompl_kit.py -v"
+# (M3) The ompl_kit test suite moved to the cppyy_kit repo (`pixi run -e ompl test-ompl`).
 
 # Optional "nav2" feature/environment: Nav2 algorithm cores for the nav2_kit
 # cppyy spike (compose a nav stack from Python). Same opt-in pattern as bt/pcl/ompl.
@@ -205,10 +213,7 @@ demo-nav2-stack = "python scripts/nav2_kit_demos/d02_own_nav_stack.py"
 # NavFn-from-Python vs a pure-Python A* on 256/512/1024 grids: plan-time table
 # (the "C++ math, Python orchestration" performance story).
 bench-nav2-plan = "python scripts/nav2_kit_demos/bench_nav2_plan.py"
-# Run the nav2_kit test suite in the nav2 env (Nav2 present). It auto-skips under
-# the default `pixi run test`, which has no Nav2. (The common cppyy_kit layer this
-# kit builds on is covered by `pixi run -e bt test-bt`.)
-test-nav2 = "pytest test/test_nav2_kit.py -v"
+# (M3) The nav2_kit test suite moved to the cppyy_kit repo (`pixi run -e nav2 test-nav2`).
 
 # Optional "moveit" feature/environment: MoveIt 2 for the moveit_kit cppyy spike
 # (full moveit_cpp API from Python; moveit_py included as the contrast subset).
@@ -227,10 +232,7 @@ demo-moveit-plan = "python scripts/moveit_kit_demos/d02_plan_pose_goal.py"
 # Bench: collision checks/sec + IK solves/sec, moveit_kit (full C++ via cppyy) vs
 # moveit_py (the pybind subset). Each library in a fresh subprocess.
 bench-moveit = "python scripts/moveit_kit_demos/bench_moveit.py"
-# Run the moveit_kit test suite in the moveit env (MoveIt + panda config present).
-# Auto-skips under the default `pixi run test`, which has no MoveIt. (The common
-# cppyy_kit layer this kit builds on is covered by `pixi run -e bt test-bt`.)
-test-moveit = "pytest test/test_moveit_kit.py -v"
+# (M3) The moveit_kit test suite moved to the cppyy_kit repo (`pixi run -e moveit test-moveit`).
 
 # Optional "control" feature/environment: ros2_control for the control_kit spike
 # (Python controller inside the real controller_manager via a pluginlib bridge).
@@ -249,10 +251,7 @@ demo-control-python = "python scripts/control_kit_demos/d02_python_controller.py
 # Stage 4: update-loop rate/jitter/missed-deadline numbers, Python controller vs the
 # stock C++ baseline under the same rig, at 100 Hz and 1 kHz.
 bench-control = "python scripts/control_kit_demos/bench_control_loop.py"
-# Run the control_kit test suite in the control env (ros2_control present). Auto-skips
-# under the default `pixi run test`, which has no ros2_control. (The common cppyy_kit
-# layer this kit builds on is covered by `pixi run -e bt test-bt`.)
-test-control = "pytest test/test_control_kit.py -v"
+# (M3) The control_kit test suite moved to the cppyy_kit repo (`pixi run -e control test-control`).
 
 # Optional "vision" feature/environment: the visual loop-closure tutorial
 # (cv_kit + dbow_kit + gtsam_kit). OpenCV pinned to 4.x for DBoW2 source
@@ -271,12 +270,8 @@ libboost-headers = "*"  # headers-only (no ABI/mutex conflict): lets gtsam heade
 # gitignored build/vendor/ (not packaged on conda-forge). Run once before the
 # loop-closure demos/tests.
 build-dbow2 = "python scripts/vision/build_dbow2.py"
-# Run the vision kit + loop-closure test suites. Auto-skips under the default
-# `pixi run test` (no OpenCV/DBoW2). The golden test trains a small vocabulary on
-# the deterministic synthetic sequence -- NO download needed. Note: the ROS
-# `install/` overlay pins `python` to the build (default) env, so we invoke the
-# vision env's interpreter explicitly ($CONDA_PREFIX) with the repo on PYTHONPATH.
-test-vision = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python -m pytest test/test_vision_kits.py test/test_vision_loop.py test/test_vision_viz.py -v"
+# (M3) The vision kit + loop-closure test suites moved to the cppyy_kit repo
+# (`pixi run -e vision test-vision`).
 # Reusable data source: publish the deterministic synthetic loop sequence as
 # sensor_msgs/Image (zero download). Pass --tum DIR / --folder DIR for other data.
 dataset-synthetic = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/datasets/dataset_publisher.py --synthetic"
