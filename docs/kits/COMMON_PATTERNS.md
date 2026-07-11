@@ -51,25 +51,50 @@ expensive stages and let the caller skip what they don't need.
 - **pcl:** core ~1.3 s; adding the ROS message headers (`pcl_conversions`) costs
   another ~1.9 s, gated behind `bringup_pcl(with_ros=False)`.
 
-### 3. Lifetime: pin Python objects against C++ (`keep_alive`)
-cppyy does **not** keep a Python callable (nor its `std::function` wrapper, nor a
-buffer backing a view) alive just because C++ holds it. A collected callback
-raises `TypeError: callable was deleted` when fired. `cppyy_kit.keep_alive(owner,
-*objs)` pins them on a long-lived owner.
-- **bt:** leaf functors + their `std::function`s are pinned on the factory and
-  carried onto the tree (which owns the nodes that hold them).
-- **pcl:** the source cloud is pinned on the ctypes buffer backing a zero-copy
-  NumPy view, so the view can't outlive its storage silently.
-- This bit us in our own test: a throwaway `lambda` handed to `std_function` was
-  collected before the call — bind the callable to a name / pin it.
+### 3. Crossing a Python function **into** C++ (`callback`)
+Hand a Python callable to C++ in one line — `cppyy_kit.callback(fn)` — with the
+signature inferred and the lifetime pinned for you:
+```python
+def on_value(x: int, y: float) -> bool:      # hints -> "bool(int, double)"
+    return x > y
+fn = cppyy_kit.callback(on_value)            # ready to pass to any C++ std::function slot
+```
+- **Inference** maps `int`->int, `float`->double, `bool`->bool, `str`->std::string,
+  `None`->void (return), and any cppyy C++ class (via `__cpp_name__`) as a
+  reference. Parameters with Python defaults / `*args` are ignored (not C++ args).
+- **Explicit wins** for reference/const/pointer forms or types inference can't
+  name: `cppyy_kit.callback(tick, signature="BT::NodeStatus(BT::TreeNode&)",
+  owner=factory)`. This is exactly how bt_kit registers leaf/stateful hooks.
+- **Threading:** the callback runs in whatever C++ thread invokes it (cppyy takes
+  the GIL); a single-threaded driver (a tick loop, a `spin_some`) never contends.
+- `cppyy_kit.std_function(sig, fn)` is the low-level escape hatch (raw wrapper, you
+  handle lifetime yourself); prefer `callback`.
 
-### 4. Crossing functions **into** C++ (`std_function`)
-Wrap a Python callable as `std::function<sig>` (`cppyy_kit.std_function`). The
-callback runs in **whatever C++ thread invokes it**; cppyy takes the GIL. For a
-single-threaded driver (a tick loop, a `spin_some`) there is no contention.
-- **bt:** leaf ticks, condition checks, and the stateful hooks are all Python
-  callables wrapped this way.
-- Return values convert (int/enum/void/value types). See the ownership trap next.
+### 4. Lifetime: the "callable was deleted" footgun (now handled)
+cppyy does **not** keep a Python callable (nor its `std::function` wrapper, nor a
+buffer backing a view) alive just because C++ holds it — a collected callback
+raises `TypeError: callable was deleted` when fired. This bit us for real: a
+throwaway `lambda` handed to the raw `std_function` was collected before the call.
+- **`callback()` makes it impossible to hit silently:** it always pins. With
+  `owner=` the wrapper + fn live as long as that object; without `owner=` they are
+  pinned in a module-level registry for the process lifetime
+  (`cppyy_kit.release_callbacks()` drops those when you're sure C++ is done).
+- For **non-callback** objects (a buffer backing a zero-copy view, a logger),
+  `cppyy_kit.keep_alive(owner, *objs)` is the primitive. **pcl:** the source cloud
+  is pinned on the ctypes buffer backing a NumPy view so it can't outlive its
+  storage. **bt:** leaf callbacks are pinned on the factory (via `callback(owner=)`)
+  and carried onto the tree.
+
+### C++ → Python direction (no helper needed)
+The reverse crossing is already one line, so it is documented, not wrapped
+(mirror-don't-sugar):
+```python
+cppyy.gbl.mylib.some_fn(21)          # a cppdef'd/loaded C++ function IS a Python callable
+holder.store(cppyy.gbl.mylib.some_fn)  # and can be handed straight back into a C++ API
+```
+Round-trip works too: a Python `callback()` stored in a C++ `std::function`,
+invoked from C++, can call back into further Python — verified in
+`test/test_cppyy_kit.py`.
 
 ### 5. Crossing objects **out** without crossing ownership (`HandleRegistry`)
 Returning a `std::unique_ptr<T>` **from** a Python `std::function` fails
