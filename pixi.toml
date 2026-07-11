@@ -157,9 +157,8 @@ bench-pcl = "python scripts/pcl_kit_demos/bench_pcl_pipeline.py"
 # Optional "ompl" feature/environment: the Open Motion Planning Library for the
 # ompl_kit cppyy spike. Same opt-in pattern as bt/pcl.
 [feature.ompl.dependencies]
-ros-jazzy-ompl = "*" # OMPL headers + libompl.so
-eigen = "*"          # OMPL dependency
-boost = "*"          # OMPL headers use boost
+ros-jazzy-ompl = "*" # OMPL headers + libompl.so (brings its mutex-pinned boost)
+eigen = "*"          # OMPL dependency (eigen3 headers)
 
 [feature.ompl.tasks]
 # ompl_kit tasks are added by the ompl_kit spike.
