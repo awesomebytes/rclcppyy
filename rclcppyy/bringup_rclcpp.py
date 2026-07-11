@@ -1,10 +1,33 @@
+import array
 import cppyy
+import numpy as np
 import os
 import re
 from typing import Any, List, Optional, Set, Dict
 from ament_index_python.packages import get_package_prefix, get_packages_with_prefixes
 
 RCLCPP_BRINGUP_DONE = False
+
+# Declared-type name -> C++ element type, for sequence<...> fields whose
+# elements are primitives rather than nested messages. Keyed on the IDL basic
+# type names rosidl_parser reports through get_fields_and_field_types() (see
+# rosidl_parser.definition.BASIC_TYPES), plus 'string'.
+_PRIMITIVE_SEQUENCE_ELEMENT_TYPES = {
+    'octet': 'unsigned char',
+    'boolean': 'bool',
+    'char': 'unsigned char',
+    'float': 'float',
+    'double': 'double',
+    'int8': 'int8_t',
+    'uint8': 'uint8_t',
+    'int16': 'int16_t',
+    'uint16': 'uint16_t',
+    'int32': 'int32_t',
+    'uint32': 'uint32_t',
+    'int64': 'int64_t',
+    'uint64': 'uint64_t',
+    'string': 'std::string',
+}
 
 # Guards rclcpp::shutdown() against being called more than once. rclcpp installs
 # its own SIGINT/SIGTERM handler that calls shutdown(), so a script's own
@@ -399,30 +422,35 @@ def convert_python_msg_to_cpp(msg_py: Any, msg_cpp: Any) -> Any:
                     convert_python_msg_to_cpp(field, getattr(msg_cpp, field_name)))
         # Array/sequence: build the matching std::vector. The element type comes
         # from the declared field type (an empty list carries no instance).
-        elif isinstance(field, (list, tuple)):
+        # rclpy represents these as list (message elements, and octet/boolean/
+        # string primitives), array.array (numeric primitives with a typecode:
+        # int64, double, ...), or occasionally a numpy array -- accept all three.
+        elif isinstance(field, (list, tuple, array.array, np.ndarray)):
             field_type_py = msg_py.__class__.get_fields_and_field_types().get(field_name)
             # e.g. 'sequence<rcl_interfaces/Parameter>' -> 'rcl_interfaces/Parameter'
             element_type_py = field_type_py.replace("sequence<", "").replace(">", "")
-            primitive_type_map = {
-                'octet': 'unsigned char',
-                'boolean': 'bool',
-                'int64': 'int64_t',
-                'double': 'double',
-                'string': 'std::string',
-            }
-            rclcpp_element_type = primitive_type_map.get(
-                element_type_py, element_type_py.replace("/", "::msg::"))
-            rclcpp_vector = cppyy.gbl.std.vector[rclcpp_element_type]()
-            # Resolve the element message class once (avoids re-resolving per
-            # element). Matches the monkeypatch path: non-empty sequences are
-            # treated as message sequences.
-            rclcpp_element_class = None
-            if len(field) > 0:
-                _, rclcpp_element_class = _resolve_message_type(field[0])
-            for element in field:
-                rclcpp_vector.push_back(
-                    convert_python_msg_to_cpp(element, rclcpp_element_class()))
-            setattr(msg_cpp, field_name, rclcpp_vector)
+            primitive_cpp_type = _PRIMITIVE_SEQUENCE_ELEMENT_TYPES.get(element_type_py)
+            if primitive_cpp_type is not None:
+                # Primitive element: bulk-fill the std::vector straight from the
+                # Python sequence -- cppyy's std::vector constructor accepts
+                # list/tuple/array.array/numpy arrays directly (fast bulk copy in
+                # C++, no per-element Python loop), unlike the message-element
+                # path below which must recurse per element.
+                rclcpp_vector = cppyy.gbl.std.vector[primitive_cpp_type](field)
+                setattr(msg_cpp, field_name, rclcpp_vector)
+            else:
+                rclcpp_element_type = element_type_py.replace("/", "::msg::")
+                rclcpp_vector = cppyy.gbl.std.vector[rclcpp_element_type]()
+                # Resolve the element message class once (avoids re-resolving per
+                # element). Matches the monkeypatch path: non-empty sequences are
+                # treated as message sequences.
+                rclcpp_element_class = None
+                if len(field) > 0:
+                    _, rclcpp_element_class = _resolve_message_type(field[0])
+                for element in field:
+                    rclcpp_vector.push_back(
+                        convert_python_msg_to_cpp(element, rclcpp_element_class()))
+                setattr(msg_cpp, field_name, rclcpp_vector)
         # Plain scalar field.
         else:
             setattr(msg_cpp, field_name, field)
