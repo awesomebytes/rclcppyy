@@ -302,6 +302,17 @@ mechanically, not by discipline.
   (differential-tested), 0.57 → 0.20 µs/tick (~2.8×). Recipe:
   `docs/kits/FREEZE.md`; artifacts gitignored + env-version-tagged.
 
+- **Callback ergonomics v2 (2026-07-11, cd57ef4/0c15487/4acc163):**
+  `cppyy_kit.callback(fn, signature=None, owner=None)` — one line,
+  C++ signature inferred from Python type hints (int/float/bool/str/void +
+  cppyy proxy classes as `T&`; Python-default params skipped; explicit
+  `signature=` wins; unmappable params fail EARLY with a named
+  `CppyyKitError`), lifetime always auto-pinned (owner object or module
+  registry + `release_callbacks()`), so "callable was deleted" is no longer
+  silently reachable. C++→Python needs no helper (a cppdef'd fn IS a Python
+  callable) — documented + round-trip tested. bt_kit refactored onto it.
+  test-bt 31 / test-bt-frozen 29, all green; frozen path unregressed.
+
 ## Risks & mitigations
 
 - **conda-forge cppyy behaves differently from the pip wheel** (cling resource
