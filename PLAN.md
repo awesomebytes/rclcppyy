@@ -313,6 +313,25 @@ mechanically, not by discipline.
   callable) — documented + round-trip tested. bt_kit refactored onto it.
   test-bt 31 / test-bt-frozen 29, all green; frozen path unregressed.
 
+- **Warmup + first-use JIT (2026-07-11, fcee3ec/1cdd216/2459642):** Sam's
+  FREEZE.md feedback implemented. `cppyy_kit.first_use()` instruments kit-owned
+  entry points — one-time, suppressible (RCLCPPYY_JIT_NOTICE=0), LLM-actionable
+  notice naming the exact warmup() to call; `bt_kit.warmup()` /
+  `pcl_kit.warmup()` + generic runner. Measured: first live tick 678→98 ms,
+  pcl showcase frame-0 630→4 ms; **best-case cold start = freeze + warmup
+  (~85 ms bringup + ~0.9 s one-time init, then everything fast)**. The cost
+  itself is NOT reducible in cppyy 3.5 (Clang front-end template
+  instantiation; -O0 identical; PCH is AST-only, carries no thunk codegen) —
+  relocate (warmup) or eliminate (L2 native plugin) are the answers, both
+  shipped. FREEZE.md §4 now answers the "what remains" question directly.
+- **README + backlog batch (2026-07-11, 0d34cbd/5130cf7/1784625, merged
+  1d01170):** README "Kits" section with measured-numbers table + quick-run;
+  primitive-sequence conversion fixed (root cause deeper than expected: rclpy
+  uses list/array.array representations per element type — octet/boolean/
+  string sequences were also broken; bulk std::vector[T](field) construction,
+  Float64MultiArray regression test; default suite now 8); checkout@v5 in
+  both workflows (Node-20 deprecation gone).
+
 ## Risks & mitigations
 
 - **conda-forge cppyy behaves differently from the pip wheel** (cling resource
