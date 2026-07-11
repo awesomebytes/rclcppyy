@@ -192,6 +192,35 @@ def bringup_pcl(with_ros=True):
     return _PCL
 
 
+def warmup(with_ros=False):
+    """Front-load pcl_kit's one-time first-use JIT during init.
+
+    The first NumPy->cloud->filter->NumPy pipeline JIT-compiles cppyy call
+    wrappers for the glue and the VoxelGrid template methods (~0.45 s here); a
+    freeze/PCH does not remove this. This runs one throwaway voxel pipeline on a
+    tiny cloud so the wrappers are cached process-globally before your first real
+    frame. Call once during init (e.g. a node's __init__). Pass with_ros=True to
+    also warm the pcl_conversions path if you use cloud_from_msg / msg_from_cloud.
+    """
+    pcl = bringup_pcl(with_ros=with_ros)
+
+    def _exercise():
+        import numpy as np
+        points = np.zeros((8, 3), dtype=np.float32)
+        cloud = cloud_from_numpy(points)
+        vox = pcl.VoxelGrid[pcl.PointXYZ]()
+        vox.setInputCloud(cloud.makeShared())
+        vox.setLeafSize(0.1, 0.1, 0.1)
+        out = pcl.PointCloud[pcl.PointXYZ]()
+        vox.filter(out)
+        cloud_to_numpy(out)
+        if with_ros:
+            # also warm the pcl_conversions round-trip (toROSMsg / fromROSMsg).
+            cloud_from_msg(msg_from_cloud(cloud))
+
+    cppyy_kit.warmup(_exercise)
+
+
 def _as_f32(array):
     """Coerce to a C-contiguous float32 ndarray (copies only if needed)."""
     import numpy as np
@@ -214,12 +243,16 @@ def cloud_from_numpy(array):
     if arr.ndim != 2 or arr.shape[1] not in (3, 4):
         raise ValueError(f"expected an (N,3) or (N,4) array, got shape {arr.shape}")
     n = arr.shape[0]
-    cloud = pcl.PointCloud[pcl.PointXYZ]()
-    glue = cppyy.gbl.rclcppyy_pclkit
-    if arr.shape[1] == 4:
-        glue.xyz_from_array4(arr.ctypes.data, n, cloud)
-    else:
-        glue.xyz_from_array3(arr.ctypes.data, n, cloud)
+    # First touch of the PointCloud<PointXYZ> template + the glue call JIT-compiles
+    # cppyy wrappers; the notice points at pcl_kit.warmup() (the filter algorithms
+    # add more first-use JIT that only a full warmup pipeline front-loads).
+    with cppyy_kit.first_use("pcl_kit.cloud_from_numpy", "pcl_kit.warmup()"):
+        cloud = pcl.PointCloud[pcl.PointXYZ]()
+        glue = cppyy.gbl.rclcppyy_pclkit
+        if arr.shape[1] == 4:
+            glue.xyz_from_array4(arr.ctypes.data, n, cloud)
+        else:
+            glue.xyz_from_array3(arr.ctypes.data, n, cloud)
     return cloud
 
 

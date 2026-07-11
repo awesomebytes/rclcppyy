@@ -43,6 +43,10 @@ def main():
 
     rclcpp = bringup_rclcpp()
     pcl = pcl_kit.bringup_pcl()                     # with_ros: pulls pcl_conversions
+    # Front-load the one-time first-use JIT (~0.45 s: glue + VoxelGrid + the
+    # pcl_conversions round-trip) so the first measured frame isn't a ~470 ms
+    # outlier. Without this the p99 latency is dominated by frame 0.
+    pcl_kit.warmup(with_ros=True)
     from sensor_msgs.msg import PointCloud2
 
     if not rclcpp.ok():
