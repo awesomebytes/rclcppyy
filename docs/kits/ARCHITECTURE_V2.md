@@ -1,5 +1,12 @@
 # Proposal: cppyy_kit as the base package — re-architecting the kit suite
 
+> **This is the historical proposal that led to the split; it is kept here for
+> provenance.** The kit suite now lives in its own repo,
+> **[awesomebytes/cppyy_kit](https://github.com/awesomebytes/cppyy_kit)** — that is
+> the living home for the kits, `COMMON_PATTERNS`, `FREEZE`, and the per-kit docs.
+> rclcppyy is now the drop-in accelerator product on top of it (see the repo README
+> and `RELEASING.md`).
+
 **Status: APPROVED DIRECTION (2026-07-11)** — Sam approved the architecture with
 two refinements, captured in §4: the ROS core becomes **`rclcpp_kit`** (obeying
 the same naming rule as every other kit), **`rclcppyy` stays a standalone
