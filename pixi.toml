@@ -243,7 +243,16 @@ rerun-sdk = "*"   # live multimodal visualization
 gtsam = "*"       # pose-graph optimization (stretch milestone)
 
 [feature.vision.tasks]
-# vision tutorial tasks are added by the vision spike.
+# Fetch, patch and compile DBoW2 (Bags of Binary Words) from source into the
+# gitignored build/vendor/ (not packaged on conda-forge). Run once before the
+# loop-closure demos/tests.
+build-dbow2 = "python scripts/vision/build_dbow2.py"
+# Run the vision kit + loop-closure test suites. Auto-skips under the default
+# `pixi run test` (no OpenCV/DBoW2). The golden test trains a small vocabulary on
+# the deterministic synthetic sequence -- NO download needed. Note: the ROS
+# `install/` overlay pins `python` to the build (default) env, so we invoke the
+# vision env's interpreter explicitly ($CONDA_PREFIX) with the repo on PYTHONPATH.
+test-vision = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python -m pytest test/test_vision_kits.py -v"
 
 [environments]
 # solve-group = "default" pins every shared package to the exact same version as
