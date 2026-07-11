@@ -43,10 +43,11 @@ Notes / limits:
       hot inner loops. For fast leaves, register a JIT'd C++ functor instead.
 """
 import os
+import warnings
 
 import cppyy
 
-from rclcppyy.kits import cppyy_kit
+from rclcppyy.kits import cppyy_kit, freeze
 
 _MISSING = object()
 
@@ -361,12 +362,24 @@ def bringup_bt():
     if _BRINGUP_DONE:
         return _BT
 
+    if os.environ.get("RCLCPPYY_FROZEN") and not freeze.active("bt"):
+        warnings.warn(
+            "RCLCPPYY_FROZEN is set but no bt_kit frozen PCH is active, so bringup "
+            "will JIT-parse the headers as usual. Launch via "
+            "scripts/freeze/run_frozen.py -- CLING_STANDARD_PCH must be selected "
+            "before cppyy is imported (see rclcppyy.kits.freeze).", stacklevel=2)
+
     prefix = cppyy_kit.package_prefix("behaviortree_cpp")
     cppyy.add_include_path(os.path.join(prefix, "include"))
+    # On the frozen path this is a PCH lookup (~ms) instead of a ~0.83 s parse; the
+    # include stays either way so cppyy registers the classes for autoloading.
     cppyy.include("behaviortree_cpp/bt_factory.h")
     # cppyy resolves symbols at call time by owning-library lookup; load the .so
     # explicitly rather than relying on LD_LIBRARY_PATH (see cppyy_kit).
     cppyy_kit.load_libraries(["libbehaviortree_cpp.so"], [os.path.join(prefix, "lib")])
+    # Frozen only: emit the header's internal-linkage statics the AST-only PCH
+    # doesn't (else the C++ glue below fails to link). No-op on the JIT path.
+    freeze.apply_force_symbols("bt")
     cppyy.cppdef(_CPP_GLUE)
 
     _BT = cppyy.gbl.BT
@@ -378,6 +391,12 @@ def bringup_bt():
     _adapt_factory(_BT)
     _BRINGUP_DONE = True
     return _BT
+
+
+def frozen():
+    """True if bringup ran (or will run) on the frozen PCH path -- i.e. a bt_kit
+    frozen PCH is the interpreter's active std PCH (see rclcppyy.kits.freeze)."""
+    return freeze.active("bt")
 
 
 # --- Observability -------------------------------------------------------
