@@ -252,7 +252,7 @@ build-dbow2 = "python scripts/vision/build_dbow2.py"
 # the deterministic synthetic sequence -- NO download needed. Note: the ROS
 # `install/` overlay pins `python` to the build (default) env, so we invoke the
 # vision env's interpreter explicitly ($CONDA_PREFIX) with the repo on PYTHONPATH.
-test-vision = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python -m pytest test/test_vision_kits.py -v"
+test-vision = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python -m pytest test/test_vision_kits.py test/test_vision_loop.py -v"
 # Reusable data source: publish the deterministic synthetic loop sequence as
 # sensor_msgs/Image (zero download). Pass --tum DIR / --folder DIR for other data.
 dataset-synthetic = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/datasets/dataset_publisher.py --synthetic"
