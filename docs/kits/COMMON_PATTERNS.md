@@ -206,6 +206,37 @@ with no Python traceback**, *after* all useful work is done.
   per-instance and RAII-released on scope exit, and the JIT'd namespaces are
   Cling's to tear down. `test/test_clean_exit.py` is the regression tripwire.
 
+### 15. First-use JIT: make it visible, move it with `warmup()`
+The first time a given C++ signature is crossed, cppyy JIT-compiles a call wrapper
+for it. It is a one-time, **per-signature** cost — and a big one at a kit's entry
+points (bt_kit's first `registerSimpleAction` ~0.4 s to codegen the
+`std::function<NodeStatus(TreeNode&)>` thunk + the register call wrapper; the first
+pcl NumPy→VoxelGrid→NumPy frame ~0.45 s). A **freeze/PCH does not remove it** (the
+PCH is an AST, this is call-wrapper codegen triggered by the Python call), and
+`-O0`/`-O1` make no difference (it is Clang front-end instantiation, not LLVM
+optimisation). So a script's *first live call* stalls unexpectedly.
+
+Two moves, both in `cppyy_kit`:
+- **Make it visible.** Wrap a known-expensive kit entry point in
+  `with cppyy_kit.first_use(label, warmup_hint):`. On the first call that exceeds a
+  threshold it prints a one-time, LLM-actionable line to stderr — e.g. *"bt_kit.
+  register_simple_action JIT-compiled a call wrapper on first use (408 ms). Call
+  bt_kit.warmup() once during init… Silence: RCLCPPYY_JIT_NOTICE=0."* Thereafter
+  (and when disabled or warming) it is a bare passthrough — zero overhead.
+- **Move it.** A kit's `warmup()` exercises its expensive signatures on throwaway
+  objects (under `cppyy_kit.suppress_first_use_notice()`, via the
+  `cppyy_kit.warmup(*thunks)` building block) so the wrappers are JIT'd and cached
+  process-globally during init. Measured: bt_kit `time-to-first-tick` 678 → 98 ms
+  (the spike moves into a ~0.9 s init); pcl showcase frame-0 630 → 4 ms.
+
+*Scope choice:* instrument the **kit-owned entry points** (registration, bringup),
+not every cppyy call (too broad, adds overhead) nor a generic opt-in context (can't
+name the API/warmup in the notice). This is reliable where the kit owns the entry
+point (bt registration); for kits that mirror a raw algorithm API whose first-use
+cost is *inside* un-wrapped library calls (pcl's VoxelGrid), the notice is
+best-effort and `warmup()` is the primary tool. `warmup()` stays per-kit (only the
+kit knows what to exercise); the notice/suppress/runner are shared.
+
 ---
 
 ## Today vs L1 ("freeze") — L1 now WORKS
