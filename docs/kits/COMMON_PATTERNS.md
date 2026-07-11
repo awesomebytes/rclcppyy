@@ -143,8 +143,12 @@ all container/buffer work inside a `cppyy.cppdef` helper.
   int as `void*`; pass `uintptr_t`), and you **must keep the source buffer alive**
   for the Mat's lifetime (a lifetime guard, not a copy). Distinguish "buffer you can
   alias" (zero-copy) from "storage you must own" (one copy).
-- **`std::make_shared<T>()` can be flaky from Python** (overload-cache sensitivity,
-  seen in control_kit) — build the object in a small C++ factory helper instead.
+- **Build the object in a small C++ factory when Python can't construct it.** Three
+  instances now: `std::make_shared<T>()` flaky from Python (overload-cache
+  sensitivity, control_kit); `make_shared` of a specific class (control_kit); and a
+  **template ctor with a universal-reference default** — `Cls(NodeT&& node =
+  NodeT())` reports "class has no public constructors" from Python (tf). One-line
+  `cppdef` factory returning the object sidesteps all three.
 
 ### 7. On-demand templates: include the `impl` headers
 A precompiled `.so` only carries the specializations its authors compiled. To let
@@ -185,6 +189,15 @@ during transaction revert** (no Python traceback).
   packages all generate one. Never `cppyy.include` it; find the *clean* base header
   and load the class/plugin directly. (ros2_control's headers happen to be
   Cling-clean — this wall is per-package, so probe.)
+- **The ORC static-initializer wall: parse succeeds, *execution* fails (vision/gtsam).**
+  A header can `cppyy.include` cleanly yet the first use fault later, when Cling's ORC
+  JIT must materialize a **namespace-scope internal-linkage static** it can't emit —
+  gtsam's `static const KeyFormatter DefaultKeyFormatter` (`Key.h`, a non-exported
+  `std::function` global; each TU emits its own init). No dependency change fixes it
+  (it is a Cling limitation, not a missing dep). This is a distinct failure *stage*
+  from a parse error — worth suspecting when includes pass but a symbol won't
+  materialize; the honest fallback is §20 (the library's own Python binding for batch
+  steps).
 - **Mitigation:** probe risky glue out-of-process first —
   `cppyy_kit.probe_cppdef(code, include_paths=, headers=, libraries=)` compiles it
   in a throwaway subprocess and returns `(ok, message)` without risking the main
@@ -216,6 +229,9 @@ But three neighbours are silent traps:
   the alias.
 - **Type-constant `#define` macros are invisible to cppyy** (vision: `CV_8UC1`,
   `CV_8U`). Re-expose the few you need as real `const int` in a `cppdef` block.
+- **A `std::string` inside a returned `std::vector<std::string>` can surface as
+  Python `bytes`, not `str`** (tf: `getAllFrameNames()`). Decode at the kit
+  boundary (`b.decode()`).
 
 ### 12. Mirror, don't sugar
 Patch/return the library's real classes so methods keep their C++ names (add
@@ -237,6 +253,14 @@ loop, a spin) never contends.
   instead: a plain-function `std::thread` in a `cppdef` helper (note `std::async`
   does **not** JIT in Cling — use `std::thread`). control_kit's blocking
   controller-switch does exactly this.
+- **The efficiency face — "let C++ own the loop; cross only on demand" (tf).** The
+  flip side of the GIL rule is a *design win*: a library that already spins its own
+  C++ thread is an **ideal** cppyy target. `tf2_ros::TransformListener(spin_thread=
+  true)` ingests `/tf` on its own `std::thread`, entirely off the GIL; Python only
+  crosses on `lookup`. Measured **~7–14× less ingest CPU** than an equivalent Python
+  listener (whose callback runs under the GIL), and the win **compounds with
+  traffic**. Prefer wrapping the library's own loop over re-implementing it in a
+  Python thread.
 
 ### 14. Teardown: release global-state C++ objects before Python finalizes
 A cppyy process ends by running two teardown mechanisms with **no ordering
@@ -269,6 +293,13 @@ with no Python traceback**, *after* all useful work is done.
   process-global C++ state (bt, pcl) register nothing: their objects are
   per-instance and RAII-released on scope exit, and the JIT'd namespaces are
   Cling's to tear down. `test/test_clean_exit.py` is the regression tripwire.
+- **A C++ object owning an executor + `std::thread` is the same hazard (tf, 3rd
+  instance).** `rclcppyy.tf`'s C++ TransformListener owns a spinning executor +
+  thread; `register_teardown` a callback that drops it (its dtor cancels the
+  executor and joins the thread) so it releases **before** `shutdown_rclcpp` (LIFO
+  order is correct). Exit 0 confirmed. Same rule as the pluginlib instance/loader
+  `reset()` in §19: anything owning threads/executors/global state gets an ordered
+  teardown.
 
 ### 15. First-use JIT: make it visible, move it with `warmup()`
 The first time a given C++ signature is crossed, cppyy JIT-compiles a call wrapper
@@ -390,7 +421,19 @@ Before investing in a kit, a couple of one-line greps tell you what's separable:
   first. When blocked *and* the work is **batch** (not a hot loop), the library's own
   **Python binding is a legitimate fallback** for that step — cppyy is not the only
   tool, and a kit can mix (drive the hot C++ path via cppyy, use the binding for a
-  one-shot batch step).
+  one-shot batch step). (2nd instance of this rule after the gtsam batch step below.)
+- **Probe layered blockers one at a time, and know when to stop.** gtsam via cppyy
+  is the worked example: fixing the boost blocker (add headers) only exposed a
+  `GTSAM_USE_TBB` → tbb-headers blocker, which when fixed exposed the Cling **ORC
+  static-init wall** (§9) — a *Cling limitation no dependency fixes*. Peel one layer,
+  re-probe out-of-process; when the bottom layer is a Cling limitation rather than a
+  missing dep, stop and take the Python-binding fallback for that batch step. Don't
+  keep adding dependencies against a wall that isn't a dependency problem.
+- **Distrust environment shims, prefer the native binary.** A library's console-
+  script entry point can be broken in an env while its native binary works (vision:
+  the `rerun` console script vs spawning the viewer binary by its executable path).
+  When a Python-package CLI shim misbehaves, resolve and invoke the real executable
+  directly rather than assuming the library is broken.
 
 ### 21. Vendored-source direct-compile (when there's no package)
 For a small, well-understood subset of a library that ships no conda package
@@ -398,6 +441,19 @@ For a small, well-understood subset of a library that ships no conda package
 with a direct `$CXX` invocation into a `.so` — this beats fighting the library's
 CMake/ExternalProject. It generalizes the L2 lowering recipe (`build_l2_node` →
 `build_dbow2`): a reproducible build script, artifact gitignored, env-version tagged.
+
+### 22. Overload mis-resolution: a compilable-but-WRONG overload that crashes
+Distinct from the parse/execution faults (§9): with a **thicket of overloads**, cppyy
+can pick one that **compiles and runs but is the wrong one**, crashing at runtime
+(bus error, no Python traceback). tf: `tf2_ros::Buffer::lookupTransform(target,
+source, TimePoint)` resolved into the `rclcpp::Time`+timeout `canTransform` path,
+which called `rclcpp::Clock::now()` and bus-errored. The trap is worst when a class
+mixes a `using`-imported base form with timeout/clock forms of the same name.
+- **Rule:** prefer the **single-signature base class** (here `tf2::BufferCore`, one
+  unambiguous `lookupTransform`) over the overload-heavy derived one; or wrap the
+  exact call you want in a `cppdef` free function so C++ overload resolution — not
+  cppyy's — picks it. Probe a suspicious overloaded call out-of-process; a
+  wrong-overload crash gives you nothing to read in Python.
 
 ---
 
