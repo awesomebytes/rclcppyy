@@ -18,10 +18,15 @@ from one library to the next, so it lives here:
     (``probe_cppdef``), because a failed one can crash on transaction revert;
   * ergonomics -- unwrap ``Expected<T>``/optional (``unwrap_expected``), and turn
     cppyy's "<C++ signature> =>" error walls into a readable one-line exception
-    (``pretty_cpp_error`` / ``CppyyKitError``).
+    (``pretty_cpp_error`` / ``CppyyKitError``);
+  * teardown -- release C++ resources that own process-global/static state (an
+    rclcpp Context, a DDS participant, a ZMQ-backed logger) in a defined order
+    *before* Python finalization, so their destructors never interleave with
+    cppyy's own Cling teardown (``register_teardown`` / ``shutdown``).
 
 See docs/kits/COMMON_PATTERNS.md for the full catalog and the evidence behind it.
 """
+import atexit
 import subprocess
 import sys
 
@@ -149,3 +154,58 @@ def probe_cppdef(code, include_paths=(), library_paths=(), headers=(), libraries
         return True, "ok"
     return False, (proc.stderr.strip() or proc.stdout.strip()
                    or "cppdef crashed (returncode %d)" % proc.returncode)
+
+
+# --- Ordered teardown -----------------------------------------------------
+# A cppyy process mixes two teardown mechanisms with no ordering contract
+# between them: Python's finalization (which clears module globals, dropping the
+# last references to cppyy-proxied C++ objects and running their destructors)
+# and cppyy's own atexit hook (which tears down Cling / the JIT). A C++ object
+# that owns *process-global or static* state -- an rclcpp Context, the DDS
+# participant it owns and its background threads, a ZMQ-backed BT logger -- is
+# the dangerous case: if its destructor runs after Cling is gone (or a DDS
+# thread touches freed state), the process can SIGSEGV with no Python traceback,
+# after all useful work is done. The historical rclcppyy "teardown wart" (and
+# the ``os._exit`` dodges that papered over it) is exactly this class.
+#
+# The fix is to release those resources at a *defined* point while both Python
+# and cppyy are still healthy: register a teardown callback here, and it runs at
+# ``shutdown()``. ``shutdown()`` is also wired to ``atexit`` -- Python runs
+# atexit callbacks after ``main`` returns but before it clears module globals or
+# runs cppyy's (earlier-registered, so later-running) Cling teardown, which is
+# the correct window. Callbacks run LIFO (foundation registered first is torn
+# down last) and best-effort; ``shutdown`` is idempotent, so an explicit call
+# and the atexit backstop cannot double-run it.
+_TEARDOWN = []
+_SHUTDOWN_DONE = False
+
+
+def register_teardown(callback):
+    """Register ``callback`` (a zero-arg callable) to run at ``shutdown()`` /
+    interpreter exit, releasing a C++ resource before Python finalization. A
+    given callable is registered at most once; the callback should itself be
+    safe to call a single time (see ``rclcppyy.shutdown_rclcpp`` for the
+    guarded-once pattern)."""
+    if callback not in _TEARDOWN:
+        _TEARDOWN.append(callback)
+
+
+def shutdown():
+    """Run every registered teardown callback once, in reverse registration
+    order. Idempotent and best-effort: a raising callback is swallowed (we are
+    already tearing the process down and want the remaining callbacks to run).
+    Called automatically at ``atexit``; a demo or test may also call it
+    explicitly (e.g. before re-init in one process)."""
+    global _SHUTDOWN_DONE
+    if _SHUTDOWN_DONE:
+        return
+    _SHUTDOWN_DONE = True
+    while _TEARDOWN:
+        callback = _TEARDOWN.pop()
+        try:
+            callback()
+        except Exception:
+            pass
+
+
+atexit.register(shutdown)

@@ -6,6 +6,40 @@ from ament_index_python.packages import get_package_prefix, get_packages_with_pr
 
 RCLCPP_BRINGUP_DONE = False
 
+# Guards rclcpp::shutdown() against being called more than once. rclcpp installs
+# its own SIGINT/SIGTERM handler that calls shutdown(), so a script's own
+# shutdown (or the atexit teardown below) can otherwise race it into a second
+# call; the underlying rcl_shutdown is not meant to run twice on one context.
+_RCLCPP_SHUTDOWN_DONE = False
+
+
+def shutdown_rclcpp() -> None:
+    """Shut the rclcpp default Context down exactly once.
+
+    rclcpp's Context (and the rmw/DDS participant it owns, plus DDS background
+    threads) is process-global C++ state whose destruction order relative to
+    cppyy's Cling teardown is otherwise undefined -- the source of the teardown
+    segfaults this module historically worked around with ``os._exit``. Calling
+    ``rclcpp::shutdown()`` here brings the context down deterministically while
+    the interpreter and cppyy are still healthy; nodes/executors held elsewhere
+    are then released cleanly against an already-shut-down context (the normal
+    ``init(); ...; shutdown()`` rclcpp lifecycle). Registered with
+    ``cppyy_kit.register_teardown`` during bringup so it runs at interpreter
+    exit; idempotent, so an explicit call is also safe.
+    """
+    global _RCLCPP_SHUTDOWN_DONE
+    if _RCLCPP_SHUTDOWN_DONE:
+        return
+    _RCLCPP_SHUTDOWN_DONE = True
+    try:
+        rclcpp = cppyy.gbl.rclcpp
+        if rclcpp.ok():
+            rclcpp.shutdown()
+    except Exception:
+        # Best-effort: never raise from teardown.
+        pass
+
+
 def get_ros2_include_path() -> str:
     ROS2_INCLUDE_PATH = get_package_prefix("rclcpp") + "/include"
     return ROS2_INCLUDE_PATH
@@ -599,6 +633,11 @@ def bringup_rclcpp():
     adapt_node_timer_to_python(cppyy.gbl.rclcpp)
     adapt_node_lifecycle_to_python(cppyy.gbl.rclcpp)
     adapt_get_logger_to_python(cppyy.gbl.rclcpp)
+
+    # Release the rclcpp Context (and the DDS layer it owns) in a defined order
+    # at interpreter exit, before Python finalization / cppyy's Cling teardown.
+    from rclcppyy.kits import cppyy_kit
+    cppyy_kit.register_teardown(shutdown_rclcpp)
 
     RCLCPP_BRINGUP_DONE = True
     # TODO: Add rclcpp to the global namespace or another user-friendly way of givin access
