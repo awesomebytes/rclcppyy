@@ -1,9 +1,10 @@
 # Proposal: cppyy_kit as the base package — re-architecting the kit suite
 
-**Status: PROPOSAL (2026-07-11)** — evaluation of the external ideation doc
-(`cppyy_kit_reference.md`, a conversation Sam had with another AI) against what
-this repo has actually built and measured, followed by a phased re-architecture
-plan. Nothing here is committed work until approved.
+**Status: APPROVED DIRECTION (2026-07-11)** — Sam approved the architecture with
+two refinements, captured in §4: the ROS core becomes **`rclcpp_kit`** (obeying
+the same naming rule as every other kit), **`rclcppyy` stays a standalone
+product** that depends on it, and the kit suite moves to a **new repo**. §§1–3
+below are the original evaluation; §4 is the operative plan.
 
 ---
 
@@ -110,3 +111,90 @@ repo root
 - **Naming**: `cppyy_kit` on conda-forge may collide with the reference doc's
   hypothetical if it ever ships; claim the name early (publish to our channel
   first, conda-forge when stable).
+
+---
+
+## 4. Approved direction (2026-07-11): naming + two-repo reorganization
+
+### 4.1 Project name: **`cppyy_kit`** (recommended; availability verified)
+
+The project, the new repo, and the base package share one name. Evidence-based
+availability check (2026-07-11): PyPI `cppyy-kit`/`cppyy_kit` **free**, GitHub
+**zero** repos by that name, conda-forge **clean** (`rclcpp-kit` clean too).
+Rationale:
+
+- **Base package = project identity** (the pytest/django model): no brand
+  splitting, and "the cppyy_kit project's `nav2_kit` package" reads naturally.
+- **Claims the strategic name now** — the ideation doc's hypothetical library
+  would otherwise collide with us later; first-published wins mindshare.
+- **Searchability**: anyone evaluating cppyy finds the kit ecosystem.
+- **Honest umbrella**: the base is deliberately generic (ROS-free); robotics
+  kits are the flagship members, not a fence around the name.
+
+Considered alternatives: `kitforge` (brandable, tech-agnostic; PyPI free,
+only hobby GitHub repos — the runner-up if a cppyy-independent brand is ever
+wanted); `kitbash` (best metaphor — assembling systems from kits — but PyPI
+taken and adjacent to the KitBash3D commercial brand; rejected).
+
+### 4.2 The two-repo model
+
+**Repo 1 — NEW: `github.com/awesomebytes/cppyy_kit`** (the suite):
+
+```
+cppyy_kit/    # base, ROS-FREE: primitives + cache/require/@cpp/nogil/stubs/
+              # capability-fallback + freeze & vendored-source tooling
+rclcpp_kit/   # the kit FOR rclcpp — same rule as every kit: bringup, C++
+              # message resolution/conversion, serialization, rosbag2_cpp,
+              # tf (rclcppyy.tf moves here), executor/node helpers, rclcpp PCH
+bt_kit/ pcl_kit/ ompl_kit/ nav2_kit/ moveit_kit/ control_kit/ cv_kit/ dbow_kit/
+docs/         # COMMON_PATTERNS, FREEZE, per-kit trios, vision tutorial
+scripts/      # freeze, datasets, kit demos & benches
+recipe/<pkg>/ # one rattler-build recipe per package; release matrix on tag
+```
+
+Conda packages: `cppyy-kit` (distro-free; conda-forge candidate when stable),
+`ros-jazzy-rclcpp-kit`, and distro-scoped `ros-jazzy-<name>-kit` for every kit
+that imports ROS bits (nav2, moveit, control, cv, pcl — their ROS bridges pull
+sensor_msgs/pcl_conversions). bt/ompl/dbow kits need only `cppyy-kit` at import
+time (their ROS demos declare extras). All on the existing prefix.dev
+`awesomebytes` channel; lockstep versioning from a single tag initially.
+
+**Repo 2 — EXISTING, slimmed: `rclcppyy`** (the product):
+
+- **Keeps**: the brand + ROSCon story, `enable_cpp_acceleration()`, the
+  monkeypatching layer (`monkey.py`, `monkeypatch_messages.py`,
+  `RclcppyyNode`), rclpy-parity benchmarks + tutorial demos, the release
+  pipeline (`ros-jazzy-rclcppyy`, now with a run-dep on `ros-jazzy-rclcpp-kit`).
+- **Sheds** (moves to `rclcpp_kit`): `bringup_rclcpp.py`, `serialization.py`,
+  `rosbag2_cpp.py` + compat, `tf.py`, the shared converter — with one release
+  cycle of deprecation re-export shims (`rclcppyy.bringup_rclcpp` →
+  `rclcpp_kit` + warning). Version bump to 0.2.0 marks the split.
+- The split's correctness proof: rclcppyy's own bench/test suite must produce
+  the SAME numbers/results before and after (the suite is the contract, as
+  always).
+
+Dependency graph:
+`cppyy-kit` ← `rclcpp-kit` ← { `rclcppyy`, nav2/moveit/control/cv/pcl kits };
+`cppyy-kit` ← { bt/ompl/dbow kits }.
+
+### 4.3 Migration phases (supersedes §3's Phase A)
+
+- **M1 — Bootstrap the new repo**: create `cppyy_kit` repo; migrate kit +
+  docs + freeze/dataset paths WITH history (`git filter-repo` path filter);
+  replicate the proven pixi workspace, CI, and multi-recipe release plumbing;
+  all suites green in the new home before anything is deleted here.
+- **M2 — Carve `rclcpp_kit`**: move the ROS-core capability layer out of
+  rclcppyy into the new repo's `rclcpp_kit` package; its tests move with it;
+  then Phase B enrichment lands there (compile cache first — it kills the
+  first-use JIT persistently and benefits every package).
+- **M3 — Slim rclcppyy**: replace moved internals with `rclcpp_kit` imports +
+  deprecation shims; 0.2.0; recipes updated (rclcppyy depends on rclcpp-kit);
+  release both repos; parity benchmarks green.
+- **M4 — Publish + outward**: suite on prefix.dev; README cross-links both
+  ways; `cppyy-kit` → conda-forge submission when stable; community-kit
+  authoring guide (COMMON_PATTERNS as the manual).
+
+Open decisions for Sam: (a) confirm `cppyy_kit` vs `kitforge` as the project
+name; (b) distro-scoping convention `ros-jazzy-<kit>-kit` — recommended for
+resolver hygiene alongside robostack; (c) whether the roscon_uk_2025 archive
+stays in rclcppyy (recommended — it's product history, not suite material).
