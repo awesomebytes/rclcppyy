@@ -5,6 +5,8 @@ The pure-Python helpers need no C++ library, but the module gates on
 behaviortree_cpp (present only in the pixi `bt` env) so the default
 `pixi run test` is unaffected. Run via `pixi run -e bt test-bt`.
 """
+import gc
+
 import pytest
 
 try:
@@ -18,7 +20,21 @@ pytestmark = pytest.mark.skipif(not _HAVE_BT,
                                 reason="behaviortree_cpp not installed (use the bt env)")
 
 if _HAVE_BT:
-    from rclcppyy.kits import cppyy_kit
+    import cppyy
+    from rclcppyy.kits import bt_kit, cppyy_kit
+
+    # A tiny C++ holder for the C++<->Python direction tests: a free function
+    # Python can call, and a std::function slot C++ can store and invoke.
+    cppyy.cppdef(r"""
+    namespace cbtest {
+      inline int cpp_double(int x) { return x * 2; }
+      struct Holder {
+        std::function<int(int)> fn;
+        void store(std::function<int(int)> f) { fn = f; }
+        int invoke(int x) { return fn(x); }
+      };
+    }
+    """)
 
 
 def test_pretty_cpp_error_strips_signature_wall():
@@ -158,3 +174,128 @@ def test_shutdown_swallows_callback_exceptions(isolated_teardown_registry):
     cppyy_kit.register_teardown(good)
     cppyy_kit.shutdown()  # must not raise
     assert ran == ["good"]
+
+
+# --- callback() ergonomics -------------------------------------------------
+
+def _annotated(arg_type, ret_type):
+    """A one-arg function `fn(x)` with the given parameter/return annotations."""
+    def fn(x):
+        return x
+    fn.__annotations__ = {"x": arg_type, "return": ret_type}
+    return fn
+
+
+def test_callback_infers_scalar_signatures():
+    table = [
+        (int, int, "int(int)"),
+        (float, float, "double(double)"),
+        (bool, bool, "bool(bool)"),
+        (str, str, "std::string(std::string)"),
+        (int, None, "void(int)"),
+    ]
+    for arg_type, ret_type, expected in table:
+        assert cppyy_kit._infer_signature(_annotated(arg_type, ret_type)) == expected
+
+
+def test_callback_infers_cppyy_type_as_reference():
+    tree_node = bt_kit.bringup_bt().TreeNode
+    assert cppyy_kit._infer_signature(_annotated(tree_node, int)) == "int(BT::TreeNode&)"
+
+
+def test_callback_explicit_signature_wins_over_inference():
+    def unannotated(x):
+        return x + 1
+
+    # inference would fail (no hints), but the explicit signature is used.
+    fn = cppyy_kit.callback(unannotated, signature="int(int)")
+    assert int(fn(41)) == 42
+
+
+def test_callback_inference_error_is_readable():
+    def unannotated(x):
+        return x
+
+    with pytest.raises(cppyy_kit.CppyyKitError) as exc:
+        cppyy_kit.callback(unannotated)
+    message = str(exc.value)
+    assert "x" in message and "signature=" in message
+
+
+def test_callback_survives_gc_without_owner():
+    # The classic "callable was deleted" footgun: with callback() it is gone,
+    # because the module registry pins the callable even after local refs drop.
+    def make():
+        def cb(x: int) -> int:
+            return x + 1
+        return cppyy_kit.callback(cb)
+
+    fn = make()
+    gc.collect()
+    assert int(fn(41)) == 42
+
+
+def test_callback_owner_scoped_pin():
+    class Owner:
+        pass
+
+    owner = Owner()
+
+    def cb(x: int) -> int:
+        return x + 2
+
+    fn = cppyy_kit.callback(cb, owner=owner)
+    assert cb in owner._cppyy_kit_kept_alive and fn in owner._cppyy_kit_kept_alive
+    assert int(fn(40)) == 42
+
+
+def test_callback_gc_stress():
+    wrappers = []
+    for i in range(200):
+        def cb(x: int, base=i) -> int:
+            return x + base
+        wrappers.append(cppyy_kit.callback(cb))
+    del cb
+    gc.collect()
+    assert int(wrappers[0](10)) == 10
+    assert int(wrappers[199](10)) == 209
+
+
+def test_cpp_function_is_callable_from_python():
+    # C++ -> Python: a cppdef'd function is already a Python callable, no helper.
+    assert int(cppyy.gbl.cbtest.cpp_double(21)) == 42
+
+
+def test_cpp_function_handed_into_cpp_api():
+    # A C++ function passed straight back into a C++ API (std::function slot).
+    holder = cppyy.gbl.cbtest.Holder()
+    holder.store(cppyy.gbl.cbtest.cpp_double)
+    assert int(holder.invoke(21)) == 42
+
+
+def test_python_to_cpp_roundtrip():
+    # Python callback -> stored in C++ -> invoked from C++ -> calls a 2nd Python fn.
+    seen = []
+
+    def second(y: int) -> int:
+        seen.append(y)
+        return y + 100
+
+    def first(x: int) -> int:
+        return second(x)
+
+    holder = cppyy.gbl.cbtest.Holder()
+    holder.store(cppyy_kit.callback(first))  # inferred int(int), auto-pinned
+    assert int(holder.invoke(5)) == 105
+    assert seen == [5]
+
+
+def test_release_callbacks_empties_registry():
+    # Kept last: clears the shared module registry other owner-less callbacks use.
+    def cb(x: int) -> int:
+        return x
+
+    cppyy_kit.callback(cb)
+    assert len(cppyy_kit._CALLBACKS) > 0
+    cppyy_kit.release_callbacks()
+    assert len(cppyy_kit._CALLBACKS) == 0
