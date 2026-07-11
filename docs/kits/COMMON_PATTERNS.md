@@ -50,6 +50,10 @@ expensive stages and let the caller skip what they don't need.
   observability helper is first called.
 - **pcl:** core ~1.3 s; adding the ROS message headers (`pcl_conversions`) costs
   another ~1.9 s, gated behind `bringup_pcl(with_ros=False)`.
+- **ompl:** ~538 ms — *lower than bt or pcl despite pulling in boost*. The cost
+  tracks the **transitively-included header stack**, not the library's "size" or
+  reputation: ompl+boost (538 ms) < bt.CPP (0.9 s) < pcl (1.3 s). Measure the
+  actual `include(...)` before assuming a big library means a slow bringup.
 
 ### 3. Crossing a Python function **into** C++ (`callback`)
 Hand a Python callable to C++ in one line — `cppyy_kit.callback(fn)` — with the
@@ -62,9 +66,19 @@ fn = cppyy_kit.callback(on_value)            # ready to pass to any C++ std::fun
 - **Inference** maps `int`->int, `float`->double, `bool`->bool, `str`->std::string,
   `None`->void (return), and any cppyy C++ class (via `__cpp_name__`) as a
   reference. Parameters with Python defaults / `*args` are ignored (not C++ args).
-- **Explicit wins** for reference/const/pointer forms or types inference can't
-  name: `cppyy_kit.callback(tick, signature="BT::NodeStatus(BT::TreeNode&)",
-  owner=factory)`. This is exactly how bt_kit registers leaf/stateful hooks.
+- **A class hint can only infer `T&`** — but cppyy will bind a
+  `std::function<...(T&)>` even where the API wants `const T*` (ompl's
+  `setStateValidityChecker`), and the mismatch then fails *later* at the call site.
+  callback **warns once** naming the fix. For the exact form, annotate the
+  parameter with the **C++ type string**, used verbatim:
+  `def check(s: "const ompl::base::State*") -> bool: ...` →
+  `bool(const ompl::base::State*)`. (flake8/pyflakes flags such a string annotation
+  as `F722`, a forward-ref false positive — add `# noqa: F722`, or use
+  `signature=` instead.)
+- **Explicit `signature=` wins** for anything, e.g.
+  `cppyy_kit.callback(tick, signature="BT::NodeStatus(BT::TreeNode&)",
+  owner=factory)` — exactly how bt_kit registers leaf/stateful hooks and ompl_kit
+  fixes the validity-checker pointer form.
 - **Threading:** the callback runs in whatever C++ thread invokes it (cppyy takes
   the GIL); a single-threaded driver (a tick loop, a `spin_some`) never contends.
 - `cppyy_kit.std_function(sig, fn)` is the low-level escape hatch (raw wrapper, you
@@ -236,6 +250,44 @@ point (bt registration); for kits that mirror a raw algorithm API whose first-us
 cost is *inside* un-wrapped library calls (pcl's VoxelGrid), the notice is
 best-effort and `warmup()` is the primary tool. `warmup()` stays per-kit (only the
 kit knows what to exercise); the notice/suppress/runner are shared.
+
+### 16. Cross-language inheritance (Python derives a C++ virtual base)
+The heaviest crossing, first proven in ompl_kit: a Python class *derives* a C++
+class and C++ calls its overrides in a hot loop (RRT\* calls a Python
+`StateValidityChecker` millions of times/solve). It works — with rules:
+- Derive the cppyy class directly; **`super().__init__(base_args)` is mandatory**
+  (the C++ base must be constructed, e.g. with its `SpaceInformation`).
+- Override the virtual by its **exact C++ name** (`isValid`, `stateCost`) — cppyy
+  matches on the name.
+- **Only plain virtuals** can be overridden across the boundary. A `final` (or
+  non-virtual) member cannot — this is exactly why bt_kit's `final` `tick()` needed
+  a C++ shim instead (Pattern 5 / bt REPORT). Check the base before promising it.
+- **Pin the subclass instance** with `keep_alive` (or an `owner`): the "callable
+  was deleted" footgun (Pattern 4) applies to override *instances* too — C++ holds
+  the object, cppyy won't keep it alive for you.
+- Pointer arguments arrive **auto-downcast** (Pattern 17b) so member access on the
+  concrete type works with no explicit cast.
+Cost here: ~350 ns/override call, 1–3 M dispatches/s — invisible for small problems,
+material when the override dominates (then lower it to C++, the L2 rung).
+
+### 17. `shared_ptr` ownership + RTTI downcast (two cppyy conveniences)
+- **(a) Wrapping a raw pointer in the library's `shared_ptr` transfers ownership.**
+  Constructing a `SomethingPtr(raw)` from a cppyy-owned raw object flips the raw's
+  `__python_owns__` to `False` — cppyy yields ownership to the `shared_ptr`, so
+  there is **no double-free**. This makes the pervasive "wrap the raw in the
+  library's Ptr and hand it on" idiom (`ob.StateSpacePtr(space)`) safe, and mirrors
+  `make_shared`.
+- **(b) Pointer arguments are auto-downcast by RTTI.** cppyy presents a base-typed
+  pointer argument (a callback's `const State*`) as its **concrete runtime type**,
+  so `state[0]` / `state[1]` work without an explicit downcast. You rarely need a
+  cast helper; when you do (a stored base pointer), `obj.as[T]()` — see Pattern 18.
+
+### 18. Reserved-word method names: `obj.as[T]()` for C++ `as<T>()`
+The pervasive C++ idiom `obj->as<T>()` is a Python `SyntaxError` (`as` is a
+keyword — even `obj.as` won't parse). The spelling is `getattr(obj, "as")[T]()`
+(fetch the attribute by string, then subscript the template arg). A one-liner, but
+a guaranteed stumble for any library with a method named `as`, `from`, `import`,
+`class`, `global`, … — reach for `getattr` when a C++ name collides with a keyword.
 
 ---
 
