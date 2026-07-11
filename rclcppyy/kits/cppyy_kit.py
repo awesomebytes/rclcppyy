@@ -29,9 +29,12 @@ from one library to the next, so it lives here:
 See docs/kits/COMMON_PATTERNS.md for the full catalog and the evidence behind it.
 """
 import atexit
+import contextlib
 import inspect
+import os
 import subprocess
 import sys
+import time
 import typing
 
 import cppyy
@@ -173,6 +176,74 @@ def release_callbacks():
     """Drop the process-lifetime pins held for owner-less ``callback()`` wrappers.
     Only safe once no C++ code will invoke those callbacks again."""
     _CALLBACKS.clear()
+
+
+# --- First-use JIT visibility & warmup ------------------------------------
+# cppyy JIT-compiles a call wrapper the first time a given C++ signature is
+# crossed (e.g. the first registerSimpleAction spends ~0.4 s generating the
+# std::function<NodeStatus(TreeNode&)> thunk). It is a one-time, per-signature
+# cost that a freeze/PCH does *not* remove (that only skips the header parse), so
+# a script's first live call can halt unexpectedly. We make it visible and
+# movable: kits wrap their known-expensive entry points in `first_use(...)`,
+# which -- only on the first call, only if it was actually slow -- prints a
+# one-time, LLM-actionable notice naming the API and the warmup() to call. After
+# that first call (or when RCLCPPYY_JIT_NOTICE=0, or while warming up) it is a
+# bare passthrough: no timing, no output.
+_FIRST_USE_SEEN = set()     # labels already observed (timed) once
+_FIRST_USE_SHOWN = set()    # warmup hints already printed (dedup the notice)
+_WARMING_UP = False
+
+
+def _jit_notice_enabled():
+    return os.environ.get("RCLCPPYY_JIT_NOTICE", "1") != "0"
+
+
+@contextlib.contextmanager
+def suppress_first_use_notice():
+    """Within this block, ``first_use`` marks its labels seen but never prints --
+    used by ``warmup()``, which pays the first-use cost on purpose."""
+    global _WARMING_UP
+    previous, _WARMING_UP = _WARMING_UP, True
+    try:
+        yield
+    finally:
+        _WARMING_UP = previous
+
+
+@contextlib.contextmanager
+def first_use(label, warmup_hint, threshold_ms=150):
+    """Wrap a kit entry point that may pay first-use JIT. On the first call for
+    ``label`` that exceeds ``threshold_ms``, print a one-time notice pointing at
+    ``warmup_hint``; thereafter (and when disabled or warming up) do nothing but
+    run the block."""
+    if label in _FIRST_USE_SEEN or not _jit_notice_enabled():
+        yield
+        return
+    start = time.perf_counter()
+    try:
+        yield
+    finally:
+        _FIRST_USE_SEEN.add(label)
+        if not _WARMING_UP:
+            elapsed_ms = (time.perf_counter() - start) * 1000.0
+            if elapsed_ms >= threshold_ms and warmup_hint not in _FIRST_USE_SHOWN:
+                _FIRST_USE_SHOWN.add(warmup_hint)
+                sys.stderr.write(
+                    "[cppyy_kit] %s JIT-compiled a call wrapper on first use (%.0f ms). "
+                    "Call %s once during init/startup to move this one-time cost off the "
+                    "first live call. Silence: RCLCPPYY_JIT_NOTICE=0.\n"
+                    % (label, elapsed_ms, warmup_hint))
+
+
+def warmup(*thunks):
+    """Run each zero-arg ``thunk`` once with the first-use notice suppressed, so a
+    kit can front-load its per-signature JIT during init. A kit's ``warmup()``
+    passes thunks that exercise its expensive entry points on throwaway objects;
+    the JIT'd wrappers are cached process-globally, so later live calls are fast.
+    Building block only -- what to exercise is kit-specific (see bt_kit.warmup)."""
+    with suppress_first_use_notice():
+        for thunk in thunks:
+            thunk()
 
 
 class HandleRegistry:

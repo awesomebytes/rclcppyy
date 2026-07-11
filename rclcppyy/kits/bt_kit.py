@@ -265,10 +265,12 @@ def _adapt_factory(BT):
     Factory._orig_create_tree_from_file = Factory.createTreeFromFile
 
     def register_simple_action(self, name, fn, ports=None):
-        self._orig_register_simple_action(name, _tick_functor(fn, self), _make_ports(ports))
+        with cppyy_kit.first_use("bt_kit.register_simple_action", "bt_kit.warmup()"):
+            self._orig_register_simple_action(name, _tick_functor(fn, self), _make_ports(ports))
 
     def register_simple_condition(self, name, fn, ports=None):
-        self._orig_register_simple_condition(name, _tick_functor(fn, self), _make_ports(ports))
+        with cppyy_kit.first_use("bt_kit.register_simple_condition", "bt_kit.warmup()"):
+            self._orig_register_simple_condition(name, _tick_functor(fn, self), _make_ports(ports))
 
     def register_stateful(self, name, node_class, ports=None):
         """Register an asynchronous (multi-tick) node whose behaviour is a Python
@@ -310,11 +312,12 @@ def _adapt_factory(BT):
 
         # callback() pins each wrapper (and its Python fn) on the factory; the
         # closures hold `registry`, so the per-instance objects stay alive too.
-        b = cppyy_kit.callback(build, signature="int(const std::string&)", owner=self)
-        fs = cppyy_kit.callback(f_start, signature="int(int, BT::TreeNode&)", owner=self)
-        fr = cppyy_kit.callback(f_running, signature="int(int, BT::TreeNode&)", owner=self)
-        fh = cppyy_kit.callback(f_halted, signature="void(int, BT::TreeNode&)", owner=self)
-        cppyy.gbl.rclcppyy_btkit.registerStateful(self, name, _make_ports(ports), b, fs, fr, fh)
+        with cppyy_kit.first_use("bt_kit.register_stateful", "bt_kit.warmup()"):
+            b = cppyy_kit.callback(build, signature="int(const std::string&)", owner=self)
+            fs = cppyy_kit.callback(f_start, signature="int(int, BT::TreeNode&)", owner=self)
+            fr = cppyy_kit.callback(f_running, signature="int(int, BT::TreeNode&)", owner=self)
+            fh = cppyy_kit.callback(f_halted, signature="void(int, BT::TreeNode&)", owner=self)
+            cppyy.gbl.rclcppyy_btkit.registerStateful(self, name, _make_ports(ports), b, fs, fr, fh)
 
     def create_tree_from_text(self, xml, *args):
         try:
@@ -396,6 +399,44 @@ def frozen():
     """True if bringup ran (or will run) on the frozen PCH path -- i.e. a bt_kit
     frozen PCH is the interpreter's active std PCH (see rclcppyy.kits.freeze)."""
     return freeze.active("bt")
+
+
+def warmup():
+    """Front-load bt_kit's one-time first-use JIT (~0.7 s) during init, so the
+    first *live* tree build/tick doesn't stall.
+
+    The first time each callback signature is crossed, cppyy JIT-compiles a call
+    wrapper (the first ``registerSimpleAction`` alone is ~0.4 s; the stateful
+    hooks another ~0.3 s). This exercises all of bt_kit's wrapper signatures on a
+    throwaway factory + tree, so the wrappers are compiled and cached
+    process-globally before your real tree is built. Idempotent in effect (cheap
+    after the first call, since the wrappers are then cached). A freeze/PCH does
+    not remove this cost -- warmup and freeze compose (freeze cuts the header
+    parse, warmup moves the wrapper JIT off the first live call).
+    """
+    bt = bringup_bt()
+
+    def _exercise():
+        factory = bt.BehaviorTreeFactory()
+        factory.register_simple_action("__warmup_action", lambda node: SUCCESS)
+        factory.register_simple_condition("__warmup_condition", lambda node: SUCCESS)
+
+        class _WarmupStateful:
+            def onStart(self, node):
+                return SUCCESS
+
+            def onRunning(self, node):
+                return SUCCESS
+
+            def onHalted(self, node):
+                pass
+
+        factory.register_stateful("__warmup_stateful", _WarmupStateful)
+        xml = ('<root BTCPP_format="4"><BehaviorTree ID="__warmup"><Sequence>'
+               '<__warmup_action/></Sequence></BehaviorTree></root>')
+        factory.create_tree_from_text(xml).tickWhileRunning()
+
+    cppyy_kit.warmup(_exercise)
 
 
 # --- Observability -------------------------------------------------------
