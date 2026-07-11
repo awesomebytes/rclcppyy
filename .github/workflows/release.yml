@@ -38,9 +38,17 @@ jobs:
           # Only the packaging env; it doesn't pull the ROS/cppyy stack.
           environments: pkg
 
-      # rattler-build also runs the recipe's import smoke test in a fresh env.
+      # rattler-build also runs the recipe's import smoke test in a fresh env, which
+      # now resolves the 0.2.0 suite run-deps (ros-jazzy-rclcpp-kit, cppyy-kit) — so
+      # the build must see the awesomebytes channel. RELEASE CHOREOGRAPHY: the suite
+      # is published to awesomebytes BEFORE this rclcppyy release runs (RELEASING.md).
+      # (Local dev uses `pixi run -e pkg pkg-build`, which points at the local
+      # rattler-build channel instead of awesomebytes.)
       - name: Build conda package
-        run: pixi run -e pkg pkg-build
+        run: |
+          pixi run -e pkg rattler-build build --recipe recipe/recipe.yaml \
+            -c https://repo.prefix.dev/awesomebytes -c robostack-jazzy -c conda-forge \
+            --output-dir output
 
       # The point of releasing: a user with no clone gets a working install from
       # the channel alone. Reproduce that in a throwaway pixi workspace whose
@@ -53,7 +61,10 @@ jobs:
           cat > "$workdir/pixi.toml" <<EOF
           [workspace]
           name = "rclcppyy-artifact-test"
-          channels = ["file://$GITHUB_WORKSPACE/output", "robostack-jazzy", "conda-forge"]
+          # The freshly built rclcppyy is in output/; its 0.2.0 run-deps
+          # (ros-jazzy-rclcpp-kit, cppyy-kit) come from awesomebytes (published
+          # first, per RELEASING.md).
+          channels = ["file://$GITHUB_WORKSPACE/output", "https://repo.prefix.dev/awesomebytes", "robostack-jazzy", "conda-forge"]
           platforms = ["linux-64"]
           version = "0.0.0"
 
