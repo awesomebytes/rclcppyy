@@ -7,7 +7,7 @@ to existing code.
 """
 
 # Public API
-from rclcppyy.bringup_rclcpp import bringup_rclcpp
+from rclcppyy.bringup_rclcpp import bringup_rclcpp, shutdown_rclcpp
 from rclcppyy import rosbag2_cpp
 from rclcppyy import serialization
 from rclcppyy.node import RclcppyyNode
@@ -54,6 +54,7 @@ def enable_cpp_acceleration(patch_node=True):
 
 __all__ = [
     'bringup_rclcpp',
+    'shutdown_rclcpp',
     'RclcppyyNode',
     'Node',
     'enable_cpp_acceleration',
