@@ -438,6 +438,20 @@ mechanically, not by discipline.
   quick-run lines. **Kit scoreboard: 7 spikes, 7 GOs** (bt, pcl, ompl, nav2,
   moveit, control, vision capstone), each with honest boundaries.
 
+- **TF via rclcppyy (2026-07-11, GO; 28854f7, merged):** Sam's assumption
+  confirmed with source-cited evidence — stock Python tf2_ros feeds the buffer
+  with a Python for-loop per transform (fully-deserialized TFMessage, GIL
+  held), while C++ TransformListener ingests natively on its own thread.
+  Measured: ingest CPU 6.7×–14× lower (grows with tf rate: 19.3% → 1.4% at
+  10k tf/s), lookups ~5.4× faster even at idle, Python lookups degrade
+  further under load (GIL contention). Deliverable in **rclcppyy proper**
+  (`rclcppyy.tf` — tf2 is core ROS, not an opt-in kit): TransformListener
+  helper on plain tf2::BufferCore. New gotcha class found: overloaded C++
+  methods can MIS-RESOLVE under cppyy to a compilable-but-wrong overload that
+  bus-errors (tf2_ros::Buffer lookupTransform) — prefer single-signature base
+  classes or cppdef wrappers. 8 new tests in the DEFAULT suite (now 16).
+  `pixi run bench-tf` reproduces the table. Docs: `docs/tf/REPORT.md`.
+
 ## Risks & mitigations
 
 - **conda-forge cppyy behaves differently from the pip wheel** (cling resource
