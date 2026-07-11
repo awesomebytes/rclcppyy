@@ -13,3 +13,8 @@ __pycache__/
 # hypothesis
 .hypothesis/
 output/
+
+# vision tutorial datasets + vendored DBoW2 (downloaded/built, never committed).
+# build/ is already ignored above (DBoW2 lands in build/vendor/); data/ holds the
+# downloaded TUM RGB-D sequence and the ORBvoc vocabulary.
+data/
