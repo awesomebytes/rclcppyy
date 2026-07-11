@@ -185,7 +185,20 @@ ros-jazzy-nav2-regulated-pure-pursuit-controller = "*" # RPP controller
 ros-jazzy-nav2-msgs = "*"                              # nav2 message types
 
 [feature.nav2.tasks]
-# nav2_kit tasks are added by the nav2_kit spike.
+# Plan on a synthetic occupancy grid with Nav2's real Costmap2D + NavFn cores,
+# driven from Python (no lifecycle server / pluginlib / tf). Prints the path.
+demo-nav2-plan = "python scripts/nav2_kit_demos/d01_plan_grid.py"
+# THE SHOWCASE: a complete miniature nav stack in one file -- synthetic world ->
+# Costmap2D -> NavFn plan -> pure-pursuit follow loop (simulated diff-drive) ->
+# publishes OccupancyGrid + Path + TwistStamped via rclcppyy (rviz2-visualizable).
+demo-nav2-stack = "python scripts/nav2_kit_demos/d02_own_nav_stack.py"
+# NavFn-from-Python vs a pure-Python A* on 256/512/1024 grids: plan-time table
+# (the "C++ math, Python orchestration" performance story).
+bench-nav2-plan = "python scripts/nav2_kit_demos/bench_nav2_plan.py"
+# Run the nav2_kit test suite in the nav2 env (Nav2 present). It auto-skips under
+# the default `pixi run test`, which has no Nav2. (The common cppyy_kit layer this
+# kit builds on is covered by `pixi run -e bt test-bt`.)
+test-nav2 = "pytest test/test_nav2_kit.py -v"
 
 # Optional "moveit" feature/environment: MoveIt 2 for the moveit_kit cppyy spike
 # (full moveit_cpp API from Python; moveit_py included as the contrast subset).
