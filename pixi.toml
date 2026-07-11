@@ -208,7 +208,19 @@ ros-jazzy-moveit-resources-panda-moveit-config = "*"   # Panda test model (URDF/
 ros-jazzy-moveit-py = "*"                              # official Python subset (contrast)
 
 [feature.moveit.tasks]
-# moveit_kit tasks are added by the moveit_kit spike.
+# RobotModel + FK + KDL IK basics from Python (parse layer + pluginlib kinematics).
+demo-moveit-state = "python scripts/moveit_kit_demos/d01_robot_state.py"
+# THE SHOWCASE: plan the Panda to a Cartesian pose goal with MoveIt's real OMPL
+# pipeline (loaded in-process via pluginlib), publish a moveit_msgs/DisplayTrajectory
+# on /display_planned_path (rviz-compatible), print the joint-trajectory summary.
+demo-moveit-plan = "python scripts/moveit_kit_demos/d02_plan_pose_goal.py"
+# Bench: collision checks/sec + IK solves/sec, moveit_kit (full C++ via cppyy) vs
+# moveit_py (the pybind subset). Each library in a fresh subprocess.
+bench-moveit = "python scripts/moveit_kit_demos/bench_moveit.py"
+# Run the moveit_kit test suite in the moveit env (MoveIt + panda config present).
+# Auto-skips under the default `pixi run test`, which has no MoveIt. (The common
+# cppyy_kit layer this kit builds on is covered by `pixi run -e bt test-bt`.)
+test-moveit = "pytest test/test_moveit_kit.py -v"
 
 # Optional "control" feature/environment: ros2_control for the control_kit spike
 # (Python controller inside the real controller_manager via a pluginlib bridge).

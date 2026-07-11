@@ -9,10 +9,11 @@ optional and each pulls its own C++ dependency, so nothing here is imported by
     from rclcppyy.kits import bt_kit
 
 Available kits:
-    bt_kit   -- BehaviorTree.CPP v4 (requires ros-jazzy-behaviortree-cpp).
-    pcl_kit  -- Point Cloud Library (requires pcl + ros-jazzy-pcl-conversions).
-    ompl_kit -- Open Motion Planning Library (requires ros-jazzy-ompl).
-    nav2_kit -- Nav2 algorithm cores: Costmap2D + NavFn planner, driven from Python
-                with no lifecycle servers / pluginlib / tf (requires the nav2 env:
-                ros-jazzy-nav2-costmap-2d, ros-jazzy-nav2-navfn-planner).
+    bt_kit     -- BehaviorTree.CPP v4 (requires ros-jazzy-behaviortree-cpp).
+    pcl_kit    -- Point Cloud Library (requires pcl + ros-jazzy-pcl-conversions).
+    ompl_kit   -- Open Motion Planning Library (requires ros-jazzy-ompl).
+    nav2_kit   -- Nav2 algorithm cores: Costmap2D + NavFn planner, driven from
+                  Python with no lifecycle servers / pluginlib / tf (requires
+                  the nav2 env: ros-jazzy-nav2-costmap-2d, nav2-navfn-planner).
+    moveit_kit -- MoveIt 2 C++ API (requires ros-jazzy-moveit + panda config).
 """
