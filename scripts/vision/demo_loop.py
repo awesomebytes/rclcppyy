@@ -111,8 +111,10 @@ def main():
         mat = cv_kit.msg_to_mat(msg)
         gray = cv_kit.to_gray(mat)
         kps, desc = orb.detect_and_compute(gray)
-        arr = cv_kit.mat_to_numpy(mat, copy=True)   # copy: kept for later match display
-        state["thumbs"][idx] = arr
+        arr = cv_kit.mat_to_numpy(mat, copy=True)
+        # Keep a small thumbnail per frame (quarter res) for the loop match panel,
+        # so memory stays bounded on long sequences (e.g. TUM's 2585 frames).
+        state["thumbs"][idx] = arr[::4, ::4].copy()
         if arr.ndim == 3:
             rr.log("camera/image", rr.Image(arr, color_model="BGR"))
         else:
