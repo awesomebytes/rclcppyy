@@ -279,6 +279,29 @@ mechanically, not by discipline.
   Open next steps: L1 freeze sub-project (Cling C++ module/PCH),
   third kit (Nav2 bridge-plugin / OMPL / Ceres), README section for kits.
 
+- **Teardown fix (2026-07-11, 7d3faf6/b5d5f82/2cf2688):** the exit segfault is
+  NOT reproducible on the current stack (~8 scenarios × both RMWs, all clean) —
+  the `os._exit` dodges were vestigial since the destroy_node/keep-alive fixes.
+  All 6 removed. The in-principle hazard (no ordering contract between Python
+  finalization and Cling teardown for C++ objects owning process-global state)
+  is now guarded: `cppyy_kit.register_teardown/shutdown` (LIFO, idempotent,
+  atexit-wired in the correct window) + once-only `rclcppyy.shutdown_rclcpp`
+  (also closes the double-rcl_shutdown race). Regression tripwire
+  `test/test_clean_exit.py` in the default suite (now 7 tests).
+- **L0→L1→L2 ladder demonstrated (2026-07-11, 112a56c, merged e6cb773):**
+  the freeze is real — a **Cling PCH** (`rootcling -generate-pch` on top of
+  cppyy's std set; `CLING_STANDARD_PCH` must be set before the first cppyy
+  import → `scripts/freeze/run_frozen.py` launcher). Measured: header parse
+  890 ms → 6 ms (~140×), bringup ~950 → ~90 ms (10.7×), t01 end-to-end
+  1.9 → 1.1 s; same recipe on rclcpp.hpp: 1.71 s → 6 ms (~290×). The same 16+
+  kit tests pass frozen (tests-as-contract). Remaining cost identified
+  precisely: cppyy's first-use JIT of per-signature call wrappers (~0.69 s,
+  identical L0/L1) — next target needs L2 or cached instantiations.
+  **L2 also works**: ApproachObject leaf lowered to a native plugin `.so`
+  (registerFromPlugin, JIT-free), identical output on the same XML
+  (differential-tested), 0.57 → 0.20 µs/tick (~2.8×). Recipe:
+  `docs/kits/FREEZE.md`; artifacts gitignored + env-version-tagged.
+
 ## Risks & mitigations
 
 - **conda-forge cppyy behaves differently from the pip wheel** (cling resource
