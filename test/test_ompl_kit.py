@@ -193,3 +193,24 @@ def test_as_state_explicit_downcast(ompl):
 def test_set_seed_callable(ompl):
     """set_seed reaches ompl::RNG (util namespace) without error."""
     ompl_kit.set_seed(123)      # may warn if RNG already used this process; must not raise
+
+
+def test_callback_exact_pointer_signature_via_string_annotation(ompl):
+    """Regression for the callback() inference gap ompl_kit surfaced: a class-typed
+    hint would infer `State&`, which setStateValidityChecker (wanting `const
+    State*`) binds silently then fails later. Annotating the exact C++ pointer form
+    as a *string* makes cppyy_kit.callback produce it directly -- no signature=
+    needed -- and it binds and solves end to end."""
+    ob, og = ompl
+    calls = [0]
+
+    def is_valid(s: "const ompl::base::State*") -> bool:  # noqa: F722 (verbatim C++ type)
+        calls[0] += 1
+        return True
+
+    # inference produces the exact pointer form OMPL's Fn overload wants
+    assert cppyy_kit._infer_signature(is_valid) == "bool(const ompl::base::State*)"
+    checker = cppyy_kit.callback(is_valid)
+    ss = _setup(ob, og, lambda ss: ss.setStateValidityChecker(checker))
+    assert bool(ss.solve(2.0))
+    assert calls[0] > 0                               # the C++ planner called it

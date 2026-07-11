@@ -349,3 +349,29 @@ def test_warmup_runs_thunks_under_suppression(capsys):
     cppyy_kit.warmup(thunk)
     assert ran == [1]
     assert capsys.readouterr().err == ""  # suppressed while warming
+
+
+# --- callback() signature-inference: exact C++ forms + reference warning -------
+# The gap ompl_kit found: a class-typed hint infers `T&`, which cppyy binds even
+# when the API wants `const T*`, failing later at the call site. Two answers: a
+# verbatim C++ string annotation (exact control), and a one-time warning naming
+# the fix at the point of the mistake.
+
+def test_callback_string_annotation_is_verbatim_cpp_type():
+    def check(s: "const BT::TreeNode*") -> bool:  # noqa: F722 (verbatim C++ type, not a Python forward ref)
+        return True
+
+    assert cppyy_kit._infer_signature(check) == "bool(const BT::TreeNode*)"
+
+
+def test_callback_class_hint_warns_about_inferred_reference(capsys):
+    cppyy_kit._INFER_REF_WARNED.discard("BT::TreeNode")  # ensure the one-time warning can fire
+    tree_node = bt_kit.bringup_bt().TreeNode
+
+    def g(node: tree_node) -> bool:
+        return True
+
+    sig = cppyy_kit._infer_signature(g)
+    err = capsys.readouterr().err
+    assert sig == "bool(BT::TreeNode&)"
+    assert "BT::TreeNode&" in err and "const BT::TreeNode*" in err

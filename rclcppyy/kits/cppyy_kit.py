@@ -35,7 +35,6 @@ import os
 import subprocess
 import sys
 import time
-import typing
 
 import cppyy
 
@@ -103,44 +102,67 @@ def std_function(signature, pyfunc):
 # NoneType both mean a void return.
 _SCALAR_CPP = {int: "int", float: "double", bool: "bool", str: "std::string",
                type(None): "void", None: "void"}
+# The same, keyed by bare name, for annotations that arrive as strings (e.g. under
+# `from __future__ import annotations`). Any other string annotation is used
+# verbatim as a C++ type -- the exact-form escape hatch (see _cpp_type).
+_SCALAR_NAME_CPP = {"int": "int", "float": "double", "bool": "bool",
+                    "str": "std::string", "None": "void", "NoneType": "void"}
 
 # Process-lifetime pins for callback() wrappers registered without an owner.
 _CALLBACKS = []
+# cppyy C++ class names already warned about the reference inference (dedup).
+_INFER_REF_WARNED = set()
 
 
-def _cpp_type(annotation, is_return=False):
+def _cpp_type(annotation, is_return=False, fn=None):
+    # A string annotation is used verbatim as the C++ type -- the exact-form
+    # escape hatch (e.g. `s: "const ompl::base::State*"`); a bare Python scalar
+    # name maps like the type.
+    if isinstance(annotation, str):
+        return _SCALAR_NAME_CPP.get(annotation.strip(), annotation.strip())
     if annotation in _SCALAR_CPP:
         return _SCALAR_CPP[annotation]
     cpp_name = getattr(annotation, "__cpp_name__", None)
     if cpp_name:
-        # A C++ object crosses by reference by default; use signature= for
-        # by-value / const / pointer forms.
-        return cpp_name if is_return else cpp_name + "&"
+        if is_return:
+            return cpp_name
+        # Inference can only guess a *reference* for a C++ class. cppyy will bind a
+        # std::function<...(T&)> even when the API wants `const T*` / by-value, and
+        # the mismatch then fails at the *consuming* call, far from here. Warn once,
+        # at the point of the mistake, naming the exact-form fix.
+        if cpp_name not in _INFER_REF_WARNED:
+            _INFER_REF_WARNED.add(cpp_name)
+            sys.stderr.write(
+                "[cppyy_kit] callback inferred '%s&' from the class-typed hint on %r; "
+                "cppyy binds that even if the C++ API wants another form (e.g. "
+                "'const %s*'), which then fails later at the call site. For an exact "
+                "form, annotate the parameter with the C++ type string (e.g. "
+                "\"const %s*\") or pass signature=.\n"
+                % (cpp_name, getattr(fn, "__name__", fn), cpp_name, cpp_name))
+        return cpp_name + "&"
     raise CppyyKitError(
-        "cppyy_kit.callback: cannot infer a C++ type for annotation %r. Annotate "
-        "with int, float, bool, str, None (void), or a cppyy C++ class (one "
-        "exposing __cpp_name__), or pass signature='ret(args)' explicitly." % (annotation,))
+        "cppyy_kit.callback: cannot infer a C++ type for annotation %r. Annotate with "
+        "int, float, bool, str, None (void), a cppyy C++ class, or an exact C++ type "
+        "string (e.g. \"const T*\"), or pass signature='ret(args)' explicitly." % (annotation,))
 
 
 def _infer_signature(fn):
-    try:
-        hints = typing.get_type_hints(fn)
-    except Exception as exc:
-        raise CppyyKitError("cppyy_kit.callback: could not read type hints of %r (%s); "
-                            "pass signature= explicitly." % (fn, exc))
+    # Read raw __annotations__ (not get_type_hints) so verbatim C++ type strings
+    # like "const T*" are not treated as unresolvable Python forward references.
+    annotations = getattr(fn, "__annotations__", {})
     # Only the parameters C++ actually passes: positional, without a Python-side
     # default (defaults / *args / **kwargs are Python conveniences, not C++ args).
     params = [p.name for p in inspect.signature(fn).parameters.values()
               if p.default is inspect.Parameter.empty
               and p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)]
-    missing = [p for p in params if p not in hints]
+    missing = [p for p in params if p not in annotations]
     if missing:
         raise CppyyKitError(
             "cppyy_kit.callback: parameter(s) %s of %r are not type-annotated, so the "
             "C++ signature can't be inferred. Annotate them (int/float/bool/str/cppyy "
-            "class) or pass signature='ret(args)'." % (missing, getattr(fn, "__name__", fn)))
-    args = ", ".join(_cpp_type(hints[p]) for p in params)
-    return "%s(%s)" % (_cpp_type(hints.get("return", None), is_return=True), args)
+            "class / exact C++ string) or pass signature='ret(args)'." % (missing, getattr(fn, "__name__", fn)))
+    args = ", ".join(_cpp_type(annotations[p], fn=fn) for p in params)
+    return "%s(%s)" % (_cpp_type(annotations.get("return", None), is_return=True, fn=fn), args)
 
 
 def callback(fn, signature=None, owner=None):
@@ -148,12 +170,14 @@ def callback(fn, signature=None, owner=None):
     with the signature inferred and the lifetime handled for you.
 
     Signature: ``signature`` wins if given; otherwise it is inferred from ``fn``'s
-    type hints -- ``int``->int, ``float``->double, ``bool``->bool, ``str``->
+    annotations -- ``int``->int, ``float``->double, ``bool``->bool, ``str``->
     std::string, ``None``->void (return), and any cppyy C++ class (via its
-    ``__cpp_name__``) as a reference. Inference fails early with a readable error
-    if a parameter is unannotated or unmappable; pass ``signature=`` for
-    reference/const/pointer forms or types inference can't name (e.g.
-    ``signature="BT::NodeStatus(BT::TreeNode&)"``).
+    ``__cpp_name__``) as a **reference**. A cppyy class inferred as a reference
+    warns once (cppyy would bind ``T&`` even where the API wants ``const T*``, then
+    fail later at the call). For an exact form, annotate the parameter with the C++
+    type **string** -- ``def check(s: "const ompl::base::State*") -> bool`` -- used
+    verbatim; or pass ``signature="ret(args)"``. Inference fails early with a
+    readable error if a parameter is unannotated or unmappable.
 
     Lifetime (the "callable was deleted" footgun, gone): the wrapper *and* ``fn``
     are always pinned. With ``owner=`` they are pinned on that object and live as
