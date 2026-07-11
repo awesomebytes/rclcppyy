@@ -50,6 +50,16 @@ demo-tutorial = "python scripts/ros_tutorials/publisher_member_function.py"
 # One-command live pub/sub demo (rclcppyy monkeypatched backend).
 demo-pubsub = "python scripts/benchmarks/run_benchmarks.py --demo"
 
+# --- tf: drive the tf2 C++ transform stack from Python (rclcppyy/tf.py). tf2 is core
+# ROS 2 (default env), so these live in the default [tasks]. See docs/tf/REPORT.md. ---
+# Minimal lookup example: C++ listener ingests /tf, Python looks the transform up.
+demo-tf-lookup = "python scripts/tf_demos/d01_lookup_example.py"
+# Synthetic TF-storm publisher (frames*rate transforms/s on /tf); runs until killed.
+demo-tf-storm = "python scripts/tf_demos/tf_storm_publisher.py --frames 50 --rate 100"
+# THE ANSWER TO SAM: stock rclpy Python listener vs rclcppyy C++ listener --
+# ingest CPU% under a TF storm + lookup latency/throughput, in one table.
+bench-tf = "python scripts/tf_demos/bench_tf.py"
+
 # Optional "demos" feature/environment: heavy extras used only by the example
 # scripts under scripts/big_messages_demos/ and roscon_uk_2025/. Kept out of the
 # default env so a plain `pixi install` stays lean. Enable with `pixi install -e

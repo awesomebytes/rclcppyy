@@ -10,6 +10,7 @@ to existing code.
 from rclcppyy.bringup_rclcpp import bringup_rclcpp, shutdown_rclcpp
 from rclcppyy import rosbag2_cpp
 from rclcppyy import serialization
+from rclcppyy import tf
 from rclcppyy.node import RclcppyyNode
 from rclcppyy.monkey import patch_ros2, patch_node_class
 Node = RclcppyyNode
@@ -61,5 +62,6 @@ __all__ = [
     'patch_ros2',
     'patch_node_class',
     'rosbag2_cpp',
-    'serialization'
+    'serialization',
+    'tf'
 ]
