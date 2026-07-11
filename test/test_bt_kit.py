@@ -23,7 +23,7 @@ pytestmark = pytest.mark.skipif(not _HAVE_BT,
                                 reason="behaviortree_cpp not installed (use the bt env)")
 
 if _HAVE_BT:
-    from rclcppyy.kits import bt_kit
+    from rclcppyy.kits import bt_kit, cppyy_kit
 
 
 @pytest.fixture(scope="module")
@@ -155,3 +155,16 @@ def test_subtree_composition(bt):
     </root>"""
     factory.create_tree_from_text(xml).tickWhileRunning()
     assert log == ["start", "hello", "world", "end"]
+
+
+def test_warmup_marks_entry_points_seen_and_tree_runs(bt):
+    # warmup() exercises the expensive entry points (under notice suppression), so
+    # afterwards their first-use labels are marked seen and a real tree still runs.
+    bt_kit.warmup()
+    assert "bt_kit.register_simple_action" in cppyy_kit._FIRST_USE_SEEN
+    assert "bt_kit.register_stateful" in cppyy_kit._FIRST_USE_SEEN
+
+    factory = bt.BehaviorTreeFactory()
+    factory.register_simple_action("WarmA", lambda n: bt_kit.SUCCESS)
+    xml = '<root BTCPP_format="4"><BehaviorTree ID="M"><Sequence><WarmA/></Sequence></BehaviorTree></root>'
+    assert factory.create_tree_from_text(xml).tickWhileRunning() == bt_kit.SUCCESS

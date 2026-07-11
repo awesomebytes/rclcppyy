@@ -6,6 +6,7 @@ behaviortree_cpp (present only in the pixi `bt` env) so the default
 `pixi run test` is unaffected. Run via `pixi run -e bt test-bt`.
 """
 import gc
+import time
 
 import pytest
 
@@ -299,3 +300,52 @@ def test_release_callbacks_empties_registry():
     assert len(cppyy_kit._CALLBACKS) > 0
     cppyy_kit.release_callbacks()
     assert len(cppyy_kit._CALLBACKS) == 0
+
+
+# --- first-use notice + warmup --------------------------------------------
+# Unique labels/hints per test so the module-global seen/shown sets don't couple
+# tests together (a label fires at most once per process).
+
+def test_first_use_notice_fires_once_when_slow(capsys):
+    label, hint = "test.slow.a", "test.warmup.a()"
+    with cppyy_kit.first_use(label, hint, threshold_ms=5):
+        time.sleep(0.02)
+    err = capsys.readouterr().err
+    assert label in err and hint in err and "RCLCPPYY_JIT_NOTICE=0" in err
+    # second call for the same label: already seen -> silent.
+    with cppyy_kit.first_use(label, hint, threshold_ms=5):
+        time.sleep(0.02)
+    assert capsys.readouterr().err == ""
+
+
+def test_first_use_silent_when_fast(capsys):
+    with cppyy_kit.first_use("test.fast.b", "test.warmup.b()", threshold_ms=1000):
+        pass
+    assert capsys.readouterr().err == ""
+
+
+def test_first_use_disabled_by_env(capsys, monkeypatch):
+    monkeypatch.setenv("RCLCPPYY_JIT_NOTICE", "0")
+    with cppyy_kit.first_use("test.disabled.c", "test.warmup.c()", threshold_ms=1):
+        time.sleep(0.01)
+    assert capsys.readouterr().err == ""
+
+
+def test_suppress_first_use_notice(capsys):
+    with cppyy_kit.suppress_first_use_notice():
+        with cppyy_kit.first_use("test.suppressed.d", "test.warmup.d()", threshold_ms=1):
+            time.sleep(0.01)
+    assert capsys.readouterr().err == ""
+
+
+def test_warmup_runs_thunks_under_suppression(capsys):
+    ran = []
+
+    def thunk():
+        ran.append(1)
+        with cppyy_kit.first_use("test.warmup.e", "test.warmup.e()", threshold_ms=1):
+            time.sleep(0.01)
+
+    cppyy_kit.warmup(thunk)
+    assert ran == [1]
+    assert capsys.readouterr().err == ""  # suppressed while warming
