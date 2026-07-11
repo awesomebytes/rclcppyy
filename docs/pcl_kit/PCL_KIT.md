@@ -136,6 +136,24 @@ vox = pcl.VoxelGrid[MyPoint]()                    # works over the custom type
 
 ---
 
+## Pattern 5 — warmup (front-load the first-frame JIT)
+*Use for:* any node/loop whose **first** frame must not be a latency outlier. The
+first NumPy→cloud→VoxelGrid→NumPy pipeline JIT-compiles cppyy wrappers (~0.45 s
+here); call `warmup()` once during init so frame 0 runs at steady-state speed.
+
+```python
+from rclcppyy.kits import pcl_kit
+
+pcl = pcl_kit.bringup_pcl()          # with_ros default
+pcl_kit.warmup(with_ros=True)        # runs one throwaway pipeline (glue + VoxelGrid
+                                     # + toROSMsg/fromROSMsg); ~0.5 s here, once
+# ... your real frames now start fast: showcase frame-0 630 ms -> 4 ms ...
+```
+Pass `with_ros=False` if you only use the NumPy path. A freeze/PCH does not remove
+this first-use cost; warmup is the tool (see docs/kits/COMMON_PATTERNS.md §15).
+
+---
+
 ## Gotchas (short version)
 - **Don't** convert clouds with a Python per-point loop — it is ~90x slower than
   the kit's C++ memcpy and building the aligned storage from Python can **segfault**

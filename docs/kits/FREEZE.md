@@ -124,12 +124,57 @@ that. What **remains** after freezing:
 * `load_library` (~5 ms) and the `cppdef` C++ glue (~78 ms — slightly *higher*
   frozen, because the glue's template instantiations are JIT-emitted fresh rather
   than reused from the live parse);
-* **first-use JIT (~0.69 s, unchanged L0↔L1):** the first `registerSimpleAction`
-  costs ~0.41 s (cppyy generating the `std::function<NodeStatus(TreeNode&)>`
-  wrapper + call thunk), the second ~0.10 s, `create_tree_from_text` ~37 ms, first
-  tick ~9 ms. A **header PCH does not touch this** — it is cppyy's per-signature
-  call-wrapper codegen, not a parse. Cutting it is a separate effort (cache the
-  JIT'd instantiations, or lower the hot path to L2).
+* **first-use JIT (~0.69 s, unchanged L0↔L1)** — the subject of the section below.
+
+### First-use JIT: attacked, then moved with `warmup()`
+
+The first tree build pays a one-time, per-signature cost as cppyy JIT-compiles a
+call wrapper for each C++ signature it crosses. Localised (measured):
+
+| First-use step | cost | what it is |
+|---|--:|---|
+| `std.function[sig]` (type) | ~3 ms | template lookup — cheap |
+| wrap the Python callable → thunk | ~126 ms | cppyy generates the Python↔C++ thunk |
+| `registerSimpleAction(name, fn, ports)` | ~299 ms | cppyy generates the *call wrapper* for that C++ method |
+| stateful register (3 hook sigs) | ~342 ms | same, for the shim's signatures |
+| 2nd registration (same sig) | ~50 ms | wrapper cached; residual per-call codegen |
+
+**Can the cost itself be cut? (probed, timeboxed)** No, not with cppyy 3.5 levers:
+
+* `EXTRA_CLING_ARGS=-O0` vs `-O1` vs default — **identical** (first register ~401 ms,
+  tick rate ~1.41 M/s all three). The cost is Clang **front-end** template
+  instantiation, not LLVM optimisation, so the opt level can't touch it.
+* A **PCH cannot help**: the frozen path pays the *same* ~690 ms (table above), and
+  the localization confirms why — the cost is call-wrapper *codegen triggered by the
+  Python call*, not anything an AST-only PCH carries. Pre-instantiating the wrapper
+  *types* in the PCH would add AST, not the per-call thunk.
+* No per-call-wrapper disk cache exists in cppyy 3.5 (its C++-modules cache is for
+  header AST). So the cost is **relocatable or eliminable, not reducible**:
+  **relocate** it to init with `warmup()`; **eliminate** it for a hot path by
+  lowering to **L2** native (`registerFromPlugin`, §5 — no cppyy in the tick path).
+
+**Moved with `bt_kit.warmup()`** — it exercises every wrapper signature on a
+throwaway factory during init (see COMMON_PATTERNS §15). Redistribution (t01-shape
+workload, this machine):
+
+| | bringup | warmup (init) | time-to-first-tick | end-to-end |
+|---|--:|--:|--:|--:|
+| L0, no warmup | ~920 ms | — | **~678 ms** | ~1.80 s |
+| L0, warmup | ~905 ms | ~930 ms | **~98 ms** | ~2.14 s |
+| **L1 frozen, no warmup** | **~85 ms** | — | **~667 ms** | ~1.01 s |
+| **L1 frozen + warmup** | **~85 ms** | ~920 ms | **~94 ms** | ~1.36 s |
+
+The first live tick drops **678 → 98 ms** — the stall moves into a predictable init
+phase, which is the point (no surprise halt mid-run). End-to-end rises modestly for
+t01 specifically because `warmup()` also warms the *stateful* path (~340 ms) that
+t01 doesn't use; for a tree that uses all node kinds the totals converge. The win
+is **predictability**, not throughput.
+
+**Best-case cold start we can offer today = freeze + warmup:** ~85 ms bringup +
+~0.9 s warmup at init, after which every tree op is fast (first tick ~94 ms,
+steady-state instant) — versus L0's ~920 ms bringup followed by an unpredictable
+~680 ms stall on the first live tick. pcl_kit is the same story: `pcl_kit.warmup()`
+takes the showcase's first frame from **630 ms → 4 ms**.
 
 ### The mechanism generalises (second data point)
 
@@ -188,7 +233,9 @@ and runs at engine speed. Registration still crosses cppyy once
 ## 7. Limitations
 
 * The PCH is a startup-latency optimisation for the **parse only**; the first-use
-  JIT of cppyy call wrappers (~0.7 s for t01) is untouched (§4).
+  JIT of cppyy call wrappers (~0.7 s for t01) is untouched by it — but is *moved*
+  off the first live call by `warmup()`, and freeze + warmup compose into the
+  best-case cold start (§4).
 * Artifacts are Cling-version-specific and must be rebuilt (never committed) on any
   cppyy-cling / library version change.
 * Freezing a new header may surface further internal-linkage symbols to force

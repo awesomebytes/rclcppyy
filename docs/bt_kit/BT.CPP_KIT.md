@@ -179,6 +179,25 @@ except bt_kit.BtXmlError as e:
 ```
 Loggers attach at construction and are pinned on the `tree`; keep the tree alive.
 
+## Pattern 6 — warmup (front-load the first-use JIT)
+*Use for:* any script/node where the **first** tree build must not stall. The first
+`registerSimpleAction` etc. JIT-compiles a cppyy call wrapper (~0.4 s; the whole
+first tree ~0.7 s). Call `warmup()` once during init to move that cost off the
+first live call.
+
+```python
+from rclcppyy.kits import bt_kit
+
+def main():
+    bt = bt_kit.bringup_bt()
+    bt_kit.warmup()          # ~0.9 s here, once, instead of stalling the first tick
+    # ... build and tick your real trees; first tick is now ~0.1 s not ~0.7 s ...
+```
+If you skip it, the kit prints a one-time hint the first time a call is slow
+(silence with `RCLCPPYY_JIT_NOTICE=0`). warmup composes with the frozen PCH
+(`freeze-bt-run`): freeze cuts the ~0.9 s header parse, warmup moves the wrapper
+JIT — together they are the fastest cold start (see docs/kits/FREEZE.md §4).
+
 ## Gotchas (short version)
 - **Don't** subclass BT C++ node classes in Python (`class X(BT.StatefulActionNode)`)
   — fails to compile (`final` virtuals). Use `register_stateful` (Pattern 3).
