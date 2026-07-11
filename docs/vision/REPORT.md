@@ -1,8 +1,10 @@
 # vision spike — a visual loop-closure front-end (ORB → DBoW2 → GTSAM) from Python via cppyy
 
-**Date:** 2026-07-11 · **Env:** pixi `vision` (robostack-jazzy + conda-forge),
-`opencv 4.13.0` (C++ libs + headers + cv2), `rerun-sdk 0.34.1`, `gtsam 4.2.2`,
-`cppyy 3.5.0`, Python 3.12.13, linux-64; DBoW2 vendored + built from source.
+**Date:** 2026-07-11 (v2: live-viewer default + GTSAM/cppyy retry) · **Env:** pixi
+`vision` (robostack-jazzy + conda-forge), `opencv 4.13.0` (C++ libs + headers + cv2),
+`rerun-sdk 0.34.1`, `gtsam 4.2.2`, `libboost-headers 1.90` (added in 4e179b7),
+`tbb 2023.0.0` (runtime only, **no headers**), `cppyy 3.5.0`, Python 3.12.13,
+linux-64; DBoW2 vendored + built from source.
 **Question:** can ORB-SLAM2's place-recognition / loop-closure **front-end** —
 images → ORB features → DBoW2 bag-of-binary-words place recognition →
 temporally-consistent loop detection → (stretch) GTSAM pose-graph correction — be
@@ -18,10 +20,16 @@ DLoopDetector-style temporal gate confirms loops, and GTSAM corrects the drift. 
 data stays in one C++ address space from the subscription through the DBoW2 query.
 Basis: Mur-Artal & Tardos (ORB-SLAM); Galvez-Lopez & Tardos (Bags of Binary Words).
 
-The one honest boundary: **GTSAM does not JIT under cppyy in this env** (its boost-
-coupled headers need `boost/optional.hpp`, absent), so the M4 stretch uses gtsam's
-own Python binding — legitimate, because pose-graph optimization is a batch step,
-not a hot loop.
+The one honest boundary: **GTSAM does not JIT-and-run under cppyy in this env**, so
+the M4 stretch uses gtsam's own Python binding — legitimate, because pose-graph
+optimization is a batch step, not a hot loop. The v2 retry (with `libboost-headers`
+now present) moved the wall but did not remove it: the old `boost/optional.hpp`
+blocker is **gone** (gtsam's headers parse past boost), but two further blockers
+remain — (a) the conda gtsam build's `config.h` defines `GTSAM_USE_TBB`, so its
+headers `#include <tbb/…>` while the env ships only the tbb *runtime*, not the
+*headers*; and (b) even with ABI-matched tbb headers supplied out-of-band, Cling's
+ORC JIT fails to materialize the static initializer of gtsam's namespace-scope
+`static const KeyFormatter DefaultKeyFormatter` (`Key.h`). See §5.
 
 ---
 
@@ -60,8 +68,8 @@ Two kits + a shared detector, all mirroring the libraries' own APIs:
 | 5 | **DBoW2 build from source** | **WORKS (2 patches)** | Direct `$CXX` compile of 5 DLib-free ORB sources → `libDBoW2.so` (54 KB). See §2. |
 | 6 | **DBoW2 vocab train / db query** via cppyy | **WORKS** | Small vocab (k=10,L=4) 9970 words in ~7 s; self-match score 1.0; query ~2.8 ms/frame. |
 | 7 | **Real ORBvoc load** (`loadFromTextFile` patch) | **WORKS** | 971,814 words (k=10,L=6) parsed from the 145 MB text in ~2.3 s; binary cache 49 MB reloads in ~0.37 s (~6×). |
-| 8 | **GTSAM via cppyy** | **BLOCKED** | Headers need `boost/optional.hpp`, not in the env → header JIT fails. The header-heavy boost-coupled case the microplan flagged. |
-| 9 | **GTSAM via Python binding** (M4 fallback) | **WORKS** | Pose-graph LM optimize; drift 2.19 m → 0.14 m mean error. |
+| 8 | **GTSAM via cppyy** (v2 retry, boost headers present) | **STILL BLOCKED (wall moved)** | Boost blocker **gone** — headers parse. New walls: (a) `config.h` sets `GTSAM_USE_TBB` → headers `#include <tbb/…>`, tbb *headers* absent from env; (b) with ABI-matched tbb headers supplied, headers JIT in ~2.6 s but the Cling ORC JIT then **fails to materialize** the static init of `static const KeyFormatter DefaultKeyFormatter` (`Key.h`, internal-linkage `std::function` global) — a Cling limitation, not a dep. See §5. |
+| 9 | **GTSAM via Python binding** (M4 path) | **WORKS** | Pose-graph LM optimize; drift 2.19 m → 0.14 m mean error. |
 
 **Zero hard failures on the front-end.** The single blocked probe (GTSAM/cppyy)
 has a clean, honest fallback that does not compromise the milestone.
@@ -156,12 +164,47 @@ odometry with an accumulating heading drift, added a `BetweenFactor` per confirm
 loop closure, and optimized with Levenberg-Marquardt: **mean position error 2.19 m
 (open-loop) → 0.14 m (after)**, 19 loop closures.
 
-Uses gtsam's **Python binding**, not cppyy: gtsam 4.2's headers `#include
-<boost/optional.hpp>`, which is not in the env, so the header-heavy boost-coupled
-gtsam does not JIT under cppyy. This is the microplan's anticipated case; the fallback
-is sound because pose-graph optimization is a one-shot batch step (the "keep it in
-C++ / it's a hot loop" argument does not apply), so a `gtsam_kit` cppyy wrapper would
-not earn its existence (mirror-don't-sugar).
+Uses gtsam's **Python binding**, not cppyy. The v2 demo also streams this live: on
+the `step` timeline you watch the red drift spiral out from the green ground truth
+(error plot climbing), yellow loop edges snap in as revisits confirm, then the blue
+corrected trajectory appear pulled back onto ground truth and the error drop ~15× —
+the correction *snapping* into place (`scripts/vision/demo_posegraph.py`).
+
+### GTSAM-via-cppyy retry (v2) — precise blocker, out-of-process probe
+
+The microplan flagged boost as the likely wall, and v1 confirmed it. With
+`libboost-headers 1.90` now in the env (4e179b7), I retried properly, probing
+**out-of-process** first (§9/§20). The wall **moved twice** but did not fall:
+
+1. **Boost — gone.** With boost headers present, gtsam's headers no longer fail on
+   `boost/optional.hpp`; they parse past boost.
+2. **TBB headers absent (env gap).** gtsam's conda build's `gtsam/config.h` defines
+   `GTSAM_USE_TBB` and `GTSAM_ALLOCATOR_TBB`, so `gtsam/base/types.h` does
+   `#include <tbb/scalable_allocator.h>` (and headers pull `tbb/{concurrent_unordered_map,
+   task_group,tbb_allocator,tick_count}.h`). The vision env ships only the tbb
+   **runtime** (`libtbb.so.12`), not the tbb **headers** → `fatal error: 'tbb/…' file
+   not found`. This is a one-line dep away (`tbb-devel`, headers-only, must ABI-match
+   the env's `tbb 2023.0.0`), but it is **not sufficient** — see 3.
+3. **Cling ORC static-init materialization failure (the real wall).** Supplying the
+   ABI-matched `tbb-devel-2023.0.0` headers out-of-band, the full header set JITs
+   cleanly in ~2.6 s. But *executing* any gtsam code fails at the Cling ORC JIT link
+   stage: `gtsam/inference/Key.h` declares `static const KeyFormatter
+   DefaultKeyFormatter = &_defaultKeyFormatter;` (and `MultiRobotKeyFormatter`) at
+   **namespace scope** — internal-linkage `std::function<std::string(Key)>` globals
+   with dynamic initializers. `nm -DC libgtsam.so` confirms only the underlying
+   `_defaultKeyFormatter`/`_multirobotKeyFormatter` functions are exported; the
+   `static` globals are **not**, so each TU (incl. the Cling module) must emit and run
+   its own initializer. ORC reports `Failed to materialize symbols:
+   {_ZN5gtsamL19DefaultKeyFormatter…, __cxx_global_var_init…, _ZNSt17_Function_handler…,
+   __clang_call_terminate}`. Preloading `libstdc++`/`libgcc_s` and defining
+   `__clang_call_terminate` did **not** help. This is a Cling/JIT × gtsam-header-design
+   incompatibility, independent of any dependency.
+
+**Verdict: keep the Python binding.** It is not a workaround forced by laziness — for
+a one-shot *batch* optimize it is the honest choice, and the retry shows the cppyy
+route is blocked on a Cling limitation, not on something the env can fix. (Verified
+with throwaway out-of-process probes, per §9/§20 — not committed.) A `gtsam_kit`
+cppyy wrapper would not earn its existence (mirror-don't-sugar).
 
 ---
 
@@ -177,10 +220,13 @@ not earn its existence (mirror-don't-sugar).
 
 ## 7. GAPS — what this is NOT, and what a v2 should do
 
-1. **GTSAM/cppyy blocked on `boost/optional.hpp`.** Adding `boost-headers` to the
-   env *might* unblock it, but gtsam's header stack is heavy and fragile under Cling;
-   the Python binding is the pragmatic choice. If a cppyy gtsam is wanted, probe the
-   full header set out-of-process first.
+1. **GTSAM/cppyy — retried in v2, still blocked, wall relocated (see §5).** Adding
+   `libboost-headers` (done, 4e179b7) removed the boost wall; two more remain — tbb
+   *headers* absent (env gap, one dep away) and, behind it, a Cling ORC static-init
+   materialization failure on gtsam's `Key.h` `DefaultKeyFormatter` global (a Cling
+   limitation, *not* fixable by a dependency). The Python binding stays the right
+   choice for this batch step. If a future gtsam/Cling combination is wanted, the
+   remaining probe is whether that static-init class of failure is fixed upstream.
 2. **Real-world detection tuning.** The temporal gate uses a raw BoW-score threshold;
    DLoopDetector normalizes by the expected (previous-frame) score and adds
    geometric verification (RANSAC on matched keypoints). Both are future work — the
@@ -218,11 +264,18 @@ New or extended vs the existing catalog:
 - **Dependent-type template members need `.template`** in patched templated headers
   (`obj.member.template ptr<T>()`), a Cling/clang two-phase-lookup requirement absent
   when the same call is on a concrete type.
-- **A header-heavy library can be un-JIT-able if a transitive header is missing from
-  the env** (gtsam → `boost/optional.hpp`). The cousin of the nav2 lifecycle-coupling
-  heuristic: grep the target's transitive includes for env-absent deps before
-  committing to cppyy; when blocked and the work is *batch* (not a hot loop), the
-  library's own Python binding is the right fallback.
+- **A header-heavy library can be un-JIT-able for *layered* reasons; peel them in
+  order, out-of-process** (gtsam). Three distinct walls, only visible one at a time:
+  (1) a missing transitive *header* (`boost/optional.hpp`, then `tbb/…` — note conda
+  packages often split runtime vs `-devel` headers, and a build's `config.h` macros
+  like `GTSAM_USE_TBB` decide which headers get pulled); (2) once headers parse, the
+  Cling **ORC JIT can still fail at execution** to *materialize a static initializer*
+  — here a namespace-scope internal-linkage `std::function` global
+  (`DefaultKeyFormatter` in gtsam's `Key.h`), whose per-TU dynamic init the JIT can't
+  emit (`__cxx_global_var_init… / __clang_call_terminate` unresolved). Header-parse
+  success does **not** imply run success; probe an actual *call*, not just the
+  include. When blocked and the work is *batch* (not a hot loop), the library's own
+  Python binding is the right fallback.
 - **Vendored-source-build recipe generalizes** (`build_l2_node` → `build_dbow2`):
   clone + a documented, marker-guarded in-place patch + a direct `$CXX` compile beats
   fighting a library's CMake/ExternalProject for a small, well-understood subset.

@@ -16,6 +16,11 @@ Confirmed loops are logged to Rerun (query frame, matched frame, score) and prin
 Citable basis: Mur-Artal & Tardos (ORB-SLAM); Galvez-Lopez & Tardos (Bags of Binary
 Words / DLoopDetector).
 
+Rerun is LIVE by default when run interactively: a viewer opens and you watch the
+camera + ORB stream, the per-frame timing, and each loop pop into the score plot /
+event log / image-pair panel as it is confirmed. Headless (.rrd) under pytest/CI or
+no display; force with RCLCPPYY_RERUN_SPAWN=1/0. See scripts/vision/vision_viz.py.
+
     pixi run -e vision demo-vision-loop
     pixi run -e vision demo-vision-loop --tum data/<seq> --vocab data/ORBvoc.txt
 """
@@ -35,22 +40,13 @@ sys.path.insert(0, HERE)
 
 import dataset_publisher as DP  # noqa: E402
 import train_vocab  # noqa: E402
+import vision_viz  # noqa: E402
 from loop_detector import LoopDetector  # noqa: E402
 from rclcppyy.bringup_rclcpp import bringup_rclcpp  # noqa: E402
 from rclcppyy.kits import cv_kit, dbow_kit  # noqa: E402
 
 TOPIC = "vision/image"
 FX, FY, CX, CY = 525.0, 525.0, 319.5, 239.5
-
-
-def init_rerun(default_rrd):
-    rr.init("rclcppyy_vision_loop")
-    if os.environ.get("RCLCPPYY_RERUN_SPAWN") == "1":
-        rr.spawn()
-        return None
-    os.makedirs(os.path.dirname(default_rrd), exist_ok=True)
-    rr.save(default_rrd)
-    return default_rrd
 
 
 def get_vocabulary(args, kind, path):
@@ -85,7 +81,8 @@ def main():
 
     kind = "tum" if args.tum else "folder" if args.folder else "synthetic"
     path = args.tum or args.folder
-    rrd = init_rerun(args.rrd)
+    session = vision_viz.init_rerun("rclcppyy_vision_loop", args.rrd,
+                                    blueprint=vision_viz.blueprint_loop())
 
     rclcpp = bringup_rclcpp()
     cv_kit.warmup(args.nfeatures)
@@ -102,6 +99,11 @@ def main():
         rclcpp.init()
     rr.log("camera", rr.Pinhole(resolution=[640, 480], focal_length=[FX, FY],
                                 principal_point=[CX, CY]), static=True)
+    # Style the live "how fast" and "loop score" time series once (static).
+    rr.log("perf/orb_ms", rr.SeriesLines(names=["ORB ms"], colors=[(80, 170, 255)],
+                                         widths=[2.0]), static=True)
+    rr.log("loop/score", rr.SeriesPoints(names=["confirmed loop"], colors=[(255, 200, 0)],
+                                         marker_sizes=[6.0]), static=True)
 
     state = {"n": 0, "loops": [], "thumbs": {}}
 
@@ -110,7 +112,9 @@ def main():
         rr.set_time("frame", sequence=idx)
         mat = cv_kit.msg_to_mat(msg)
         gray = cv_kit.to_gray(mat)
+        t0 = time.perf_counter()
         kps, desc = orb.detect_and_compute(gray)
+        orb_ms = (time.perf_counter() - t0) * 1e3
         arr = cv_kit.mat_to_numpy(mat, copy=True)
         # Keep a small thumbnail per frame (quarter res) for the loop match panel,
         # so memory stays bounded on long sequences (e.g. TUM's 2585 frames).
@@ -121,17 +125,18 @@ def main():
             rr.log("camera/image", rr.Image(arr))
         rr.log("camera/image/keypoints",
                rr.Points2D(cv_kit.keypoints_to_numpy(kps), radii=2.0))
+        rr.log("perf/orb_ms", rr.Scalars(orb_ms))   # live "how fast"
         loop = detector.add_and_query(desc)
         if loop:
             state["loops"].append((loop.query_id, loop.match_id, round(loop.score, 4)))
-            rr.log("loop/score", rr.Scalars(loop.score))
+            rr.log("loop/score", rr.Scalars(loop.score))   # a point pops in as each loop confirms
             q = state["thumbs"].get(loop.query_id)
             m = state["thumbs"].get(loop.match_id)
             if q is not None:
-                rr.log("loop/query", rr.Image(q) if q.ndim == 2 else rr.Image(q, color_model="BGR"))
+                rr.log("loop/pair/query", rr.Image(q) if q.ndim == 2 else rr.Image(q, color_model="BGR"))
             if m is not None:
-                rr.log("loop/match", rr.Image(m) if m.ndim == 2 else rr.Image(m, color_model="BGR"))
-            rr.log("loop/event", rr.TextLog(
+                rr.log("loop/pair/match", rr.Image(m) if m.ndim == 2 else rr.Image(m, color_model="BGR"))
+            rr.log("loop/events", rr.TextLog(
                 "LOOP: frame %d revisits frame %d (score %.3f)"
                 % (loop.query_id, loop.match_id, loop.score)))
             print("  LOOP  frame %d revisits frame %d  score=%.3f"
@@ -178,8 +183,7 @@ def main():
               % (s, e, e - s))
     for q, m, sc in loops:
         print("  frame %d -> frame %d  score=%.4f" % (q, m, sc))
-    if rrd:
-        print("Rerun recording saved: %s  (open with: rerun %s)" % (rrd, rrd))
+    vision_viz.announce(session)
     return loops
 
 

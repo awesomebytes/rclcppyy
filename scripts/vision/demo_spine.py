@@ -9,8 +9,10 @@ rclcppyy, so its callback receives the **C++** message -- wraps each frame as a
 data buffer) and logs it to Rerun (with a plausible pinhole camera). Python never
 copies a pixel on the ingest path. Per-frame ingest latency is reported.
 
-Rerun is HEADLESS by default (saves a .rrd you can open later with
-``rerun <file>``); set RCLCPPYY_RERUN_SPAWN=1 to pop the live viewer.
+Rerun is LIVE by default when you run this interactively: a viewer window opens
+and you watch the camera stream in real time. Under pytest/CI or with no display it
+is headless (writes a .rrd you open later with ``rerun <file>``). Force either way
+with RCLCPPYY_RERUN_SPAWN=1 (live) / =0 (headless). See scripts/vision/vision_viz.py.
 
     pixi run -e vision demo-vision-spine
     RCLCPPYY_RERUN_SPAWN=1 pixi run -e vision demo-vision-spine --tum data/rgbd_dataset_freiburg3_long_office_household
@@ -27,24 +29,16 @@ os.environ.setdefault("ROS_DOMAIN_ID", "50")
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.join(REPO, "scripts", "datasets"))
+sys.path.insert(0, HERE)
 
 import dataset_publisher as DP  # noqa: E402
+import vision_viz  # noqa: E402
 from rclcppyy.bringup_rclcpp import bringup_rclcpp  # noqa: E402
 from rclcppyy.kits import cv_kit  # noqa: E402
 
 TOPIC = "vision/image"
 # Plausible pinhole intrinsics for a 640x480 camera (TUM fr3 is ~535/320/248).
 FX, FY, CX, CY = 525.0, 525.0, 319.5, 239.5
-
-
-def init_rerun(app_id, default_rrd):
-    rr.init(app_id)
-    if os.environ.get("RCLCPPYY_RERUN_SPAWN") == "1":
-        rr.spawn()
-        return None
-    os.makedirs(os.path.dirname(default_rrd), exist_ok=True)
-    rr.save(default_rrd)
-    return default_rrd
 
 
 def log_frame(entity, mat, encoding, idx):
@@ -69,7 +63,8 @@ def main():
 
     kind = "tum" if args.tum else "folder" if args.folder else "synthetic"
     path = args.tum or args.folder
-    rrd = init_rerun("rclcppyy_vision_spine", args.rrd)
+    session = vision_viz.init_rerun("rclcppyy_vision_spine", args.rrd,
+                                    blueprint=vision_viz.blueprint_camera_perf("ingest (ms/frame)"))
 
     rclcpp = bringup_rclcpp()
     cv_kit.warmup()
@@ -81,6 +76,9 @@ def main():
 
     rr.log("camera", rr.Pinhole(resolution=[640, 480], focal_length=[FX, FY],
                                 principal_point=[CX, CY]), static=True)
+    # Style the "how fast" plot once (static): a named, colored time series.
+    rr.log("perf/ingest_ms", rr.SeriesLines(names=["ingest ms"], colors=[(80, 170, 255)],
+                                            widths=[2.0]), static=True)
 
     stats = {"n": 0, "ingest_ms": []}
 
@@ -91,6 +89,7 @@ def main():
         _ = int(gray.rows)
         dt = (time.perf_counter() - t0) * 1e3
         log_frame("camera/image", mat, str(msg.encoding), stats["n"])
+        rr.log("perf/ingest_ms", rr.Scalars(dt))   # per-frame "how fast", live
         stats["n"] += 1
         stats["ingest_ms"].append(dt)
         if stats["n"] % 25 == 0:
@@ -133,8 +132,7 @@ def main():
     ms_sorted = sorted(ms)
     print("\nSUMMARY frames=%d ingest_avg_ms=%.3f ingest_p50_ms=%.3f ingest_max_ms=%.3f"
           % (stats["n"], sum(ms) / len(ms), ms_sorted[len(ms_sorted) // 2], max(ms)))
-    if rrd:
-        print("Rerun recording saved: %s  (open with: rerun %s)" % (rrd, rrd))
+    vision_viz.announce(session)
 
 
 if __name__ == "__main__":
