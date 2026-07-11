@@ -9,6 +9,8 @@ optional and each pulls its own C++ dependency, so nothing here is imported by
     from rclcppyy.kits import bt_kit
 
 Available kits:
-    bt_kit  -- BehaviorTree.CPP v4 (requires ros-jazzy-behaviortree-cpp).
-    pcl_kit -- Point Cloud Library (requires pcl + ros-jazzy-pcl-conversions).
+    bt_kit     -- BehaviorTree.CPP v4 (requires ros-jazzy-behaviortree-cpp).
+    pcl_kit    -- Point Cloud Library (requires pcl + ros-jazzy-pcl-conversions).
+    ompl_kit   -- Open Motion Planning Library (requires ros-jazzy-ompl).
+    moveit_kit -- MoveIt 2 C++ API (requires ros-jazzy-moveit + panda config).
 """
