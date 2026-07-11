@@ -467,6 +467,21 @@ mechanically, not by discipline.
   each TU must emit its own init). A dependency won't fix that; Python
   binding is the honest batch-step choice. test-vision now 22.
 
+- **M3: slimmed onto the cppyy_kit suite (2026-07-12, 05717d4):** rclcppyy is
+  now the accelerator PRODUCT at 0.2.0 — deprecation shims over rclcpp_kit
+  (silent for bringup since the product imports it internally; warning for
+  the moved submodules; clear conda-package hints for the kit shims), the
+  core 16-test suite green against the shims + 10 shim smokes (26 total),
+  bench parity (~963 Hz, 0 dropped — indistinguishable). Recipe 0.2.0 with
+  real conda deps validated locally. Dev/CI wiring: PYTHONPATH bridge to a
+  cppyy_kit checkout (a committed file:// channel would break CI portability
+  — right call). RELEASING.md documents the choreography: (1) Sam authorizes
+  prefix.dev for awesomebytes/cppyy_kit, (2) tag suite v0.1.0, (3) swap
+  bridge → awesomebytes channel here, (4) tag v0.2.0. The kit-suite work now
+  lives in github.com/awesomebytes/cppyy_kit (docs:
+  https://awesomebytes.github.io/cppyy_kit/); this repo's PLAN is historical
+  for the kit era — the active ledger is the suite repo's PLAN.md.
+
 ## Risks & mitigations
 
 - **conda-forge cppyy behaves differently from the pip wheel** (cling resource
