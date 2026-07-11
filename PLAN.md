@@ -343,9 +343,14 @@ mechanically, not by discipline.
   1.8 ns) — invisible at 136 calls, ~0.35 s at 1M; the lowering story (6-line
   cppdef checker) is the in-script answer. Bringup ~538 ms (cheapest kit).
   callback() dogfood found a real gap: class-typed hints infer `T&` but OMPL
-  needs `const T*` — succeeds silently, fails at the setter (follow-up
-  queued). Demos incl. nav_msgs/Path publishing via rclcppyy. Docs mirror
-  the structure (`docs/ompl_kit/`).
+  needs `const T*` — succeeds silently, fails at the setter. **Fixed
+  (88c6165):** verbatim C++ type strings as annotations
+  (`s: "const ompl::base::State*"`) + a one-time warning on bare class-hint
+  reference inference; regression-tested. COMMON_PATTERNS gained §16–18
+  (cross-inheritance mechanics, shared_ptr/RTTI, reserved-word methods);
+  README Kits section now lists all three kits (63b0535). Demos incl.
+  nav_msgs/Path publishing via rclcppyy. Docs mirror the structure
+  (`docs/ompl_kit/`).
 
 ## Risks & mitigations
 
