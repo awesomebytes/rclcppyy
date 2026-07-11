@@ -413,6 +413,23 @@ mechanically, not by discipline.
   as the env's CPU OpenCV — CUDA libs must be FIRST on LD_LIBRARY_PATH,
   never both loaded. `docs/vision/CUDA_OPENCV.md`.
 
+- **Vision loop-closure tutorial (2026-07-11, GO; 10 commits, merged 08868d8):**
+  the capstone — ORB-SLAM2's place-recognition front-end as short Python:
+  zero-copy image ingest (cv::Mat aliases the C++ msg buffer,
+  pointer-identity-tested — first zero-copy-IN across the kits; 1080p ingest
+  ~155× vs rclpy copy), C++ cv::ORB (~270 fps), DBoW2 built from source
+  (5 files, no CMake; ORB-SLAM2-style binary vocab cache: real 145 MB
+  ORBvoc → 971k words in 2.3 s, binary reload 0.37 s), temporally-gated
+  loop detection — synthetic: 19 loops, P=1.00/R=0.95, GOLDEN TEST green,
+  no download; TUM fr3_long_office (1.48 GB tooling-downloaded): the genuine
+  revisit detected (frame ~2207 → ~78). M4: GTSAM pose-graph correction,
+  drift 2.19 → 0.14 m (~15×) — via gtsam's Python binding (cppyy gtsam
+  BLOCKED on missing boost headers; sound fallback, batch step not hot loop).
+  Reusable dataset tooling: synthetic generator + TUM/ORBvoc downloaders +
+  dataset_publisher node. Headline doc: `docs/tutorials/vision_loop_closure.md`.
+  CUDA path documented via the Esri prebuilt (~5.3× ORB). Post-merge fix:
+  stale vendored DBoW2 rebuilt (14/14 green).
+
 ## Risks & mitigations
 
 - **conda-forge cppyy behaves differently from the pip wheel** (cling resource
