@@ -100,6 +100,38 @@ no `LD_LIBRARY_PATH` or activation setup required. Message packages you publish
 or subscribe (e.g. `ros-jazzy-std-msgs`) are separate dependencies, as in any
 ROS 2 project.
 
+## Kits
+
+Beyond `rclcpp` itself, this repo uses the same `cppyy` approach to drive other
+C++ robotics libraries from Python: a "kit" is a thin layer that mirrors the
+library's own API and hides only the `cppyy` friction (bringup, lifetime,
+crossing callbacks, teardown), rather than inventing a new one. Two kits exist
+today: [BehaviorTree.CPP](https://www.behaviortree.dev/) (no other Python
+binding of it exists) and [PCL](https://pointclouds.org/). The patterns common
+to both live in [`rclcppyy/kits/cppyy_kit.py`](rclcppyy/kits/cppyy_kit.py).
+
+Measured results:
+
+| What | Number |
+|---|---|
+| BT.CPP official tutorials in Python | 16–24 lines, XML verbatim |
+| BT tree tick rate (Python leaves) | ~630k ticks/s |
+| PCL pipeline vs rclpy+NumPy (100k pts @ 10 Hz) | 14.8× lower latency, 9.4× less CPU, same LOC |
+| L1 "freeze" (Cling PCH) header parse | 890 ms → 6 ms (~140×); rclcpp: 1.71 s → 6 ms |
+| L2 lowering (Python leaf → native `.so`) | ~2.8× tick rate, identical output |
+
+Quick run:
+
+```bash
+pixi install -e bt && pixi run -e bt demo-bt-t01
+pixi run -e bt demo-bt-t03
+pixi run -e pcl bench-pcl
+```
+
+More detail: [docs/kits/COMMON_PATTERNS.md](docs/kits/COMMON_PATTERNS.md),
+[docs/kits/FREEZE.md](docs/kits/FREEZE.md), [docs/bt_kit/WHY.md](docs/bt_kit/WHY.md),
+[docs/pcl_kit/WHY.md](docs/pcl_kit/WHY.md).
+
 ## Setup
 
 The workspace is a self-contained [pixi](https://pixi.sh) project: the manifest
