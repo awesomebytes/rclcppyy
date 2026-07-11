@@ -131,6 +131,20 @@ all container/buffer work inside a `cppyy.cppdef` helper.
 - **pcl:** NumPy↔cloud copies are a `cppdef` helper taking `reinterpret_cast`-able
   integer addresses (`arr.ctypes.data` as `uintptr_t`) and doing the
   `memcpy`/strided copy in C++ — a per-element Python loop is ~90x slower.
+- **nav2 (3rd instance):** the `unsigned char*` costmap buffer, same recipe
+  (address as `uintptr_t`, `memcpy` in `cppdef`), ~600–3600× a Python loop.
+  Output-by-pointer-array (NavFn's `getPathX()/getPathY()` `float*` + length) is
+  the same "keep it in C++": one helper that `memcpy`s the outputs, not marshalling
+  C arrays across the boundary.
+- **Copy-in vs alias-in (vision).** The above all *own* storage, so one copy in is
+  unavoidable. When the C++ type can **alias** an external buffer it is genuinely
+  **zero-copy**: `cv::Mat(rows, cols, type, void* data, step)` wraps a ROS
+  `Image` buffer pointer-identically. Still a `cppdef` helper (cppyy rejects a Python
+  int as `void*`; pass `uintptr_t`), and you **must keep the source buffer alive**
+  for the Mat's lifetime (a lifetime guard, not a copy). Distinguish "buffer you can
+  alias" (zero-copy) from "storage you must own" (one copy).
+- **`std::make_shared<T>()` can be flaky from Python** (overload-cache sensitivity,
+  seen in control_kit) — build the object in a small C++ factory helper instead.
 
 ### 7. On-demand templates: include the `impl` headers
 A precompiled `.so` only carries the specializations its authors compiled. To let
@@ -142,6 +156,11 @@ and cppyy — **any** type works on demand.
 - **bt:** template **member** calls work directly — `node.getInput[T](key)` from
   Python; unwrap the returned `Expected<T>` with `has_value()`/`value()`
   (`cppyy_kit.unwrap_expected`).
+- **vision:** a **dependent-type** template member (a templated member accessed on a
+  value whose type depends on a template parameter, inside a patched header) needs
+  the explicit `.template` disambiguator — `obj.member.template ptr<T>()` — the
+  clang two-phase-lookup requirement; not needed when the same call is on a concrete
+  type.
 
 ### 8. Call C++ function templates directly; let cppyy deduce
 When a template argument can be deduced from a runtime argument, call the function
@@ -156,10 +175,23 @@ during transaction revert** (no Python traceback).
 - **pcl:** a trailing type-attribute (`struct { ... } EIGEN_ALIGN16;`) parse-errors
   — use a prefix form (`struct alignas(16) X`). Custom point types must be declared
   that way.
+- **A failed `cppyy.include` contaminates the interpreter too, not just `cppdef`
+  (nav2).** When one header failed mid-parse (a missing transitive dep), the *next,
+  unrelated* `cppyy.include` in the same process failed spuriously — though it
+  includes cleanly in a fresh process. So probe a **risky include** (heavy/uncertain
+  transitive deps) out-of-process, exactly as for `cppdef`.
+- **`generate_parameter_library` headers SIGSEGV the Cling parser (moveit).** Any
+  `*_parameters.hpp` (fmt + rsl + validators) crashes on include — and modern ROS 2
+  packages all generate one. Never `cppyy.include` it; find the *clean* base header
+  and load the class/plugin directly. (ros2_control's headers happen to be
+  Cling-clean — this wall is per-package, so probe.)
 - **Mitigation:** probe risky glue out-of-process first —
   `cppyy_kit.probe_cppdef(code, include_paths=, headers=, libraries=)` compiles it
   in a throwaway subprocess and returns `(ok, message)` without risking the main
-  interpreter.
+  interpreter. Pass it the **full ament include-path set** (every package's include
+  dir, via `get_packages_with_prefixes`), not just the target library's — else a
+  header that transitively pulls the ROS message tree fails on a missing transitive
+  header (a false negative).
 
 ### 10. Error ergonomics: strip the signature wall
 cppyy prefixes a C++ exception with the mangled call signature and ` => `. Split
@@ -168,10 +200,22 @@ kit exception (`cppyy_kit.pretty_cpp_error`, `CppyyKitError`).
 - **bt:** `BtXmlError` turns the `createTreeFromText(...) =>` wall into
   `RuntimeError: Error at line 4: -> Node not recognized: Nope`.
 
-### 11. Enums compare equal to ints
+### 11. Values that don't cross as ints: enums, `unsigned char`, macros
 C++ enums behave like their int values across the boundary
 (`BT.NodeStatus.SUCCESS == 2`). Expose plain-int constants for convenience while
 keeping the real enum available (`bt_kit.SUCCESS` and `bt.NodeStatus.SUCCESS`).
+But three neighbours are silent traps:
+- **`unsigned char` (and `uint8_t`-backed `enum class`) crosses as a length-1
+  Python `str`, not an int** (nav2, control). `Costmap2D::getCost()` and its
+  `static constexpr unsigned char` cost constants come back as `'\xfe'`, and
+  `'\xfe' == 254` is `False`. Read with `ord(...)`, and expose **plain-int**
+  constants from the kit. (The enum *member* is still an int-able proxy; it's a
+  *returned value / struct-member read* of the uint8 type that becomes a `str`.)
+- **A `using`-alias of an enum resolves to plain Python `int`** (control) — losing
+  the enum-ness. Reference the **real nested enum type** (`Outer::Inner::Enum`), not
+  the alias.
+- **Type-constant `#define` macros are invisible to cppyy** (vision: `CV_8UC1`,
+  `CV_8U`). Re-expose the few you need as real `const int` in a `cppdef` block.
 
 ### 12. Mirror, don't sugar
 Patch/return the library's real classes so methods keep their C++ names (add
@@ -187,6 +231,12 @@ loop, a spin) never contends.
   sleeps / does I/O releases the GIL, so spinning the tree from a background thread
   does not deadlock; a busy-blocking leaf would. Don't expose `ThreadedAction`
   (real C++ worker thread) without explicit GIL handling.
+- **cppyy does NOT release the GIL on a blocking C++ call (control, measured).** So
+  a blocking C++ call cannot be overlapped with Python work by putting it on a
+  *Python* thread — it holds the GIL the whole time. Run it on a **C++** thread
+  instead: a plain-function `std::thread` in a `cppdef` helper (note `std::async`
+  does **not** JIT in Cling — use `std::thread`). control_kit's blocking
+  controller-switch does exactly this.
 
 ### 14. Teardown: release global-state C++ objects before Python finalizes
 A cppyy process ends by running two teardown mechanisms with **no ordering
@@ -270,6 +320,20 @@ class and C++ calls its overrides in a hot loop (RRT\* calls a Python
 Cost here: ~350 ns/override call, 1–3 M dispatches/s — invisible for small problems,
 material when the override dominates (then lower it to C++, the L2 rung).
 
+**Deriving a *framework* base and injecting it (control_kit sharpens this):**
+- **Derive the *compiled* base, never a `cppdef`'d intermediate.** cppyy's override
+  dispatcher fails to resolve return types (`<unknown>`) when the base was itself
+  JIT-defined; subclass the real library class directly.
+- **Inject the instance where C++ stores it by `shared_ptr` via a C++-built no-op-
+  deleter `shared_ptr`.** Assigning a `shared_ptr` that aliases a cross-inherited
+  Python object *from Python* fails (`C++ type cannot be converted to memory`);
+  build the aliasing `shared_ptr` (no-op deleter, so Python keeps ownership — pin
+  the instance) in a `cppdef` helper. This is how control_kit hands a Python
+  `ControllerInterface` subclass to the real `controller_manager`.
+- **Reach protected base members through a same-layout accessor** — a
+  `struct : Base` that `reinterpret_cast`s and reads them, exposed as free
+  functions — since cppyy can't touch `protected` across the boundary.
+
 ### 17. `shared_ptr` ownership + RTTI downcast (two cppyy conveniences)
 - **(a) Wrapping a raw pointer in the library's `shared_ptr` transfers ownership.**
   Constructing a `SomethingPtr(raw)` from a cppyy-owned raw object flips the raw's
@@ -280,14 +344,60 @@ material when the override dominates (then lower it to C++, the L2 rung).
 - **(b) Pointer arguments are auto-downcast by RTTI.** cppyy presents a base-typed
   pointer argument (a callback's `const State*`) as its **concrete runtime type**,
   so `state[0]` / `state[1]` work without an explicit downcast. You rarely need a
-  cast helper; when you do (a stored base pointer), `obj.as[T]()` — see Pattern 18.
+  cast helper; when you do (a stored base pointer), use `getattr(obj, "as")[T]()`
+  (Pattern 18).
+- **(c) cppyy dereferences a `shared_ptr` to bind a `const T&` parameter** (moveit:
+  `srdf::Model::initString` took a `ModelInterfaceSharedPtr` directly) — smart-
+  pointer forwarding is reliable for reference params, not just member access.
+- **(d) Eigen block/coeff assignment does NOT cross** (moveit: `iso.translation()[i]
+  = v` → "object does not support item assignment"). Build Eigen objects in a
+  `cppdef` helper (assemble the whole vector/matrix in C++), not element-by-element
+  from Python. Eigen is everywhere in robotics C++, so this recurs.
 
-### 18. Reserved-word method names: `obj.as[T]()` for C++ `as<T>()`
+### 18. Reserved-word method names: `getattr(obj, "as")[T]()` for C++ `as<T>()`
 The pervasive C++ idiom `obj->as<T>()` is a Python `SyntaxError` (`as` is a
 keyword — even `obj.as` won't parse). The spelling is `getattr(obj, "as")[T]()`
 (fetch the attribute by string, then subscript the template arg). A one-liner, but
 a guaranteed stumble for any library with a method named `as`, `from`, `import`,
 `class`, `global`, … — reach for `getattr` when a C++ name collides with a keyword.
+
+### 19. In-process pluginlib + a parameterized node (the ROS 2 plugin/param bootstrap)
+Modern ROS 2 stacks load their algorithms as pluginlib plugins configured by node
+parameters. Both work in-process (moveit_kit proved it; control_kit reuses it):
+- **pluginlib:** `load_library("libclass_loader.so")` + **the plugin base-class
+  library** (for its typeinfo), construct `pluginlib::ClassLoader<Base>(pkg,
+  "Base::type")` in a `cppdef`, then `createUniqueInstance(lookup_name)` — pluginlib
+  `dlopen`s the plugin `.so` itself via the ament index (do **not** cppyy-load the
+  plugin). The "add the library named in the JIT link error" loop resolves the rest.
+- **parameterized node:** `NodeOptions().automatically_declare_parameters_from_overrides(true)
+  .parameter_overrides(vec)` + `make_shared<rclcpp::Node>(name, options)`, fed by a
+  **YAML → dotted-`rclcpp::Parameter` flattener** (nested dict → dotted names,
+  homogeneous lists → typed arrays) — the reusable primitive.
+- **Teardown (Pattern 14, sharpened):** a pluginlib instance/loader must be
+  `reset()` before Cling teardown or the process cores at exit — `register_teardown`
+  it. The `class_loader` "will NOT be unloaded" warning is benign/expected.
+
+### 20. Kit-authoring triage: is the C++ core drivable, and when to fall back
+Before investing in a kit, a couple of one-line greps tell you what's separable:
+- **Lifecycle coupling (nav2).** Grep the class's ctor / `configure` signatures: if
+  it takes plain data it's drivable; if it takes a `LifecycleNode` / `*ROS` wrapper /
+  a pluginlib base, it needs the server (out of scope for a "drive the core" road, or
+  use the pluginlib bootstrap §19). `nm -DC` / a header grep up front beats
+  discovering it after the JIT investment.
+- **Missing transitive headers (vision/gtsam).** A header-heavy library can be
+  **un-JIT-able** if a transitive include is absent from the env (gtsam →
+  `boost/optional.hpp`). Grep the target's transitive includes for env-absent deps
+  first. When blocked *and* the work is **batch** (not a hot loop), the library's own
+  **Python binding is a legitimate fallback** for that step — cppyy is not the only
+  tool, and a kit can mix (drive the hot C++ path via cppyy, use the binding for a
+  one-shot batch step).
+
+### 21. Vendored-source direct-compile (when there's no package)
+For a small, well-understood subset of a library that ships no conda package
+(DBoW2), clone it + apply a **documented, marker-guarded in-place patch** + compile
+with a direct `$CXX` invocation into a `.so` — this beats fighting the library's
+CMake/ExternalProject. It generalizes the L2 lowering recipe (`build_l2_node` →
+`build_dbow2`): a reproducible build script, artifact gitignored, env-version tagged.
 
 ---
 
