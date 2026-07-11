@@ -229,7 +229,20 @@ ros-jazzy-ros2-control = "*"      # controller_manager, hardware/controller inte
 ros-jazzy-ros2-controllers = "*"  # standard C++ controllers (baselines) + mock usage
 
 [feature.control.tasks]
-# control_kit tasks are added by the control_kit spike.
+# Stages 1-2: a real controller_manager in-process with mock hardware, and a stock C++
+# controller (forward_command_controller) loaded/configured/activated + command flow.
+demo-control-rig = "python scripts/control_kit_demos/d01_mock_rig.py"
+# THE SHOWCASE (Stage 3): a PD controller written in Python, cross-inherited from the
+# real controller_interface::ControllerInterface, injected into the in-process CM and
+# driven by the real read/update/write loop -- no plugin xml, no CMake, no .so.
+demo-control-python = "python scripts/control_kit_demos/d02_python_controller.py"
+# Stage 4: update-loop rate/jitter/missed-deadline numbers, Python controller vs the
+# stock C++ baseline under the same rig, at 100 Hz and 1 kHz.
+bench-control = "python scripts/control_kit_demos/bench_control_loop.py"
+# Run the control_kit test suite in the control env (ros2_control present). Auto-skips
+# under the default `pixi run test`, which has no ros2_control. (The common cppyy_kit
+# layer this kit builds on is covered by `pixi run -e bt test-bt`.)
+test-control = "pytest test/test_control_kit.py -v"
 
 [environments]
 # solve-group = "default" pins every shared package to the exact same version as
