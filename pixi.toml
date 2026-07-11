@@ -175,10 +175,45 @@ bench-ompl = "python scripts/ompl_kit_demos/bench_ompl_validity.py"
 # kit builds on is covered by `pixi run -e bt test-bt`.)
 test-ompl = "pytest test/test_ompl_kit.py -v"
 
+# Optional "nav2" feature/environment: Nav2 algorithm cores for the nav2_kit
+# cppyy spike (compose a nav stack from Python). Same opt-in pattern as bt/pcl/ompl.
+[feature.nav2.dependencies]
+ros-jazzy-nav2-costmap-2d = "*"                        # Costmap2D core classes
+ros-jazzy-nav2-navfn-planner = "*"                     # NavFn planner core
+ros-jazzy-nav2-smac-planner = "*"                      # Smac/Hybrid-A* planners
+ros-jazzy-nav2-regulated-pure-pursuit-controller = "*" # RPP controller
+ros-jazzy-nav2-msgs = "*"                              # nav2 message types
+
+[feature.nav2.tasks]
+# nav2_kit tasks are added by the nav2_kit spike.
+
+# Optional "moveit" feature/environment: MoveIt 2 for the moveit_kit cppyy spike
+# (full moveit_cpp API from Python; moveit_py included as the contrast subset).
+[feature.moveit.dependencies]
+ros-jazzy-moveit = "*"                                 # MoveIt 2 metapackage
+ros-jazzy-moveit-resources-panda-moveit-config = "*"   # Panda test model (URDF/SRDF/configs)
+ros-jazzy-moveit-py = "*"                              # official Python subset (contrast)
+
+[feature.moveit.tasks]
+# moveit_kit tasks are added by the moveit_kit spike.
+
+# Optional "control" feature/environment: ros2_control for the control_kit spike
+# (Python controller inside the real controller_manager via a pluginlib bridge).
+[feature.control.dependencies]
+ros-jazzy-ros2-control = "*"      # controller_manager, hardware/controller interfaces
+ros-jazzy-ros2-controllers = "*"  # standard C++ controllers (baselines) + mock usage
+
+[feature.control.tasks]
+# control_kit tasks are added by the control_kit spike.
+
 [environments]
 # solve-group = "default" pins every shared package to the exact same version as
 # the default env, so enabling demos never re-resolves the core ROS/cppyy stack.
 demos = { features = ["demos"], solve-group = "default" }
+# Wave-2 kit spike envs, same additive pattern as bt/pcl/ompl.
+nav2 = { features = ["nav2"], solve-group = "default" }
+moveit = { features = ["moveit"], solve-group = "default" }
+control = { features = ["control"], solve-group = "default" }
 # PCL spike env, same additive pattern as bt.
 pcl = { features = ["pcl"], solve-group = "default" }
 # OMPL spike env, same additive pattern as bt/pcl.
