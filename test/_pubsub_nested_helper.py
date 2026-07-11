@@ -9,10 +9,8 @@ would fail to assign the nested Time).
 
 Run as a subprocess (not collected by pytest); prints ``PLAIN_NESTED_OK`` as its
 last line on success. See the sibling test for why this runs in its own
-interpreter and why we exit via os._exit.
+interpreter.
 """
-import os
-import sys
 import time
 
 from rclcppyy.bringup_rclcpp import bringup_rclcpp
@@ -73,11 +71,9 @@ def main():
     assert received == expected, f"nested payload mismatch: {received!r} != {expected!r}"
 
     print("PLAIN_NESTED_OK", flush=True)
-    sys.stdout.flush()
-    sys.stderr.flush()
-    # See _pubsub_plain_helper.py: exit hard to keep the return code deterministic
-    # past cppyy/rclcpp's noisy static-destructor shutdown.
-    os._exit(0)
+    # A normal return exits cleanly (see _pubsub_plain_helper.py): rclcppyy's
+    # ordered teardown brings the rclcpp context down before interpreter
+    # finalization, so the return code is deterministic without os._exit.
 
 
 if __name__ == "__main__":

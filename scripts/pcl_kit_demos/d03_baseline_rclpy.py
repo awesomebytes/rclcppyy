@@ -20,7 +20,6 @@ Run: python scripts/pcl_kit_demos/d03_baseline_rclpy.py   (or via bench-pcl)
 """
 import argparse
 import os
-import sys
 import time
 
 import numpy as np
@@ -114,8 +113,8 @@ def main():
     thru = stats["frames"] / args.duration
     print(f"SUMMARY frames={stats['frames']} rate_hz={args.rate} thru_msgs_s={thru:.1f} "
           f"avg_lat_ms={avg:.3f} p99_lat_ms={p99:.3f}", flush=True)
-    sys.stdout.flush()
-    os._exit(0)
+    # Plain rclpy + NumPy: a normal return exits cleanly (this baseline never
+    # needed the os._exit dodge the C++/cppyy demos carried).
 
 
 if __name__ == "__main__":

@@ -103,10 +103,10 @@ def main():
     print(f"Subscriber received {len(received)}/{N_CYCLES} ROS messages: {received}")
     ok = received == [f"status {i + 1}" for i in range(N_CYCLES)]
     print("RESULT:", "OK" if ok else "FAIL")
-    sys.stdout.flush()
-    # rclcpp/cppyy static destructors can segfault at shutdown; work is done, so
-    # exit hard for a deterministic return code (matches the repo's test helpers).
-    os._exit(0 if ok else 1)
+    # A normal exit is clean: rclcppyy registers an ordered teardown that brings
+    # the rclcpp context down before interpreter finalization, so no os._exit
+    # dodge is needed. The exit code still reflects success/failure.
+    sys.exit(0 if ok else 1)
 
 
 if __name__ == "__main__":

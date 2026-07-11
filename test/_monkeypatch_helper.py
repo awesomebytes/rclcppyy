@@ -11,8 +11,6 @@ Prints one marker per checkpoint and ``MONKEYPATCH_ALL_OK`` last on success:
   MSG_REDIRECT_OK  - an imported message class is now the cppyy C++ type
   ROUNDTRIP_OK     - pub/sub roundtrip through the patched rclpy API
 """
-import os
-import sys
 import time
 
 import rclcppyy
@@ -75,10 +73,9 @@ def main():
     print("ROUNDTRIP_OK", flush=True)
 
     print("MONKEYPATCH_ALL_OK", flush=True)
-    sys.stdout.flush()
-    sys.stderr.flush()
-    # See _pubsub_plain_helper.py: hard-exit to dodge the shutdown segfault wart.
-    os._exit(0)
+    # A normal return exits cleanly (see _pubsub_plain_helper.py): rclcppyy's
+    # ordered teardown brings the rclcpp context down before interpreter
+    # finalization, so the return code is deterministic without os._exit.
 
 
 if __name__ == "__main__":

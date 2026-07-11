@@ -20,7 +20,6 @@ Run: pixi run -e pcl demo-pcl-pipeline
 """
 import argparse
 import os
-import sys
 import time
 
 import numpy as np
@@ -115,10 +114,9 @@ def main():
     thru = stats["frames"] / args.duration
     print(f"SUMMARY frames={stats['frames']} rate_hz={args.rate} thru_msgs_s={thru:.1f} "
           f"avg_lat_ms={avg:.3f} p99_lat_ms={p99:.3f}", flush=True)
-    sys.stdout.flush()
-    # rclcpp/cppyy static destructors can segfault at shutdown; exit hard for a
-    # deterministic return code (matches the repo's other live-node demos).
-    os._exit(0)
+    # A normal return is clean: rclcppyy registers an ordered teardown that
+    # brings the rclcpp context / DDS layer down before interpreter finalization,
+    # so no os._exit dodge is needed.
 
 
 if __name__ == "__main__":
