@@ -430,6 +430,14 @@ mechanically, not by discipline.
   CUDA path documented via the Esri prebuilt (~5.3× ORB). Post-merge fix:
   stale vendored DBoW2 rebuilt (14/14 green).
 
+- **Final consolidation (2026-07-11, 9d67b28/f243f68):** all wave-2 + vision
+  lessons folded into COMMON_PATTERNS.md (§6/7/9/11/13/16/17 extended, §19
+  in-process pluginlib + parameterized-node bootstrap, §20 kit-authoring
+  triage, §21 vendored-source direct-compile); README Kits section now tells
+  the full six-kits + vision-tutorial story with per-kit results and
+  quick-run lines. **Kit scoreboard: 7 spikes, 7 GOs** (bt, pcl, ompl, nav2,
+  moveit, control, vision capstone), each with honest boundaries.
+
 ## Risks & mitigations
 
 - **conda-forge cppyy behaves differently from the pip wheel** (cling resource
