@@ -384,6 +384,22 @@ mechanically, not by discipline.
   teardown. Honest gaps: planning only, no time parameterization (adapters
   skipped), ~3.5 s parse bringup (heaviest kit). Docs: `docs/moveit_kit/`.
 
+- **control_kit spike (2026-07-11, GO; 60fffc5, merged 697ab31):** the
+  exposure-note's ⚠️ UNPROVEN item is PROVEN — a Python class deriving the
+  real `controller_interface::ControllerInterface` runs inside a real
+  in-process `controller_manager`, driven by the real read→update→write loop
+  against mock hardware. Route A (cross-inheritance + `add_controller`
+  injection via a C++-built no-op-deleter shared_ptr) shipped — no compiled
+  bridge .so needed; Route B documented as the spawner-by-name fallback +
+  L2 graduation path. Numbers: update dispatch 2.57 µs (vs 0.85 µs C++);
+  100 Hz rock-solid (0 late/800); 1 kHz achieved with occasional
+  GC-pause deadline misses (max 3.5 ms) → honest verdict: prototyping /
+  soft-RT, not hard-RT (GC/GIL pauses, not per-call cost). Key env finding:
+  ros2_control does NOT hit MoveIt's generate_parameter_library Cling wall —
+  controller_manager.hpp parses cleanly; the full CM is directly reachable.
+  Nav2 plugin injection would reuse this pattern verbatim where an
+  add/inject API exists. Docs: `docs/control_kit/`.
+
 ## Risks & mitigations
 
 - **conda-forge cppyy behaves differently from the pip wheel** (cling resource
