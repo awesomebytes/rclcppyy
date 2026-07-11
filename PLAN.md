@@ -366,6 +366,24 @@ mechanically, not by discipline.
   couldn't write REPORT.md (harness quirk) — supervisor committed it from
   delivered content. Docs: `docs/nav2_kit/`.
 
+- **moveit_kit spike (2026-07-11, GO; 0b195f6, merged 5de306f):** the full
+  MoveIt 2.12 C++ stack from Python — all four rungs: RobotModel+FK (no node),
+  KDL IK via in-process pluginlib, PlanningScene+FCL collision (~129k
+  checks/s — dead heat with moveit_py: full API at the subset's speed), and
+  the REAL OMPL PlannerManager loaded via pluginlib with 111 params flattened
+  from ompl_planning.yaml (RRTConnect pose/joint goals solved; showcase
+  publishes DisplayTrajectory, verified). **Contrast verified:** moveit_py's
+  set_from_ik has no validity-callback slot (returns in-collision IK
+  silently); ours accepts a Python callback the KDL solver invoked 70–122×
+  per solve. **Key mechanics for control_kit:** generate_parameter_library
+  headers SIGSEGV Cling — never include convenience headers, load plugins
+  yourself via pluginlib::ClassLoader against clean base headers; load
+  libclass_loader.so + the base-class lib (typeinfo), NOT the plugin .so;
+  parameterized nodes via NodeOptions.parameter_overrides + a YAML flattener;
+  plugin/loader statics MUST be reset via register_teardown before Cling
+  teardown. Honest gaps: planning only, no time parameterization (adapters
+  skipped), ~3.5 s parse bringup (heaviest kit). Docs: `docs/moveit_kit/`.
+
 ## Risks & mitigations
 
 - **conda-forge cppyy behaves differently from the pip wheel** (cling resource
