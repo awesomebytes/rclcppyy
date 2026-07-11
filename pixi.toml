@@ -258,11 +258,22 @@ test-vision = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python -m pytest 
 dataset-synthetic = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/datasets/dataset_publisher.py --synthetic"
 # Download + verify the real TUM RGB-D loop-closure sequence into data/ (gitignored).
 dataset-tum = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/datasets/download_tum_rgbd.py"
+# Download the real ORB vocabulary (ORBvoc.txt, ~145 MB) for the real-data path.
+dataset-orbvoc = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/datasets/download_orbvoc.py"
+# Train a small DBoW2 vocabulary on a sequence (default: synthetic -> a .dbow2).
+vocab-train = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/vision/train_vocab.py"
 # M1 SPINE: rclcppyy subscription (C++ msg) -> cv_kit.msg_to_mat (zero-copy) -> Rerun
 # Image + Pinhole. Headless by default (.rrd); RCLCPPYY_RERUN_SPAWN=1 for live viewer.
 demo-vision-spine = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/vision/demo_spine.py"
 # M2 FEATURES: C++ cv::ORB per frame, keypoints overlaid as a Rerun Points2D.
 demo-vision-features = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/vision/demo_features.py"
+# M3 LOOP CLOSURE (the heart): ORB -> DBoW2 place recognition -> temporal gate.
+# Default vocab is trained on the sequence (zero download); --vocab data/ORBvoc.txt
+# for the real vocabulary, --tum DIR for the real sequence.
+demo-vision-loop = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/vision/demo_loop.py"
+# M4 STRETCH: GTSAM pose-graph correction of a drifting trajectory using the
+# confirmed loop closures; before/after trajectories logged to Rerun.
+demo-vision-posegraph = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/vision/demo_posegraph.py"
 
 [environments]
 # solve-group = "default" pins every shared package to the exact same version as
