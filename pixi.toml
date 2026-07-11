@@ -161,7 +161,19 @@ ros-jazzy-ompl = "*" # OMPL headers + libompl.so (brings its mutex-pinned boost)
 eigen = "*"          # OMPL dependency (eigen3 headers)
 
 [feature.ompl.tasks]
-# ompl_kit tasks are added by the ompl_kit spike.
+# OMPL's first geometric-planning tutorial (2D plan around a circular obstacle,
+# Python validity checker) written in short Python via ompl_kit.
+demo-ompl-plan = "python scripts/ompl_kit_demos/d01_first_plan.py"
+# Plan a 2D path, then publish it as a nav_msgs/Path on a ROS 2 topic (rclcppyy).
+demo-ompl-path = "python scripts/ompl_kit_demos/d02_publish_path.py"
+# The honest hot-loop bench: same plan, three validity-checker variants
+# (Python via callback / Python subclass / native JIT'd C++). solve time +
+# ns-per-call + calls/sec each.
+bench-ompl = "python scripts/ompl_kit_demos/bench_ompl_validity.py"
+# Run the ompl_kit test suite in the ompl env (OMPL present). It auto-skips under
+# the default `pixi run test`, which has no OMPL. (The common cppyy_kit layer this
+# kit builds on is covered by `pixi run -e bt test-bt`.)
+test-ompl = "pytest test/test_ompl_kit.py -v"
 
 [environments]
 # solve-group = "default" pins every shared package to the exact same version as
