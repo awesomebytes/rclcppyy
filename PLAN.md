@@ -452,6 +452,21 @@ mechanically, not by discipline.
   classes or cppdef wrappers. 8 new tests in the DEFAULT suite (now 16).
   `pixi run bench-tf` reproduces the table. Docs: `docs/tf/REPORT.md`.
 
+- **Vision v2 (2026-07-11, 017414a/a33c1f6, merged):** (1) **Live Rerun is
+  now the interactive default** — demos open the viewer and stream (verified
+  for real on X11: window opened, entities streamed, killed cleanly);
+  posegraph reworked to a timeline: red drift spirals off green ground truth,
+  yellow loop edges snap in, blue corrected trajectory snaps back (error
+  ~15× drop visible); per-frame processing-time plots everywhere; headless
+  .rrd only under pytest/no-display/RCLCPPYY_RERUN_SPAWN=0. Env finding: the
+  `rerun` console script is a broken shim in this env — the helper spawns the
+  native rerun_cli binary. (2) **gtsam-via-cppyy: layered blocker, kept the
+  Python binding.** boost gone (libboost-headers) → tbb headers missing (env
+  gap) → REAL wall: Cling's ORC JIT cannot materialize gtsam's
+  internal-linkage static initializers (DefaultKeyFormatter, not exported —
+  each TU must emit its own init). A dependency won't fix that; Python
+  binding is the honest batch-step choice. test-vision now 22.
+
 ## Risks & mitigations
 
 - **conda-forge cppyy behaves differently from the pip wheel** (cling resource
