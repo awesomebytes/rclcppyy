@@ -258,6 +258,42 @@ gtsam = "*"       # pose-graph optimization (stretch milestone)
 [feature.vision.tasks]
 # vision tutorial tasks are added by the vision spike.
 
+# Optional "cudabuild" feature/environment: provisions & validates a CUDA-enabled
+# OpenCV (cv::cuda::ORB / cudafeatures2d) for the vision tutorial's GPU path.
+#
+# Job-1 verdict (docs/vision/CUDA_OPENCV.md): conda-forge ships NO CUDA OpenCV --
+# its opencv-feedstock build.sh sets -DWITH_CUDA=0 -DWITH_CUBLAS=0, there is no
+# cuda variant key, and 0 of 6357 conda-forge libopencv builds carry a cuda tag
+# (verified via the anaconda.org API). BUT a trustworthy prebuilt DOES exist: the
+# public, Apache-2.0 Esri channel's libopencv 4.13.0 'cuda129_py313_4' (linux-64)
+# -- the SAME OpenCV version as feature.vision's opencv 4.13.0, built against CUDA
+# 12.9 (Blackwell-capable) and validated end-to-end on an RTX PRO 2000 (sm_120).
+#
+# We do NOT install that package directly (its gstreamer/ffmpeg/hdf5 deps don't
+# co-solve with current conda-forge, and cv::cuda::ORB needs none of them):
+# scripts/vision/build_opencv_cuda.py extracts its C++ .so's + headers into
+# build/vendor/opencv-cuda/ (gitignored). This env supplies ONLY the CUDA 12.9
+# runtime those libs link against, plus a compiler for the validation smoke test.
+#   pixi run -e cudabuild provision-cuda-opencv   # download+verify(sha256)+extract
+#   pixi run -e cudabuild validate-cuda-opencv    # C++ cv::cuda::ORB + CPU-vs-CUDA bench
+[feature.cudabuild.dependencies]
+python = "3.12.*"
+cuda-version = "12.9.*"    # match the prebuilt's CUDA (driver 580 supports up to 13.0)
+cuda-cudart = ">=12.9,<13"
+libcublas = ">=12.9,<13"   # libcublas.so.12
+libcufft = "*"             # libcufft.so.11
+libnpp = "*"               # libnppial/icc/idei/if/ig/im/ist/itc.so.12 -- ORB uses several
+libzlib = "*"
+gxx = "*"                  # C++ compiler for the validation smoke test
+zstandard = "*"            # extract the .conda payload (pkg-*.tar.zst)
+
+[feature.cudabuild.tasks]
+# Download the pinned Esri prebuilt, verify its sha256, extract libs+headers into
+# build/vendor/opencv-cuda/ (gitignored).
+provision-cuda-opencv = "python scripts/vision/build_opencv_cuda.py provision"
+# Compile + run the end-to-end cv::cuda::ORB smoke test and CPU-vs-CUDA fps bench.
+validate-cuda-opencv = "python scripts/vision/build_opencv_cuda.py validate"
+
 [environments]
 # solve-group = "default" pins every shared package to the exact same version as
 # the default env, so enabling demos never re-resolves the core ROS/cppyy stack.
@@ -268,6 +304,13 @@ moveit = { features = ["moveit"], solve-group = "default" }
 control = { features = ["control"], solve-group = "default" }
 # Visual loop-closure tutorial env.
 vision = { features = ["vision"], solve-group = "default" }
+# GPU vision: provisions/validates the CUDA OpenCV. Standalone (no-default-feature)
+# -- it only vendors the cuda libs + supplies the CUDA 12.9 runtime & a compiler.
+cudabuild = { features = ["cudabuild"], no-default-feature = true }
+# Integrated GPU vision env: the vision tutorial stack + the CUDA 12.9 runtime in
+# one process, so cv_kit auto-detects cv::cuda once build/vendor/opencv-cuda/lib is
+# first on the library path. See docs/vision/CUDA_OPENCV.md for the exact ordering.
+vision-cuda = { features = ["vision", "cudabuild"], solve-group = "default" }
 # PCL spike env, same additive pattern as bt.
 pcl = { features = ["pcl"], solve-group = "default" }
 # OMPL spike env, same additive pattern as bt/pcl.
