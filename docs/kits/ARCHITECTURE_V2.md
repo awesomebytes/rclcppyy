@@ -198,3 +198,32 @@ Open decisions for Sam: (a) confirm `cppyy_kit` vs `kitforge` as the project
 name; (b) distro-scoping convention `ros-jazzy-<kit>-kit` — recommended for
 resolver hygiene alongside robostack; (c) whether the roscon_uk_2025 archive
 stays in rclcppyy (recommended — it's product history, not suite material).
+
+### 4.4 Kit anatomy (correction, Sam 2026-07-11: kits are a MIX, not pure Python)
+
+§3's "pure-Python packages" was packaging shorthand (no ament/colcon needed) and
+undersells what a kit is. The kit anatomy:
+
+```
+<name>_kit/
+├── <name>_kit/       # Python package — the mirror API + friction glue
+├── cpp/              # optional C++ sources: bridge shims, L2-lowered nodes,
+│                     # vendored-source build scripts, PCH/freeze recipes
+├── SKILL.md          # LLM-facing skill file: when to use this kit, the
+│                     # copy-paste patterns, the gotchas — evolves from
+│                     # today's cheat sheets (BT.CPP_KIT.md etc.) so a coding
+│                     # agent can load one file and use the kit correctly
+├── WHY.md            # the human pitch: side-by-side + what you gain
+├── REPORT.md         # the evidence: probe matrix, benchmarks, gaps
+├── demos/  tests/
+└── recipe/           # rattler-build recipe; MAY compile cpp/ shims at
+                      # package-build time — priming the compile cache so
+                      # users never pay that JIT (composes with §1.1's cache)
+```
+
+Two consequences worth naming: (a) recipes that precompile the kit's C++ glue at
+conda-build time turn the compile cache from a first-run optimization into a
+ships-warm default; (b) SKILL.md per kit + COMMON_PATTERNS.md as the shared
+manual is the LLM-consumption story made first-class — the kit suite becomes
+something an agent can pick up kit-by-kit, which was the design principle from
+day one.
