@@ -266,8 +266,18 @@ mechanically, not by discipline.
   (subscribe → VoxelGrid → publish, 100k pts @10 Hz): pcl_kit 3.85 ms avg /
   6.5 % CPU vs rclpy+NumPy 57.0 ms / 61.3 % CPU — **14.8× lower latency,
   9.4× less CPU, at 76 vs 77 user LOC**. Docs mirror bt_kit
-  (`docs/pcl_kit/`). Next: `cppyy_kit` common-patterns layer reconciled from
-  both kits' generic-lessons sections.
+  (`docs/pcl_kit/`).
+- **cppyy_kit reconciliation (2026-07-11, 06f541c/b4ea0a2/4bc1adb):** common
+  layer `rclcppyy/kits/cppyy_kit.py` (119 code lines: load_libraries,
+  keep_alive, std_function, HandleRegistry, unwrap_expected,
+  pretty_cpp_error, probe_cppdef, package_prefix); both kits refactored onto
+  it behavior-preserving (bench smokes unchanged); cut criterion: recurring
+  cppyy *friction* generalizes, library semantics stay kit-local. Merged
+  13-pattern catalog with evidence from both kits + the Today-vs-L1 AOT
+  finding: `docs/kits/COMMON_PATTERNS.md` (the doc future kit authors and LLM
+  agents read first). 9 new tests; `test-bt` now runs 16.
+  Open next steps: L1 freeze sub-project (Cling C++ module/PCH),
+  third kit (Nav2 bridge-plugin / OMPL / Ceres), README section for kits.
 
 ## Risks & mitigations
 
