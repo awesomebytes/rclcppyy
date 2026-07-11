@@ -20,7 +20,6 @@ import os
 import sys
 import time
 
-import numpy as np
 import rerun as rr
 
 os.environ.setdefault("ROS_DOMAIN_ID", "50")
