@@ -154,12 +154,24 @@ demo-pcl-pipeline = "python scripts/pcl_kit_demos/d02_ros_pipeline.py"
 # per-frame latency, CPU%, derived max throughput, and user LOC in one table.
 bench-pcl = "python scripts/pcl_kit_demos/bench_pcl_pipeline.py"
 
+# Optional "ompl" feature/environment: the Open Motion Planning Library for the
+# ompl_kit cppyy spike. Same opt-in pattern as bt/pcl.
+[feature.ompl.dependencies]
+ros-jazzy-ompl = "*" # OMPL headers + libompl.so
+eigen = "*"          # OMPL dependency
+boost = "*"          # OMPL headers use boost
+
+[feature.ompl.tasks]
+# ompl_kit tasks are added by the ompl_kit spike.
+
 [environments]
 # solve-group = "default" pins every shared package to the exact same version as
 # the default env, so enabling demos never re-resolves the core ROS/cppyy stack.
 demos = { features = ["demos"], solve-group = "default" }
 # PCL spike env, same additive pattern as bt.
 pcl = { features = ["pcl"], solve-group = "default" }
+# OMPL spike env, same additive pattern as bt/pcl.
+ompl = { features = ["ompl"], solve-group = "default" }
 # no-default-feature: the packaging tooling doesn't need the ROS/cppyy stack.
 pkg = { features = ["pkg"], no-default-feature = true }
 # BehaviorTree.CPP spike env. solve-group "default" keeps the shared ROS/cppyy
