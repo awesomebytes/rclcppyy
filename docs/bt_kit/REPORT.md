@@ -72,6 +72,16 @@ Each capability was probed in isolation from the `bt` env against the installed
   C++ (Python only supplies the `std::function` hooks) sidesteps it.
 - Keep-alive is mandatory: unpinned functors → `callable was deleted` at tick
   time. The kit pins them on the factory and carries them to the tree.
+- **Interpreter-exit teardown** (relevant to the mixed-tree demo `t03`, which
+  drives rclcpp from inside a tick): the demo previously hard-exited via
+  `os._exit(0)` to dodge a feared static-destructor segfault at shutdown. A
+  root-cause pass found **no reproducible crash** on the current stack, so the
+  dodge is gone — `t03` now exits on a normal `sys.exit`. rclcppyy registers an
+  **ordered teardown** (`rclcppyy.shutdown_rclcpp` on `cppyy_kit`'s atexit hook)
+  that brings the rclcpp context / DDS layer down before Python finalization. See
+  COMMON_PATTERNS.md §14 for the evidence; `test/test_clean_exit.py` is the
+  tripwire. bt_kit itself holds no process-global C++ state, so it registers no
+  teardown of its own.
 
 ---
 

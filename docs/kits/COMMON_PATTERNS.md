@@ -149,6 +149,38 @@ loop, a spin) never contends.
   does not deadlock; a busy-blocking leaf would. Don't expose `ThreadedAction`
   (real C++ worker thread) without explicit GIL handling.
 
+### 14. Teardown: release global-state C++ objects before Python finalizes
+A cppyy process ends by running two teardown mechanisms with **no ordering
+contract** between them: Python finalization (which drops the last references to
+cppyy-proxied C++ objects, running their destructors) and cppyy's own atexit hook
+(which tears down Cling / the JIT). A C++ object that owns **process-global or
+static state** — an `rclcpp` Context and the DDS participant / background threads
+it owns, a ZMQ-backed BT logger — is the hazard: if its destructor runs after
+Cling is gone (or a DDS thread touches freed state), the process can **SIGSEGV
+with no Python traceback**, *after* all useful work is done.
+- **History / evidence:** rclcppyy scripts long papered over this with
+  `os._exit(0)` right after printing their results — a hard exit skips every
+  destructor, so the return code is deterministic but nothing is actually cleaned
+  up. A root-cause pass on the current stack (cppyy 3.5, ROS Jazzy, cyclonedds
+  *and* fastrtps) could **not reproduce a crash** in ~8 scenarios — plain
+  pub/sub, the bt+rclcpp mixed tree, the pcl+rclcpp pipeline, module-global entity
+  lifetimes, and single/double explicit `rclcpp::shutdown()` — so the dodges were
+  vestigial (present since each file's first commit). The hazard is nonetheless
+  real in principle, so the fix makes teardown **ordered and explicit** instead of
+  relying on the accident that end-of-`main` locals get RAII-released while the
+  interpreter is still healthy.
+- **Fix:** `cppyy_kit.register_teardown(cb)` + `cppyy_kit.shutdown()` — a LIFO,
+  idempotent, best-effort registry, wired to `atexit`. atexit runs after `main`
+  returns but **before** module globals are cleared and before cppyy's
+  (earlier-registered, therefore later-running) Cling teardown — the correct
+  window, with both Python and cppyy still healthy. rclcppyy registers
+  `shutdown_rclcpp()`, a guarded once-only `rclcpp::shutdown()`; the guard also
+  closes the historical **double-`rcl_shutdown`** race (`rclcpp` installs its own
+  SIGINT/SIGTERM handler that can call shutdown a second time). Kits with no
+  process-global C++ state (bt, pcl) register nothing: their objects are
+  per-instance and RAII-released on scope exit, and the JIT'd namespaces are
+  Cling's to tear down. `test/test_clean_exit.py` is the regression tripwire.
+
 ---
 
 ## Today vs L1 ("freeze")

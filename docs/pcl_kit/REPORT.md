@@ -86,6 +86,15 @@ behind each row.
 - **`rclcpp::Time` has no `to_msg()`** (it is the C++ type, not rclpy's) — a stamp
   set via `node.get_clock().now().to_msg()` throws. Set stamps in C++ or leave
   them; d02 does not need them (it measures processing latency).
+- **Interpreter-exit teardown** (the live d02 pipeline drives rclcpp): d02
+  previously hard-exited via `os._exit(0)` to dodge a feared static-destructor
+  segfault at shutdown. A root-cause pass found **no reproducible crash** on the
+  current stack, so the dodge is gone — d02 (and the d03 baseline, which had
+  cargo-culted the same `os._exit`) now return normally. rclcppyy registers an
+  **ordered teardown** (`rclcppyy.shutdown_rclcpp` on `cppyy_kit`'s atexit hook)
+  that brings the rclcpp context / DDS layer down before Python finalization; see
+  COMMON_PATTERNS.md §14 and the `test/test_clean_exit.py` tripwire. pcl_kit holds
+  no process-global C++ state, so it registers no teardown of its own.
 
 ---
 
