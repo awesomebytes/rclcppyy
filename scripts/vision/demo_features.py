@@ -13,6 +13,10 @@ Honest note: cv2.ORB would give similar per-frame numbers -- the win here is not
 detector call, it is *composition*: the frame never leaves C++ between the rclcppyy
 subscription, the Mat, ORB, and (M3) the DBoW2 query.
 
+Rerun is LIVE by default when run interactively (a viewer opens; keypoints update
+on the stream in real time), headless (.rrd) under pytest/CI or no display. Force
+with RCLCPPYY_RERUN_SPAWN=1/0. See scripts/vision/vision_viz.py.
+
     pixi run -e vision demo-vision-features
     RCLCPPYY_RERUN_SPAWN=1 pixi run -e vision demo-vision-features --tum data/<tum-seq>
 """
@@ -28,23 +32,15 @@ os.environ.setdefault("ROS_DOMAIN_ID", "50")
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.join(REPO, "scripts", "datasets"))
+sys.path.insert(0, HERE)
 
 import dataset_publisher as DP  # noqa: E402
+import vision_viz  # noqa: E402
 from rclcppyy.bringup_rclcpp import bringup_rclcpp  # noqa: E402
 from rclcppyy.kits import cv_kit  # noqa: E402
 
 TOPIC = "vision/image"
 FX, FY, CX, CY = 525.0, 525.0, 319.5, 239.5
-
-
-def init_rerun(default_rrd):
-    rr.init("rclcppyy_vision_features")
-    if os.environ.get("RCLCPPYY_RERUN_SPAWN") == "1":
-        rr.spawn()
-        return None
-    os.makedirs(os.path.dirname(default_rrd), exist_ok=True)
-    rr.save(default_rrd)
-    return default_rrd
 
 
 def main():
@@ -59,7 +55,8 @@ def main():
 
     kind = "tum" if args.tum else "folder" if args.folder else "synthetic"
     path = args.tum or args.folder
-    rrd = init_rerun(args.rrd)
+    session = vision_viz.init_rerun("rclcppyy_vision_features", args.rrd,
+                                    blueprint=vision_viz.blueprint_camera_perf("ORB (ms/frame)"))
 
     rclcpp = bringup_rclcpp()
     cv_kit.warmup(args.nfeatures)
@@ -73,6 +70,8 @@ def main():
 
     rr.log("camera", rr.Pinhole(resolution=[640, 480], focal_length=[FX, FY],
                                 principal_point=[CX, CY]), static=True)
+    rr.log("perf/orb_ms", rr.SeriesLines(names=["ORB ms"], colors=[(80, 170, 255)],
+                                         widths=[2.0]), static=True)
 
     stats = {"n": 0, "orb_ms": [], "kps": []}
 
@@ -90,6 +89,7 @@ def main():
         else:
             rr.log("camera/image", rr.Image(arr))
         rr.log("camera/image/keypoints", rr.Points2D(xy, radii=2.0))
+        rr.log("perf/orb_ms", rr.Scalars(stats["orb_ms"][-1]))   # live "how fast"
         stats["kps"].append(int(kps.size()))
         stats["n"] += 1
         if stats["n"] % 25 == 0:
@@ -133,8 +133,7 @@ def main():
     print("\nSUMMARY frames=%d orb_avg_ms=%.2f orb_fps=%.1f avg_keypoints=%.0f backend=%s"
           % (stats["n"], avg_ms, 1000.0 / avg_ms, avg_kps,
              "GPU" if orb.use_cuda else "CPU"))
-    if rrd:
-        print("Rerun recording saved: %s  (open with: rerun %s)" % (rrd, rrd))
+    vision_viz.announce(session)
 
 
 if __name__ == "__main__":
