@@ -107,9 +107,34 @@ demo-bt-t03 = "python scripts/bt_kit_demos/t03_mixed_tree.py"
 # ticks/sec micro-benchmark: C++ JIT leaves vs Python leaves through the kit.
 bench-bt = "python scripts/bt_kit_demos/bench_bt.py"
 # Run the bt_kit + cppyy_kit (common layer) test suites in the bt env
-# (behaviortree_cpp present). Both files auto-skip under the default
-# `pixi run test`, which has no BT.
-test-bt = "pytest test/test_bt_kit.py test/test_cppyy_kit.py -v"
+# (behaviortree_cpp present). All files auto-skip under the default
+# `pixi run test`, which has no BT; test_bt_freeze also skips until the PCH is
+# built (freeze-bt-build).
+test-bt = "pytest test/test_bt_kit.py test/test_cppyy_kit.py test/test_bt_freeze.py -v"
+
+# --- L0->L1 "freeze": build a Cling PCH of the bt headers so bringup skips the
+# ~0.83 s header JIT-parse (see docs/kits/FREEZE.md). ---
+# (Re)build the frozen PCH artifact into the gitignored build/freeze/ dir. Rerun
+# after a cppyy-cling or behaviortree_cpp version change (the filename tags it).
+freeze-bt-build = "python scripts/freeze/build_bt_pch.py"
+# Run any command with the frozen PCH active, e.g.
+# `pixi run -e bt freeze-bt-run scripts/bt_kit_demos/t01_first_tree.py`.
+freeze-bt-run = "python scripts/freeze/run_frozen.py"
+# L0 (JIT) vs L1 (frozen) bringup numbers: staged wall time, time-to-first-tick,
+# total t01 runtime; median over cold subprocess samples.
+freeze-bench = "python scripts/freeze/bench_freeze.py"
+# The SAME 16 tests as test-bt, but on the frozen path (parse eliminated).
+test-bt-frozen = "python scripts/freeze/run_frozen.py -m pytest test/test_bt_kit.py test/test_cppyy_kit.py -v"
+# t01 first tree on the frozen path (fast bringup).
+demo-bt-t01-frozen = "python scripts/freeze/run_frozen.py scripts/bt_kit_demos/t01_first_tree.py"
+
+# --- L2 lowering: t01's ApproachObject Python leaf, emitted as a native C++
+# BehaviorTree.CPP plugin node (registered JIT-free via registerFromPlugin). ---
+# Compile the native node into build/freeze/libl2_approach_object.so.
+freeze-l2-build = "python scripts/freeze/build_l2_node.py"
+# Differential test: same XML/node ID, Python leaf (L0) vs native plugin (L2) --
+# assert identical output/status, then compare per-tick boundary cost.
+freeze-l2-diff = "python scripts/freeze/l2_diff.py"
 
 # Optional "pcl" feature/environment: Point Cloud Library for the pcl_kit cppyy
 # spike (rclcppyy/kits/pcl_kit.py). Same opt-in pattern as the bt feature.
