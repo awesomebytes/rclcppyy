@@ -258,6 +258,9 @@ test-vision = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python -m pytest 
 dataset-synthetic = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/datasets/dataset_publisher.py --synthetic"
 # Download + verify the real TUM RGB-D loop-closure sequence into data/ (gitignored).
 dataset-tum = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/datasets/download_tum_rgbd.py"
+# M1 SPINE: rclcppyy subscription (C++ msg) -> cv_kit.msg_to_mat (zero-copy) -> Rerun
+# Image + Pinhole. Headless by default (.rrd); RCLCPPYY_RERUN_SPAWN=1 for live viewer.
+demo-vision-spine = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/vision/demo_spine.py"
 
 [environments]
 # solve-group = "default" pins every shared package to the exact same version as

@@ -46,10 +46,19 @@ def _url(seq):
     return "%s/%s/%s" % (_BASE, sub, base)
 
 
+_last_pct = [-1]
+
+
 def _report(count, block, total):
     done = count * block
-    pct = 100.0 * done / total if total > 0 else 0.0
-    sys.stdout.write("\r  %.0f%% (%.0f/%.0f MB)" % (pct, done / 1e6, total / 1e6))
+    pct = int(100.0 * done / total) if total > 0 else 0
+    # Throttle: only emit on a whole-percent change (a TTY sees a live line; a
+    # pipe/file gets ~100 lines total, not one per block).
+    if pct == _last_pct[0]:
+        return
+    _last_pct[0] = pct
+    end = "\r" if sys.stdout.isatty() else "\n"
+    sys.stdout.write("%s  %d%% (%.0f/%.0f MB)" % (end, pct, done / 1e6, total / 1e6))
     sys.stdout.flush()
 
 
