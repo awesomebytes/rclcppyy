@@ -123,15 +123,21 @@ def make_vocabulary(k=9, L=3, scoring=None, weighting=None):
     return ns.OrbVocabulary(k, L, weighting, scoring)
 
 
-def train_vocabulary(descriptor_mats, k=9, L=3):
+def train_vocabulary(descriptor_mats, k=9, L=3, seed=0):
     """Train an ``OrbVocabulary`` on a list of per-image ``Nx32 CV_8U`` descriptor
     Mats. Builds the ``std::vector<std::vector<cv::Mat>>`` training set in C++ and
     calls ``voc.create(...)``. Returns the vocabulary. This is the zero-download
-    path (used by the golden test)."""
+    path (used by the golden test).
+
+    DBoW2's kmeans++ seeding uses C ``rand()``; we ``srand(seed)`` first so a given
+    descriptor set + params yields a **reproducible** vocabulary run to run (the
+    golden test relies on this). Pass ``seed=None`` to leave ``rand()`` untouched."""
     ns = bringup_dbow()
     features = cppyy.gbl.std.vector["std::vector<cv::Mat>"]()
     for m in descriptor_mats:
         ns.append_features(features, m)
+    if seed is not None:
+        cppyy.gbl.srand(int(seed))
     voc = ns.OrbVocabulary(k, L)
     with cppyy_kit.first_use("dbow_kit.train_vocabulary", "(one-time; expected)"):
         voc.create(features)
