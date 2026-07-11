@@ -400,6 +400,19 @@ mechanically, not by discipline.
   Nav2 plugin injection would reuse this pattern verbatim where an
   add/inject API exists. Docs: `docs/control_kit/`.
 
+- **CUDA OpenCV (2026-07-11, 74ba1a1, merged):** Sam's skepticism vindicated —
+  conda-forge genuinely ships none (feedstock sets WITH_CUDA=0; 0/6357 files
+  with cuda build strings; declined in issues #74/#109), **but Esri's public
+  channel ships `libopencv 4.13.0 cuda129` (Apache-2.0)** — the exact version
+  the vision env pins, Blackwell-capable via PTX JIT (one-time ~2.3 s, then
+  cached). Validated on the RTX PRO 2000 through the cv_kit cppyy path:
+  cv::cuda::ORB ~576 fps vs CPU ~110 fps = **~5.3×**. Tooling:
+  `pixi run -e cudabuild provision-cuda-opencv` (sha256-verified extract into
+  gitignored vendor dir) + validate tasks + a documented build-from-source
+  fallback script (not needed). Coexistence hazard documented: same sonames
+  as the env's CPU OpenCV — CUDA libs must be FIRST on LD_LIBRARY_PATH,
+  never both loaded. `docs/vision/CUDA_OPENCV.md`.
+
 ## Risks & mitigations
 
 - **conda-forge cppyy behaves differently from the pip wheel** (cling resource
