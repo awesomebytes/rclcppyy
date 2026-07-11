@@ -41,9 +41,18 @@ pixi run -e vision build-dbow2  # clone + patch + compile DBoW2 -> build/vendor/
 `OK -> .../libDBoW2.so`. See [the DBoW2-from-source section](#dbow2-from-source) for
 what those patches are and why.
 
-> **Rerun viewer.** Every demo is **headless by default** and writes a `.rrd`
-> recording under `build/vision/` that you open later with `rerun <file>`. To pop
-> the live viewer instead, prefix any demo with `RCLCPPYY_RERUN_SPAWN=1`.
+> **Rerun viewer — you watch it work.** Run any demo by hand and a **Rerun window
+> opens live**: you see the camera stream, the ORB keypoints tracking on it, a
+> per-frame processing-time plot ticking along (how fast it's going, made visible),
+> and — in M3/M4 — loops popping into the score plot and event log as they're
+> confirmed, and the drifted trajectory snapping back onto ground truth when the
+> optimizer runs. The window is arranged into labelled panels by a small
+> [blueprint](https://rerun.io) so the entity tree is comprehensible from the first
+> frame. When there's no display (headless shell, CI) or under `pytest`, the demo
+> instead writes a `.rrd` recording under `build/vision/` you open later with
+> `rerun <file>` — same panels, same data. Force either mode with
+> `RCLCPPYY_RERUN_SPAWN=1` (live) or `=0` (headless). One shared helper decides,
+> `scripts/vision/vision_viz.py`.
 
 > **Data.** Everything runs on a **deterministic synthetic loop sequence with zero
 > download** by default. The real-data path (recommended once you've seen it work)
@@ -63,8 +72,11 @@ Expected output (abridged):
 ```
   frame 25 ingest=0.029 ms
 SUMMARY frames=200 ingest_avg_ms=... ingest_p50_ms=0.02 ingest_max_ms=...
-Rerun recording saved: build/vision/spine.rrd  (open with: rerun build/vision/spine.rrd)
+Rerun: live viewer opened -- watch it stream. (headless instead: RCLCPPYY_RERUN_SPAWN=0)
 ```
+
+(Run it on a machine with a display and a Rerun window opens showing the camera
+stream; headless, that last line reads `Rerun recording saved: build/vision/spine.rrd`.)
 
 One process runs two ROS 2 nodes: a publisher emits the sequence as
 `sensor_msgs/Image`, and a subscriber — subscribing **via rclcppyy**, so its callback
@@ -158,8 +170,14 @@ similar earlier image → run it through the **temporal-consistency gate**.
 The synthetic sequence is a sliding window over a fixed textured canvas that travels a
 closed circuit whose **last 20 frames retrace the first 20** — a loop closure by
 construction. The detector confirms frame `180+j` revisiting frame `j`, exactly as
-designed. Confirmed loops are logged to Rerun (the query frame, the matched frame, and
-the score).
+designed.
+
+In the live window you watch this happen: the left panel is the camera stream with the
+ORB keypoints overlaid; the right side stacks a per-frame ORB-time plot, then — the
+moment a loop is confirmed — a **yellow point pops into the score plot**, the current
+and revisited frames appear side by side in the image-pair panel, and a line lands in
+the event log (`frame 181 revisits frame 1 …`). Nothing happens for the whole first
+lap; then the loops fire in a steady run as the camera retraces its path.
 
 ### The temporal-consistency gate
 
@@ -222,16 +240,31 @@ builds a 2D pose graph over the synthetic circuit: the odometry is the true circ
 corrupted by an accumulating heading drift (so the open-loop trajectory spirals away),
 and each confirmed loop closure adds a `BetweenFactor` tying the revisiting pose back
 to the earlier one. **GTSAM's Levenberg-Marquardt** optimizer then pulls the drifted
-trajectory back onto itself — ~**15× less error**. Before/after trajectories and the
-loop edges are logged to Rerun as `LineStrips3D`.
+trajectory back onto itself — ~**15× less error**.
 
-> **Why gtsam's Python binding and not cppyy here?** GTSAM 4.2's C++ headers
-> `#include <boost/optional.hpp>`, which is not in this env, so the (very header-heavy,
-> boost-coupled) GTSAM does **not** JIT under cppyy. That is fine: pose-graph
-> optimization is a one-shot *batch* step, not a hot per-frame loop, so the "keep it in
-> C++" argument does not apply and a cppyy wrapper would not earn its keep. The rest of
-> the pipeline (the per-frame ORB → DBoW2 path) is where staying in C++ matters, and
-> that is all cppyy.
+**What the live window shows (the part worth watching).** On the `step` timeline the
+3D view plays back the drive: the **red** open-loop trajectory spiralling away from the
+**green** ground truth while the *mean-error* plot on the right climbs; **yellow** loop
+edges snapping in as each revisit is confirmed; then, on the final step, the optimizer
+runs and the **blue** corrected trajectory appears pulled right back onto the ground
+truth as the error plot drops ~15× — the correction *snapping* into place. Scrub the
+timeline back and forth to watch drift accumulate and then get erased. (Headless, the
+same is in `build/vision/posegraph.rrd`.)
+
+> **Why gtsam's Python binding and not cppyy here?** We genuinely retried cppyy once
+> `libboost-headers` was added to the env — the old `boost/optional.hpp` wall is gone,
+> and gtsam's headers now parse. But gtsam still does **not** JIT-and-run under cppyy
+> here, for two further reasons: (1) the conda gtsam build's `config.h` sets
+> `GTSAM_USE_TBB`, so its headers `#include <tbb/…>`, and the env ships only the tbb
+> *runtime* (`libtbb.so`), not the tbb *headers*; and (2) even with tbb headers supplied
+> out-of-band, Cling's JIT fails to materialize the static initializer of gtsam's
+> namespace-scope `static const KeyFormatter DefaultKeyFormatter` in `Key.h` (an
+> internal-linkage `std::function` global). The second is a Cling limitation, not a
+> missing dependency. That's fine: pose-graph optimization is a one-shot *batch* step,
+> not a hot per-frame loop, so the "keep it in C++" argument doesn't apply and a cppyy
+> wrapper wouldn't earn its keep. The per-frame hot path (ORB → DBoW2) is where staying
+> in C++ matters, and that is all cppyy. Full probe evidence:
+> [docs/vision/REPORT.md](../vision/REPORT.md) §GTSAM/cppyy.
 
 ---
 
@@ -320,6 +353,7 @@ the rclcppyy **freeze** machinery applies unchanged:
 | `rclcppyy/kits/cv_kit.py` | OpenCV bringup, zero-copy `msg_to_mat`, ORB, CUDA auto-detect |
 | `rclcppyy/kits/dbow_kit.py` | DBoW2 vocabulary + database (train/load/query) |
 | `scripts/vision/build_dbow2.py` | clone + patch + compile DBoW2 |
+| `scripts/vision/vision_viz.py` | shared Rerun setup: live-viewer-by-default decision + per-demo blueprints |
 | `scripts/vision/loop_detector.py` | temporal-consistency loop gate |
 | `scripts/vision/demo_spine.py` / `demo_features.py` / `demo_loop.py` / `demo_posegraph.py` | M1–M4 demos |
 | `scripts/vision/train_vocab.py` / `bench_vision.py` | offline vocab trainer / M5 bench |
