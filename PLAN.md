@@ -332,6 +332,21 @@ mechanically, not by discipline.
   Float64MultiArray regression test; default suite now 8); checkout@v5 in
   both workflows (Node-20 deprecation gone).
 
+- **ompl_kit spike (2026-07-11, GO; ef4a222/329590a/ddaeeee, merged f20c60f):**
+  third kit, thinnest yet (72 LOC, zero embedded C++ — cppyy absorbs
+  inheritance/ownership/downcast). **Cross-inheritance headline confirmed**
+  (the pattern BT's `final` blocked): Python subclass of StateValidityChecker
+  called 170× by C++ RRTConnect; Python `motionCost` called 1,034,069× in a
+  1 s RRTstar solve. Mechanics: super().__init__ chaining, exact C++ virtual
+  names, RTTI auto-downcast of pointer args, keep_alive the instance.
+  Honest hot-loop number: Python validity ~159× slower per call (282 ns vs
+  1.8 ns) — invisible at 136 calls, ~0.35 s at 1M; the lowering story (6-line
+  cppdef checker) is the in-script answer. Bringup ~538 ms (cheapest kit).
+  callback() dogfood found a real gap: class-typed hints infer `T&` but OMPL
+  needs `const T*` — succeeds silently, fails at the setter (follow-up
+  queued). Demos incl. nav_msgs/Path publishing via rclcppyy. Docs mirror
+  the structure (`docs/ompl_kit/`).
+
 ## Risks & mitigations
 
 - **conda-forge cppyy behaves differently from the pip wheel** (cling resource
