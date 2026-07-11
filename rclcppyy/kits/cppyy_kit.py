@@ -10,9 +10,11 @@ from one library to the next, so it lives here:
     symbols; cppyy finds a symbol's owning library by soname when you call it);
   * lifetime -- pin Python callables / views alive against C++ (``keep_alive``),
     else a collected callback raises "callable was deleted";
-  * crossing functions both ways -- wrap a Python callable as ``std::function``
-    (``std_function``); give a C++ object a per-instance Python peer through an
-    integer handle when ownership can't cross (``HandleRegistry``);
+  * crossing functions both ways -- hand a Python callable to C++ in one line,
+    signature inferred and lifetime pinned (``callback``; ``std_function`` is the
+    low-level escape hatch); a cppdef'd C++ function is already a Python callable
+    with no helper; give a C++ object a per-instance Python peer through an integer
+    handle when ownership can't cross (``HandleRegistry``);
   * safety -- build STL/containers inside ``cppyy.cppdef`` C++ (constructing them
     from Python can SIGSEGV); probe a risky ``cppdef`` in a subprocess first
     (``probe_cppdef``), because a failed one can crash on transaction revert;
@@ -27,8 +29,10 @@ from one library to the next, so it lives here:
 See docs/kits/COMMON_PATTERNS.md for the full catalog and the evidence behind it.
 """
 import atexit
+import inspect
 import subprocess
 import sys
+import typing
 
 import cppyy
 
@@ -82,14 +86,93 @@ def keep_alive(owner, *objects):
 
 
 def std_function(signature, pyfunc):
-    """Wrap a Python callable as ``std::function<signature>`` to pass into C++.
+    """Low-level: wrap a Python callable as ``std::function<signature>``.
 
-    The callback runs in whatever C++ thread invokes it (cppyy takes the GIL);
-    for a single-threaded driver there is no contention. cppyy does not keep the
-    callable alive on its own -- ``keep_alive`` both it and ``pyfunc`` on the
-    object that will store it.
+    Prefer ``callback()`` (which infers the signature and pins lifetime for you);
+    reach for this only when you want the raw wrapper and will handle
+    ``keep_alive`` yourself. The callback runs in whatever C++ thread invokes it
+    (cppyy takes the GIL); cppyy does not keep the callable alive on its own.
     """
     return cppyy.gbl.std.function[signature](pyfunc)
+
+
+# Python annotation -> C++ type tag for callback-signature inference. None and
+# NoneType both mean a void return.
+_SCALAR_CPP = {int: "int", float: "double", bool: "bool", str: "std::string",
+               type(None): "void", None: "void"}
+
+# Process-lifetime pins for callback() wrappers registered without an owner.
+_CALLBACKS = []
+
+
+def _cpp_type(annotation, is_return=False):
+    if annotation in _SCALAR_CPP:
+        return _SCALAR_CPP[annotation]
+    cpp_name = getattr(annotation, "__cpp_name__", None)
+    if cpp_name:
+        # A C++ object crosses by reference by default; use signature= for
+        # by-value / const / pointer forms.
+        return cpp_name if is_return else cpp_name + "&"
+    raise CppyyKitError(
+        "cppyy_kit.callback: cannot infer a C++ type for annotation %r. Annotate "
+        "with int, float, bool, str, None (void), or a cppyy C++ class (one "
+        "exposing __cpp_name__), or pass signature='ret(args)' explicitly." % (annotation,))
+
+
+def _infer_signature(fn):
+    try:
+        hints = typing.get_type_hints(fn)
+    except Exception as exc:
+        raise CppyyKitError("cppyy_kit.callback: could not read type hints of %r (%s); "
+                            "pass signature= explicitly." % (fn, exc))
+    # Only the parameters C++ actually passes: positional, without a Python-side
+    # default (defaults / *args / **kwargs are Python conveniences, not C++ args).
+    params = [p.name for p in inspect.signature(fn).parameters.values()
+              if p.default is inspect.Parameter.empty
+              and p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)]
+    missing = [p for p in params if p not in hints]
+    if missing:
+        raise CppyyKitError(
+            "cppyy_kit.callback: parameter(s) %s of %r are not type-annotated, so the "
+            "C++ signature can't be inferred. Annotate them (int/float/bool/str/cppyy "
+            "class) or pass signature='ret(args)'." % (missing, getattr(fn, "__name__", fn)))
+    args = ", ".join(_cpp_type(hints[p]) for p in params)
+    return "%s(%s)" % (_cpp_type(hints.get("return", None), is_return=True), args)
+
+
+def callback(fn, signature=None, owner=None):
+    """Wrap a Python callable as a ``std::function`` to hand to C++ -- one line,
+    with the signature inferred and the lifetime handled for you.
+
+    Signature: ``signature`` wins if given; otherwise it is inferred from ``fn``'s
+    type hints -- ``int``->int, ``float``->double, ``bool``->bool, ``str``->
+    std::string, ``None``->void (return), and any cppyy C++ class (via its
+    ``__cpp_name__``) as a reference. Inference fails early with a readable error
+    if a parameter is unannotated or unmappable; pass ``signature=`` for
+    reference/const/pointer forms or types inference can't name (e.g.
+    ``signature="BT::NodeStatus(BT::TreeNode&)"``).
+
+    Lifetime (the "callable was deleted" footgun, gone): the wrapper *and* ``fn``
+    are always pinned. With ``owner=`` they are pinned on that object and live as
+    long as it does; without ``owner=`` they are pinned in a module-level registry
+    for the process lifetime (drop those with ``release_callbacks()``).
+
+    Threading: the callback runs in whatever C++ thread invokes it (cppyy takes
+    the GIL); a single-threaded driver -- a tick loop, a spin -- never contends.
+    """
+    sig = signature if signature is not None else _infer_signature(fn)
+    wrapper = cppyy.gbl.std.function[sig](fn)
+    if owner is not None:
+        keep_alive(owner, fn, wrapper)
+    else:
+        _CALLBACKS.append((fn, wrapper))
+    return wrapper
+
+
+def release_callbacks():
+    """Drop the process-lifetime pins held for owner-less ``callback()`` wrappers.
+    Only safe once no C++ code will invoke those callbacks again."""
+    _CALLBACKS.clear()
 
 
 class HandleRegistry:

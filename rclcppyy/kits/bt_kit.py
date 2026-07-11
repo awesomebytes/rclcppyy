@@ -243,10 +243,12 @@ def _make_ports(ports):
     return cppyy.gbl.rclcppyy_btkit.makePorts(svec(names), svec(types))
 
 
-def _tick_functor(fn):
+def _tick_functor(fn, owner):
     def tick(cpp_node):
         return _coerce_status(fn(_Node(cpp_node)))
-    return tick, cppyy_kit.std_function("BT::NodeStatus(BT::TreeNode&)", tick)
+    # callback() infers nothing here (the C++ ref signature is explicit) but pins
+    # tick (and, transitively, fn) on the factory so it can't be collected.
+    return cppyy_kit.callback(tick, signature="BT::NodeStatus(BT::TreeNode&)", owner=owner)
 
 
 def _adapt_factory(BT):
@@ -263,14 +265,10 @@ def _adapt_factory(BT):
     Factory._orig_create_tree_from_file = Factory.createTreeFromFile
 
     def register_simple_action(self, name, fn, ports=None):
-        tick, cpp_fn = _tick_functor(fn)
-        cppyy_kit.keep_alive(self, tick, cpp_fn)
-        self._orig_register_simple_action(name, cpp_fn, _make_ports(ports))
+        self._orig_register_simple_action(name, _tick_functor(fn, self), _make_ports(ports))
 
     def register_simple_condition(self, name, fn, ports=None):
-        tick, cpp_fn = _tick_functor(fn)
-        cppyy_kit.keep_alive(self, tick, cpp_fn)
-        self._orig_register_simple_condition(name, cpp_fn, _make_ports(ports))
+        self._orig_register_simple_condition(name, _tick_functor(fn, self), _make_ports(ports))
 
     def register_stateful(self, name, node_class, ports=None):
         """Register an asynchronous (multi-tick) node whose behaviour is a Python
@@ -310,11 +308,12 @@ def _adapt_factory(BT):
             if method is not None:
                 method(_Node(node))
 
-        b = cppyy_kit.std_function("int(const std::string&)", build)
-        fs = cppyy_kit.std_function("int(int, BT::TreeNode&)", f_start)
-        fr = cppyy_kit.std_function("int(int, BT::TreeNode&)", f_running)
-        fh = cppyy_kit.std_function("void(int, BT::TreeNode&)", f_halted)
-        cppyy_kit.keep_alive(self, registry, build, f_start, f_running, f_halted, b, fs, fr, fh)
+        # callback() pins each wrapper (and its Python fn) on the factory; the
+        # closures hold `registry`, so the per-instance objects stay alive too.
+        b = cppyy_kit.callback(build, signature="int(const std::string&)", owner=self)
+        fs = cppyy_kit.callback(f_start, signature="int(int, BT::TreeNode&)", owner=self)
+        fr = cppyy_kit.callback(f_running, signature="int(int, BT::TreeNode&)", owner=self)
+        fh = cppyy_kit.callback(f_halted, signature="void(int, BT::TreeNode&)", owner=self)
         cppyy.gbl.rclcppyy_btkit.registerStateful(self, name, _make_ports(ports), b, fs, fr, fh)
 
     def create_tree_from_text(self, xml, *args):
