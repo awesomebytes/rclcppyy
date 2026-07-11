@@ -352,6 +352,20 @@ mechanically, not by discipline.
   nav_msgs/Path publishing via rclcppyy. Docs mirror the structure
   (`docs/ompl_kit/`).
 
+- **nav2_kit spike (2026-07-11, GO; d2b8362, merged d69bd09):** "your own nav
+  stack" from Nav2's separable algorithm cores — `Costmap2D` + `NavFn` driven
+  from Python (no lifecycle servers/pluginlib/tf); showcase = complete
+  miniature nav stack in one file (world → costmap → C++ NavFn plan →
+  Python pure-pursuit follow → live OccupancyGrid/Path/TwistStamped topics,
+  GOAL REACHED verified). numpy→costmap = one memcpy (~600–3600× a Python
+  loop, third confirmation of the bulk-buffer lesson). Bench: NavFn ~80×
+  a pure-Python A* at 512²+. Honest boundary: Smac + RPP controller are
+  lifecycle-coupled (BLOCKED standalone — key finding: grep ctors for
+  LifecycleNode/*ROS coupling BEFORE committing to a core). New gotcha:
+  `unsigned char` crosses as 1-char str, not int (`ord()` needed). Agent
+  couldn't write REPORT.md (harness quirk) — supervisor committed it from
+  delivered content. Docs: `docs/nav2_kit/`.
+
 ## Risks & mitigations
 
 - **conda-forge cppyy behaves differently from the pip wheel** (cling resource
