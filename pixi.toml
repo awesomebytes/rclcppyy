@@ -274,6 +274,10 @@ demo-vision-loop = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scrip
 # M4 STRETCH: GTSAM pose-graph correction of a drifting trajectory using the
 # confirmed loop closures; before/after trajectories logged to Rerun.
 demo-vision-posegraph = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/vision/demo_posegraph.py"
+# M5 EVAL: ingest (zero-copy vs rclpy-copy, scaling with resolution), ORB fps,
+# vocab train/load time, query latency, loop precision/recall. --orbvoc adds the
+# real-vocabulary load timing (needs dataset-orbvoc).
+bench-vision = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/vision/bench_vision.py"
 
 [environments]
 # solve-group = "default" pins every shared package to the exact same version as
