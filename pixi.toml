@@ -256,7 +256,41 @@ rerun-sdk = "*"   # live multimodal visualization
 gtsam = "*"       # pose-graph optimization (stretch milestone)
 
 [feature.vision.tasks]
-# vision tutorial tasks are added by the vision spike.
+# Fetch, patch and compile DBoW2 (Bags of Binary Words) from source into the
+# gitignored build/vendor/ (not packaged on conda-forge). Run once before the
+# loop-closure demos/tests.
+build-dbow2 = "python scripts/vision/build_dbow2.py"
+# Run the vision kit + loop-closure test suites. Auto-skips under the default
+# `pixi run test` (no OpenCV/DBoW2). The golden test trains a small vocabulary on
+# the deterministic synthetic sequence -- NO download needed. Note: the ROS
+# `install/` overlay pins `python` to the build (default) env, so we invoke the
+# vision env's interpreter explicitly ($CONDA_PREFIX) with the repo on PYTHONPATH.
+test-vision = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python -m pytest test/test_vision_kits.py test/test_vision_loop.py -v"
+# Reusable data source: publish the deterministic synthetic loop sequence as
+# sensor_msgs/Image (zero download). Pass --tum DIR / --folder DIR for other data.
+dataset-synthetic = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/datasets/dataset_publisher.py --synthetic"
+# Download + verify the real TUM RGB-D loop-closure sequence into data/ (gitignored).
+dataset-tum = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/datasets/download_tum_rgbd.py"
+# Download the real ORB vocabulary (ORBvoc.txt, ~145 MB) for the real-data path.
+dataset-orbvoc = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/datasets/download_orbvoc.py"
+# Train a small DBoW2 vocabulary on a sequence (default: synthetic -> a .dbow2).
+vocab-train = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/vision/train_vocab.py"
+# M1 SPINE: rclcppyy subscription (C++ msg) -> cv_kit.msg_to_mat (zero-copy) -> Rerun
+# Image + Pinhole. Headless by default (.rrd); RCLCPPYY_RERUN_SPAWN=1 for live viewer.
+demo-vision-spine = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/vision/demo_spine.py"
+# M2 FEATURES: C++ cv::ORB per frame, keypoints overlaid as a Rerun Points2D.
+demo-vision-features = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/vision/demo_features.py"
+# M3 LOOP CLOSURE (the heart): ORB -> DBoW2 place recognition -> temporal gate.
+# Default vocab is trained on the sequence (zero download); --vocab data/ORBvoc.txt
+# for the real vocabulary, --tum DIR for the real sequence.
+demo-vision-loop = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/vision/demo_loop.py"
+# M4 STRETCH: GTSAM pose-graph correction of a drifting trajectory using the
+# confirmed loop closures; before/after trajectories logged to Rerun.
+demo-vision-posegraph = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/vision/demo_posegraph.py"
+# M5 EVAL: ingest (zero-copy vs rclpy-copy, scaling with resolution), ORB fps,
+# vocab train/load time, query latency, loop precision/recall. --orbvoc adds the
+# real-vocabulary load timing (needs dataset-orbvoc).
+bench-vision = "PYTHONPATH=$PIXI_PROJECT_ROOT $CONDA_PREFIX/bin/python scripts/vision/bench_vision.py"
 
 # Optional "cudabuild" feature/environment: provisions & validates a CUDA-enabled
 # OpenCV (cv::cuda::ORB / cudafeatures2d) for the vision tutorial's GPU path.
