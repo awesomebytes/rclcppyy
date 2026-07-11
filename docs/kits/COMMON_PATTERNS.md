@@ -183,27 +183,47 @@ with no Python traceback**, *after* all useful work is done.
 
 ---
 
-## Today vs L1 ("freeze")
+## Today vs L1 ("freeze") — L1 now WORKS
 
 **Today (L0, JIT):** everything above runs by JIT-compiling the library's headers
-at bringup — a one-time, idempotent per-process cost (bt ~0.85 s, pcl ~1.3 s).
+at bringup — a one-time, idempotent per-process cost (bt ~0.9 s, pcl ~1.3 s).
 Correct and fast at steady state; the only downside is startup latency.
 
-**L1 (freeze) — not yet done, and the ROOT-dictionary route does NOT get you
-there.** The bringup cost is ~89% header JIT-parse. A `rootcling`/`genreflex`
-dictionary (`+ cppyy.load_reflection_info`) builds and loads in ~0.02 s, but it
-supplies **reflection/autoload metadata, not a precompiled AST** — Cling still
-lazily parses the header on first class use (measured: the first
-`BehaviorTreeFactory()` after loading the dict still cost ~0.8 s). Skipping the
-parse needs Cling to consume a **precompiled header / C++ module** for the header
-set (a `module.modulemap` + `-fmodules` build, or a Cling PCH, version-matched to
-cppyy-cling), which is the mechanism cppyy already uses for its own std PCH. That
-is a dedicated sub-project — the real L1 task — not a quick win.
+**L1 (freeze) — DONE for bt_kit; the mechanism is a Cling PCH, not a dictionary.**
+The full recipe, artifact lifecycle, numbers and limitations live in
+[FREEZE.md](FREEZE.md); the short version:
+
+- The bringup cost is ~89 % header JIT-parse. A `rootcling`/`genreflex` dictionary
+  does **not** help — it supplies reflection/autoload metadata, not a parsed AST,
+  so Cling still lazily re-parses on first class use (measured ~0.8 s). *(This was
+  the prior probe's dead end.)*
+- What works is the mechanism **cppyy already uses for its own std headers:** a
+  **Cling precompiled header**. Build a PCH that bakes the kit's headers on top of
+  cppyy's std set (`rootcling -generate-pch`, reusing `etc/dictpch/makepch.py`'s
+  command), and point `CLING_STANDARD_PCH` at it. Cling materialises the header AST
+  from the PCH at interpreter start, so `cppyy.include(...)` becomes a ~6 ms lookup
+  instead of a ~0.9 s parse. **Measured: `include(bt_factory.h)` ~890 ms → ~6 ms
+  (~140×); bringup total ~950 ms → ~90 ms (~10.7×).** Same 16-test suite green on
+  the frozen path (`pixi run -e bt test-bt-frozen`).
+- **Two rules make it real.** (1) `CLING_STANDARD_PCH` must be set *before the
+  first `import cppyy`* (Cling binds its PCH at interpreter init; `import rclcppyy`
+  imports cppyy transitively), so activation is via a launcher that sets the env
+  and `exec`s the target (`scripts/freeze/run_frozen.py`). (2) The AST-only PCH
+  doesn't emit the header's *internal-linkage statics* (bt: `BT::UndefinedAnyType`)
+  and the library's copy is a non-exported local symbol, so on the frozen path the
+  kit emits one strong definition under the exact mangled name; applied only when
+  frozen (in L0 the live parse already defines it).
+- **What freezing does NOT remove:** the first-use JIT of cppyy's per-signature
+  call wrappers (`registerSimpleAction`'s `std::function` thunk etc. — ~0.7 s for
+  t01, unchanged L0↔L1). A header PCH only kills the *parse*. Cutting the first-use
+  JIT is a separate step (L2 native lowering, or caching the instantiations).
+- **Generalises:** the same recipe takes `rclcpp/rclcpp.hpp` from ~1.71 s to ~6 ms
+  — the PCH-load floor is header-size-independent, so this is not a BT special case.
 
 **What a kit should do now:** make bringup idempotent and staged; treat the JIT as
-a one-time startup cost; keep the AOT path in mind (don't bake in anything that
-would block a future module build) but don't hand-roll a ROOT dictionary expecting
-a speedup.
+a one-time startup cost. When startup latency matters, freeze it (FREEZE.md) — a
+per-kit PCH build plus, if the freeze surfaces unresolved internal-linkage symbols,
+a one-line force-symbol entry.
 
 ---
 
