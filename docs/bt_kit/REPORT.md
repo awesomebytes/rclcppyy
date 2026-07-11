@@ -180,7 +180,7 @@ Numbers are provisional — a parallel kit spike shared this machine.
 | 5. XML error ergonomics | **WORKS** | `BtXmlError` with one clean line (`RuntimeError: Error at line 4: -> Node not recognized: X`), no C++ signature wall. `test_xml_error_is_readable`. |
 | 6. Subtrees + v4 scripting/preconditions | **WORKS** | SubTree composition (needs `main_tree_to_execute`), `<Script code="x:=42"/>`, `_skipIf` preconditions — engine-side, free through the kit. `test_subtree_composition`. |
 | 7. Kit tests + `test-bt` | **WORKS** | `test/test_bt_kit.py` auto-skips without BT (default suite: 6 passed / 7 skipped); `pixi run -e bt test-bt` → 7 passed. |
-| 8. JIT→AOT "freeze" | **PARTIAL / BLOCKED** | Dictionary builds and loads (~0.02 s) but does **not** skip the header parse — see below. |
+| 8. JIT→AOT "freeze" | **WORKS (L1 via Cling PCH)** | A prebuilt Cling PCH of the bt headers cuts `include(bt_factory.h)` ~890 ms → ~6 ms (~140×); same 16 tests green frozen. The dictionary route (below) was the dead end; the PCH is the answer. See `docs/kits/FREEZE.md`. |
 
 ### Rules of thumb (Gap 4 — GIL/concurrency)
 - Kit leaves (SimpleAction/SimpleCondition, `register_stateful`) are always ticked
@@ -205,27 +205,39 @@ Numbers are provisional — a parallel kit spike shared this machine.
 - Keep-alive discipline (pin Python callables) and the container-segfault rule are
   handled inside the kit; any raw-cppyy use reintroduces them.
 
-### Gap 8 — JIT→AOT freeze probe (findings)
-Bringup is **89% header JIT-parse**: `cppyy.include("bt_factory.h")` **0.826 s**,
-`load_library` 0.015 s, `cppdef(glue)` 0.044 s, first factory+tick 0.041 s
-(total ~0.93 s). Tooling present: `genreflex`, `rootcling`, `cppyy-generator`,
-`cppyy.load_reflection_info`. A ROOT dictionary was built end-to-end:
-- `#pragma link C++ defined_in "<header>"` captured only the namespace (rootcling
-  skips classes with deleted copy-ctors/templates); explicit `#pragma link C++
-  class BT::X+;` is required and does capture them.
-- `rootcling` → `dict.cxx` + `_rdict.pcm` + `.rootmap`, compiled to a `.so`;
-  `load_reflection_info` loads it in **~0.02 s**.
-- **The header parse is not eliminated.** With the dict loaded and *no*
-  `cppyy.include`, the first `BehaviorTreeFactory()` still cost **0.799 s** — Cling
-  lazily parses the header on first class use regardless of the ROOT dictionary.
-  The dict supplies reflection/autoload metadata, not a precompiled AST.
+### Gap 8 — JIT→AOT freeze (RESOLVED: L1 via a Cling PCH, 2026-07-11)
+Bringup is **89% header JIT-parse**: `cppyy.include("bt_factory.h")` ~0.83–0.91 s,
+`load_library` ~0.006 s, `cppdef(glue)` ~0.05 s, first factory+register+tick
+~0.69 s. Two routes were tried:
 
-**Verdict: PARTIAL / BLOCKED.** The ROOT-dictionary route does not deliver the L1
-freeze. Skipping the parse needs Cling to load a **precompiled header / C++ module**
-for `bt_factory.h` (the mechanism cppyy uses for its own std PCH): a
-`module.modulemap` + `-fmodules` build of the BT headers, or a Cling PCH,
-version-matched to cppyy-cling 6.32.8. That is a dedicated sub-project, not a quick
-win; the ~0.85 s bringup is one-time and idempotent per process in the meantime.
+**Dictionary (the dead end).** A ROOT dictionary (`rootcling` → `dict.cxx` +
+`_rdict.pcm` + `.rootmap` → `.so`; `load_reflection_info` ~0.02 s) supplies
+reflection/autoload metadata, **not a parsed AST** — with the dict loaded and no
+`cppyy.include`, the first `BehaviorTreeFactory()` still cost ~0.8 s. The parse is
+not eliminated.
+
+**Cling PCH (the answer).** The mechanism cppyy uses for its own std headers: build
+a precompiled header that bakes `bt_factory.h` on top of cppyy's std set
+(`rootcling -generate-pch`, reusing `etc/dictpch/makepch.py`'s command with the kit
+header + include path inserted), then point `CLING_STANDARD_PCH` at it. Cling
+materialises the header AST from the PCH at interpreter start.
+- **`include(bt_factory.h)` ~890 ms → ~6 ms (~140×); bringup total ~950 ms → ~90 ms
+  (~10.7×); end-to-end t01 ~1.9 s → ~1.1 s (1.7×).** Same 16-test suite green
+  frozen (`pixi run -e bt test-bt-frozen`).
+- Two rules made it real: (1) `CLING_STANDARD_PCH` must be set *before the first
+  `import cppyy`* — hence a launcher (`scripts/freeze/run_frozen.py`) that sets it
+  and `exec`s the target; (2) the AST-only PCH doesn't emit the header's
+  internal-linkage statics (`BT::UndefinedAnyType`) and the library's copy is a
+  non-exported local symbol, so on the frozen path the kit emits one strong
+  definition under the exact mangled name (applied only when frozen).
+- **Not removed by the PCH:** the first-use JIT of cppyy's per-signature call
+  wrappers (`registerSimpleAction`'s `std::function` thunk, ~0.7 s for t01,
+  unchanged L0↔L1). A header PCH kills only the *parse*.
+- Generalises: the same recipe takes `rclcpp/rclcpp.hpp` ~1.71 s → ~6 ms.
+
+**Verdict: WORKS (L1).** Full recipe, artifact lifecycle, numbers and limitations:
+`docs/kits/FREEZE.md`. One leaf was also lowered to native C++ (L2) and
+differential-tested (§6 "Next investments" (a) is thus partly demonstrated).
 
 ---
 
@@ -251,14 +263,17 @@ nodes, Groot) rather than *feasibility*. Two findings shape the strategy:
 
 The deep pass (2026-07-11, §5) closed most of the v0 gaps: typed ports, per-node
 stateful instances, loggers/Groot2/observer, readable XML errors, subtrees, and a
-skip-safe test suite all landed. What remains is genuinely harder — Python-authored
-control/decorator node *types* (need generated C++ shims) and the L1 "freeze"
-(needs a Cling C++ module/PCH, not a ROOT dictionary — §5 Gap 8). Neither is a
-blocker for using the kit today.
+skip-safe test suite all landed. The **L1 "freeze" is now done** — a Cling PCH
+eliminates the header parse (~140×), same tests green frozen (§5 Gap 8,
+`docs/kits/FREEZE.md`) — and one leaf was lowered to native C++ (L2). What remains
+harder is Python-authored control/decorator node *types* (need generated C++
+shims). None of this blocks using the kit today.
 
 **Next investments, in priority order:** (a) Python-authored control/decorator
-nodes via generated C++ shims; (b) directioned + struct/JSON ports; (c) the L1
-freeze via a Cling C++ module for `bt_factory.h`; (d) live Groot2 verification.
+nodes via generated C++ shims; (b) directioned + struct/JSON ports; (c) cut the
+remaining first-use JIT (cppyy call-wrapper codegen, ~0.7 s for t01 — the part the
+header PCH does not touch) via cached instantiations or wider L2 lowering; (d) live
+Groot2 verification.
 
 ---
 
