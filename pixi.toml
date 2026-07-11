@@ -231,6 +231,20 @@ ros-jazzy-ros2-controllers = "*"  # standard C++ controllers (baselines) + mock 
 [feature.control.tasks]
 # control_kit tasks are added by the control_kit spike.
 
+# Optional "vision" feature/environment: the visual loop-closure tutorial
+# (cv_kit + dbow_kit + gtsam_kit). OpenCV pinned to 4.x for DBoW2 source
+# compatibility (DBoW2 is built from source into build/vendor/ — not packaged
+# on conda-forge). NOTE: conda-forge ships no CUDA OpenCV builds, so the CPU
+# cv::ORB path is primary; cv::cuda is auto-detected if the user provides a
+# CUDA build (e.g. JetPack).
+[feature.vision.dependencies]
+opencv = "4.*"    # C++ OpenCV (core/features2d headers + libs) + cv2 for contrast
+rerun-sdk = "*"   # live multimodal visualization
+gtsam = "*"       # pose-graph optimization (stretch milestone)
+
+[feature.vision.tasks]
+# vision tutorial tasks are added by the vision spike.
+
 [environments]
 # solve-group = "default" pins every shared package to the exact same version as
 # the default env, so enabling demos never re-resolves the core ROS/cppyy stack.
@@ -239,6 +253,8 @@ demos = { features = ["demos"], solve-group = "default" }
 nav2 = { features = ["nav2"], solve-group = "default" }
 moveit = { features = ["moveit"], solve-group = "default" }
 control = { features = ["control"], solve-group = "default" }
+# Visual loop-closure tutorial env.
+vision = { features = ["vision"], solve-group = "default" }
 # PCL spike env, same additive pattern as bt.
 pcl = { features = ["pcl"], solve-group = "default" }
 # OMPL spike env, same additive pattern as bt/pcl.
