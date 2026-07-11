@@ -251,9 +251,10 @@ test-control = "pytest test/test_control_kit.py -v"
 # cv::ORB path is primary; cv::cuda is auto-detected if the user provides a
 # CUDA build (e.g. JetPack).
 [feature.vision.dependencies]
-opencv = "4.*"    # C++ OpenCV (core/features2d headers + libs) + cv2 for contrast
-rerun-sdk = "*"   # live multimodal visualization
-gtsam = "*"       # pose-graph optimization (stretch milestone)
+opencv = "4.*"          # C++ OpenCV (core/features2d headers + libs) + cv2 for contrast
+rerun-sdk = "*"         # live multimodal visualization
+gtsam = "*"             # pose-graph optimization (stretch milestone)
+libboost-headers = "*"  # headers-only (no ABI/mutex conflict): lets gtsam headers JIT via cppyy
 
 [feature.vision.tasks]
 # Fetch, patch and compile DBoW2 (Bags of Binary Words) from source into the
