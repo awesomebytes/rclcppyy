@@ -17,23 +17,9 @@ jobs:
   build-test:
     name: build + test + bench smoke
     runs-on: ubuntu-latest
-    env:
-      # M3 pre-release bridge: rclcppyy 0.2.0 imports rclcpp_kit / cppyy_kit (the
-      # carved-out suite), which is not published to prefix.dev yet. Provide them
-      # from a source checkout of the cppyy_kit repo; workspace_activation.sh puts
-      # exactly those two packages on PYTHONPATH via CPPYY_KIT_SRC. Remove this
-      # (and the checkout step) once rclcppyy depends on the published conda
-      # packages (channel swap local/awesomebytes; see RELEASING.md).
-      CPPYY_KIT_SRC: ${{ github.workspace }}/_cppyy_kit
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-
-      - name: Checkout cppyy_kit (suite source for the pre-release bridge)
-        uses: actions/checkout@v5
-        with:
-          repository: awesomebytes/cppyy_kit
-          path: _cppyy_kit
 
       - name: Set up pixi
         uses: prefix-dev/setup-pixi@v0.10.0

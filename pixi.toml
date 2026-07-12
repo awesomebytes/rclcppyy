@@ -1,7 +1,7 @@
 [workspace]
 authors = ["Sam Pfeiffer <sammypfeiffer@gmail.com>"]
 name = "rclcppyy_ws"
-channels = ["robostack-jazzy", "conda-forge"]
+channels = ["https://repo.prefix.dev/awesomebytes", "robostack-jazzy", "conda-forge"]
 platforms = ["linux-64"]
 version = "0.2.0"
 
@@ -24,13 +24,11 @@ setuptools = "<81"
 psutil = ">=7.2.2,<8"
 # M3: rclcppyy's rclcpp core + cppyy kits were carved into the cppyy_kit suite
 # (rclcpp_kit / cppyy_kit). rclcppyy re-exports them via deprecation shims, so both
-# must be IMPORTABLE at runtime. Until the suite is published to prefix.dev, they
-# are NOT conda deps here — a file:// channel in the lock would not resolve on CI /
-# other machines. Instead they are put on PYTHONPATH from a sibling cppyy_kit
-# checkout by workspace_activation.sh (the "PYTHONPATH bridge"; set CPPYY_KIT_SRC to
-# override the default ../cppyy_kit). The SHIPPED conda package DOES carry them as
-# run-deps (recipe/recipe.yaml); that path swaps to the awesomebytes channel after
-# the suite publishes. See RELEASING.md.
+# must be IMPORTABLE at runtime. The suite is now published to prefix.dev
+# (awesomebytes channel, added above), so these are real conda deps pinned to the
+# published version -- matching recipe/recipe.yaml's run-deps. See RELEASING.md.
+ros-jazzy-rclcpp-kit = "==0.1.0"
+cppyy-kit = "==0.1.0"
 
 [activation]
 scripts = ["workspace_activation.sh"]
@@ -96,12 +94,10 @@ rattler-build = ">=0.68,<0.69"
 [feature.pkg.tasks]
 # Build the ros-jazzy-rclcppyy conda package from recipe/ into ./output.
 # Channels match the workspace. The recipe's import-smoke test env resolves the
-# 0.2.0 run-deps (ros-jazzy-rclcpp-kit, cppyy-kit) from the suite channel.
-# NOTE (pre-release): that channel is the LOCAL rattler-build output until the suite
-# publishes; after publish, swap the file:// entry for
-# "https://repo.prefix.dev/awesomebytes" (see RELEASING.md, step 2).
+# 0.2.0 run-deps (ros-jazzy-rclcpp-kit, cppyy-kit) from the suite channel, now the
+# published `awesomebytes` channel on prefix.dev (see RELEASING.md, step 2).
 # Run with `pixi run -e pkg pkg-build`.
-pkg-build = "rattler-build build --recipe recipe/recipe.yaml -c robostack-jazzy -c conda-forge -c file:///home/sapf/playground/ros_project/cppyy_kit/output --output-dir output"
+pkg-build = "rattler-build build --recipe recipe/recipe.yaml -c https://repo.prefix.dev/awesomebytes -c robostack-jazzy -c conda-forge --output-dir output"
 
 [environments]
 # solve-group = "default" pins the shared ROS/cppyy stack to the default env's

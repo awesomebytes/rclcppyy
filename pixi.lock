@@ -4,6 +4,7 @@ platforms:
 environments:
   default:
     channels:
+    - url: https://repo.prefix.dev/awesomebytes/
     - url: https://conda.anaconda.org/robostack-jazzy/
     - url: https://conda.anaconda.org/conda-forge/
     packages:
@@ -470,8 +471,11 @@ environments:
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros-jazzy-yaml-cpp-vendor-9.0.1-np2py312h2ed9cc7_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros-jazzy-zstd-vendor-0.26.10-np2py312h2ed9cc7_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros2-distro-mutex-0.15.0-jazzy_18.conda
+      - conda: https://repo.prefix.dev/awesomebytes/noarch/cppyy-kit-0.1.0-pyh4616a5c_0.conda
+      - conda: https://repo.prefix.dev/awesomebytes/noarch/ros-jazzy-rclcpp-kit-0.1.0-pyh4616a5c_0.conda
   demos:
     channels:
+    - url: https://repo.prefix.dev/awesomebytes/
     - url: https://conda.anaconda.org/robostack-jazzy/
     - url: https://conda.anaconda.org/conda-forge/
     packages:
@@ -1116,8 +1120,11 @@ environments:
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros-jazzy-yaml-cpp-vendor-9.0.1-np2py312h2ed9cc7_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros-jazzy-zstd-vendor-0.26.10-np2py312h2ed9cc7_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros2-distro-mutex-0.15.0-jazzy_18.conda
+      - conda: https://repo.prefix.dev/awesomebytes/noarch/cppyy-kit-0.1.0-pyh4616a5c_0.conda
+      - conda: https://repo.prefix.dev/awesomebytes/noarch/ros-jazzy-rclcpp-kit-0.1.0-pyh4616a5c_0.conda
   pkg:
     channels:
+    - url: https://repo.prefix.dev/awesomebytes/
     - url: https://conda.anaconda.org/robostack-jazzy/
     - url: https://conda.anaconda.org/conda-forge/
     packages:
@@ -2597,6 +2604,7 @@ packages:
   constrains:
   - __glibc >=2.17
   license: MPL-2.0
+  license_family: MOZILLA
   run_exports: {}
   size: 1520257
   timestamp: 1783769879985
@@ -11924,3 +11932,24 @@ packages:
   license: BSD-3-Clause
   size: 2365
   timestamp: 1782298667746
+- conda: https://repo.prefix.dev/awesomebytes/noarch/cppyy-kit-0.1.0-pyh4616a5c_0.conda
+  sha256: d7ff140b805ff6a289f1defc3211e51a25aaa7ac7e8f2021f81f7dc9dd7a8b1b
+  md5: d140dea3d97fa18691d4491f81470710
+  depends:
+  - python
+  - cppyy >=3.5,<4
+  license: BSD-3-Clause
+  size: 55751
+  timestamp: 1783873093580
+- conda: https://repo.prefix.dev/awesomebytes/noarch/ros-jazzy-rclcpp-kit-0.1.0-pyh4616a5c_0.conda
+  sha256: 3ca15f6fbc5fd56e61de960b86897c303880f7b410cca76459d9328acd084c75
+  md5: 77fda079b26f18adc9929775427092fc
+  depends:
+  - python
+  - cppyy-kit ==0.1.0
+  - ros-jazzy-rclcpp
+  - ros-jazzy-rclpy
+  - ros-jazzy-ament-index-python
+  license: BSD-3-Clause
+  size: 28348
+  timestamp: 1783873108241
