@@ -313,7 +313,7 @@ mechanically, not by discipline.
   callable) — documented + round-trip tested. bt_kit refactored onto it.
   test-bt 31 / test-bt-frozen 29, all green; frozen path unregressed.
 
-- **Warmup + first-use JIT (2026-07-11, fcee3ec/1cdd216/2459642):** Sam's
+- **Warmup + first-use JIT (2026-07-11, fcee3ec/1cdd216/2459642):**
   FREEZE.md feedback implemented. `cppyy_kit.first_use()` instruments kit-owned
   entry points — one-time, suppressible (RCLCPPYY_JIT_NOTICE=0), LLM-actionable
   notice naming the exact warmup() to call; `bt_kit.warmup()` /
@@ -400,7 +400,7 @@ mechanically, not by discipline.
   Nav2 plugin injection would reuse this pattern verbatim where an
   add/inject API exists. Docs: `docs/control_kit/`.
 
-- **CUDA OpenCV (2026-07-11, 74ba1a1, merged):** Sam's skepticism vindicated —
+- **CUDA OpenCV (2026-07-11, 74ba1a1, merged):** Initial no-CUDA assumption was wrong —
   conda-forge genuinely ships none (feedstock sets WITH_CUDA=0; 0/6357 files
   with cuda build strings; declined in issues #74/#109), **but Esri's public
   channel ships `libopencv 4.13.0 cuda129` (Apache-2.0)** — the exact version
@@ -438,8 +438,8 @@ mechanically, not by discipline.
   quick-run lines. **Kit scoreboard: 7 spikes, 7 GOs** (bt, pcl, ompl, nav2,
   moveit, control, vision capstone), each with honest boundaries.
 
-- **TF via rclcppyy (2026-07-11, GO; 28854f7, merged):** Sam's assumption
-  confirmed with source-cited evidence — stock Python tf2_ros feeds the buffer
+- **TF via rclcppyy (2026-07-11, GO; 28854f7, merged):** The tf2 Python-overhead
+  hypothesis confirmed with source-cited evidence — stock Python tf2_ros feeds the buffer
   with a Python for-loop per transform (fully-deserialized TFMessage, GIL
   held), while C++ TransformListener ingests natively on its own thread.
   Measured: ingest CPU 6.7×–14× lower (grows with tf rate: 19.3% → 1.4% at
@@ -475,7 +475,7 @@ mechanically, not by discipline.
   bench parity (~963 Hz, 0 dropped — indistinguishable). Recipe 0.2.0 with
   real conda deps validated locally. Dev/CI wiring: PYTHONPATH bridge to a
   cppyy_kit checkout (a committed file:// channel would break CI portability
-  — right call). RELEASING.md documents the choreography: (1) Sam authorizes
+  — right call). RELEASING.md documents the choreography: (1) authorize
   prefix.dev for awesomebytes/cppyy_kit, (2) tag suite v0.1.0, (3) swap
   bridge → awesomebytes channel here, (4) tag v0.2.0. The kit-suite work now
   lives in github.com/awesomebytes/cppyy_kit (docs:

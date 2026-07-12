@@ -7,7 +7,7 @@
 > rclcppyy is now the drop-in accelerator product on top of it (see the repo README
 > and `RELEASING.md`).
 
-**Status: APPROVED DIRECTION (2026-07-11)** — Sam approved the architecture with
+**Status: APPROVED DIRECTION (2026-07-11)** — The architecture was approved with
 two refinements, captured in §4: the ROS core becomes **`rclcpp_kit`** (obeying
 the same naming rule as every other kit), **`rclcppyy` stays a standalone
 product** that depends on it, and the kit suite moves to a **new repo**. §§1–3
@@ -26,7 +26,7 @@ below are the original evaluation; §4 is the operative plan.
 | **`@cpp` decorator** (§5.6) | **Adopt** | Natural unification of what we already half-built: `callback()`'s type-hint signature inference + the marshaling patterns (numpy→pointer+size is our §6). Body-never-executed with annotation-driven marshaling is clean, and it composes with the compile cache (each `@cpp` block = one cached `.so`). |
 | **`.pyi` stub generation** (§5.1) | **Adopt — revive** | Was on rclcppyy's ORIGINAL roadmap (`scripts/create_stubs.py`, stalled WIP). Belongs at the cppyy_kit level; directly serves the LLM-ergonomics principle (typed corridors help agents too). |
 | **async/nogil helpers** (§2.2) | **Adopt, corrected** | The doc's premise ("cppyy calls release the GIL automatically") is **factually wrong** — control_kit *measured* that cppyy holds the GIL on blocking C++ calls (COMMON_PATTERNS §13). But the goal is right: a `nogil()` wrapper (C++-side GIL release shim) + an asyncio `run_in_executor` integration would make blocking C++ calls event-loop-safe. Build it on our corrected foundation. |
-| **Layered packaging: base + kit packages** (§5.1/§5.8) | **Adopt — the re-architecture** | Matches Sam's instinct and our reality: cppyy_kit is already ROS-free by content; six kits already follow "depends on the base". See §3. |
+| **Layered packaging: base + kit packages** (§5.1/§5.8) | **Adopt — the re-architecture** | Matches the project's design direction and practical reality: cppyy_kit is already ROS-free by content; six kits already follow "depends on the base". See §3. |
 | **Fallback contract + `status()` introspection** (§5.2) | **Adopt the pattern, not the target** | We already do capability-detection-with-fallback ad hoc (CUDA auto-detect, frozen-path fallback, gtsam binding fallback). Codify it once in cppyy_kit (capability probe + fallback + introspectable status) so kits stop reinventing it. |
 
 ### 1.2 Doesn't make sense for us (skip, with reasons)
@@ -201,12 +201,12 @@ Dependency graph:
   ways; `cppyy-kit` → conda-forge submission when stable; community-kit
   authoring guide (COMMON_PATTERNS as the manual).
 
-Open decisions for Sam: (a) confirm `cppyy_kit` vs `kitforge` as the project
+**Resolved decisions:** (a) `cppyy_kit` confirmed as the project
 name; (b) distro-scoping convention `ros-jazzy-<kit>-kit` — recommended for
 resolver hygiene alongside robostack; (c) whether the roscon_uk_2025 archive
 stays in rclcppyy (recommended — it's product history, not suite material).
 
-### 4.4 Kit anatomy (correction, Sam 2026-07-11: kits are a MIX, not pure Python)
+### 4.4 Kit anatomy (correction, 2026-07-11: kits are a MIX, not pure Python)
 
 §3's "pure-Python packages" was packaging shorthand (no ament/colcon needed) and
 undersells what a kit is. The kit anatomy:
