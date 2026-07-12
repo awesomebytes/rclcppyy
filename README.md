@@ -2,167 +2,174 @@
 
 [![CI](https://github.com/awesomebytes/rclcppyy/actions/workflows/ci.yml/badge.svg)](https://github.com/awesomebytes/rclcppyy/actions/workflows/ci.yml)
 
-ROS 2 package providing `rclcpp` bindings via [cppyy](https://cppyy.readthedocs.io/en/latest/) and examples on how to use `cppyy` in ROS2.
+**Prototype in Python, run at C++ speed.** `rclcppyy` is a drop-in accelerator for
+`rclpy`: add one line at the top of an existing ROS 2 Python node and its
+publishers, subscriptions, timers, and messages run on the `rclcpp` C++ backend
+instead — no rewrite, no bindings to maintain, no Python⇄C++ message copies on the
+hot path. It is powered by [**cppyy**](https://cppyy.readthedocs.io), which calls
+C++ from Python directly via reflection and just-in-time compilation, and built on
+the [**cppyy_kit suite**](https://github.com/awesomebytes/cppyy_kit) (docs:
+[awesomebytes.github.io/cppyy_kit](https://awesomebytes.github.io/cppyy_kit/)),
+which packages the same "mix Python and C++ with ease" machinery for ROS 2 and a
+family of C++ robotics libraries.
 
 ![](media/rclcppyy_presentation_logo.jpg)
 
+## What it looks like
 
-* Tired of writing python wrappers for your C++ code?
-* Missing features from C++ APIs that you'd like to call in Python?
-* Do you like to prototype and test in Python but you use a lot of C++ code?
+Take any ordinary `rclpy` node and add a single line at the top:
 
-`cppyy` can help you! Cppyy is a Python-C++ bindings library that provides automatic, runtime-based access to C++ code from Python using reflection and just-in-time compilation. It enables seamless interoperability between the two languages, allowing Python to call C++ functions and manipulate C++ objects directly.
-
-This repository aims to expose useful ROS2 C++ (and related) APIs via automatic wrapping with `cppyy`.
-
-For example you will be able to:
-* Transparently use `rclcpp`'s
-    * Node
-    * Publisher
-    * Subscriber
-    * Timer
-    * Messages (without converting Python<>C++, always working on the C++ representation!)
-    * init/spin/shutdown
-    * Loaned messages (TODO!)
-
-To automatically replace your `rclpy` with `rclcpp` classes/methods just place at the top of your Python file:
 ```python
 import rclcppyy; rclcppyy.enable_cpp_acceleration()
-# Rest of your code doing import rclpy, from sensor_msgs.msg import Image... etc
+
+# Everything below is unchanged rclpy — but now runs on the rclcpp C++ backend.
+import rclpy
+from std_msgs.msg import String
+
+rclpy.init()
+node = rclpy.create_node('talker')          # actually an rclcpp-backed node
+pub = node.create_publisher(String, 'chatter', 10)
+node.create_timer(0.5, lambda: pub.publish(String(data='hello')))
+rclpy.spin(node)
 ```
 
-To get an idea of how working with `cppyy` (without the quality of life features of `rclcppyy`) the code looks like (excerpt from an example):
-```python
-import cppyy
-# include/import your stuff and then...
+`enable_cpp_acceleration()` monkeypatches `rclpy` so `create_node`, `spin`,
+publishers, subscriptions, and wall timers are served by `rclcpp`, and message
+classes (e.g. `std_msgs.msg.String`) resolve to their C++ types — the payload lives
+as a C++ object end to end, so there is no per-message Python conversion.
 
-if not cppyy.gbl.rclcpp.ok():
-    cppyy.gbl.rclcpp.init(len(sys.argv), sys.argv)
+## What you get
 
-    # Some code in a class...
-    self.node = cppyy.gbl.rclcpp.Node("node_exmaple")
-    self.publisher = self.node.create_publisher[cppyy.gbl.std_msgs.msg.String](
-        "pub_topic", 10)
-        
-    # Define the callback wrapper with proper Python.h include
-    cppyy.cppdef("""
-        #include <Python.h>
-        #include <functional>
-        
-        static std::function<void()> create_timer_callback(PyObject* self) {
-            return [self]() {
-                if (self && PyObject_HasAttrString(self, "timer_callback")) {
-                    PyObject_CallMethod(self, "timer_callback", nullptr);
-                }
-            };
-        }
-    """)
+Publishing and subscribing on the C++ backend uses **a fraction of the CPU** of
+plain `rclpy` at the same message rate, because the hot path (executor, DDS calls,
+message handling) runs in C++ instead of the Python interpreter. In the run below —
+a small `std_msgs/String` at 1 kHz on the reference machine — the monkeypatched
+node used **roughly 4–6× less CPU** than `rclpy` (publisher *and* subscriber), at
+the same throughput and about half the latency. Measure it on your own machine in
+one command:
 
-    callback = cppyy.gbl.create_timer_callback(self)
-    self.timer = self.node.create_wall_timer(
-        cppyy.gbl.std.chrono.nanoseconds(10000),
-        callback)
-
-    self.start_time = cppyy.gbl.std.chrono.steady_clock.now()
+```bash
+pixi run bench     # rclpy vs rclcppyy CPU comparison table (1 kHz + 10 kHz)
 ```
 
-## Examples
+Example output (absolute numbers vary by machine — reproduce it yourself with the
+command above):
 
-* Benchmarks (ran on a Intel® Core™ Ultra 7 165H × 22 on "Performance" mode on Ubuntu 24.04)
-    * Running a publisher and a subscriber (small `std_msgs/String`) at **1khz**
-    ![Benchmark results for 1kHz publishing and subscribing](media/benchmark_pub_sub_1k_hz.png)
-        * `rclpy` uses 15~% CPU for the publisher, and 18~% CPU for the subscriber
-        * `rclcppyy` uses 4~% CPU for the publisher, and 4~% CPU for the subscriber
+```
+  Benchmark @ 1000 Hz target
+  =======================================================================================
+  variant                   pub CPU%  sub CPU%  msgs recv  eff Hz    dropped  avg lat us
+  ---------------------------------------------------------------------------------------
+  rclpy                     17.9      19.2      6000       968.9     0        174.8
+  rclcppyy (monkeypatched)  4.4       3.4       6000       969.4     0        89.0
+```
 
-    * Running a publisher and a subscriber (small `std_msgs/String`) at **10khz**
-    ![Benchmark results for 10kHz publishing and subscribing](media/benchmark_pub_sub_10k_hz.png)
-        * `rclpy` uses 86~% CPU for the publisher, and 88~% CPU for the subscriber
-        * `rclcppyy` uses 26~% CPU for the publisher, and 22~% CPU for the subscriber
+For the full, consolidated and freshly-measured benchmark set — across the whole
+suite, including the freeze/AOT optimization ladder — see the
+**[cppyy_kit benchmarks page](https://awesomebytes.github.io/cppyy_kit/docs/benchmarks/)**.
 
-* The `publisher_member_function.py` [Writing a simple publisher and subscriber (Python)](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html) tutorial using `rclcppyy` as backend. [scripts/ros_tutorials/publisher_member_function.py](scripts/ros_tutorials/publisher_member_function.py).
-* Note that the `rclpy` publisher benchmark [bench_pub_rclpy.py](scripts/benchmarks/bench_pub_rclpy.py) can be switched to the `rclcppyy` backend by uncommenting the `enable_cpp_acceleration` line at the top.
+## Install (pixi / conda — no build needed)
 
-
-## Install (pixi, no build needed)
-
-If you just want to *use* `rclcppyy` (no clone, no `colcon build`), add the
-prefix.dev channel and the package to your own pixi workspace:
+`rclcppyy` 0.2.0 is published as `ros-jazzy-rclcppyy` on the prefix.dev
+[`awesomebytes` channel](https://prefix.dev/channels/awesomebytes). To *use* it (no clone, no `colcon build`), add the channel
+and the package to your own pixi workspace:
 
 ```toml
+# pixi.toml
+[workspace]
 channels = ["https://repo.prefix.dev/awesomebytes", "robostack-jazzy", "conda-forge"]
+platforms = ["linux-64"]
 
 [dependencies]
 ros-jazzy-rclcppyy = "*"
 ```
 
-Then `import rclcppyy; rclcppyy.enable_cpp_acceleration()` works out of the box —
-no `LD_LIBRARY_PATH` or activation setup required. Message packages you publish
-or subscribe (e.g. `ros-jazzy-std-msgs`) are separate dependencies, as in any
-ROS 2 project.
+Or in one line:
 
-## Architecture (0.2.0): rclcppyy on top of the cppyy_kit suite
+```bash
+pixi add -c https://repo.prefix.dev/awesomebytes -c robostack-jazzy -c conda-forge ros-jazzy-rclcppyy
+```
 
-As of **0.2.0**, rclcppyy is the **drop-in rclpy accelerator product** in a larger
-family. The reusable machinery it pioneered was extracted into the
-**[cppyy_kit suite](https://github.com/awesomebytes/cppyy_kit)**:
+Then `import rclcppyy; rclcppyy.enable_cpp_acceleration()` works out of the box — no
+`LD_LIBRARY_PATH` or activation setup required. Message packages you publish or
+subscribe (e.g. `ros-jazzy-std-msgs`) are separate dependencies, as in any ROS 2
+project. Installing rclcppyy pulls its runtime deps `ros-jazzy-rclcpp-kit` and
+`cppyy-kit` (the suite) transitively.
 
-- **`cppyy_kit`** — the ROS-free base (load/keep-alive/callback/teardown friction
-  primitives, the `freeze` PCH tooling).
-- **`rclcpp_kit`** — the ROS 2 core capability layer (rclcpp bringup, C++ message
-  resolution/conversion, serialization, rosbag2, **tf**).
-- the domain **kits** (`bt_kit`, `pcl_kit`, `ompl_kit`, `nav2_kit`, `moveit_kit`,
-  `control_kit`, `cv_kit`, `dbow_kit`).
+## What accelerates, and what stays rclpy
 
-rclcppyy keeps the brand and the one-line monkeypatch (`enable_cpp_acceleration`)
-and re-exports the moved pieces through **deprecation shims** — existing
-`from rclcppyy.bringup_rclcpp import ...`, `rclcppyy.tf`, `from rclcppyy.kits import
-bt_kit`, etc. keep working (with a `DeprecationWarning` pointing at the new home).
-New code should import `rclcpp_kit.*` and the standalone kit packages directly. See
-[`RELEASING.md`](RELEASING.md) for the suite/product publish order.
+`rclcppyy` accelerates the pub/sub hot path and keeps everything else on stock
+`rclpy`, so unpatched code keeps working. Be aware of the boundaries:
 
-## Kits
+**Runs on the C++ backend after `enable_cpp_acceleration()`:**
 
-The cppyy "kits" — a "kit" is a thin layer that mirrors a C++ library's own API and
-hides only the `cppyy` friction (bringup, lifetime, crossing callbacks, teardown) —
-now live in the **[cppyy_kit repo](https://github.com/awesomebytes/cppyy_kit)**:
-[BehaviorTree.CPP](https://www.behaviortree.dev/) (no other Python binding of it
-exists), [PCL](https://pointclouds.org/), [OMPL](https://ompl.kavrakilab.org/),
-[Nav2](https://docs.nav2.org/), [MoveIt 2](https://moveit.ai/),
-[ros2_control](https://control.ros.org/), plus a vision loop-closure tutorial
-composing OpenCV + DBoW2 + GTSAM. `rclcppyy.kits.*` remains as compatibility shims.
+- Nodes created via `rclpy.create_node(...)` (returned as C++-backed nodes)
+- Publishers, subscriptions, and wall timers on those nodes
+- `rclpy.spin(node)` (delegates to `rclcpp::spin`)
+- Message types — resolved to their `rclcpp` C++ equivalents on import, kept as C++
+  objects with no Python⇄C++ conversion on publish/receive
 
-Measured results (from the suite):
+**Stays on stock rclpy (not accelerated):**
 
-| Kit | What it shows | Number |
-|---|---|---|
-| BT.CPP | official tutorials in Python, XML verbatim | 16–24 lines; ~630k ticks/s (Python leaves) |
-| PCL | NumPy→VoxelGrid→NumPy pipeline vs rclpy+NumPy (100k pts @ 10 Hz) | 14.8× lower latency, 9.4× less CPU, same LOC |
-| OMPL | Python subclass called by RRT\* in its hot loop (cross-inheritance) | 1M+ calls/solve, ~350 ns/call; Python validity ~159× native (lowerable to C++) |
-| Nav2 | your own nav stack — Costmap2D + NavFn from Python, no lifecycle servers | NavFn plan ~80× a Python A\* |
-| MoveIt 2 | full MoveIt C++ API (FK, FCL, real OMPL plan) + collision-aware IK | validity-callback IK that moveit_py cannot express |
-| ros2_control | a Python controller running inside the real `controller_manager` | 100 Hz update loop, solid |
-| vision tutorial | zero-copy ROS `Image`→`cv::Mat` ingest, DBoW2 loop closure, GTSAM back-end | ingest ~155× @1080p; GTSAM ~15× drift fix; optional CUDA ORB ~5.3× |
-| L1 "freeze" (Cling PCH) | header parse eliminated | 890 ms → 6 ms (~140×); rclcpp 1.71 s → 6 ms |
-| L2 lowering | Python leaf → native `.so` | ~2.8× tick rate, identical output |
+- Services and actions
+- Parameters, parameter services, and parameter events
+- Custom executors, callback groups, and multi-threaded spinning — acceleration
+  targets the default single-threaded spin
+- Publisher/subscription event callbacks and QoS overriding options
 
-Run the kit demos/benchmarks and read the per-kit `SKILL.md` / `WHY.md` / `REPORT.md`
-in the **[cppyy_kit repo](https://github.com/awesomebytes/cppyy_kit)** (each kit has
-its own opt-in pixi env there, e.g. `pixi run -e bt demo-bt-t01`,
-`pixi run -e pcl bench-pcl`, `pixi run -e vision demo-vision-loop`). The common-pattern
-playbook, the L0→L1→L2 freeze ladder, and the vision loop-closure walkthrough live
-there too.
+**Known walls:**
 
-## Setup
+- `enable_cpp_acceleration()` monkeypatches `rclpy` **process-globally and
+  irreversibly** — call it once, at the very top, before creating nodes.
+- The **first** `rclcpp` bringup JIT-compiles headers. The suite ships a zero-config
+  Cling PCH cache (`cppyy_kit` auto-PCH) that makes subsequent process starts far
+  cheaper (a warm `rclcpp` bringup measured ~1.73 s → ~0.064 s); see the
+  [Freeze & Cache](https://awesomebytes.github.io/cppyy_kit/docs/FREEZE/) docs and the
+  [benchmarks page](https://awesomebytes.github.io/cppyy_kit/docs/benchmarks/).
+- Acceleration is opt-in per process; without the one-line call, your code is
+  ordinary `rclpy`.
 
-The workspace is a self-contained [pixi](https://pixi.sh) project: the manifest
-(`pixi.toml`) and lockfile (`pixi.lock`) live in this repo, so `pixi install`
-reproduces the exact environment (ROS 2 Jazzy from robostack, `cppyy` from
-conda-forge, compilers, colcon). No manual steps, no workarounds.
+## Powered by the cppyy_kit suite
+
+As of **0.2.0**, `rclcppyy` is the ROS 2 drop-in *product* in a larger family. The
+reusable machinery it pioneered was extracted into the
+**[cppyy_kit suite](https://github.com/awesomebytes/cppyy_kit)** — a set of "kits",
+where a *kit* is a thin layer that mirrors a C++ library's own API and hides only
+the `cppyy` friction (bringup, object lifetime, crossing callbacks, teardown).
+`rclcppyy` now **depends on the suite at runtime** and re-exports the moved pieces
+through **deprecation shims**, so existing imports (`from rclcppyy.bringup_rclcpp
+import ...`, `rclcppyy.tf`, `from rclcppyy.kits import bt_kit`, …) keep working with a
+`DeprecationWarning` pointing at the new home. **New code should import the suite
+packages directly.**
+
+| Kit | Import / conda package | What it gives you | Docs |
+|---|---|---|---|
+| `cppyy_kit` | `cppyy_kit` / `cppyy-kit` | ROS-free base: load / keep-alive / callback / teardown primitives, the `freeze` PCH tooling, compile cache | [page](https://awesomebytes.github.io/cppyy_kit/kits/cppyy_kit/) |
+| `rclcpp_kit` | `rclcpp_kit` / `ros-jazzy-rclcpp-kit` | ROS 2 core: rclcpp bringup, C++ message resolution/conversion, serialization, rosbag2, **tf** | [page](https://awesomebytes.github.io/cppyy_kit/rclcpp_kit/) |
+| `bt_kit` | `bt_kit` / `ros-jazzy-bt-kit` | [BehaviorTree.CPP](https://www.behaviortree.dev/) v4 from Python | [page](https://awesomebytes.github.io/cppyy_kit/bt_kit/WHY/) |
+| `pcl_kit` | `pcl_kit` / `ros-jazzy-pcl-kit` | [PCL](https://pointclouds.org/) — clouds stay in C++ end to end | [page](https://awesomebytes.github.io/cppyy_kit/pcl_kit/WHY/) |
+| `ompl_kit` | `ompl_kit` / `ros-jazzy-ompl-kit` | [OMPL](https://ompl.kavrakilab.org/) motion planning | [page](https://awesomebytes.github.io/cppyy_kit/ompl_kit/WHY/) |
+| `nav2_kit` | `nav2_kit` / `ros-jazzy-nav2-kit` | [Nav2](https://docs.nav2.org/) cores (Costmap2D + NavFn), no lifecycle servers | [page](https://awesomebytes.github.io/cppyy_kit/nav2_kit/WHY/) |
+| `moveit_kit` | `moveit_kit` / `ros-jazzy-moveit-kit` | the full [MoveIt 2](https://moveit.ai/) C++ API from Python | [page](https://awesomebytes.github.io/cppyy_kit/moveit_kit/WHY/) |
+| `control_kit` | `control_kit` / `ros-jazzy-control-kit` | a Python [ros2_control](https://control.ros.org/) controller in the real controller_manager | [page](https://awesomebytes.github.io/cppyy_kit/control_kit/WHY/) |
+| `cv_kit` | `cv_kit` / `ros-jazzy-cv-kit` | OpenCV C++ with a zero-copy `sensor_msgs/Image` → `cv::Mat` bridge | [page](https://awesomebytes.github.io/cppyy_kit/cv_kit/WHY/) |
+| `dbow_kit` | `dbow_kit` / `ros-jazzy-dbow-kit` | [DBoW2](https://github.com/dorian3d/DBoW2) place recognition / loop closure | [page](https://awesomebytes.github.io/cppyy_kit/dbow_kit/WHY/) |
+
+The [cppyy_kit docs site](https://awesomebytes.github.io/cppyy_kit/) also carries the
+common-pattern playbook, the L0→L1→L2 freeze/AOT ladder, a vision loop-closure
+tutorial, per-kit benchmarks, and a `cppyy-accelerate` skill for driving a coding
+agent to speed up existing Python.
+
+## Development
+
+The repo is a self-contained [pixi](https://pixi.sh) workspace — the manifest
+(`pixi.toml`) and lockfile (`pixi.lock`) live here, so `pixi install` reproduces the
+exact environment (ROS 2 Jazzy from robostack, `cppyy` from conda-forge, the suite
+from the `awesomebytes` channel, compilers, colcon). No manual steps.
 
 ```bash
 # If you haven't installed pixi:
-curl -fsSL https://pixi.sh/install.sh | sh
-source ~/.bashrc
+curl -fsSL https://pixi.sh/install.sh | sh && source ~/.bashrc
 
 git clone https://github.com/awesomebytes/rclcppyy
 cd rclcppyy
@@ -170,49 +177,29 @@ pixi install        # downloads the environment (a few GB the first time)
 pixi run build      # colcon build --packages-select rclcppyy
 ```
 
-`pixi run build` builds the package into `install/`. To get an interactive shell
-with the environment (and the built workspace) already activated:
-
-```bash
-pixi shell
-```
-
 Inside `pixi shell` the workspace overlay is sourced automatically and the
-recommended middleware defaults are already set (`RMW_IMPLEMENTATION=rmw_cyclonedds_cpp`,
-`ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST`) — the ROS default fastrtps has random
-latency issues and big messages don't pass through, so cyclonedds on LOCALHOST is
-the default here.
+recommended middleware defaults are already set
+(`RMW_IMPLEMENTATION=rmw_cyclonedds_cpp`, `ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST`) —
+the ROS default fastrtps has intermittent latency issues and drops big messages, so
+cyclonedds on LOCALHOST is the default here.
 
-Tasks: `pixi run build`, `pixi run test` (runs pytest on `test/`), `pixi run clean`
-(removes `build/ install/ log/`).
+Tasks:
 
-### Run
+| Task | What it does |
+|---|---|
+| `pixi run build` | `colcon build --packages-select rclcppyy` into `install/` |
+| `pixi run test` | `pytest test/` (bringup, monkeypatch, pub/sub roundtrip, serialization parity, tf, clean-exit, kit shims) |
+| `pixi run lint` | `flake8 rclcppyy test` |
+| `pixi run clean` | remove `build/ install/ log/` |
+| `pixi run bench` | rclpy-vs-rclcppyy CPU comparison table (1 kHz + 10 kHz) |
+| `pixi run demo-tutorial` | the rclpy pub/sub tutorial, on the rclcppyy C++ backend |
+| `pixi run demo-pubsub` | a live pub/sub pair (rclcppyy backend), stats streamed |
 
-Everything runs in a single command from a clean checkout — no juggling four
-shells and watching `top`:
-
-```bash
-pixi run bench           # rclpy vs rclcppyy CPU comparison table (1 kHz + 10 kHz)
-pixi run demo-tutorial   # the rclpy pub/sub tutorial, on the rclcppyy C++ backend
-pixi run demo-pubsub     # a live pub/sub pair (rclcppyy backend), stats streamed
-```
-
-`pixi run bench` spawns each publisher/subscriber pair as separate child
-processes, warms up (the rclcppyy variants JIT-compile `rclcpp` on first
-bringup, ~2 s, excluded from the measurement), samples each process's CPU with
-`psutil` while parsing the subscriber's throughput/latency, kills the children
-itself, and prints a table per rate:
-
-```
-  Benchmark @ 1000 Hz target
-  =======================================================================================
-  variant                   pub CPU%  sub CPU%  msgs recv  eff Hz    dropped  avg lat us
-  ---------------------------------------------------------------------------------------
-  rclpy                     18.1      20.6      15000      995.4     0        227.9
-  rclcppyy (monkeypatched)  3.8       4.8       15000      967.7     0        130.1
-```
-
-Flags pass straight through the pixi task:
+`pixi run bench` spawns each publisher/subscriber pair as separate child processes,
+warms up (the rclcppyy variants JIT-compile `rclcpp` on first bringup, excluded from
+the measurement), samples each process's CPU with `psutil` while parsing the
+subscriber's throughput/latency, kills the children itself, and prints a table per
+rate. Flags pass straight through the pixi task:
 
 ```bash
 pixi run bench --rate 5000 --duration 10                       # custom rate / window
@@ -235,11 +222,7 @@ ros2 run rclcppyy bench_sub_rclpy.py
 ros2 run rclcppyy bench_pub_rclcppyy_monkeypatch.py 10000
 ros2 run rclcppyy bench_sub_rclcppyy_monkeypatched.py
 
-# Monitor with
-# top -c -p $(pgrep -d, -f bench_)
-
-# Or the tutorial example
-ros2 run rclcppyy publisher_member_function.py
+# Monitor with:  top -c -p $(pgrep -d, -f bench_)
 ```
 
 Without entering a shell, any command can be run through pixi directly, e.g.
@@ -248,9 +231,9 @@ Without entering a shell, any command can be run through pixi directly, e.g.
 
 ### Extra demos (optional env)
 
-The heavier example scripts (OpenCV, PCL, GStreamer, typer, hypothesis) live in
-an optional `demos` environment so the default `pixi install` stays lean. Enable
-it once, then run any demo task with `pixi run -e demos <task>`:
+Heavier example scripts (OpenCV, PCL, GStreamer, typer, hypothesis) live in an
+optional `demos` environment so the default `pixi install` stays lean. Enable it
+once, then run any demo task with `pixi run -e demos <task>`:
 
 ```bash
 pixi install -e demos       # adds opencv, pcl, pcl_conversions, eigen,
@@ -259,61 +242,21 @@ pixi install -e demos       # adds opencv, pcl, pcl_conversions, eigen,
 
 | Task | What it does |
 |---|---|
-| `pixi run -e demos demo-images` | Publishes a real JPEG as a `sensor_msgs/Image` at 4 Hz through the rclcppyy C++ backend (builds the message straight into a C++ `std::vector`, no Python<>C++ copy). Pair it with `pixi run -e demos python scripts/big_messages_demos/images_sub.py` to see it received. |
-| `pixi run -e demos demo-hypothesis` | Drives a JIT-compiled C++ function with [Hypothesis](https://hypothesis.readthedocs.io) property-based testing. Intentionally finds the failing input (`"DDS"`) and reports it as a falsifying example, so it exits non-zero on purpose — that's the demo. |
-| `pixi run -e demos demo-pointcloud-voxelgrid` | JIT-compiles a PCL `VoxelGrid` filter (via `pcl_conversions`) and runs it as a ROS 2 node. The JIT/compile step runs on startup; it then waits for `PointCloud2` messages on `/lexus3/os_center/points`, so it needs an external bag to actually downsample anything (see below). |
+| `pixi run -e demos demo-images` | Publishes a real JPEG as a `sensor_msgs/Image` at 4 Hz through the C++ backend (builds the message straight into a C++ `std::vector`, no copy). Pair with `pixi run -e demos python scripts/big_messages_demos/images_sub.py` to receive it. |
+| `pixi run -e demos demo-hypothesis` | Drives a JIT-compiled C++ function with [Hypothesis](https://hypothesis.readthedocs.io) property-based testing. It intentionally finds the failing input (`"DDS"`) and exits non-zero — that's the demo. |
+| `pixi run -e demos demo-pointcloud-voxelgrid` | JIT-compiles a PCL `VoxelGrid` filter (via `pcl_conversions`) and runs it as a ROS 2 node, waiting for `PointCloud2` on `/lexus3/os_center/points` (needs an external bag to downsample anything). |
 
-`roscon_uk_2025/` is the archive of the ROSCon UK 2025 presentation. Some of its
-demos need external data that is not in this repo and therefore have no `pixi
-run` task:
+Additional example scripts under `roscon_uk_2025/` need external data not in this
+repo (a live `PointCloud2` source, the [cloudini](https://github.com/facontidavide/cloudini)
+compressor workspace, or a V4L2 camera) and therefore have no `pixi run` task — see
+the scripts' own comments for setup.
 
-- `1_pointcloud_passthrough.py` / `2_pointcloud_voxelgrid.py` — need a live
-  `PointCloud2` source (the talk used a bag published on
-  `/lexus3/os_center/points`; `0_setup_pointcloud.sh` shows the `ros2 bag play`
-  + RViz setup).
-- `3_cloudini_cli.py` — a typer CLI over the C++
-  [cloudini](https://github.com/facontidavide/cloudini) point-cloud compressor;
-  needs a cloudini colcon workspace checked out and built alongside it (it
-  auto-discovers the workspace root and loads the built `.so`).
-- `4_gstreamer_cli.py` — a typer CLI that JIT-compiles a C++ pixel kernel and
-  runs it inside a GStreamer pipeline; needs a V4L2 camera at `/dev/video0` (and
-  a display for the default `--viz` output).
+## Releasing
 
-## Roadmap
+`rclcppyy` depends on the published cppyy_kit suite, which creates a publish order
+(suite first, then the product). See [`RELEASING.md`](RELEASING.md) for the release
+choreography and the `rclcppyy.*` / `rclcppyy.kits.*` deprecation timeline.
 
-[x] Benchmark pub/sub
+## License
 
-[x] Get rclpy tutorials code to run with rclcppyy backend.
-
-[x] Monkeypatch/substitute rclpy with rclcppyy and make your Python nodes use less CPU!
-
-[x] Monkeypatch/substitute rclpy messages for rclcpp messages (so to avoid conversions).
-
-[ ] (WIP) Generate stubs to get IDE autocompletion.
-
-[ ] (WIP) Demo images (these big images ones should be done with loaned or zero-cost copy messages).
-
-[x] Demo use python testing packages with C++.
-
-[x] Demo use python CLI generator with C++.
-
-[ ] Demo use C++ Markers classes from Python.
-
-[ ] Demo use zero-copy torch.
-
-[x] (WIP) Demo use C++ rosbag reader (to C++ messages).
-
-[x] Demo pointclouds.
-
-[ ] Demo Nav2.
-
-[ ] Demo Moveit2.
-
-[ ] Demo ROS control.
-
-[ ] Separate into different packages the base `rclcppyy` and other demos/reusable pieces.
-
-
-## TODO
-
-* Bring down the bringup of rclcppyy time (currently 2.5s~) by figuring out how to build a `.pcm` + `.so` dictionary that is pre-compiled (or at least compiled just once per machine)
+BSD 3-Clause — see [`LICENSE`](LICENSE).
