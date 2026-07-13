@@ -1,15 +1,15 @@
-"""Standalone bootstrap for rclcppyy's opt-in auto-acceleration (RCLCPPYY_ENABLE_HOOK).
+"""Standalone bootstrap for rclcppyy's startup hook (RCLCPPYY_ENABLE_HOOK).
 
 A copy of this file is installed into the active environment's site-packages (as
-``_rclcppyy_autoaccel.py``) next to a ``.pth`` whose single line calls
-``activate()`` at **every interpreter start, before any user import**. That is what
-lets a process which never mentions rclcppyy -- the stock ``ros2`` CLI, for example
--- pick up the C++ backend: with ``RCLCPPYY_ENABLE_HOOK=1`` set, ``activate()`` arranges
-for ``rclcppyy.enable_cpp_acceleration()`` to run the moment ``rclpy`` is imported,
-so ``rclpy.create_node`` / ``spin`` / ``spin_once`` are already patched before the
-tool builds its node.
+``_rclcppyy_hook.py``) next to a ``.pth`` whose single line calls ``activate()`` at
+**every interpreter start, before any user import**. That is what lets a process
+which never mentions rclcppyy -- the stock ``ros2`` CLI, for example -- pick up the
+C++ backend: with ``RCLCPPYY_ENABLE_HOOK=1`` set, ``activate()`` arranges for
+``rclcppyy.enable_cpp_acceleration()`` to run the moment ``rclpy`` is imported, so
+``rclpy.create_node`` / ``spin`` / ``spin_once`` are already patched before the tool
+builds its node.
 
-The SAME module is imported by ``rclcppyy.autoaccel`` as the single source of the
+The SAME module is imported by ``rclcppyy.hook`` as the single source of the
 install-path and activation logic. Two hard constraints follow (mirroring
 cppyy_kit's auto-PCH bootstrap):
 
@@ -19,15 +19,15 @@ cppyy_kit's auto-PCH bootstrap):
   * **never raises** -- a bootstrap that threw would print a traceback on every
     ``python`` invocation. ``activate()`` swallows everything.
 
-When ``RCLCPPYY_ENABLE_HOOK`` is unset (the default) ``activate()`` returns immediately,
-before importing anything, so the cost for unrelated processes is negligible.
-``RCLCPPYY_DISABLE_HOOK=1`` is an explicit opt-out that wins even if ``RCLCPPYY_ENABLE_HOOK=1``.
+The single control is ``RCLCPPYY_ENABLE_HOOK``: exactly ``"1"`` turns the hook on;
+unset, ``"0"``, or any other value leaves it off, so ``activate()`` returns
+immediately (before importing anything) and the cost for unrelated processes is
+negligible.
 """
 import os
 import sys
 
 ENABLE_ENV = "RCLCPPYY_ENABLE_HOOK"
-DISABLE_ENV = "RCLCPPYY_DISABLE_HOOK"
 
 # Per-process guard. A module global (not an env var) so it never leaks into child
 # processes -- each interpreter decides for itself whether to accelerate.
@@ -35,9 +35,7 @@ _activated = False
 
 
 def _enabled():
-    """Whether auto-acceleration is requested for this process."""
-    if os.environ.get(DISABLE_ENV) == "1":
-        return False
+    """Whether the hook is requested for this process (only ``"1"`` enables)."""
     return os.environ.get(ENABLE_ENV) == "1"
 
 

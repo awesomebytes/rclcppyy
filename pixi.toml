@@ -109,9 +109,10 @@ demo-heavy-hz-rclpy = "python scripts/heavy_hz_demo/run_heavy_hz.py --variant rc
 demo-heavy-hz-rclcppyy = "python scripts/heavy_hz_demo/run_heavy_hz.py --variant rclcppyy"
 # Cold (fresh PCH cache) vs warm rclcppyy bringup: parse cost + time-to-first-msg.
 demo-heavy-startup = "python scripts/heavy_hz_demo/run_heavy_hz.py --startup-story"
-# Accelerate the REAL `ros2 topic hz` binary via RCLCPPYY_ENABLE_HOOK: plain vs auto CPU/hz
-# across a rate sweep (installs the opt-in .pth first; idempotent).
-demo-topic-hz-cli = "python scripts/heavy_hz_demo/run_topic_hz_cli.py --sweep"
+# Accelerate the REAL `ros2 topic hz` binary via RCLCPPYY_ENABLE_HOOK: rclpy vs
+# rclcppyy CPU/hz on a 3 MB image (installs the opt-in .pth first; idempotent).
+# Vary payload/rate with flags, e.g. --width 128 --height 128 --rates 1000,3000.
+demo-topic-hz-cli = "python scripts/heavy_hz_demo/run_topic_hz_cli.py --sweep --rates 100,200,300 --width 1024 --height 1024 --reliability best_effort"
 # Time-to-first-hz-line of the real `ros2 topic hz`: stock vs RCLCPPYY_ENABLE_HOOK, cold vs warm.
 demo-topic-hz-startup = "python scripts/heavy_hz_demo/run_topic_hz_cli.py --startup-story"
 
