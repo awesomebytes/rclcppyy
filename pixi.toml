@@ -85,6 +85,31 @@ demo-hypothesis = "python roscon_uk_2025/presentation/5_hypothesis_test.py"
 # /lexus3/os_center/points — needs an external bag to produce output.
 demo-pointcloud-voxelgrid = "python roscon_uk_2025/presentation/2_pointcloud_voxelgrid.py"
 
+# Optional "heavydemo" feature/environment: the heavy-topic `ros2 topic hz`
+# showcase (scripts/heavy_hz_demo/). It reuses the default ROS/cppyy stack
+# (solve-group "default", no extra conda deps) but bridges rclcpp_kit/cppyy_kit
+# from a sibling *source* checkout, because the cold-vs-warm startup story needs
+# the zero-config auto-PCH that postdates the published suite 0.1.0 the default
+# env pins. The bridge is DEV/demo-only and gated on CPPYY_KIT_SRC (see
+# workspace_activation.sh); the default env's published-channel dependency is
+# untouched. Run with `pixi run -e heavydemo demo-heavy-hz` (see README).
+[feature.heavydemo.activation.env]
+# Isolate the auto-PCH cache to a repo-local (gitignored) dir so the demo never
+# reads or writes the shared ~/.cache/cppyy_kit, and the startup-story runner can
+# clear it to force a cold run. (The checkout path the bridge exposes on
+# PYTHONPATH is chosen in workspace_activation.sh, gated on PIXI_ENVIRONMENT_NAME;
+# override it with `CPPYY_KIT_SRC=/path pixi run -e heavydemo ...`.)
+XDG_CACHE_HOME = "$PIXI_PROJECT_ROOT/.heavy_demo_cache"
+
+[feature.heavydemo.tasks]
+# rclpy vs rclcppyy hz comparison on a heavy topic (the headline table).
+demo-heavy-hz = "python scripts/heavy_hz_demo/run_heavy_hz.py --compare"
+# The same comparison split into the two variants the README shows side by side.
+demo-heavy-hz-rclpy = "python scripts/heavy_hz_demo/run_heavy_hz.py --variant rclpy"
+demo-heavy-hz-rclcppyy = "python scripts/heavy_hz_demo/run_heavy_hz.py --variant rclcppyy"
+# Cold (fresh PCH cache) vs warm rclcppyy bringup: parse cost + time-to-first-msg.
+demo-heavy-startup = "python scripts/heavy_hz_demo/run_heavy_hz.py --startup-story"
+
 # Optional "pkg" feature/environment: tooling to build the conda package from
 # recipe/. Standalone (no default ROS/cppyy stack), so it stays lean and doesn't
 # perturb the default env's lock.
@@ -106,5 +131,8 @@ pkg-build = "rattler-build build --recipe recipe/recipe.yaml -c https://repo.pre
 # with the kits themselves (M3 cleanup); only the product's own demos + packaging
 # envs remain here.
 demos = { features = ["demos"], solve-group = "default" }
+# heavydemo shares the default solve so enabling it never re-resolves the stack;
+# it adds no conda deps, only the demo bridge activation env + tasks.
+heavydemo = { features = ["heavydemo"], solve-group = "default" }
 # no-default-feature: the packaging tooling doesn't need the ROS/cppyy stack.
 pkg = { features = ["pkg"], no-default-feature = true }

@@ -229,6 +229,94 @@ Without entering a shell, any command can be run through pixi directly, e.g.
 `pixi run ros2 run rclcppyy bench_sub_rclcppyy_monkeypatched.py`.
 </details>
 
+### Heavy-topic `ros2 topic hz` showcase (dev bridge)
+
+`scripts/heavy_hz_demo/` is a `ros2 topic hz`-style showcase on a **heavy** topic
+(a 1024×1024 `sensor_msgs/Image`, 3.0 MB per message) where a plain `rclpy`
+subscriber measurably falls behind and the accelerated one does not. A
+C++-accelerated publisher streams the image at a target rate; an hz-measuring
+subscriber reports achieved rate, received-vs-expected, drops, latency, and CPU.
+The **same** subscriber script runs both ways — the only difference is whether this
+one line near the top executes:
+
+```python
+import rclcppyy; rclcppyy.enable_cpp_acceleration()
+```
+
+> **Needs `cppyy-kit` newer than the published 0.1.0** (for the zero-config
+> auto-PCH the cold-vs-warm story below relies on). Until the next suite release,
+> the `heavydemo` pixi env bridges the newer `rclcpp_kit`/`cppyy_kit` from a sibling
+> `cppyy_kit` **source checkout** (default `../cppyy_kit`, override with
+> `CPPYY_KIT_SRC`). This is a **dev/demo-only** env: it shares the default solve
+> (adds no conda deps) and leaves the default env's published-channel dependency
+> untouched. The bridge is set up in `workspace_activation.sh`, gated on the
+> `heavydemo` env; it also points `XDG_CACHE_HOME` at a repo-local `.heavy_demo_cache/`
+> so the demo never touches your shared `~/.cache`.
+
+```bash
+pixi install -e heavydemo                       # shares the default solve; no re-download
+pixi run -e heavydemo demo-heavy-hz             # rclpy vs rclcppyy table at 500 Hz / 3 MB
+pixi run -e heavydemo demo-heavy-hz-rclpy       # just the plain-rclpy subscriber
+pixi run -e heavydemo demo-heavy-hz-rclcppyy    # just the accelerated subscriber
+pixi run -e heavydemo demo-heavy-startup        # cold vs warm rclcppyy bringup
+
+# Sweep it yourself (flags pass straight through the task):
+pixi run -e heavydemo demo-heavy-hz --rate 700 --width 1280 --height 960 --duration 15
+```
+
+**Measured** on the reference machine (1024×1024 bgr8 = 3.0 MB, RELIABLE QoS,
+KEEP_LAST depth 10, cyclonedds on LOCALHOST; absolute numbers vary by machine and
+run — reproduce with the command above):
+
+| Target Hz | Subscriber | sub CPU % | achieved Hz | dropped | avg latency (ms) |
+|---|---|---|---|---|---|
+| 100 | `rclpy` | 57.9 | 93.3 | 43 | 31.9 |
+| 100 | `rclcppyy` | 22.2 | 92.6 | 56 | 32.5 |
+| 500 | `rclpy` | 156.9 | 205.5 | 2646 | 48.2 |
+| 500 | `rclcppyy` | 69.9 | 335.9 | 1464 | 17.4 |
+| 700 | `rclpy` | 164.0 | 213.5 | 3499 | 39.6 |
+| 700 | `rclcppyy` | 80.9 | 417.0 | 1728 | 13.8 |
+
+At 100 Hz **both keep up** (~93 Hz delivered, similar latency) — but plain `rclpy`
+already burns ~2.6× the CPU. Push harder and the gap opens: the **knee is around
+200 Hz for 3 MB on this machine**. Plain `rclpy` tops out near **~210 Hz** no
+matter how fast you publish (it saturates ~1.6 CPU cores), while the accelerated
+subscriber climbs to **336 Hz at 500 Hz target and 417 Hz at 700 Hz** — roughly
+**2× the throughput at half the CPU and a third of the latency**.
+
+**Why:** a plain `rclpy` subscription deserialises the *entire* message — including
+the whole 3 MB `data` array — into a Python object **before every callback**, even
+though `ros2 topic hz` only needs arrival times. That per-message Python
+deserialisation is what saturates the core. With `enable_cpp_acceleration()` the
+message stays a C++ object on the `rclcpp` subscription path; the callback reads
+only the small header fields it touches, and the multi-megabyte payload is never
+copied into Python.
+
+**Startup: first run warms up, the next is far faster.** The first accelerated
+bringup JIT-parses the `rclcpp` headers; the suite's zero-config Cling PCH bakes
+them so later process starts skip that parse (`demo-heavy-startup`):
+
+| | cold (fresh cache) | warm (PCH cached) |
+|---|---|---|
+| `rclcpp` C++ headers parse | ~1.7 s | **0.0 s** (`Cling PCH loaded from …`) |
+| time to a ready subscriber | ~6.4 s | ~4.8 s |
+
+The cold run prints `rclcpp C++ headers loaded (1.7s)` and schedules the PCH build
+at exit; the warm run prints `rclcpp C++ headers loaded (0.0s)`. (The remaining
+warm cost is cppyy backend init, symbol discovery, and node setup, which the header
+PCH does not cover — see the suite's [Freeze & Cache](https://awesomebytes.github.io/cppyy_kit/docs/FREEZE/) docs.)
+
+**Honest boundaries.** RELIABLE QoS is deliberate: a 3 MB image fragments into
+~2000 UDP datagrams, and under BEST_EFFORT a single lost fragment drops the whole
+message once the socket receive buffer overflows (`net.core.rmem_max` is 208 KB
+here) — noise unrelated to the subscriber. RELIABLE retransmits, so delivered
+throughput reflects only how fast the subscriber drains its queue; the drops it
+still shows at high rate are the KEEP_LAST history overflowing when the subscriber
+cannot keep up. The publisher runs C++-accelerated in every variant, so it is never
+the limiter and the *subscriber* is unambiguously the component under test. The
+headless CI test (`test/test_heavy_hz_demo.py`) runs this machinery on plain rclpy
+for a couple of seconds with a tiny image — sanity only, no perf assertion.
+
 ### Extra demos (optional env)
 
 Heavier example scripts (OpenCV, PCL, GStreamer, typer, hypothesis) live in an
