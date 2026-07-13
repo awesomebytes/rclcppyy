@@ -18,7 +18,7 @@ fi
 # PIXI_ENVIRONMENT_NAME (pixi sets it before activation, unlike a feature's
 # activation.env which lands too late for this guard), so it is a no-op in every
 # other env and nothing here touches the default env's published-channel
-# dependency. CPPYY_KIT_SRC overrides the checkout path. Mirrors the removed M3
+# dependency. CPPYY_KIT_SRC overrides the checkout path. Mirrors the pre-release
 # bridge; see RELEASING.md "Channel swap" for that history.
 if [ "$PIXI_ENVIRONMENT_NAME" = "heavydemo" ]; then
     CPPYY_KIT_SRC="${CPPYY_KIT_SRC:-$PIXI_PROJECT_ROOT/../cppyy_kit}"
