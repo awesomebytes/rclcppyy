@@ -4,37 +4,37 @@
 accelerate a process you cannot edit -- notably the stock ``ros2`` CLI verbs
 (``ros2 topic hz`` and friends) -- rclcppyy can install a startup ``.pth`` into the
 environment's site-packages. The ``.pth`` runs at every interpreter start and calls
-``_autoaccel_boot.activate()``, which does nothing unless ``RCLCPPYY_ENABLE_HOOK=1`` is
+``_hook_boot.activate()``, which does nothing unless ``RCLCPPYY_ENABLE_HOOK=1`` is
 set; when it is, it arranges for ``enable_cpp_acceleration()`` to run the moment
 ``rclpy`` is imported. So the workflow is:
 
-    python -m rclcppyy.autoaccel install        # once per environment
+    python -m rclcppyy.hook install             # once per environment
     RCLCPPYY_ENABLE_HOOK=1 ros2 topic hz /some_topic    # accelerated, zero code changes
     ros2 topic hz /some_topic                     # unchanged: env var unset -> stock
 
-    python -m rclcppyy.autoaccel status
-    python -m rclcppyy.autoaccel uninstall
+    python -m rclcppyy.hook status
+    python -m rclcppyy.hook uninstall
 
-This mirrors cppyy_kit's auto-PCH bootstrap: the ``.pth`` is opt-IN (gated on the
-env var), silent and near-zero-cost when unset, honours the ``RCLCPPYY_DISABLE_HOOK=1``
-opt-out, and is fully uninstallable.
+The single control is ``RCLCPPYY_ENABLE_HOOK``: exactly ``"1"`` turns the hook on
+for a process; unset, ``"0"``, or any other value leaves it off. The ``.pth`` itself
+is silent and near-zero-cost when the hook is off, and is fully uninstallable.
 """
 import argparse
 import os
 import sys
 import sysconfig
 
-from rclcppyy import _autoaccel_boot as _boot
+from rclcppyy import _hook_boot as _boot
 
-# The installed boot copy is a top-level module (``_rclcppyy_autoaccel``) so it needs
-# no package on sys.path at interpreter start. The .pth's one line imports it and
-# calls activate(), fully guarded so a broken/absent copy can never crash or spam a
+# The installed boot copy is a top-level module (``_rclcppyy_hook``) so it needs no
+# package on sys.path at interpreter start. The .pth's one line imports it and calls
+# activate(), fully guarded so a broken/absent copy can never crash or spam a
 # traceback into an interpreter start.
-_PTH_NAME = "rclcppyy_autoaccel.pth"
-_BOOT_INSTALLED_NAME = "_rclcppyy_autoaccel.py"
+_PTH_NAME = "rclcppyy_hook.pth"
+_BOOT_INSTALLED_NAME = "_rclcppyy_hook.py"
 _PTH_LINE = (
     'import sys; exec('
-    '"try:\\n import _rclcppyy_autoaccel as _m; _m.activate()\\n'
+    '"try:\\n import _rclcppyy_hook as _m; _m.activate()\\n'
     'except Exception: pass")\n'
 )
 
@@ -111,27 +111,26 @@ def status(site_dir=None):
         "site_dir": site,
         "installed": is_installed(site),
         "RCLCPPYY_ENABLE_HOOK": os.environ.get(_boot.ENABLE_ENV),
-        "RCLCPPYY_DISABLE_HOOK": os.environ.get(_boot.DISABLE_ENV),
     }
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
-        prog="python -m rclcppyy.autoaccel",
+        prog="python -m rclcppyy.hook",
         description="Install the opt-in RCLCPPYY_ENABLE_HOOK startup hook so stock ros2 CLI "
                     "tools accelerate when RCLCPPYY_ENABLE_HOOK=1 is set.")
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("install", help="install the .pth + boot module into site-packages")
     sub.add_parser("uninstall", help="remove the .pth + boot module")
-    sub.add_parser("status", help="show whether the hook is installed and the env vars")
+    sub.add_parser("status", help="show whether the hook is installed and the env var")
     args = parser.parse_args(argv)
 
     if args.cmd == "install":
         paths = install()
-        print("Installed rclcppyy auto-acceleration hook:")
+        print("Installed rclcppyy startup hook:")
         print("  %s" % paths["pth"])
         print("  %s" % paths["boot"])
-        print("Enable per process with RCLCPPYY_ENABLE_HOOK=1 (opt out with RCLCPPYY_DISABLE_HOOK=1).")
+        print("Enable per process with RCLCPPYY_ENABLE_HOOK=1.")
     elif args.cmd == "uninstall":
         removed = uninstall()
         if removed:
@@ -142,10 +141,9 @@ def main(argv=None):
             print("Nothing to remove (hook not installed).")
     elif args.cmd == "status":
         st = status()
-        print("site-packages : %s" % st["site_dir"])
-        print("installed     : %s" % st["installed"])
+        print("site-packages       : %s" % st["site_dir"])
+        print("installed           : %s" % st["installed"])
         print("RCLCPPYY_ENABLE_HOOK : %s" % (st["RCLCPPYY_ENABLE_HOOK"] or "<unset>"))
-        print("RCLCPPYY_DISABLE_HOOK: %s" % (st["RCLCPPYY_DISABLE_HOOK"] or "<unset>"))
     return 0
 
 
