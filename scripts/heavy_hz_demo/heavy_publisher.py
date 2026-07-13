@@ -39,6 +39,10 @@ class HeavyImagePublisher(Node):
         # Build the big payload exactly once; every tick only re-stamps + republishes.
         self.msg = hz.build_image(width, height, self.accel)
         self.seq = 0
+        # Independent, publisher-side achieved-rate report (so the publisher's own
+        # output confirms it hits its target, separate from any subscriber's view).
+        self._window_count = 0
+        self._window_t0 = time.monotonic()
         self.timer = self.create_timer(1.0 / rate_hz, self.timer_callback)
         print(
             "Heavy publisher up: variant=%s topic=%s %dx%d (%.2f MB) target=%.0f Hz"
@@ -54,6 +58,13 @@ class HeavyImagePublisher(Node):
         self.msg.header.frame_id = str(self.seq)
         self.publisher.publish(self.msg)
         self.seq += 1
+        self._window_count += 1
+        elapsed = time.monotonic() - self._window_t0
+        if elapsed >= 1.0:
+            print("PUB achieved_hz=%.1f published=%d target=%.0f"
+                  % (self._window_count / elapsed, self.seq, self.rate_hz), flush=True)
+            self._window_count = 0
+            self._window_t0 = time.monotonic()
 
 
 def main():

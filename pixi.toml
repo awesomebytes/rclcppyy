@@ -109,6 +109,11 @@ demo-heavy-hz-rclpy = "python scripts/heavy_hz_demo/run_heavy_hz.py --variant rc
 demo-heavy-hz-rclcppyy = "python scripts/heavy_hz_demo/run_heavy_hz.py --variant rclcppyy"
 # Cold (fresh PCH cache) vs warm rclcppyy bringup: parse cost + time-to-first-msg.
 demo-heavy-startup = "python scripts/heavy_hz_demo/run_heavy_hz.py --startup-story"
+# Accelerate the REAL `ros2 topic hz` binary via RCLCPPYY_ENABLE_HOOK: plain vs auto CPU/hz
+# across a rate sweep (installs the opt-in .pth first; idempotent).
+demo-topic-hz-cli = "python scripts/heavy_hz_demo/run_topic_hz_cli.py --sweep"
+# Time-to-first-hz-line of the real `ros2 topic hz`: stock vs RCLCPPYY_ENABLE_HOOK, cold vs warm.
+demo-topic-hz-startup = "python scripts/heavy_hz_demo/run_topic_hz_cli.py --startup-story"
 
 # Optional "pkg" feature/environment: tooling to build the conda package from
 # recipe/. Standalone (no default ROS/cppyy stack), so it stays lean and doesn't
