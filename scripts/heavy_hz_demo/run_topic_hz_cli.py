@@ -295,12 +295,18 @@ def startup_story(args):
         log("Building the PCH cache with a clean-exiting helper ...")
         _warm_pch_cache(story_cache, args.echo)
         _wait_pch(story_cache)
+        # The hz path also JIT-instantiates create_subscription<Image> (~2.8 s); build
+        # its cached trampoline .so so the warm run loads it too.
+        log("Building the subscription-trampoline cache ...")
+        _prebuild_subscription(story_cache, "sensor_msgs::msg::Image",
+                               "sensor_msgs/msg/image.hpp", args.echo)
         log("[WARM] PCH cached -> `RCLCPPYY_ENABLE_HOOK=1 ros2 topic hz` ...")
         warm = _run_hz(topic, args.window, True, 2.0, max(args.warmup_timeout, 120.0),
                        story_cache, args.echo)
         log("[WARM] time to first hz line: %ss" % warm["ttfl"])
         log("[PLAIN] stock `ros2 topic hz` (no acceleration) for reference ...")
         plain = _run_hz(topic, args.window, False, 2.0, args.warmup_timeout, None, args.echo)
+        log("[PLAIN] time to first hz line: %ss" % plain["ttfl"])
         print()
         print("  `ros2 topic hz` time-to-first-hz-line")
         print("  " + "=" * 52)
@@ -311,6 +317,21 @@ def startup_story(args):
     finally:
         pub.stop()
         shutil.rmtree(story_cache, ignore_errors=True)
+
+
+def _prebuild_subscription(cache_dir, cpp_type, header, echo):
+    """Synchronously build the subscription-trampoline .so into cache_dir so the warm
+    run loads it instead of JIT-instantiating create_subscription<MsgT>."""
+    env = dict(os.environ)
+    env["XDG_CACHE_HOME"] = str(cache_dir)
+    env.pop("CLING_STANDARD_PCH", None)
+    env.pop("_CPPYY_KIT_AUTOPCH_ACTIVE", None)
+    p = Child("subprebuild", [sys.executable, "-u", "-m", "rclcpp_kit._sub_prebuild",
+                              cpp_type, header], env, echo=echo)
+    deadline = time.monotonic() + 180.0
+    while time.monotonic() < deadline and p.alive():
+        time.sleep(0.5)
+    p.stop()
 
 
 def _warm_pch_cache(cache_dir, echo):

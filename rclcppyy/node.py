@@ -1,4 +1,5 @@
 import inspect
+import re
 import uuid
 from typing import Union, Optional, Callable, Any, List
 import rclpy
@@ -15,6 +16,25 @@ from rclpy.parameter import Parameter
 import cppyy
 from rclcppyy import bringup_rclcpp
 from rclcppyy.bringup_rclcpp import _resolve_message_type, _is_msg_python, convert_python_msg_to_cpp
+
+
+def _subscription_header(cpp_type_str):
+    """C++ header path for a resolved message type string (e.g.
+    ``sensor_msgs::msg::Image`` -> ``sensor_msgs/msg/image.hpp``), for the
+    subscription cache's ``#include``. Derived from the type string because under
+    acceleration the message class is already a C++ (cppyy) type, for which
+    rclcpp_kit.message_header returns None. Uses rosidl's CamelCase->snake_case
+    convention (``PointCloud2`` -> ``point_cloud2``, ``TFMessage`` -> ``tf_message``).
+    Returns None if the string isn't a ``pkg::msg::Name`` triple.
+    """
+    parts = cpp_type_str.split("::")
+    if len(parts) != 3:
+        return None
+    package, _, name = parts
+    snake = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2",
+                   re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name)).lower()
+    return "%s/msg/%s.hpp" % (package, snake)
+
 
 class RclcppyyNode(Node):
     """
@@ -75,28 +95,7 @@ class RclcppyyNode(Node):
         """
         self._cpp_timers = {}
 
-        # Subscription callback template for dynamic C++ callback generation
-        self._subscription_cpp_template = """
-            #include <Python.h>
-            #include <functional>
-            
-            static std::function<void(const PLACEHOLDER_MSG_TYPE::SharedPtr)> 
-            create_subscription_callback_PLACEHOLDER_UUID(PyObject* self) {
-                return [self](const PLACEHOLDER_MSG_TYPE::SharedPtr msg) {
-                    if (self && PyObject_HasAttrString(self, "_subscription_callback_PLACEHOLDER_UUID")) {
-                        // Acquire the GIL before calling into Python to avoid crashes
-                        PyGILState_STATE gstate = PyGILState_Ensure();
-                        // Pass the raw pointer as a Python int; Python will bind it back to a proxy
-                        PyObject* py_ptr = PyLong_FromVoidPtr(reinterpret_cast<void*>(msg.get()));
-                        PyObject_CallMethod(self, "_subscription_callback_PLACEHOLDER_UUID", "O", py_ptr);
-                        Py_XDECREF(py_ptr);
-                        PyGILState_Release(gstate);
-                    }
-                };
-            }
-        """
         self._cpp_subscriptions = {}
-        self._subscription_callbacks = {}
         
         # Now we create the rclpy node
         super().__init__(node_name,
@@ -310,74 +309,56 @@ class RclcppyyNode(Node):
 
         # Convert rclpy message to rclcpp message type
         rclcpp_msg_type, rclcpp_msg_class = _resolve_message_type(msg_type)
-        # We could make this optional for efficiency
-        # add_python_compatibility(cpp_msg, msg_type)
-        
-        # Generate a unique UUID for the subscription
-        uuid_str = str(uuid.uuid4()).replace("-", "_")
-        
-        # Replace placeholders in the C++ template
-        cpp_subscription_template = self._subscription_cpp_template.replace(
-            "PLACEHOLDER_MSG_TYPE", rclcpp_msg_type
-        ).replace("PLACEHOLDER_UUID", uuid_str)
-        
-        # Compile the C++ callback wrapper
-        cppyy.cppdef(cpp_subscription_template)
-        
-        # Store a Python wrapper that translates raw pointer (int) back to C++ proxy and calls user callback
-        def _cpp_bound_subscription_callback(py_ptr):
-            try:
-                # Resolve cpp class for binding
-                # _, cpp_msg_class = _resolve_message_type(msg_type)
-                # Rebind raw pointer (Python int) to a cppyy proxy
-                cpp_msg = cppyy.bind_object(py_ptr, rclcpp_msg_class)
-                callback(cpp_msg)
-            except Exception as e:
-                print(f"Error in subscription callback: {e}")
-                import traceback
-                traceback.print_exc()
 
-        # Store the wrapper on the node instance
-        setattr(self, f"_subscription_callback_{uuid_str}", _cpp_bound_subscription_callback)
-        
-        # Create the C++ callback wrapper
-        cpp_callback = getattr(cppyy.gbl, f"create_subscription_callback_{uuid_str}")(self)
-        
-        # Create subscription options for rclcpp
-        options = self._rclcpp.SubscriptionOptionsWithAllocator["std::allocator<void>"]()
-        if callback_group:
-            # TODO: Convert callback group from rclpy to rclcpp if needed
-            pass
-        if qos_overriding_options:
-            # TODO: Handle QoS overriding options
-            pass
-        
+        # Build the C++ callback directly as a std::function. cppyy delivers the C++
+        # message proxy straight to the Python callback and manages the GIL, so no
+        # per-subscription C++ trampoline (the old per-UUID <Python.h> lambda that
+        # rebound a raw pointer) is needed.
+        cpp_callback = cppyy.gbl.std.function[
+            "void(std::shared_ptr<const %s>)" % rclcpp_msg_type
+        ](callback)
+
         # Convert QoS profile to rclcpp QoS
         rclcpp_qos = self._convert_qos_to_rclcpp(qos_profile)
-        
-        # Create the actual rclcpp subscription
-        subscription = self._rclcpp.create_subscription[rclcpp_msg_type](
-            self._rclcpp_node,
-            final_topic,
-            rclcpp_qos,
-            cpp_callback,
-            options
-        )
-        
-        # Store the subscription and callback reference
+
+        # Route through the cached per-type trampoline so the ~2.8 s
+        # create_subscription<MsgT> template instantiation JITs once into a .so
+        # instead of on every process start. Falls back to the plain template call
+        # when no .so is built yet (this run), for callback groups / QoS overrides,
+        # or when the message header can't be derived -- correctness first, the cache
+        # is a pure speedup.
+        subscription = None
+        if callback_group is None and qos_overriding_options is None:
+            try:
+                # subscription_cache postdates rclcpp_kit 0.1.0; on an older suite it
+                # is absent and we simply use the plain path.
+                from rclcpp_kit import subscription_cache
+                header = _subscription_header(rclcpp_msg_type)
+                if header:
+                    subscription = subscription_cache.make_subscription(
+                        self._rclcpp_node, rclcpp_msg_type, header, final_topic,
+                        rclcpp_qos, cpp_callback)
+            except ImportError:
+                subscription = None
+        if subscription is None:
+            options = self._rclcpp.SubscriptionOptionsWithAllocator["std::allocator<void>"]()
+            subscription = self._rclcpp.create_subscription[rclcpp_msg_type](
+                self._rclcpp_node, final_topic, rclcpp_qos, cpp_callback, options)
+
+        # Keep the Python callback and its std::function wrapper alive for the
+        # subscription's lifetime; dropping them would dangle the C++ callback.
         self._cpp_subscriptions[subscription] = {
             'callback': callback,
-            'uuid': uuid_str,
-            'msg_type': rclcpp_msg_type
+            'cpp_callback': cpp_callback,
+            'msg_type': rclcpp_msg_type,
         }
-        self._subscription_callbacks[uuid_str] = callback
-        
+
         # Add to subscriptions list for compatibility
         self._subscriptions.append(subscription)
-        
+
         # Wake executor like rclpy does
         self._wake_executor()
-        
+
         return subscription
 
     def destroy_node(self):
