@@ -238,53 +238,48 @@ the stock `ros2 topic hz` (and other rclpy-based verbs) runs on the C++ backend 
 **zero code changes**:
 
 ```bash
-python -m rclcppyy.autoaccel install     # once per environment (uninstall/status too)
+python -m rclcppyy.hook install          # once per environment (uninstall/status too)
 
-RCLCPPYY_ENABLE_HOOK=1 ros2 topic hz /some_topic  # accelerated: rclcpp executor under the hood
+RCLCPPYY_ENABLE_HOOK=1 ros2 topic hz /some_topic  # runs on the rclcpp backend
 ros2 topic hz /some_topic                   # env var unset -> ordinary rclpy, untouched
 ```
 
-Two environment variables gate it, side by side:
+`RCLCPPYY_ENABLE_HOOK` is the single control: `RCLCPPYY_ENABLE_HOOK=1` turns the
+hook on for a process; unset, `0`, or any other value leaves it off. `install`
+writes a `.pth` into the environment's site-packages that runs at every interpreter
+start; when the hook is off it is a near-zero-cost no-op, and `python -m
+rclcppyy.hook uninstall` removes it.
 
-| Variable | Effect |
-|---|---|
-| `RCLCPPYY_ENABLE_HOOK=1` | turn the hook on for this process (unset = off) |
-| `RCLCPPYY_DISABLE_HOOK=1` | force it off even if `RCLCPPYY_ENABLE_HOOK=1` — the opt-out wins |
+At interpreter start the `.pth` registers a post-import hook on `rclpy`; the first
+`import rclpy` triggers `enable_cpp_acceleration()`, after rclpy is importable but
+before the tool builds its node. `ros2 topic hz` drives its loop with
+`rclpy.spin_once` (in ros2cli's `DirectNode` discovery loop and in the hz loop), so
+`enable_cpp_acceleration()` also patches `rclpy.spin_once` to run an rclcpp executor;
+otherwise the CLI would stall at node bring-up.
 
-Mechanically, `install` writes a site-packages `.pth` (modelled on cppyy_kit's
-auto-PCH bootstrap: guarded, never-raising, silent and near-zero-cost when the env
-var is unset, `RCLCPPYY_DISABLE_HOOK=1` opt-out, fully uninstallable). At interpreter
-start the `.pth` registers a post-import hook on `rclpy`; the first `import rclpy`
-then triggers `enable_cpp_acceleration()` — after rclpy is importable but before the
-tool builds its node.
+**Measured** (stock `ros2 topic hz` vs the same binary under
+`RCLCPPYY_ENABLE_HOOK=1`, against a C++ publisher of a `sensor_msgs/Image`,
+BEST_EFFORT, `--window 100`, with `net.core.rmem_max` raised (see below);
+`pixi run -e heavydemo demo-topic-hz-cli`; numbers vary by machine and run):
 
-Making `ros2 topic hz` work took one addition to the accelerator: it drives its own
-loop with `rclpy.spin_once` (both in ros2cli's `DirectNode` discovery loop and the
-hz loop), which the stock rclpy executor cannot use to service rclcpp-backed
-entities — so `enable_cpp_acceleration()` now also patches `rclpy.spin_once` to
-drive an rclcpp executor. Without that the CLI hangs at node bring-up.
-
-**What acceleration buys `ros2 topic hz`, measured** (stock `ros2 topic hz` vs the
-same binary under `RCLCPPYY_ENABLE_HOOK=1`, against a C++ publisher of a 256×256 `Image`
-≈ 0.19 MB, RELIABLE, `--window 100`; `pixi run -e heavydemo demo-topic-hz-cli`;
-absolute numbers vary by machine/run):
-
-| target Hz | publisher Hz | reported Hz (both) | stock CPU % | RCLCPPYY_ENABLE_HOOK CPU % | CPU ratio |
+| payload | target Hz | rclpy Hz | rclcppyy Hz | rclpy CPU % | rclcppyy CPU % |
 |---|---|---|---|---|---|
-| 50  | 50.0  | 50.0  | 1.6  | 1.4  | 1.1× |
-| 100 | 100.0 | 100.0 | 3.8  | 2.1  | 1.8× |
-| 200 | 200.0 | 200.0 | 6.3  | 2.7  | 2.3× |
-| 500 | 500.0 | 500.0 | 11.7 | 6.3  | 1.9× |
-| 700 | 700.0 | ~690  | 22.0 | 16.6 | 1.3× |
+| 3.0 MB  | 100  | 99.0   | 97.0   | 48.7  | 18.8 |
+| 3.0 MB  | 200  | 195.1  | 197.0  | 92.2  | 34.5 |
+| 3.0 MB  | 300  | 291.4  | 296.7  | 102.7 | 42.6 |
+| 0.05 MB | 1000 | 998.2  | 999.7  | 19.3  | 7.3  |
+| 0.05 MB | 3000 | 2967.6 | 2985.0 | 46.6  | 17.2 |
 
-Both report the true rate; the win is **CPU**: acceleration runs the same hz on
-roughly **half to a third** less CPU at moderate rates. The win is narrower than for
-a message-crunching node, and for an honest reason: `ros2 topic hz` (without
-`--filter`) subscribes with `raw=True`, so **stock rclpy already skips
-deserialisation** — the saving here is the C++ executor and message handling
-replacing the Python executor, not avoiding a per-message copy. At very high rates
-the gap narrows further because the accelerated path deserialises into a C++ proxy
-while the stock raw path deserialises nothing.
+Both backends deliver essentially the publisher's rate wherever the publisher can
+sustain it; the difference is CPU — the accelerated backend uses about a third to a
+half as much. `ros2 topic hz` (without `--filter`) subscribes with `raw=True`, so
+stock rclpy does not deserialise the payload; the saving is the C++ executor and
+message handling replacing the Python executor, not avoiding a per-message copy.
+Delivered rates stay close because the raw stock reader is cheap enough to keep up
+where the publisher can feed it — but note where the CPU lands: on the 3 MB stream
+stock rclpy crosses one full core near 200–250 Hz (92–107 %), while the accelerated
+backend stays around a third of a core, so on a busier machine or at a higher rate
+the stock reader saturates first.
 
 **Startup: the acceleration is a one-time cost.** Time-to-first-hz-line
 (`pixi run -e heavydemo demo-topic-hz-startup`):
@@ -302,52 +297,40 @@ does not cover. So acceleration adds a multi-second startup and **pays off for
 long-running `hz` sessions**, not short invocations. (Needs the newer auto-PCH; see
 the dev-bridge note below.)
 
-**On "why not 100 Hz?"** With the real tool the publisher hits its target exactly —
-`50.0 … 700.0` published Hz in the table, confirmed by the publisher's own
-`PUB achieved_hz=` line and by the stock hz reading. An earlier custom subscriber
-that reported ~93 at a 100 Hz target was measuring its own per-second window with a
-shallow RELIABLE queue that dropped a few messages, not a publisher shortfall.
+### Large messages under BEST_EFFORT QoS
 
-**Honest boundary — heavy (3 MB) topics + BEST_EFFORT.** `ros2 topic hz` fixes its
-reader to `qos_profile_sensor_data` (BEST_EFFORT). A 3 MB image fragments into
-~2000 UDP datagrams, and this machine's `net.core.rmem_max` is 208 KB, so the
-socket buffer overflows and whole messages are lost — the stock hz reader often gets
-**nothing** on a 3 MB topic, and acceleration does not rescue it (same BEST_EFFORT
-reader). This is a transport/kernel limit, not an rclpy-vs-rclcpp one. To measure a
-genuinely heavy topic, raise the buffer first (owner action, needs root):
+`ros2 topic hz` subscribes with `qos_profile_sensor_data` (BEST_EFFORT). A 3 MB
+image fragments into roughly two thousand UDP datagrams, and if the OS socket
+receive buffer is smaller than one message a single dropped fragment loses the whole
+message. On a stock Linux install `net.core.rmem_max` defaults to about 200 KB, so a
+BEST_EFFORT reader receives little or nothing on a 3 MB topic — for stock rclpy and
+for the accelerated backend alike, since both use the same reader QoS. Raising the
+kernel limit resolves it (this needs root, and applies to any DDS user, not only
+rclcppyy):
 
 ```bash
-sudo sysctl -w net.core.rmem_max=2147483647   # then re-run demo-topic-hz-cli --width 1024 --height 1024
+sudo sysctl -w net.core.rmem_max=2147483647
 ```
 
-The tests cover the feature hermetically (`test/test_autoaccel.py`: install /
-uninstall, `RCLCPPYY_ENABLE_HOOK=1` accelerates a fresh `import rclpy`, unset and
-`RCLCPPYY_DISABLE_HOOK=1` leave stock rclpy untouched).
+With that in place, CycloneDDS's default socket buffer is large enough that a 3 MB
+BEST_EFFORT topic is received normally; no `CYCLONEDDS_URI` tuning is required. The
+3 MB figures above were measured with this setting.
 
-### Controlled comparison: a deserialising subscriber (dev bridge)
+The startup hook is covered by `test/test_hook.py` (install / uninstall / status;
+`RCLCPPYY_ENABLE_HOOK=1` accelerates a fresh `import rclpy`; unset and `=0` leave
+stock rclpy untouched). For the acceleration on a node that *reads* message fields —
+where stock rclpy pays a per-message Python deserialisation that `ros2 topic hz`
+(raw subscription) does not — `scripts/heavy_hz_demo/run_heavy_hz.py` is a controlled
+publisher/subscriber harness (`pixi run -e heavydemo demo-heavy-hz`).
 
-Where `ros2 topic hz` uses raw subscriptions, a *normal* node that reads message
-fields pays full per-message Python deserialisation on stock rclpy — and that is
-where acceleration wins biggest. `scripts/heavy_hz_demo/run_heavy_hz.py` is a
-controlled harness for that case (a C++ publisher + an hz-style subscriber that
-reads the header, same script both ways via one `enable_cpp_acceleration()` line).
-On a 3 MB image, RELIABLE, plain rclpy tops out ~210 Hz saturating ~1.6 cores while
-the accelerated subscriber climbs past 330 Hz at half the CPU and a third of the
-latency.
-
-```bash
-pixi run -e heavydemo demo-heavy-hz          # rclpy vs rclcppyy deserialising-subscriber table
-pixi run -e heavydemo demo-heavy-startup     # cold vs warm rclcppyy bring-up
-```
-
-> **Dev bridge.** The cold-vs-warm startup story and the fastest bring-up need the
+> **Dev bridge.** The startup measurement and the fastest bring-up use the
 > zero-config auto-PCH, which postdates the published suite 0.1.0. Until the next
 > suite release the `heavydemo` pixi env bridges the newer `rclcpp_kit`/`cppyy_kit`
-> from a sibling `cppyy_kit` **source checkout** (default `../cppyy_kit`, override
-> `CPPYY_KIT_SRC`) and isolates its PCH cache under `.heavy_demo_cache/`. It is a
-> **dev/demo-only** env: shares the default solve (no extra conda deps) and leaves
-> the default env's published-channel dependency untouched
-> (`workspace_activation.sh`, gated on the `heavydemo` env).
+> from a sibling `cppyy_kit` source checkout (default `../cppyy_kit`, override
+> `CPPYY_KIT_SRC`) and isolates its PCH cache under `.heavy_demo_cache/`. It shares
+> the default solve (no extra conda deps) and leaves the default env's
+> published-channel dependency untouched (`workspace_activation.sh`, gated on the
+> `heavydemo` env).
 
 ### Extra demos (optional env)
 

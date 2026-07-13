@@ -9,7 +9,7 @@ code changes), parses the tool's own ``average rate:`` output, and samples the r
 process's CPU.
 
     # one-time per env: install the opt-in startup hook (this script does it too)
-    python -m rclcppyy.autoaccel install
+    python -m rclcppyy.hook install
 
     python run_topic_hz_cli.py --sweep            # rate x {plain, auto} table
     python run_topic_hz_cli.py --startup-story     # time-to-first-hz-line cold vs warm
@@ -46,8 +46,23 @@ RATE_RE = re.compile(r"average rate:\s*([\d.]+)")
 PUB_RATE_RE = re.compile(r"PUB achieved_hz=([\d.]+)")
 
 
+_OUT = None  # optional results file (direct, flushed writes -- observable despite pixi buffering)
+
+
 def log(msg):
     print(msg, file=sys.stderr, flush=True)
+    _emit(msg)
+
+
+def _emit(line):
+    if _OUT:
+        try:
+            with open(_OUT, "a") as f:
+                f.write(line + "\n")
+                f.flush()
+                os.fsync(f.fileno())
+        except OSError:
+            pass
 
 
 class Child:
@@ -125,7 +140,6 @@ def _pub_env(rate, width, height, reliability):
 
 def _hz_env(auto, cache_dir=None):
     env = dict(os.environ)
-    env.pop("RCLCPPYY_DISABLE_HOOK", None)
     if auto:
         env["RCLCPPYY_ENABLE_HOOK"] = "1"
     else:
@@ -230,6 +244,10 @@ def sweep(args):
             result["pub_achieved"] = (round(statistics.median(pub.snapshot("pub_rates")), 1)
                                       if pub.snapshot("pub_rates") else float("nan"))
             rows.append(result)
+            p, a = result["plain"], result["auto"]
+            _emit("ROW rate=%d pub=%s | rclpy hz=%s cpu=%s | rclcppyy hz=%s cpu=%s"
+                  % (rate, result["pub_achieved"], p["reported_hz"], p["cpu"],
+                     a["reported_hz"], a["cpu"]))
         finally:
             pub.stop()
     _print_sweep(rows, args)
@@ -334,14 +352,21 @@ def main():
                    help="publisher QoS (the hz tool's reader is always BEST_EFFORT)")
     p.add_argument("--duration", type=float, default=10.0, help="measurement window (s)")
     p.add_argument("--warmup-timeout", type=float, default=60.0)
+    p.add_argument("--out", default=None,
+                   help="also write progress/results here (direct flushed writes)")
     p.add_argument("--echo", action="store_true")
     args = p.parse_args()
+
+    global _OUT
+    _OUT = args.out
+    if _OUT:
+        open(_OUT, "w").close()  # truncate
 
     # Ensure the opt-in hook is installed so RCLCPPYY_ENABLE_HOOK=1 works for the child
     # ros2 process. Idempotent; gated on the env var, so a no-op when unset.
     try:
-        from rclcppyy import autoaccel
-        autoaccel.install()
+        from rclcppyy import hook
+        hook.install()
     except Exception as exc:
         log("warning: could not install auto-accel hook (%s)" % exc)
 
