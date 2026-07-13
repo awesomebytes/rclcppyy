@@ -281,21 +281,23 @@ stock rclpy crosses one full core near 200–250 Hz (92–107 %), while the acce
 backend stays around a third of a core, so on a busier machine or at a higher rate
 the stock reader saturates first.
 
-**Startup: the acceleration is a one-time cost.** Time-to-first-hz-line
+**Startup: a one-time cost.** Time to first hz line
 (`pixi run -e heavydemo demo-topic-hz-startup`):
 
 | `ros2 topic hz` first hz line | time |
 |---|---|
 | stock (no acceleration) | ~1.7 s |
-| `RCLCPPYY_ENABLE_HOOK=1`, cold PCH cache | ~8.0 s |
-| `RCLCPPYY_ENABLE_HOOK=1`, warm PCH cache | ~7.0 s |
+| `RCLCPPYY_ENABLE_HOOK=1`, cold cache | ~8.3 s |
+| `RCLCPPYY_ENABLE_HOOK=1`, warm cache | ~4.1 s |
 
-The suite's zero-config Cling PCH shaves ~1.1 s (the `rclcpp` header parse) off the
-first line, cold→warm; the remaining ~5 s over stock is one-time rclcpp bring-up
-plus first-use JIT of the message type and subscription glue, which the header PCH
-does not cover. So acceleration adds a multi-second startup and **pays off for
-long-running `hz` sessions**, not short invocations. (Needs the newer auto-PCH; see
-the dev-bridge note below.)
+Two caches cut the warm start: the suite's Cling PCH removes the `rclcpp` header
+parse, and a per-message-type subscription cache removes the ~2.8 s one-time JIT of
+`create_subscription<MsgT>` (both built on the first run and loaded on later ones,
+cold → warm above). The warm figure is still above stock because the rest of the
+rclcpp bring-up — cppyy symbol discovery and the rclpy-compatibility adapters — is
+not yet cached. Acceleration therefore remains a one-time startup cost that pays off
+over a long-running `hz` session rather than a single short call. (Needs the newer
+suite; see the dev-bridge note below.)
 
 ### Large messages under BEST_EFFORT QoS
 
