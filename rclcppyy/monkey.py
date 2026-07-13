@@ -11,6 +11,7 @@ from rclcppyy.bringup_rclcpp import bringup_rclcpp
 # Store original functions
 _original_create_node = rclpy.create_node
 _original_node_create_subscription = Node.create_subscription
+_original_spin_once = rclpy.spin_once
 
 def patch_ros2():
     """
@@ -31,7 +32,14 @@ def patch_ros2():
 
     # Monkey-patch rclpy.spin
     rclpy.spin = _spin_wrapper
-    
+
+    # Monkey-patch rclpy.spin_once. Tools that drive their own loop -- notably the
+    # ros2 CLI (ros2cli's DirectNode discovery loop and `ros2 topic hz`) -- call
+    # rclpy.spin_once(node) rather than rclpy.spin(node). The stock rclpy executor
+    # cannot service an rclcpp-backed node's timers/subscriptions, so without this
+    # the discovery loop spins forever. Delegate to an rclcpp executor instead.
+    rclpy.spin_once = _spin_once_wrapper
+
     # Monkey-patch Node.create_subscription
     Node.create_subscription = _create_subscription_wrapper
     
@@ -52,6 +60,43 @@ def _spin_wrapper(*args, **kwargs):
     rclcpp = bringup_rclcpp()
     node = args[0]
     rclcpp.spin(node._rclcpp_node)
+
+
+def _get_spin_executor(node):
+    """A persistent rclcpp SingleThreadedExecutor bound to this node.
+
+    Created once and cached on the node so repeated spin_once calls reuse it (and
+    so the node is never added to two executors). The executor picks up entities
+    the node creates later -- e.g. the hz verb's subscription after DirectNode's
+    discovery timer -- via the node's guard condition.
+    """
+    executor = getattr(node, "_rclcppyy_spin_executor", None)
+    if executor is None:
+        rclcpp = bringup_rclcpp()
+        executor = rclcpp.executors.SingleThreadedExecutor()
+        executor.add_node(node._rclcpp_node)
+        node._rclcppyy_spin_executor = executor
+    return executor
+
+
+def _spin_once_wrapper(node, *, executor=None, timeout_sec=None):
+    """
+    Wrapper for rclpy.spin_once that drives an rclcpp executor for accelerated
+    nodes (rclpy's executor cannot service rclcpp-backed entities). Non-accelerated
+    nodes fall back to the original rclpy.spin_once unchanged.
+
+    Matches rclpy semantics: timeout_sec=None blocks until one piece of work is
+    ready; a finite timeout waits at most that long (rclcpp uses -1ns for "block").
+    """
+    if not isinstance(node, RclcppyyNode):
+        return _original_spin_once(node, executor=executor, timeout_sec=timeout_sec)
+    import cppyy
+    _get_spin_executor(node)  # ensure created + node added
+    ex = node._rclcppyy_spin_executor
+    if timeout_sec is None:
+        ex.spin_once()
+    else:
+        ex.spin_once(cppyy.gbl.std.chrono.nanoseconds(int(timeout_sec * 1e9)))
 
 def _create_subscription_wrapper(self, *args, **kwargs):
     """
