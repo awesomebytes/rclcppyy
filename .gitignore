@@ -22,5 +22,8 @@ data/
 # M3 pre-release PYTHONPATH bridge (generated symlinks to the sibling cppyy_kit checkout)
 .suite_bridge/
 
+# heavy_hz demo: isolated auto-PCH cache (XDG_CACHE_HOME for the heavydemo env)
+.heavy_demo_cache/
+
 # Local Claude agent state / worktrees
 .claude/
