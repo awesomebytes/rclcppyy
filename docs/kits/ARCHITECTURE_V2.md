@@ -4,7 +4,7 @@
 > provenance.** The kit suite now lives in its own repo,
 > **[awesomebytes/cppyy_kit](https://github.com/awesomebytes/cppyy_kit)** — that is
 > the living home for the kits, `COMMON_PATTERNS`, `FREEZE`, and the per-kit docs.
-> rclcppyy is now the drop-in accelerator product on top of it (see the repo README
+> rclcppyy is now the drop-in compatibility backend on top of it (see the repo README
 > and `RELEASING.md`).
 
 **Status: APPROVED DIRECTION (2026-07-11)** — The architecture was approved with

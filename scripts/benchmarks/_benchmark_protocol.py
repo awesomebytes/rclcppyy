@@ -12,6 +12,7 @@ import time
 CONTROL_SCHEMA = "rclcppyy.benchmark-control/v1"
 EVENT_SCHEMA = "rclcppyy.benchmark-event/v1"
 RESULT_SCHEMA = "rclcppyy.benchmark-window/v1"
+WIRE_SCHEMA = "rclcppyy.benchmark-wire-values/v1"
 
 READY_PREFIX = "RCLCPPYY_BENCH_READY "
 STARTED_PREFIX = "RCLCPPYY_BENCH_STARTED "
@@ -67,6 +68,7 @@ def validate_window_result(document):
     messages = document.get("messages")
     latency = document.get("latency_us")
     window = document.get("window")
+    wire_values = document.get("wire_values")
     if not isinstance(window, dict) or not _is_nonnegative_number(window.get("duration_s")):
         raise ValueError("benchmark window result requires duration")
     if (not isinstance(messages, dict) or
@@ -83,6 +85,27 @@ def validate_window_result(document):
                 raise ValueError("empty latency summaries must use null values")
         elif not _is_nonnegative_number(value):
             raise ValueError(f"latency {field} must be a non-negative finite number")
+    if not isinstance(wire_values, dict) or wire_values.get("schema") != WIRE_SCHEMA:
+        raise ValueError("benchmark window result requires wire-value evidence")
+    if not isinstance(wire_values.get("contract_id"), str) or not wire_values["contract_id"]:
+        raise ValueError("wire-value evidence requires a contract id")
+    if not _is_nonnegative_int(wire_values.get("expected_payload_bytes")):
+        raise ValueError("wire-value evidence requires expected payload bytes")
+    if wire_values.get("checked_messages") != messages["received"]:
+        raise ValueError("wire-value checked messages must equal received messages")
+    if not _is_nonnegative_int(wire_values.get("violations")):
+        raise ValueError("wire-value violations must be a non-negative integer")
+    if not isinstance(wire_values.get("violation_types"), dict):
+        raise ValueError("wire-value violation types must be an object")
+    if not all(
+            isinstance(name, str) and name and _is_nonnegative_int(count)
+            for name, count in wire_values["violation_types"].items()):
+        raise ValueError("wire-value violation types require non-negative integer counts")
+    if sum(wire_values["violation_types"].values()) != wire_values["violations"]:
+        raise ValueError("wire-value violation counts do not match")
+    if wire_values.get("value_contract_verified") is not (
+            wire_values["violations"] == 0 and messages["received"] > 0):
+        raise ValueError("wire-value verification flag contradicts observations")
 
 
 def _is_nonnegative_int(value):
@@ -128,8 +151,15 @@ def latency_summary(values):
 class MeasurementState:
     """Thread-safe subscriber state controlled by explicit start/stop commands."""
 
-    def __init__(self, clock_ns=time.monotonic_ns):
+    def __init__(
+            self, wire_contract, expected_payload_bytes, clock_ns=time.monotonic_ns):
+        if not isinstance(wire_contract, str) or not wire_contract:
+            raise ValueError("wire_contract must be a non-empty string")
+        if not _is_nonnegative_int(expected_payload_bytes):
+            raise ValueError("expected_payload_bytes must be a non-negative integer")
         self._clock_ns = clock_ns
+        self._wire_contract = wire_contract
+        self._expected_payload_bytes = expected_payload_bytes
         self._lock = threading.Lock()
         self._active = False
         self._run_id = None
@@ -138,6 +168,8 @@ class MeasurementState:
         self._received = 0
         self._dropped = 0
         self._latencies = []
+        self._wire_checked = 0
+        self._wire_violations = {}
 
     def observe(self, sequence, latency_us):
         with self._lock:
@@ -145,10 +177,22 @@ class MeasurementState:
             self._last_sequence = sequence
             if not self._active:
                 return
+            if previous is not None and sequence <= previous:
+                name = "non_monotonic_sequence"
+                self._wire_violations[name] = self._wire_violations.get(name, 0) + 1
             if previous is not None and sequence > previous + 1:
                 self._dropped += sequence - previous - 1
             self._received += 1
             self._latencies.append(float(latency_us))
+            self._wire_checked += 1
+
+    def reject_wire_value(self, error_type):
+        """Record a callback whose decoded value violated the workload contract."""
+        with self._lock:
+            if not self._active:
+                return
+            name = str(error_type) or "unknown"
+            self._wire_violations[name] = self._wire_violations.get(name, 0) + 1
 
     def start(self, run_id):
         with self._lock:
@@ -160,6 +204,8 @@ class MeasurementState:
             self._received = 0
             self._dropped = 0
             self._latencies = []
+            self._wire_checked = 0
+            self._wire_violations = {}
 
     def stop(self, run_id):
         with self._lock:
@@ -170,6 +216,8 @@ class MeasurementState:
             received = self._received
             dropped = self._dropped
             latencies = list(self._latencies)
+            wire_checked = self._wire_checked
+            wire_violations = dict(sorted(self._wire_violations.items()))
             self._active = False
 
         result = {
@@ -182,6 +230,15 @@ class MeasurementState:
                 "effective_rate_hz": received / duration_s if duration_s > 0 else 0.0,
             },
             "latency_us": latency_summary(latencies),
+            "wire_values": {
+                "schema": WIRE_SCHEMA,
+                "contract_id": self._wire_contract,
+                "expected_payload_bytes": self._expected_payload_bytes,
+                "checked_messages": wire_checked,
+                "violations": sum(wire_violations.values()),
+                "violation_types": wire_violations,
+                "value_contract_verified": not wire_violations and received > 0,
+            },
         }
         validate_window_result(result)
         return result

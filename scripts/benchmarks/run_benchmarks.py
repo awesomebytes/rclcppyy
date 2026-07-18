@@ -359,6 +359,15 @@ def run_case(case, duration, warmup_timeout, sample_hz=DEFAULT_SAMPLE_HZ, echo=F
         window = next(result for result in snapshot["results"] if result["run_id"] == run_id)
         if window["messages"]["received"] <= 0:
             raise RuntimeError("measurement window received no messages")
+        wire_values = window["wire_values"]
+        if wire_values["contract_id"] != case["wire_contract"]:
+            raise RuntimeError("measurement window used the wrong wire-value contract")
+        if wire_values["expected_payload_bytes"] != case["payload_bytes"]:
+            raise RuntimeError("measurement window used the wrong payload contract")
+        if not wire_values["value_contract_verified"]:
+            raise RuntimeError(
+                "measurement window violated the wire-value contract: "
+                f"{wire_values['violation_types']}")
         # Re-read publisher evidence after the window. Compatibility workers
         # emit a new marker and remain tainted if any later operation falls back.
         pub_backend = require_backend_marker(
@@ -381,6 +390,7 @@ def run_case(case, duration, warmup_timeout, sample_hz=DEFAULT_SAMPLE_HZ, echo=F
             "observed_window": window["window"],
             "messages": window["messages"],
             "latency_us": window["latency_us"],
+            "wire_values": wire_values,
             "cpu_pct": {
                 "publisher": cpu_summary(pub_cpu),
                 "subscriber": cpu_summary(sub_cpu),

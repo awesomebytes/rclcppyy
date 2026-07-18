@@ -3,7 +3,7 @@
 [![CI](https://github.com/awesomebytes/rclcppyy/actions/workflows/ci.yml/badge.svg)](https://github.com/awesomebytes/rclcppyy/actions/workflows/ci.yml)
 
 **Keep the `rclpy` contract; opt into proven C++ paths.** `rclcppyy` is a
-compatibility-first accelerator for existing ROS 2 Python software. Its default
+compatibility-first C++ backend for existing ROS 2 Python software. Its default
 profile keeps the exact stock node, context, executor, message classes, and entity
 objects, and routes an operation through C++ only when that route has explicit
 contract and backend evidence. It is powered by
@@ -92,11 +92,11 @@ pixi run bench
 ```
 
 The benchmark runner requires machine-readable publisher and subscriber backend
-evidence before it records a result. A current one-second development smoke for a
-tiny String message showed the safe same-handle serialized route was slower than
-stock; that route is correctness-certified but is not advertised as a performance
-win. Native-message and fused C++ paths must clear workload-specific performance
-gates before they are advertised.
+evidence and decoded wire-value evidence before it records a result. The current
+same-handle serialized route is correctness-certified but is not advertised as a
+performance win. Native-message and fused C++ paths must clear workload-specific
+performance gates before they are advertised. See the
+[benchmark evidence guide](docs/benchmarks.md) for the repeated local gate.
 
 For the full, consolidated and freshly-measured benchmark set — across the whole
 suite, including the freeze/AOT optimization ladder — see the
@@ -130,7 +130,7 @@ subscribe (e.g. `ros-jazzy-std-msgs`) are separate dependencies, as in any ROS 2
 project. Installing rclcppyy pulls its runtime deps `ros-jazzy-rclcpp-kit` and
 `cppyy-kit` (the suite) transitively.
 
-## What accelerates, and what stays rclpy
+## What routes through C++, and what stays rclpy
 
 The default compatible profile keeps the stock contract and records every current
 boundary:
@@ -139,6 +139,13 @@ boundary:
 
 - A stock publisher can serialize through C++ and publish through its existing
   `rcl_publisher_t`; no companion node or publisher is created.
+
+| Transparent path | Backend evidence | Wire evidence | Performance status |
+|---|---|---|---|
+| `Publisher.publish` on the existing stock publisher handle | publisher `cpp`; stock subscriber `python` | flat and nested workloads validate the same decoded value contract | no benefit advertised; repeated results report raw positive, negative, or mixed directions |
+
+No compatible path currently advertises a performance benefit. C++ routing is a
+backend fact; a benefit requires separate, repeated, architecture-specific evidence.
 
 **Stays on stock `rclpy`:**
 
@@ -163,13 +170,13 @@ boundary:
   cheaper (a warm `rclcpp` bringup measured ~1.73 s → ~0.064 s); see the
   [Freeze & Cache](https://awesomebytes.github.io/cppyy_kit/docs/FREEZE/) docs and the
   [benchmarks page](https://awesomebytes.github.io/cppyy_kit/docs/benchmarks/).
-- Acceleration is opt-in per process; without the one-line call, your code is
+- C++ routing is opt-in per process; without the one-line call, your code is
   ordinary `rclpy`.
 
 ### Inspect backend decisions
 
 `rclcppyy.status()` returns a JSON-serializable process snapshot of the backend
-selected for accelerated nodes, entities, and operations:
+selected for routed nodes, entities, and operations:
 
 ```python
 report = rclcppyy.status()
@@ -246,7 +253,8 @@ Tasks:
 | `pixi run -e upstream-contract upstream-content-filter-contract` | rerun the reviewed subscription contract on Fast DDS and reject content-filter skips |
 | `pixi run lint` | `flake8 rclcppyy test` |
 | `pixi run clean` | remove `build/ install/ log/` |
-| `pixi run bench` | rclpy-vs-rclcppyy CPU comparison table (1 kHz + 10 kHz) |
+| `pixi run bench` | raw stock/compatibility backend, wire-value, CPU, throughput, and latency observations |
+| `pixi run bench-compatibility-evidence` | validate five controlled raw runs and map the transparent route to its observed directions |
 | `pixi run demo-tutorial` | the rclpy pub/sub tutorial, on the rclcppyy C++ backend |
 | `pixi run demo-pubsub` | a live pub/sub pair (rclcppyy backend), stats streamed |
 
@@ -325,7 +333,7 @@ image fragments into roughly two thousand UDP datagrams, and if the OS socket
 receive buffer is smaller than one message a single dropped fragment loses the whole
 message. On a stock Linux install `net.core.rmem_max` defaults to about 200 KB, so a
 BEST_EFFORT reader receives little or nothing on a 3 MB topic — for stock rclpy and
-for the accelerated backend alike, since both use the same reader QoS. Raising the
+for the compatible backend alike, since both use the same reader QoS. Raising the
 kernel limit resolves it (this needs root, and applies to any DDS user, not only
 rclcppyy):
 
@@ -338,10 +346,10 @@ BEST_EFFORT topic is received normally; no `CYCLONEDDS_URI` tuning is required. 
 3 MB figures above were measured with this setting.
 
 The startup hook is covered by `test/test_hook.py` (install / uninstall / status;
-`RCLCPPYY_ENABLE_HOOK=1` accelerates a fresh `import rclpy`; unset and `=0` leave
+`RCLCPPYY_ENABLE_HOOK=1` activates routing for a fresh `import rclpy`; unset and `=0` leave
 stock rclpy untouched). `scripts/heavy_hz_demo/run_heavy_hz.py` remains a controlled
 large-message workload harness (`pixi run -e heavydemo demo-heavy-hz`), but its
-subscriber timing is not evidence of transparent acceleration while compatible
+subscriber timing is not evidence of a transparent C++ subscription route while compatible
 subscription take and dispatch remain stock Python.
 
 > **Dev bridge.** The startup measurement and the fastest bring-up use the

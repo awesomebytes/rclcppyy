@@ -43,6 +43,15 @@ def _row(backend, p99, rate=1000.0):
         "publisher_backend": _marker("publisher", expected["publisher"]),
         "subscriber_backend": _marker("subscriber", expected["subscriber"]),
         "messages": {"received": 1000, "dropped": 0, "effective_rate_hz": rate},
+        "wire_values": {
+            "schema": "rclcppyy.benchmark-wire-values/v1",
+            "contract_id": "std_msgs/String:sequence-timestamp-padding/v1",
+            "expected_payload_bytes": 0,
+            "checked_messages": 1000,
+            "violations": 0,
+            "violation_types": {},
+            "value_contract_verified": True,
+        },
         "latency_us": {
             "count": 1000,
             "mean": p99 / 2,
@@ -61,7 +70,7 @@ def _row(backend, p99, rate=1000.0):
 
 def _document(index, candidate_p99=102.0, candidate_rate=1000.0):
     return {
-        "schema": "rclcppyy.benchmark/v2",
+        "schema": "rclcppyy.benchmark/v3",
         "generated_at": f"2026-07-18T12:00:0{index}Z",
         "command": ["pixi", "run", "bench"],
         "environment": {

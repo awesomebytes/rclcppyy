@@ -110,14 +110,16 @@ Accept a performance or compatibility claim only when all of these are present:
 
 1. The publisher and subscriber, or the complete operation under test, emit the
    expected backend records.
-2. The stock and candidate runs use the same message values, QoS, RMW, rate,
-   duration, warmup, machine controls, and process topology.
-3. Raw benchmark JSON validates against `schemas/benchmark-v2.schema.json`.
+2. The stock and candidate runs validate the same decoded wire-value contract and
+   use the same QoS, RMW, rate, duration, warmup, machine controls, and process
+   topology.
+3. Raw benchmark JSON validates against `schemas/benchmark-v3.schema.json`.
 4. Correctness, teardown, and drop counts pass before CPU or latency is compared.
 5. Repeated runs on a dedicated machine show a material result; hosted CI smoke
    timings are validation evidence and never a performance claim.
 
-See `docs/benchmarks.md` for the executable matrix and statistical conventions.
+See `docs/benchmarks.md` for the executable matrix, compatibility evidence gate,
+and statistical conventions.
 
 ## Optimization promotion gate
 

@@ -133,7 +133,7 @@
       "fallback": "none",
       "default": true,
       "evidence": ["test/test_monkeypatch.py", "test/test_differential_contract.py"],
-      "notes": "Creation, QoS ownership, graph endpoint, and destruction remain stock; publish uses C++ serialization over the same native handle and completes an ordered round trip."
+      "notes": "Creation, QoS ownership, graph endpoint, and destruction remain stock; publish uses C++ serialization over the same native handle and completes an ordered round trip. This compatibility and backend certification does not assert a performance benefit."
     },
     {
       "id": "publisher.advanced_options",

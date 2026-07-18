@@ -28,6 +28,16 @@ def _document(**overrides):
             "target_rate_hz": 1000,
             "payload_bytes": 0,
             "backend_verified": True,
+            "messages": {"received": 1},
+            "wire_values": {
+                "schema": "rclcppyy.benchmark-wire-values/v1",
+                "contract_id": "fixture/v1",
+                "expected_payload_bytes": 0,
+                "checked_messages": 1,
+                "violations": 0,
+                "violation_types": {},
+                "value_contract_verified": True,
+            },
             "avg_latency_us": math.nan,
         }],
         "failures": [],
@@ -40,7 +50,7 @@ def _document(**overrides):
 def test_document_is_versioned_flat_and_strict_json():
     document = _document()
 
-    assert document["schema"] == "rclcppyy.benchmark/v2"
+    assert document["schema"] == "rclcppyy.benchmark/v3"
     assert document["benchmark"]["name"] == "unit_test"
     assert document["results"] == [{
         "case_id": "example_case",
@@ -49,6 +59,16 @@ def test_document_is_versioned_flat_and_strict_json():
         "target_rate_hz": 1000,
         "payload_bytes": 0,
         "backend_verified": True,
+        "messages": {"received": 1},
+        "wire_values": {
+            "schema": "rclcppyy.benchmark-wire-values/v1",
+            "contract_id": "fixture/v1",
+            "expected_payload_bytes": 0,
+            "checked_messages": 1,
+            "violations": 0,
+            "violation_types": {},
+            "value_contract_verified": True,
+        },
         "avg_latency_us": None,
     }]
     assert document["environment"]["host"]["architecture"]
@@ -109,3 +129,25 @@ def test_raw_measurement_document_forbids_performance_claims():
     document["benchmark"]["performance_claims_allowed"] = True
     with pytest.raises(ValueError, match="raw benchmark results cannot"):
         schema.validate_document(document)
+
+
+def test_successful_result_requires_verified_wire_values():
+    document = _document()
+    document["results"][0]["wire_values"]["value_contract_verified"] = False
+
+    with pytest.raises(ValueError, match="verified wire values"):
+        schema.validate_document(document)
+
+
+def test_portable_v3_schema_requires_wire_and_backend_evidence():
+    portable = json.loads(
+        (REPO_ROOT / "schemas" / "benchmark-v3.schema.json").read_text(
+            encoding="utf-8"))
+    required = portable["properties"]["results"]["items"]["required"]
+
+    assert "publisher_backend" in required
+    assert "subscriber_backend" in required
+    assert "wire_values" in required
+    wire = portable["properties"]["results"]["items"]["properties"]["wire_values"]
+    assert wire["properties"]["value_contract_verified"] == {"const": True}
+    assert wire["properties"]["violations"] == {"const": 0}

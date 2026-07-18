@@ -51,11 +51,17 @@ class PythonCodec:
 
     def decode(self, message):
         if self.workload == "small-string":
-            sequence, timestamp_ns, _ = message.data.split(":", 2)
-            return int(sequence), int(timestamp_ns)
-        sequence, _ = message.frame_id.split(":", 1)
-        timestamp_ns = message.stamp.sec * 1_000_000_000 + message.stamp.nanosec
-        return int(sequence), int(timestamp_ns)
+            sequence, timestamp_ns, padding = message.data.split(":", 2)
+        else:
+            sequence, padding = message.frame_id.split(":", 1)
+            timestamp_ns = message.stamp.sec * 1_000_000_000 + message.stamp.nanosec
+        if padding != self.padding:
+            raise ValueError("payload padding does not match the workload contract")
+        sequence = int(sequence)
+        timestamp_ns = int(timestamp_ns)
+        if sequence < 0 or timestamp_ns < 0:
+            raise ValueError("sequence and timestamp must be non-negative")
+        return sequence, timestamp_ns
 
 
 class NativeCodec:
@@ -85,11 +91,17 @@ class NativeCodec:
 
     def decode(self, message):
         if self.workload == "small-string":
-            sequence, timestamp_ns, _ = str(message.data).split(":", 2)
-            return int(sequence), int(timestamp_ns)
-        sequence, _ = str(message.frame_id).split(":", 1)
-        timestamp_ns = int(message.stamp.sec) * 1_000_000_000 + int(message.stamp.nanosec)
-        return int(sequence), timestamp_ns
+            sequence, timestamp_ns, padding = str(message.data).split(":", 2)
+        else:
+            sequence, padding = str(message.frame_id).split(":", 1)
+            timestamp_ns = int(message.stamp.sec) * 1_000_000_000 + int(message.stamp.nanosec)
+        if padding != self.padding:
+            raise ValueError("payload padding does not match the workload contract")
+        sequence = int(sequence)
+        timestamp_ns = int(timestamp_ns)
+        if sequence < 0 or timestamp_ns < 0:
+            raise ValueError("sequence and timestamp must be non-negative")
+        return sequence, timestamp_ns
 
 
 def _emit_backend(backend, role, entity):
@@ -121,9 +133,13 @@ def _subscriber_callback(codec, state):
 
     def callback(message):
         nonlocal ready
-        sequence, published_ns = codec.decode(message)
-        latency_us = (time.monotonic_ns() - published_ns) / 1000.0
-        state.observe(sequence, latency_us)
+        try:
+            sequence, published_ns = codec.decode(message)
+        except Exception as exc:
+            state.reject_wire_value(type(exc).__name__)
+        else:
+            latency_us = (time.monotonic_ns() - published_ns) / 1000.0
+            state.observe(sequence, latency_us)
         if not ready:
             ready = True
             emit(READY_PREFIX, event_document("ready", role="subscriber"))
@@ -159,7 +175,8 @@ def _run_python(args):
 
         timer = node.create_timer(1.0 / args.rate_hz, publish_one)  # noqa: F841 - node owns timer
     else:
-        state = MeasurementState()
+        state = MeasurementState(
+            WORKLOADS[args.workload]["wire_contract"], args.payload_bytes)
         callback = _subscriber_callback(codec, state)
         subscription = node.create_subscription(codec.message_type, args.topic, callback, 500)
         _emit_backend(args.backend, "subscriber", subscription)
@@ -201,7 +218,8 @@ def _run_native(args):
             cppyy.gbl.std.chrono.nanoseconds(int(1e9 / args.rate_hz)), callback)
         kept_alive.extend((publish_one, callback, timer))
     else:
-        state = MeasurementState()
+        state = MeasurementState(
+            WORKLOADS[args.workload]["wire_contract"], args.payload_bytes)
         on_message = _subscriber_callback(codec, state)
         callback = cppyy.gbl.std.function[
             f"void(std::shared_ptr<const {codec.cpp_type}>)"](on_message)

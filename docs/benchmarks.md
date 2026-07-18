@@ -24,9 +24,10 @@ Smoke output always contains:
 }
 ```
 
-Smoke runs prove route selection, message delivery, structured output, and clean
-process isolation. Their short CPU and latency samples are not performance
-evidence and must not be used for comparisons or published claims.
+Smoke runs prove route selection, decoded wire-value validity, message delivery,
+structured output, and clean process isolation. Their short CPU and latency samples
+are not performance evidence and must not be used for comparisons or published
+claims.
 
 An intentional matrix run can select multiple axes:
 
@@ -53,6 +54,48 @@ The raw runner always writes `performance_claims_allowed: false`, including in
 measurement mode. Smoke reports identify validation-only evidence; measurement
 reports identify characterization inputs and do not select a winner. A separate
 reviewed analysis must combine repeated controlled runs before making a claim.
+
+## Compatibility Evidence Gate
+
+The local compatibility gate answers a narrower question before any regression
+budget or performance claim is considered: did every current workload exercise the
+intended stock and compatible routes, preserve its decoded value contract, and
+produce repeated observations under one stable environment?
+
+Create five complete measurement documents from a clean source tree:
+
+```bash
+mkdir -p build/compatibility-evidence
+for repetition in 1 2 3 4 5; do
+  pixi run bench \
+    --backends rclpy,rclcppyy \
+    --workloads small-string,nested-header \
+    --output "build/compatibility-evidence/run-${repetition}.json"
+done
+
+pixi run bench-compatibility-evidence \
+  --output build/compatibility-evidence/evidence.json \
+  build/compatibility-evidence/run-{1,2,3,4,5}.json
+```
+
+The gate rejects dirty product or source-checkout dependencies, fewer than five
+repetitions, changing source, module origin, machine, runtime, ROS/RMW, cache, or
+matrix metadata, duplicate run tokens, missing workloads or backend pairs,
+contradictory backend markers, empty deliveries, and any decoded wire-value
+violation. Every flat and nested message is checked against the workload's
+sequence, monotonic timestamp, and exact padding contract.
+
+The output conforms to
+[`compatibility-performance-evidence-v1.schema.json`](../schemas/compatibility-performance-evidence-v1.schema.json).
+It maps the transparent same-handle publisher path to its verified backends and
+workload coverage, preserves the stable source/environment and normalized matrix,
+then records each repetition's candidate and stock values with direction counts.
+`stock_better_in_all_repetitions` is an explicit negative local observation;
+`candidate_better_in_all_repetitions`, `equal_in_all_repetitions`, and
+`mixed_observation` are equally literal descriptions of the inputs. They do not
+apply a noise threshold or establish a portable benefit. The artifact therefore
+fixes both `performance_claims_allowed` and `interpretation_allowed` to `false` and
+keeps the route's `performance_conclusion` at `not_established`.
 
 ## Regression Gate
 
@@ -150,7 +193,8 @@ not assumed to match the AOT compiler's `-O3` optimization level.
 
 ## Evidence And Statistics
 
-Every successful row includes separate publisher/subscriber backend markers.
+Every successful row includes separate publisher/subscriber backend markers and a
+verified wire-value contract.
 The parent rejects missing, malformed, or unexpected markers, so activation
 alone cannot be reported as C++ execution.
 
@@ -162,11 +206,16 @@ inside the acknowledged window. CPU output retains each `psutil.cpu_percent`
 sample and reports its mean, median, sample standard deviation, minimum, and
 maximum.
 
-The runtime envelope is `rclcppyy.benchmark/v2`; its portable JSON Schema is
-[`schemas/benchmark-v2.schema.json`](../schemas/benchmark-v2.schema.json). The
-artifact records source revision/dirty state, architecture, CPU, Python and
-package versions, ROS/RMW settings, cache environment, selected matrix, raw CPU
-samples, failures, and child backend evidence.
+For each callback, the subscriber decodes and validates sequence, timestamp, and
+payload padding before recording latency. A violation makes the case fail rather
+than becoming a timing sample.
+
+The runtime envelope is `rclcppyy.benchmark/v3`; its portable JSON Schema is
+[`schemas/benchmark-v3.schema.json`](../schemas/benchmark-v3.schema.json). The
+artifact records source revision/dirty state, imported module origins, dependency
+checkout revisions, architecture, CPU, Python and package versions, ROS/RMW
+settings, cache environment, selected matrix, raw CPU samples, failures, and child
+backend evidence.
 
 Each matrix acquires an advisory lease for a unique `ROS_DOMAIN_ID` and uses a
 random run token in every topic. Concurrent matrices on one host therefore cannot

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render validated benchmark-v2 JSON as a reviewable Markdown report."""
+"""Render validated benchmark-v3 JSON as a reviewable Markdown report."""
 
 from __future__ import annotations
 
@@ -38,6 +38,13 @@ def _backend_route(row) -> str:
         publisher = publisher or expected.get("publisher")
         subscriber = subscriber or expected.get("subscriber")
     return "%s -> %s" % (_cell(publisher), _cell(subscriber))
+
+
+def _wire_contract(row) -> str:
+    wire = row.get("wire_values", {})
+    if wire.get("value_contract_verified") is not True:
+        return "unverified"
+    return "verified: %s" % _cell(wire.get("contract_id"))
 
 
 def render(document: dict) -> str:
@@ -89,9 +96,9 @@ def render(document: dict) -> str:
         lines.extend([
             "| Backend | Workload | Target Hz | Payload B | Received | Dropped | "
             "Effective Hz | Pub CPU mean | Sub CPU mean | Latency mean us | "
-            "p95 us | p99 us | Route |",
+            "p95 us | p99 us | Route | Wire values |",
             "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | "
-            "---: | ---: | ---: | --- |",
+            "---: | ---: | ---: | --- | --- |",
         ])
         for row in document["results"]:
             values = (
@@ -108,6 +115,7 @@ def render(document: dict) -> str:
                 _nested(row, "latency_us", "p95"),
                 _nested(row, "latency_us", "p99"),
                 _backend_route(row),
+                _wire_contract(row),
             )
             lines.append("| %s |" % " | ".join(_cell(value) for value in values))
     else:

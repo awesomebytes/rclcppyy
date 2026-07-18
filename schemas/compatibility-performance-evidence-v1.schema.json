@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/awesomebytes/rclcppyy/schemas/compatibility-performance-evidence-v1.schema.json",
+  "title": "rclcppyy compatibility performance evidence v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "decision",
+    "performance_claims_allowed",
+    "interpretation_allowed",
+    "controls",
+    "evidence",
+    "routes",
+    "comparisons"
+  ],
+  "properties": {
+    "schema": {"const": "rclcppyy.compatibility-performance-evidence/v1"},
+    "decision": {"const": "evidence_complete"},
+    "performance_claims_allowed": {"const": false},
+    "interpretation_allowed": {"const": false},
+    "controls": {
+      "type": "object",
+      "required": [
+        "minimum_repetitions",
+        "observed_repetitions",
+        "unique_run_tokens",
+        "source_clean",
+        "source_dependencies_clean",
+        "stable_machine_runtime_environment",
+        "stable_matrix"
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["benchmark_schema", "benchmark_name", "environment", "matrix"],
+      "properties": {
+        "benchmark_schema": {"const": "rclcppyy.benchmark/v3"},
+        "benchmark_name": {"type": "string", "minLength": 1},
+        "environment": {"type": "object"},
+        "matrix": {"type": "object"}
+      }
+    },
+    "routes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "path_id",
+          "operation",
+          "backend_markers_verified",
+          "wire_result_parity",
+          "workloads",
+          "advertised_performance_benefit",
+          "performance_conclusion"
+        ],
+        "properties": {
+          "backend_markers_verified": {"const": true},
+          "wire_result_parity": {"const": true},
+          "advertised_performance_benefit": {"const": false},
+          "performance_conclusion": {"const": "not_established"}
+        }
+      }
+    },
+    "comparisons": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["dimensions", "wire_result_parity", "metrics"],
+        "properties": {
+          "wire_result_parity": {"const": true},
+          "metrics": {"type": "object", "minProperties": 1}
+        }
+      }
+    }
+  }
+}

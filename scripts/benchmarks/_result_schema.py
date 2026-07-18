@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime
+import importlib.util
 import importlib.metadata
 import json
 import math
@@ -13,7 +14,7 @@ import sys
 from pathlib import Path
 
 
-SCHEMA_ID = "rclcppyy.benchmark/v2"
+SCHEMA_ID = "rclcppyy.benchmark/v3"
 MODES = ("measurement", "smoke")
 PACKAGE_NAMES = (
     "rclcppyy",
@@ -25,6 +26,7 @@ PACKAGE_NAMES = (
     "numpy",
     "psutil",
 )
+SOURCE_MODULE_NAMES = ("rclcppyy", "rclcpp_kit", "cppyy_kit", "rclpy", "cppyy")
 CACHE_ENV_NAMES = (
     "CPPYY_KIT_NO_AUTOPCH",
     "CPPYY_KIT_NO_CACHE",
@@ -51,12 +53,40 @@ def _run_git(repo_root: Path, *args: str) -> str | None:
 
 def _source_metadata(repo_root: Path) -> dict:
     commit = _run_git(repo_root, "rev-parse", "HEAD")
-    status = _run_git(repo_root, "status", "--porcelain", "--untracked-files=no")
+    status = _run_git(repo_root, "status", "--porcelain")
     return {
         "repository": str(repo_root),
         "commit": commit,
         "dirty": bool(status) if status is not None else None,
     }
+
+
+def _module_source_metadata(repo_root: Path) -> tuple[dict, dict]:
+    origins = {}
+    checkouts = {}
+    for module_name in SOURCE_MODULE_NAMES:
+        try:
+            spec = importlib.util.find_spec(module_name)
+        except (ImportError, AttributeError, ValueError):
+            spec = None
+        origin = None if spec is None else spec.origin
+        origins[module_name] = origin
+        if not origin or origin in ("built-in", "frozen"):
+            checkouts[module_name] = None
+            continue
+        module_path = Path(origin).resolve()
+        checkout = _run_git(module_path.parent, "rev-parse", "--show-toplevel")
+        if not checkout:
+            checkouts[module_name] = None
+            continue
+        checkout_root = Path(checkout).resolve()
+        checkouts[module_name] = {
+            "repository": str(checkout_root),
+            "commit": _run_git(checkout_root, "rev-parse", "HEAD"),
+            "dirty": bool(_run_git(checkout_root, "status", "--porcelain")),
+            "is_benchmark_repository": checkout_root == repo_root.resolve(),
+        }
+    return origins, checkouts
 
 
 def _cpu_model() -> str | None:
@@ -93,6 +123,7 @@ def _package_versions() -> dict[str, str | None]:
 def environment_metadata(repo_root: Path) -> dict:
     """Collect enough immutable context to interpret or reproduce a result."""
     uname = platform.uname()
+    module_origins, source_dependencies = _module_source_metadata(repo_root)
     return {
         "source": _source_metadata(repo_root),
         "host": {
@@ -107,7 +138,9 @@ def environment_metadata(repo_root: Path) -> dict:
             "python_implementation": platform.python_implementation(),
             "python_abi": getattr(sys.implementation, "cache_tag", None),
             "packages": _package_versions(),
+            "module_origins": module_origins,
         },
+        "source_dependencies": source_dependencies,
         "ros": {
             "distribution": os.environ.get("ROS_DISTRO"),
             "rmw_implementation": os.environ.get("RMW_IMPLEMENTATION"),
@@ -198,6 +231,13 @@ def validate_document(document: dict) -> None:
                 raise ValueError(f"benchmark result missing {field}")
         if row.get("backend_verified") is not True:
             raise ValueError("successful benchmark results require verified backends")
+        wire_values = row.get("wire_values")
+        if not isinstance(wire_values, dict):
+            raise ValueError("successful benchmark results require wire-value evidence")
+        if wire_values.get("value_contract_verified") is not True:
+            raise ValueError("successful benchmark results require verified wire values")
+        if wire_values.get("checked_messages") != row.get("messages", {}).get("received"):
+            raise ValueError("wire-value count must equal received messages")
 
 
 def dumps(document: dict) -> str:

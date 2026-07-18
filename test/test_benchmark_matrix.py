@@ -69,7 +69,8 @@ def test_domain_leases_are_distinct_and_reusable(tmp_path, monkeypatch):
 
 def test_measurement_window_uses_actual_counts_drops_and_nearest_rank():
     clock_values = iter((1_000_000_000, 2_000_000_000))
-    state = protocol.MeasurementState(clock_ns=lambda: next(clock_values))
+    state = protocol.MeasurementState(
+        "fixture/value-contract/v1", 0, clock_ns=lambda: next(clock_values))
     state.observe(9, 999.0)  # warmup is excluded, but anchors gap detection
     state.start("run")
     state.observe(10, 10.0)
@@ -88,6 +89,15 @@ def test_measurement_window_uses_actual_counts_drops_and_nearest_rank():
     assert result["latency_us"]["mean"] == 130.0 / 3.0
     assert result["latency_us"]["p50"] == 20.0
     assert result["latency_us"]["p99"] == 100.0
+    assert result["wire_values"] == {
+        "schema": protocol.WIRE_SCHEMA,
+        "contract_id": "fixture/value-contract/v1",
+        "expected_payload_bytes": 0,
+        "checked_messages": 3,
+        "violations": 0,
+        "violation_types": {},
+        "value_contract_verified": True,
+    }
 
 
 @pytest.mark.parametrize("field,value", [
@@ -108,6 +118,15 @@ def test_window_protocol_rejects_malformed_numeric_fields(field, value):
             "p99": None,
             "min": None,
             "max": None,
+        },
+        "wire_values": {
+            "schema": protocol.WIRE_SCHEMA,
+            "contract_id": "fixture/value-contract/v1",
+            "expected_payload_bytes": 0,
+            "checked_messages": 0,
+            "violations": 0,
+            "violation_types": {},
+            "value_contract_verified": False,
         },
     }
 
@@ -139,7 +158,7 @@ def test_smoke_matrix_runs_flat_and_nested_in_isolated_processes():
 
     assert proc.returncode == 0, f"stdout:\n{proc.stdout}\nstderr:\n{proc.stderr}"
     document = json.loads(proc.stdout)
-    assert document["schema"] == "rclcppyy.benchmark/v2"
+    assert document["schema"] == "rclcppyy.benchmark/v3"
     assert document["benchmark"]["mode"] == "smoke"
     assert document["benchmark"]["performance_claims_allowed"] is False
     assert document["environment"]["ros"]["domain_id"] is not None
@@ -154,3 +173,35 @@ def test_smoke_matrix_runs_flat_and_nested_in_isolated_processes():
     assert all(
         row["latency_us"]["count"] == row["messages"]["received"]
         for row in document["results"])
+    assert all(row["wire_values"]["value_contract_verified"] for row in document["results"])
+    assert all(row["wire_values"]["violations"] == 0 for row in document["results"])
+
+
+def test_measurement_window_rejects_wire_contract_violations():
+    clock_values = iter((1_000_000_000, 2_000_000_000))
+    state = protocol.MeasurementState(
+        "fixture/value-contract/v1", 8, clock_ns=lambda: next(clock_values))
+    state.start("run")
+    state.observe(1, 10.0)
+    state.reject_wire_value("ValueError")
+
+    result = state.stop("run")
+
+    assert result["wire_values"]["checked_messages"] == 1
+    assert result["wire_values"]["violations"] == 1
+    assert result["wire_values"]["value_contract_verified"] is False
+
+
+def test_measurement_window_rejects_non_monotonic_sequence_values():
+    clock_values = iter((1_000_000_000, 2_000_000_000))
+    state = protocol.MeasurementState(
+        "fixture/value-contract/v1", 0, clock_ns=lambda: next(clock_values))
+    state.start("run")
+    state.observe(2, 10.0)
+    state.observe(2, 11.0)
+
+    result = state.stop("run")
+
+    assert result["wire_values"]["violation_types"] == {
+        "non_monotonic_sequence": 1}
+    assert result["wire_values"]["value_contract_verified"] is False

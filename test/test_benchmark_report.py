@@ -16,7 +16,7 @@ spec.loader.exec_module(report_module)
 
 def _document(mode="smoke"):
     return {
-        "schema": "rclcppyy.benchmark/v2",
+        "schema": "rclcppyy.benchmark/v3",
         "generated_at": "2026-07-18T12:00:00Z",
         "command": ["pixi", "run", "bench", "--smoke"],
         "environment": {
@@ -40,6 +40,15 @@ def _document(mode="smoke"):
             "backend_verified": True,
             "expected_backends": {"publisher": "cpp", "subscriber": "python"},
             "messages": {"received": 100, "dropped": 0, "effective_rate_hz": 999.5},
+            "wire_values": {
+                "schema": "rclcppyy.benchmark-wire-values/v1",
+                "contract_id": "std_msgs/String:sequence-timestamp-padding/v1",
+                "expected_payload_bytes": 0,
+                "checked_messages": 100,
+                "violations": 0,
+                "violation_types": {},
+                "value_contract_verified": True,
+            },
             "latency_us": {
                 "count": 100, "mean": 10.0, "p50": 9.0, "p95": 15.0,
                 "p99": 20.0, "min": 5.0, "max": 25.0,
@@ -62,6 +71,7 @@ def test_smoke_report_forbids_claims_and_shows_backend_route():
     assert first == second
     assert "Smoke artifact. Performance claims are forbidden" in first
     assert "cpp -> python" in first
+    assert "verified: std_msgs/String:sequence-timestamp-padding/v1" in first
     assert "| 100 | 0 | 999.500 |" in first
 
 

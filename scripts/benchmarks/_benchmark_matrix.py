@@ -32,11 +32,13 @@ WORKLOADS = {
         "label": "std_msgs/String",
         "message_type": "std_msgs/msg/String",
         "shape": "flat",
+        "wire_contract": "std_msgs/String:sequence-timestamp-padding/v1",
     },
     "nested-header": {
         "label": "std_msgs/Header",
         "message_type": "std_msgs/msg/Header",
         "shape": "nested",
+        "wire_contract": "std_msgs/Header:stamp-frame-sequence-padding/v1",
     },
 }
 
@@ -113,6 +115,7 @@ def build_cases(backends, workloads, rates_hz, payload_bytes_values, *, run_toke
             "workload": workload,
             "workload_label": WORKLOADS[workload]["label"],
             "message_type": WORKLOADS[workload]["message_type"],
+            "wire_contract": WORKLOADS[workload]["wire_contract"],
             "target_rate_hz": rate_hz,
             "payload_bytes": payload_bytes,
             "topic": "/rclcppyy_bench/%s%s" % (
