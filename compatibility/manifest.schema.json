@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://awesomebytes.github.io/rclcppyy/schema/compatibility-v1.json",
+  "title": "rclcppyy compatibility manifest",
+  "type": "object",
+  "required": ["schema", "ros_distribution", "reviewed_at", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "rclcppyy.compatibility/v1"
+    },
+    "ros_distribution": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/entry"
+      }
+    }
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "required": [
+        "id",
+        "area",
+        "api",
+        "support",
+        "backend",
+        "fallback",
+        "default",
+        "evidence",
+        "notes"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_.-]+$"
+        },
+        "area": {
+          "enum": [
+            "activation",
+            "node",
+            "message",
+            "publisher",
+            "subscription",
+            "timer",
+            "executor",
+            "service",
+            "action",
+            "parameter",
+            "lifecycle",
+            "context",
+            "serialization"
+          ]
+        },
+        "api": {
+          "type": "string",
+          "minLength": 1
+        },
+        "support": {
+          "enum": ["certified", "experimental", "unsupported"]
+        },
+        "backend": {
+          "enum": ["cpp", "python", "mixed", "none"]
+        },
+        "fallback": {
+          "enum": ["none", "process_only", "safe", "unsafe", "not_applicable"]
+        },
+        "default": {
+          "type": "boolean"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
