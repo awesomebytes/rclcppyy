@@ -169,10 +169,24 @@ def _run(mode):
             lambda completed: future_callbacks.append(completed.result()))
         standalone_future.set_result("future-result")
         executor.spin_once(timeout_sec=0.1)
+        exception_future = Future()
+        exception_future.set_exception(ValueError("future-error"))
+        try:
+            exception_future.result()
+        except ValueError as exc:
+            future_exception = type(exc).__name__
+        else:
+            raise AssertionError("Future.result did not propagate its exception")
+        canceled_future = Future()
+        cancel_result = canceled_future.cancel()
         observations["future"] = {
             "done": standalone_future.done(),
             "result": standalone_future.result(),
             "callbacks": future_callbacks,
+            "exception_type": future_exception,
+            "cancel_return": cancel_result,
+            "canceled": canceled_future.cancelled(),
+            "canceled_done": canceled_future.done(),
         }
 
         def set_bool(request, response):
@@ -408,6 +422,36 @@ def _run(mode):
                 "backend": "python",
                 "minimum": 1,
                 "metadata": {"operation": "set_parameters", "profile": "compatible"},
+            },
+            {
+                "kind": "operations",
+                "backend": "python",
+                "minimum": 1,
+                "metadata": {"operation": "future", "profile": "compatible"},
+            },
+            {
+                "kind": "operations",
+                "backend": "python",
+                "minimum": 1,
+                "metadata": {"operation": "spin", "profile": "compatible"},
+            },
+            {
+                "kind": "operations",
+                "backend": "python",
+                "minimum": 1,
+                "metadata": {"operation": "spin_once", "profile": "compatible"},
+            },
+            {
+                "kind": "operations",
+                "backend": "python",
+                "minimum": 1,
+                "metadata": {"operation": "callback_exception", "profile": "compatible"},
+            },
+            {
+                "kind": "operations",
+                "backend": "python",
+                "minimum": 1,
+                "metadata": {"operation": "multi_threaded_spin", "profile": "compatible"},
             },
         ]
         backend_status = backend_module.status()

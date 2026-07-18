@@ -17,34 +17,6 @@
       "reason": "Timer scheduling remains an explicit stock fallback."
     },
     {
-      "id": "future.backend_evidence",
-      "coverage": "probed",
-      "check": "status_record",
-      "expected": {"kind": "operations", "backend": "python", "metadata": {"operation": "future"}},
-      "reason": "Future completion is stock-compatible but is not yet represented in runtime status."
-    },
-    {
-      "id": "spin.backend_evidence",
-      "coverage": "probed",
-      "check": "status_record",
-      "expected": {"kind": "operations", "backend": "python", "metadata": {"operation": "spin"}},
-      "reason": "Executor spin behavior is stock-compatible but is not yet represented in runtime status."
-    },
-    {
-      "id": "spin_once.backend_evidence",
-      "coverage": "probed",
-      "check": "status_record",
-      "expected": {"kind": "operations", "backend": "python", "metadata": {"operation": "spin_once"}},
-      "reason": "Executor spin_once behavior is stock-compatible but is not yet represented in runtime status."
-    },
-    {
-      "id": "callback_exception.backend_evidence",
-      "coverage": "probed",
-      "check": "status_record",
-      "expected": {"kind": "operations", "backend": "python", "metadata": {"operation": "callback_exception"}},
-      "reason": "Callback exception parity is tested, but the route is not represented in runtime status."
-    },
-    {
       "id": "actions.application_corpus",
       "coverage": "excluded",
       "check": "none",
@@ -57,13 +29,6 @@
       "check": "none",
       "expected": null,
       "reason": "Managed lifecycle transitions require a dedicated transition and service corpus."
-    },
-    {
-      "id": "multi_threaded.application_corpus",
-      "coverage": "probed",
-      "check": "status_record",
-      "expected": {"kind": "operations", "backend": "python", "metadata": {"operation": "multi_threaded_spin"}},
-      "reason": "MultiThreadedExecutor behavior is stock-compatible but is not yet represented in runtime status."
     }
   ]
 }

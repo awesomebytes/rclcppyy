@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import warnings
+from functools import wraps
 from inspect import signature
 
+import rclpy
+from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.publisher import Publisher
+from rclpy.task import Future
 
 from rclcppyy._status import record_decision
 from rclcppyy.policy import BackendUnavailableError, resolve_policy
@@ -21,10 +25,30 @@ _original_create_guard_condition = Node.create_guard_condition
 _original_set_parameters = Node.set_parameters
 _original_set_parameters_atomically = Node.set_parameters_atomically
 _original_publish = Publisher.publish
+_original_spin = rclpy.spin
+_original_spin_once = rclpy.spin_once
+_original_multi_threaded_spin = MultiThreadedExecutor.spin
+_original_future_set_result = Future.set_result
+_original_future_set_exception = Future.set_exception
+_original_future_cancel = Future.cancel
 
 _PATCHED = False
 _POLICY = resolve_policy()
 _WARNED_FALLBACKS = set()
+
+
+def _claim_once(owner, key):
+    reported = getattr(owner, "_rclcppyy_reported_operations", None)
+    if reported is None:
+        reported = set()
+        try:
+            owner._rclcppyy_reported_operations = reported
+        except (AttributeError, TypeError):
+            return True
+    if key in reported:
+        return False
+    reported.add(key)
+    return True
 
 
 def _warn_once(reason):
@@ -79,7 +103,16 @@ def _record_python_entity(
     )
 
 
-def _record_python_operation(node, operation, reason, metadata=None):
+def _record_python_operation(
+    node,
+    operation,
+    reason,
+    metadata=None,
+    *,
+    once_key=None,
+):
+    if once_key is not None and not _claim_once(node, once_key):
+        return
     _warn_once(reason)
     values = {
         "operation": operation,
@@ -92,6 +125,31 @@ def _record_python_operation(node, operation, reason, metadata=None):
         "python",
         reason,
         policies=("stock_fallback", _POLICY.name),
+        metadata=values,
+    )
+
+
+def _record_runtime_operation(
+    owner,
+    operation,
+    reason,
+    metadata=None,
+    *,
+    once_key=None,
+    warn=False,
+    authority="stock_runtime_authority",
+):
+    if once_key is not None and not _claim_once(owner, once_key):
+        return
+    if warn:
+        _warn_once(reason)
+    values = {"operation": operation, "profile": _POLICY.name}
+    values.update(metadata or {})
+    record_decision(
+        "operations",
+        "python",
+        reason,
+        policies=(authority, _POLICY.name),
         metadata=values,
     )
 
@@ -356,6 +414,141 @@ def _set_parameters_atomically_wrapper(self, parameter_list):
     )
 
 
+def _record_executor_exception(node, source_operation, exception):
+    _record_python_operation(
+        node,
+        "callback_exception",
+        "stock executor propagated an exception without translation",
+        metadata={
+            "source_operation": source_operation,
+            "exception_type": type(exception).__name__,
+        },
+        once_key=("callback_exception", source_operation, type(exception).__name__),
+    )
+
+
+@wraps(_original_spin)
+def _spin_wrapper(node, executor=None):
+    reason = "rclpy.spin has no certified C++ executor route"
+    if _POLICY.require_cpp:
+        _unavailable("spin", reason)
+    try:
+        result = _original_spin(node, executor=executor)
+    except BaseException as exc:
+        _record_python_operation(
+            node,
+            "spin",
+            reason,
+            metadata={"outcome": "exception", "exception_type": type(exc).__name__},
+            once_key=("spin", "exception", type(exc).__name__),
+        )
+        _record_executor_exception(node, "spin", exc)
+        raise
+    _record_python_operation(
+        node,
+        "spin",
+        reason,
+        metadata={"outcome": "returned"},
+        once_key=("spin", "returned"),
+    )
+    return result
+
+
+@wraps(_original_spin_once)
+def _spin_once_wrapper(node, *, executor=None, timeout_sec=None):
+    reason = "rclpy.spin_once has no certified C++ executor route"
+    if _POLICY.require_cpp:
+        _unavailable("spin_once", reason)
+    try:
+        result = _original_spin_once(
+            node, executor=executor, timeout_sec=timeout_sec)
+    except BaseException as exc:
+        _record_python_operation(
+            node,
+            "spin_once",
+            reason,
+            metadata={"outcome": "exception", "exception_type": type(exc).__name__},
+            once_key=("spin_once", "exception", type(exc).__name__),
+        )
+        _record_executor_exception(node, "spin_once", exc)
+        raise
+    _record_python_operation(
+        node,
+        "spin_once",
+        reason,
+        metadata={"outcome": "returned"},
+        once_key=("spin_once", "returned"),
+    )
+    return result
+
+
+@wraps(_original_multi_threaded_spin)
+def _multi_threaded_spin_wrapper(self):
+    reason = "MultiThreadedExecutor.spin has no certified C++ executor route"
+    if _POLICY.require_cpp:
+        _unavailable("multi_threaded_spin", reason)
+    try:
+        result = _original_multi_threaded_spin(self)
+    except BaseException as exc:
+        _record_runtime_operation(
+            self,
+            "multi_threaded_spin",
+            reason,
+            metadata={"outcome": "exception", "exception_type": type(exc).__name__},
+            once_key=("multi_threaded_spin", "exception", type(exc).__name__),
+            warn=True,
+            authority="stock_executor_authority",
+        )
+        raise
+    _record_runtime_operation(
+        self,
+        "multi_threaded_spin",
+        reason,
+        metadata={"outcome": "returned"},
+        once_key=("multi_threaded_spin", "returned"),
+        warn=True,
+        authority="stock_executor_authority",
+    )
+    return result
+
+
+def _record_future_completion(future, outcome, detail=None):
+    metadata = {"outcome": outcome}
+    if detail is not None:
+        metadata["detail_type"] = type(detail).__name__
+    _record_runtime_operation(
+        future,
+        "future",
+        "stock rclpy Future remains authoritative",
+        metadata=metadata,
+        once_key=("future", outcome),
+        authority="stock_future_authority",
+    )
+
+
+@wraps(_original_future_set_result)
+def _future_set_result_wrapper(self, result):
+    value = _original_future_set_result(self, result)
+    _record_future_completion(self, "result", result)
+    return value
+
+
+@wraps(_original_future_set_exception)
+def _future_set_exception_wrapper(self, exception):
+    value = _original_future_set_exception(self, exception)
+    _record_future_completion(self, "exception", exception)
+    return value
+
+
+@wraps(_original_future_cancel)
+def _future_cancel_wrapper(self):
+    was_canceled = self.cancelled()
+    result = _original_future_cancel(self)
+    if not was_canceled and self.cancelled():
+        _record_future_completion(self, "canceled")
+    return result
+
+
 _NODE_PATCHES = (
     ("create_publisher", _create_publisher_wrapper, _original_create_publisher),
     ("create_subscription", _create_subscription_wrapper, _original_create_subscription),
@@ -394,6 +587,12 @@ def patch_ros2(profile="compatible", *, warn_fallback=False):
     for name, wrapper, _original in _NODE_PATCHES:
         setattr(Node, name, wrapper)
     Publisher.publish = _publish_wrapper
+    rclpy.spin = _spin_wrapper
+    rclpy.spin_once = _spin_once_wrapper
+    MultiThreadedExecutor.spin = _multi_threaded_spin_wrapper
+    Future.set_result = _future_set_result_wrapper
+    Future.set_exception = _future_set_exception_wrapper
+    Future.cancel = _future_cancel_wrapper
     _PATCHED = True
     record_decision(
         "operations",

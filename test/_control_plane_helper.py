@@ -11,10 +11,12 @@ rclcppyy.enable_cpp_acceleration(profile="compatible", warn_fallback=True)
 
 import rclpy  # noqa: E402
 from rclpy.client import Client  # noqa: E402
+from rclpy.executors import MultiThreadedExecutor  # noqa: E402
 from rclpy.guard_condition import GuardCondition  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from rclpy.parameter import Parameter  # noqa: E402
 from rclpy.service import Service  # noqa: E402
+from rclpy.task import Future  # noqa: E402
 from std_srvs.srv import SetBool  # noqa: E402
 
 
@@ -63,6 +65,19 @@ def main():
     assert all(
         inspect.signature(getattr(Node, name)) == inspect.signature(original)
         for name, original in original_methods.items()
+    )
+    runtime_functions = {
+        rclpy.spin: monkey._original_spin,
+        rclpy.spin_once: monkey._original_spin_once,
+        MultiThreadedExecutor.spin: monkey._original_multi_threaded_spin,
+        Future.set_result: monkey._original_future_set_result,
+        Future.set_exception: monkey._original_future_set_exception,
+        Future.cancel: monkey._original_future_cancel,
+    }
+    assert all(
+        function.__name__ == original.__name__
+        and inspect.signature(function) == inspect.signature(original)
+        for function, original in runtime_functions.items()
     )
 
     status = rclcppyy.status()

@@ -19,11 +19,11 @@
       "area": "activation",
       "api": "RCLCPPYY_ENABLE_HOOK=1 with an installed startup hook",
       "support": "certified",
-      "backend": "cpp",
-      "fallback": "none",
+      "backend": "mixed",
+      "fallback": "safe",
       "default": false,
-      "evidence": ["test/test_hook.py"],
-      "notes": "A fresh interpreter proves the original Node publisher method is routed while create_node and spin_once remain stock."
+      "evidence": ["test/test_hook.py", "rclcppyy/monkey.py"],
+      "notes": "A fresh interpreter proves startup activation and the C++ publisher route. Node identity remains stock, while executor and Future wrappers preserve stock call signatures and report Python authority."
     },
     {
       "id": "activation.startup_hook.disabled",
@@ -44,8 +44,8 @@
       "backend": "mixed",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_hook.py", "rclcppyy/monkey.py"],
-      "notes": "The original Node and Publisher classes are patched in place and message classes are not replaced, so existing module aliases retain identity. Subclasses that override routed methods still need separate coverage."
+      "evidence": ["test/test_hook.py", "test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "notes": "The original Node, Publisher, executor, and Future classes are patched in place and message classes are not replaced. Function aliases captured from the rclpy module before activation retain stock behavior but are not instrumented; overridden subclass methods remain user-owned."
     },
     {
       "id": "node.create_node",
@@ -84,12 +84,12 @@
       "id": "node.subclass_existing_alias",
       "area": "node",
       "api": "Existing subclasses of a Node alias imported before activation",
-      "support": "experimental",
-      "backend": "python",
+      "support": "certified",
+      "backend": "mixed",
       "fallback": "safe",
-      "default": false,
-      "evidence": ["rclcppyy/monkey.py"],
-      "notes": "The original class is now patched in place, but subclasses that override create_publisher/create_subscription/create_timer need a representative corpus test."
+      "default": true,
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "notes": "The application corpus constructs an exact pre-activation subclass, preserves its base and Context, and exercises inherited routed methods. Methods explicitly overridden by an application remain application-owned."
     },
     {
       "id": "message.flat_import_after_enable",
@@ -122,7 +122,7 @@
       "fallback": "safe",
       "default": true,
       "evidence": ["rclcppyy/monkey.py"],
-      "notes": "Compatible mode does not redirect generated imports, so stock service/action types remain available. End-to-end service/action tests remain open."
+      "notes": "Compatible mode does not redirect generated imports, so stock service/action types remain available. Service types are covered by the application corpus; a full action contract remains open."
     },
     {
       "id": "publisher.basic",
@@ -143,8 +143,8 @@
       "backend": "mixed",
       "fallback": "safe",
       "default": false,
-      "evidence": ["rclcppyy/monkey.py"],
-      "notes": "All options are forwarded to stock publisher creation; focused event, override, and custom publisher-class contract tests remain open."
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "notes": "The application corpus covers a custom publisher class, callback group, explicit QoS, empty event callbacks, and an empty QoS override set. Non-empty event and override behavior remains open."
     },
     {
       "id": "subscription.basic",
@@ -152,7 +152,7 @@
       "api": "Node.create_subscription(message_type, topic, callback, depth_or_qos)",
       "support": "certified",
       "backend": "python",
-      "fallback": "none",
+      "fallback": "safe",
       "default": true,
       "evidence": ["test/test_monkeypatch.py", "test/test_pubsub_roundtrip.py"],
       "notes": "The complete subscription entity and Python callback dispatch remain stock; ordered delivery and visible backend fallback are covered."
@@ -165,41 +165,41 @@
       "backend": "python",
       "fallback": "safe",
       "default": false,
-      "evidence": ["rclcppyy/monkey.py"],
-      "notes": "All options are forwarded to stock subscription creation; focused raw, content-filter, event, and override tests remain open."
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "notes": "The application corpus covers callback groups, explicit QoS, empty event callbacks and overrides, raw=false, and no content filter. Raw delivery, active filters, and non-empty event/override behavior remain open."
     },
     {
       "id": "timer.wall",
       "area": "timer",
       "api": "Node.create_timer(period, Python callback)",
-      "support": "experimental",
+      "support": "certified",
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["scripts/benchmarks/bench_pub_rclcppyy_monkeypatch.py", "rclcppyy/monkey.py"],
-      "notes": "Timer creation delegates to stock rclpy and reports fallback; focused one-shot, callback-group, cancellation/reset, exception, and destruction tests remain open."
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "notes": "Stock timer authority is explicit. The corpus covers callback groups, autostart=false, reset, callback execution, cancellation, exception propagation, and destruction; required_cpp rejects before creation."
     },
     {
       "id": "executor.spin",
       "area": "executor",
       "api": "rclpy.spin(accelerated_node)",
-      "support": "experimental",
+      "support": "certified",
       "backend": "python",
-      "fallback": "not_applicable",
+      "fallback": "safe",
       "default": true,
-      "evidence": ["scripts/benchmarks/bench_pub_rclcppyy_monkeypatch.py", "rclcppyy/monkey.py"],
-      "notes": "Compatible activation does not patch rclpy.spin; focused long-running spin, exception, and signal tests remain open."
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "notes": "The stock executor remains authoritative and is reported as Python. Timer servicing, Context shutdown, signature preservation, and required_cpp rejection before spinning are covered; signal handling remains open."
     },
     {
       "id": "executor.spin_once",
       "area": "executor",
       "api": "rclpy.spin_once(accelerated_node, timeout_sec=...)",
-      "support": "experimental",
+      "support": "certified",
       "backend": "python",
-      "fallback": "not_applicable",
+      "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_hook.py", "test/test_heavy_hz_demo.py", "rclcppyy/monkey.py"],
-      "notes": "Compatible activation leaves rclpy.spin_once unchanged; the differential contract uses an explicit stock executor and exact custom-context ownership."
+      "evidence": ["test/test_hook.py", "test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "notes": "The wrapper delegates to stock execution and reports Python authority. Timer, guard, service, simulated-time, custom executor, callback-exception, signature, and required_cpp fail-before-spin behavior are covered."
     },
     {
       "id": "executor.custom_and_multi_threaded",
@@ -209,19 +209,41 @@
       "backend": "python",
       "fallback": "safe",
       "default": false,
-      "evidence": ["README.md", "rclcppyy/monkey.py", "rclcppyy/node.py"],
-      "notes": "Compatible activation leaves executor and callback-group objects stock. Multi-threaded and waitable stress coverage remains open."
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "notes": "A two-thread MultiThreadedExecutor with a reentrant callback group, shutdown, status reporting, and required_cpp rejection is covered. Custom executor subclasses, waitables, and sustained stress remain open."
+    },
+    {
+      "id": "executor.future_completion",
+      "area": "executor",
+      "api": "rclpy.task.Future set_result/set_exception/cancel completion",
+      "support": "certified",
+      "backend": "python",
+      "fallback": "not_applicable",
+      "default": true,
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "notes": "Future completion remains stock-authoritative under every policy to avoid destabilizing executor internals. Result completion, done callbacks, signature preservation, and required_cpp behavior are covered."
+    },
+    {
+      "id": "executor.guard_condition",
+      "area": "executor",
+      "api": "Node.create_guard_condition/GuardCondition.trigger/destroy_guard_condition",
+      "support": "certified",
+      "backend": "python",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_control_plane_helper.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "notes": "Stock guard-condition identity, callback groups, trigger/dispatch, destruction, compatible status, bounded warnings, signature preservation, and required_cpp rejection before creation are covered."
     },
     {
       "id": "service.client_server",
       "area": "service",
       "api": "Node.create_service/create_client and service spinning",
-      "support": "unsupported",
+      "support": "certified",
       "backend": "python",
-      "fallback": "unsafe",
+      "fallback": "safe",
       "default": true,
-      "evidence": ["README.md", "rclcppyy/node.py", "rclcppyy/monkey.py"],
-      "notes": "Service/client methods and executors are unmodified stock rclpy. A bidirectional service contract and backend status coverage remain open."
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_control_plane_helper.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "notes": "A local SetBool client/server request, Future response, callback group, discovery, status, identity, and teardown match stock. required_cpp rejects user service/client creation before side effects while preserving constructor-owned services."
     },
     {
       "id": "action.client_server",
@@ -235,15 +257,26 @@
       "notes": "Action classes and executors are unmodified stock rclpy. A full goal/cancel/result/feedback differential contract remains open."
     },
     {
-      "id": "parameter.local_and_remote",
+      "id": "parameter.local",
       "area": "parameter",
-      "api": "Local parameters, parameter services, and parameter events",
+      "api": "Local parameter declaration, callbacks, mutation, listing, and parameter-service graph",
       "support": "certified",
       "backend": "python",
-      "fallback": "none",
+      "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_differential_contract.py", "test/differential/_contract_probe.py"],
-      "notes": "The stock node remains sole owner; parameter value, overrides, parameter-service graph identity, and custom Context ownership match the stock scenario."
+      "evidence": ["test/test_differential_contract.py", "test/differential/_contract_probe.py", "test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "notes": "The stock node remains sole owner. Values, overrides, callbacks, mutation, listing, service graph identity, status, custom Context, and required_cpp rejection before mutation are covered."
+    },
+    {
+      "id": "parameter.remote",
+      "area": "parameter",
+      "api": "AsyncParameterClient and remote parameter events",
+      "support": "experimental",
+      "backend": "python",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["rclcppyy/monkey.py"],
+      "notes": "Constructor-owned parameter services remain stock-compatible, but remote client calls and parameter-event delivery do not yet have a dedicated differential corpus."
     },
     {
       "id": "lifecycle.node",
