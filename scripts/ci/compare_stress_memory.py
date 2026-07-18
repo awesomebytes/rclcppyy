@@ -122,6 +122,11 @@ def compare(
                 delta, max_absolute_delta_kib_per_1000_cycles))
     return {
         "schema": SCHEMA,
+        "policy": {
+            "purpose": "bounded-growth-guard",
+            "optimization_objective": False,
+            "bounded_memory_tradeoff_allowed": True,
+        },
         "architecture": reference["architecture"],
         "python": reference["python"],
         "rmw_implementation": reference["rmw_implementation"],

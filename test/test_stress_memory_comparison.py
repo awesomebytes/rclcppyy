@@ -67,6 +67,11 @@ def test_equal_work_memory_gate_passes_bounded_candidate():
 
     assert result["result"] == "pass"
     assert result["failures"] == []
+    assert result["policy"] == {
+        "purpose": "bounded-growth-guard",
+        "optimization_objective": False,
+        "bounded_memory_tradeoff_allowed": True,
+    }
     assert result["comparison"]["relative_slope"] == pytest.approx(1.357142857)
     assert result["post_warmup_entity_cycles"] == 1900
     assert result["performance_claims_allowed"] is False

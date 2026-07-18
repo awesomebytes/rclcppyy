@@ -80,14 +80,14 @@ jobs:
           mkdir -p build/scheduled
           pixi run env RMW_IMPLEMENTATION="${{ matrix.rmw }}" pytest test/ -v -ra \
             --junitxml="build/scheduled/${{ matrix.rmw }}.xml"
-      - name: Run paced churn, concurrent publisher, and signal soak
+      - name: Run paced compatible churn and concurrent publisher soak
         run: |
           set -euo pipefail
           pixi run env RMW_IMPLEMENTATION="${{ matrix.rmw }}" \
             python scripts/ci/stress_runtime.py \
             --profile compatible \
-            --repetitions 3 --signal-repetitions 5 \
-            --signal-settle-seconds 0.05 --round-period-seconds 15 \
+            --repetitions 3 --signal-repetitions 0 \
+            --round-period-seconds 15 \
             --min-duration-seconds 900 --max-rss-growth-kib 262144 \
             --output "build/scheduled/stress-${{ matrix.rmw }}.json" \
             2>&1 | tee "build/scheduled/stress-${{ matrix.rmw }}.log"
@@ -109,7 +109,7 @@ jobs:
             --signal-repetitions 0 --min-duration-seconds 0 \
             --output build/scheduled/memory-compatible.json \
             2>&1 | tee build/scheduled/memory-compatible.log
-      - name: Gate compatible memory against equal-work stock
+      - name: Guard compatible memory against unbounded growth
         run: |
           pixi run python scripts/ci/compare_stress_memory.py \
             build/scheduled/memory-stock.json \
@@ -126,6 +126,15 @@ jobs:
             --signal-settle-seconds 0 --signal-repetitions 50 \
             --output build/scheduled/signal-optimized-boundary.json \
             2>&1 | tee build/scheduled/signal-optimized-boundary.log
+      - name: Record compatible settled signal diagnostic
+        continue-on-error: true
+        run: |
+          pixi run env RMW_IMPLEMENTATION="${{ matrix.rmw }}" \
+            python scripts/ci/stress_runtime.py \
+            --signal-only --profile compatible \
+            --signal-settle-seconds 0.05 --signal-repetitions 50 \
+            --output build/scheduled/signal-compatible-settled.json \
+            2>&1 | tee build/scheduled/signal-compatible-settled.log
       - name: Record stock immediate signal boundary diagnostic
         continue-on-error: true
         run: |

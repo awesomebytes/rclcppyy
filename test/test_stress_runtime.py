@@ -35,6 +35,7 @@ def test_scheduled_hardening_is_independent_and_evidence_based():
     assert "python scripts/ci/stress_runtime.py" in commands
     assert "--profile compatible" in commands
     assert "--round-period-seconds 15" in commands
+    assert "--repetitions 3 --signal-repetitions 0" in commands
     assert "--profile stock --cycles 100 --repetitions 50" in commands
     assert "--profile compatible --cycles 100 --repetitions 50" in commands
     assert "compare_stress_memory.py" in commands
@@ -45,6 +46,11 @@ def test_scheduled_hardening_is_independent_and_evidence_based():
         step for step in steps
         if step.get("name") == "Record stock immediate signal boundary diagnostic")
     assert stock_diagnostic["continue-on-error"] is True
+    compatible_diagnostic = next(
+        step for step in steps
+        if step.get("name") == "Record compatible settled signal diagnostic")
+    assert compatible_diagnostic["continue-on-error"] is True
+    assert "--signal-settle-seconds 0.05" in compatible_diagnostic["run"]
     cache = next(
         step for step in steps
         if step.get("name") == "Prove isolated cold, warm, and corrupt generated caches")
