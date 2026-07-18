@@ -80,8 +80,8 @@ jobs:
       # cppyy is compiled from its upstream source distribution on ARM64.
       MAKE_NPROCS: "2"
       STDCXX: "17"
-      # The pinned dependency checkout only exists on ARM64. Missing entries are
-      # harmless on x86-64, where the published conda packages remain authoritative.
+      # ARM source tests and the x86 local-channel package build use this pinned
+      # dependency checkout. The normal x86 Pixi solve remains on published 0.1.0.
       PYTHONPATH: ${{ github.workspace }}/_deps/cppyy_kit:${{ github.workspace }}/_deps/cppyy_kit/rclcpp_kit
     strategy:
       fail-fast: false
@@ -99,12 +99,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Checkout pinned kit sources for ARM64
-        if: matrix.platform == 'linux-aarch64'
+      - name: Checkout pinned kit sources
         uses: actions/checkout@v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: 67fe4f8ba26ff7fa9f6cfaf8cf8e58c6cc601e98
+          ref: d73869fffcc1e1088049582e7413faf505f84430
           path: _deps/cppyy_kit
 
       - name: Verify native runner architecture
@@ -156,9 +155,12 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p build/test-results
-          pixi run -e pkg pkg-build 2>&1 | tee build/test-results/package-build.log
-          find output -name '*.conda' -print | tee build/test-results/package-artifacts.txt
-          scripts/ci/prove_rclcppyy_package.sh output 2>&1 \
+          pixi run -e pkg bash scripts/ci/build_local_package_stack.sh \
+            _deps/cppyy_kit build/package-channel 2>&1 \
+            | tee build/test-results/package-build.log
+          find build/package-channel -name '*.conda' -print \
+            | sort | tee build/test-results/package-artifacts.txt
+          scripts/ci/prove_rclcppyy_package.sh build/package-channel 2>&1 \
             | tee build/test-results/package-proof.txt
 
       - name: Record ARM64 package support boundary

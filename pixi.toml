@@ -25,7 +25,9 @@ psutil = ">=7.2.2,<8"
 # (rclcpp_kit / cppyy_kit). rclcppyy re-exports them via deprecation shims, so both
 # must be IMPORTABLE at runtime. The suite is now published to prefix.dev
 # (awesomebytes channel, added above), so these are real conda deps pinned to the
-# published version -- matching recipe/recipe.yaml's run-deps. See RELEASING.md.
+# last published version. The release recipe already requires suite 0.2.0; the
+# focused packaging task builds that strict dependency stack from the sibling
+# source checkout until 0.2.0 is published. See RELEASING.md.
 
 # cppyy 3.5 and the published kit artifacts are available together on x86-64.
 # The kit artifacts retain their strict conda `cppyy >=3.5` runtime dependency,
@@ -138,12 +140,9 @@ demo-topic-hz-startup = "python scripts/heavy_hz_demo/run_topic_hz_cli.py --star
 rattler-build = ">=0.68,<0.69"
 
 [feature.pkg.tasks]
-# Build the ros-jazzy-rclcppyy conda package from recipe/ into ./output.
-# Channels match the workspace. The recipe's import-smoke test env resolves the
-# 0.2.0 run-deps (ros-jazzy-rclcpp-kit, cppyy-kit) from the suite channel, now the
-# published `awesomebytes` channel on prefix.dev (see RELEASING.md, step 2).
-# Run with `pixi run -e pkg pkg-build`.
-pkg-build = "rattler-build build --recipe recipe/recipe.yaml -c https://repo.prefix.dev/awesomebytes -c robostack-jazzy -c conda-forge --output-dir output"
+# Build the suite core and rclcppyy into one local channel, then run each
+# recipe's isolated import test. CPPYY_KIT_SRC can select another suite checkout.
+pkg-build = "bash scripts/ci/build_local_package_stack.sh ${CPPYY_KIT_SRC:-../cppyy_kit} output"
 
 [environments]
 # solve-group = "default" pins the shared ROS/cppyy stack to the default env's
