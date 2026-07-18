@@ -63,7 +63,9 @@ def test_review_and_scheduled_workflows_enforce_cache_and_default_policy():
 
     benchmark = workflow["jobs"]["dedicated-benchmark"]
     assert benchmark["env"]["CPPYY_KIT_NO_AUTOPCH"] == "1"
-    assert "XDG_CACHE_HOME" in benchmark["env"]
+    assert benchmark["env"]["XDG_CACHE_HOME"].startswith(
+        "${{ github.workspace }}/.cache/rclcppyy-benchmark-"
+    )
     benchmark_commands = "\n".join(
         step.get("run", "") for step in benchmark["steps"])
     assert "prove_generated_cache.py" in benchmark_commands

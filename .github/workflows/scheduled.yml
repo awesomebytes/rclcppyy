@@ -110,7 +110,7 @@ jobs:
       RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
       PYTHONPATH: ${{ github.workspace }}/_deps/cppyy_kit:${{ github.workspace }}/_deps/cppyy_kit/rclcpp_kit
       CPPYY_KIT_NO_AUTOPCH: '1'
-      XDG_CACHE_HOME: ${{ runner.temp }}/rclcppyy-benchmark-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.machine }}
+      XDG_CACHE_HOME: ${{ github.workspace }}/.cache/rclcppyy-benchmark-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.machine }}
     strategy:
       fail-fast: false
       matrix:
