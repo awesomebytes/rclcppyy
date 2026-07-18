@@ -51,50 +51,9 @@ jobs:
             --output-dir output
 
       # The point of releasing: a user with no clone gets a working install from
-      # the channel alone. Reproduce that in a throwaway pixi workspace whose
-      # channels include the freshly built local output, with no repo on
-      # PYTHONPATH and no LD_LIBRARY_PATH hand-holding.
+      # the channel alone, including the same-handle serialized publisher route.
       - name: Prove the artifact installs and runs from a channel
-        run: |
-          set -euxo pipefail
-          workdir="$(mktemp -d)"
-          cat > "$workdir/pixi.toml" <<EOF
-          [workspace]
-          name = "rclcppyy-artifact-test"
-          # The freshly built rclcppyy is in output/; its 0.2.0 run-deps
-          # (ros-jazzy-rclcpp-kit, cppyy-kit) come from awesomebytes (published
-          # first, per RELEASING.md).
-          channels = ["file://$GITHUB_WORKSPACE/output", "https://repo.prefix.dev/awesomebytes", "robostack-jazzy", "conda-forge"]
-          platforms = ["linux-64"]
-          version = "0.0.0"
-
-          [dependencies]
-          ros-jazzy-rclcppyy = "*"
-          EOF
-          cat > "$workdir/smoke.py" <<'PY'
-          # import + enable, then a flat-message pub/sub roundtrip, all from the
-          # channel-installed package (builtin_interfaces ships transitively).
-          import sys, time, cppyy
-          import rclcppyy
-          rclcppyy.enable_cpp_acceleration()
-          from rclcppyy.bringup_rclcpp import bringup_rclcpp
-          from builtin_interfaces.msg import Time
-          r = bringup_rclcpp(); r.init([])
-          pub_node = r.Node("ci_pub"); sub_node = r.Node("ci_sub")
-          got = []
-          pub = pub_node.create_publisher(Time, "ci_topic", 10)
-          sub = sub_node.create_subscription(Time, "ci_topic", lambda m: got.append(int(m.sec)), 10)
-          exe = r.executors.SingleThreadedExecutor()
-          exe.add_node(sub_node.get_node_base_interface())
-          for i in range(5):
-              m = Time(); m.sec = 100 + i; pub.publish(m)
-              for _ in range(5):
-                  exe.spin_some(cppyy.gbl.std.chrono.nanoseconds(20000000)); time.sleep(0.02)
-          print("received:", got)
-          sys.exit(0 if got == [100, 101, 102, 103, 104] else 1)
-          PY
-          cd "$workdir"
-          pixi run python smoke.py
+        run: scripts/ci/prove_rclcppyy_package.sh output
 
       - name: Upload to the prefix.dev channel `awesomebytes` (OIDC)
         run: |

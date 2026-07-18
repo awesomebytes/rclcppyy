@@ -29,46 +29,96 @@ channels = ["file://${output_dir}", "https://repo.prefix.dev/awesomebytes", "rob
 platforms = ["${platform}"]
 version = "0.0.0"
 
+[activation.env]
+LD_LIBRARY_PATH = "\$CONDA_PREFIX/lib"
+RMW_IMPLEMENTATION = "rmw_cyclonedds_cpp"
+ROS_AUTOMATIC_DISCOVERY_RANGE = "LOCALHOST"
+ROS_DOMAIN_ID = "62"
+CPPYY_KIT_NO_AUTOPCH = "1"
+
 [dependencies]
 ros-jazzy-rclcppyy = "*"
+ros-jazzy-rmw-cyclonedds-cpp = "*"
 EOF
 
 cat >"$workdir/smoke.py" <<'PY'
-import sys
+import importlib
+from importlib.metadata import version
+import os
 import time
 
-import cppyy
 import rclcppyy
-from builtin_interfaces.msg import Time
+import rclpy
+from rcl_interfaces.msg import ParameterEvent
+from rclpy.context import Context
+from rclpy.executors import SingleThreadedExecutor
+from rclpy.node import Node
+from rclpy.publisher import Publisher
+from rclcpp_kit import borrowed_publish
 
+native_module = importlib.import_module("rclcpp_kit.native")
+native_pipeline_module = importlib.import_module("rclcpp_kit.native_pipeline")
+assert version("cppyy-kit") == "0.2.0"
+assert version("ros-jazzy-rclcpp-kit") == "0.2.0"
+assert version("ros-jazzy-rclcppyy") == "0.2.0"
 print("rclcppyy:", rclcppyy.__file__)
+print("borrowed_publish:", borrowed_publish.__file__)
+print("native:", native_module.__file__)
+print("native_pipeline:", native_pipeline_module.__file__)
 rclcppyy.enable_cpp_acceleration()
-r = rclcppyy.bringup_rclcpp()
-r.init([])
-pub_node = r.Node("package_proof_pub")
-sub_node = r.Node("package_proof_sub")
-received = []
-publisher = pub_node.create_publisher(Time, "package_proof_topic", 10)
-subscription = sub_node.create_subscription(
-    Time,
-    "package_proof_topic",
-    lambda message: received.append(int(message.sec)),
-    10,
+
+context = Context()
+context.init(args=[])
+node = rclpy.create_node(
+    "installed_rclcppyy_%d" % os.getpid(),
+    namespace="/rclcppyy_package_proof",
+    context=context,
 )
-executor = r.executors.SingleThreadedExecutor()
-executor.add_node(sub_node.get_node_base_interface())
+executor = SingleThreadedExecutor(context=context)
+executor.add_node(node)
+received = []
+topic = "/rclcppyy_package_proof/parameter_events"
+subscription = node.create_subscription(
+    ParameterEvent, topic, lambda message: received.append(message.node), 10)
+publisher = node.create_publisher(ParameterEvent, topic, 10)
 
-for value in range(5):
-    message = Time()
-    message.sec = 100 + value
-    publisher.publish(message)
-    for _ in range(5):
-        executor.spin_some(cppyy.gbl.std.chrono.nanoseconds(20_000_000))
-        time.sleep(0.02)
+assert type(node) is Node
+assert type(publisher) is Publisher
+assert node.context is context
+assert not rclpy.ok(), "the default context must remain uninitialized"
 
-print("received:", received)
-r.shutdown()
-sys.exit(0 if received == [100, 101, 102, 103, 104] else 1)
+deadline = time.monotonic() + 10.0
+while publisher.get_subscription_count() < 1 and time.monotonic() < deadline:
+    executor.spin_once(timeout_sec=0.05)
+assert publisher.get_subscription_count() >= 1
+
+payload = "/rclcppyy_package_proof/source"
+publisher.publish(ParameterEvent(node=payload))
+deadline = time.monotonic() + 10.0
+while not received and time.monotonic() < deadline:
+    executor.spin_once(timeout_sec=0.05)
+assert received == [payload], received
+
+identity = (node.get_name(), node.get_namespace())
+assert node.get_node_names_and_namespaces().count(identity) == 1
+assert [(item.node_name, item.node_namespace)
+        for item in node.get_publishers_info_by_topic(topic)] == [identity]
+
+status = rclcppyy.status()
+entity_backends = {
+    record["metadata"].get("entity_type"): record["backend"]
+    for record in status["entities"]
+}
+assert entity_backends["publisher"] == "cpp", status
+assert entity_backends["subscription"] == "python", status
+
+assert node.destroy_publisher(publisher)
+assert node.destroy_subscription(subscription)
+executor.remove_node(node)
+node.destroy_node()
+executor.shutdown(timeout_sec=1.0)
+context.shutdown()
+print("INSTALLED_RCLCPPYY_SAME_HANDLE_SERIALIZED_PUBLISH_OK")
 PY
 
 (

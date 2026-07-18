@@ -48,8 +48,8 @@ requirements:
     # until the suite publishes to prefix.dev — the pkg-build task and the release
     # workflow must pass that channel (local file:// now → awesomebytes after
     # publish; see RELEASING.md).
-    - ros-jazzy-rclcpp-kit ==0.1.0
-    - cppyy-kit ==0.1.0
+    - ros-jazzy-rclcpp-kit ==0.2.0
+    - cppyy-kit ==0.2.0
 
 tests:
   - script:
