@@ -18,6 +18,7 @@ jobs:
     name: build + test + bench smoke
     runs-on: ubuntu-latest
     env:
+      RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
       PYTHONPATH: ${{ github.workspace }}/_deps/cppyy_kit:${{ github.workspace }}/_deps/cppyy_kit/rclcpp_kit
     steps:
       - name: Checkout
@@ -27,7 +28,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: e009fea9ba3d07870638de344a589a5ee56a8b03
+          ref: a7068db8a5b8e0f7383867e149aec5cddac42247
           path: _deps/cppyy_kit
 
       - name: Set up pixi
@@ -46,47 +47,83 @@ jobs:
           cache-key: rclcppyy-linux-64-
           cache-write: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
+      - name: Verify pinned suite source identity
+        id: suite
+        run: |
+          mkdir -p build/test-results
+          pixi run suite-contract | tee build/test-results/suite-source.json
+
       # The pixi environment's activation provides RMW_IMPLEMENTATION,
       # ROS_AUTOMATIC_DISCOVERY_RANGE and LD_LIBRARY_PATH (see pixi.toml
       # [activation.env]); every `pixi run` below inherits them, so the
       # workflow deliberately sets no ROS env vars of its own.
       - name: Build
+        id: build
         run: pixi run build
 
       # flake8 scoped to rclcppyy/ + test/ (see .flake8); style codes relaxed,
       # real defects (unused imports/locals, etc.) are enforced.
       - name: Lint
+        id: lint
         run: pixi run lint
 
       - name: Validate compatibility contract
+        id: contract
         run: pixi run contract
 
       - name: Test (pub/sub roundtrip, monkeypatch, serialization parity)
-        run: pixi run test
+        id: test
+        run: pixi run test-ci
 
       # End-to-end proof that rclcppyy actually publishes over the C++ backend.
       # Cold cppyy JIT of rclcpp on a 2-core hosted runner is far slower than a
       # dev box, so the warmup budget is generous; run_benchmarks.py already
       # exits non-zero if the subscriber never receives a message.
       - name: Bench smoke (assert rclcppyy publishes)
+        id: benchmark
         run: >-
           pixi run bench --smoke --backends rclcppyy --rate 1000 --duration 3
           --warmup-timeout 300 --json --output build/bench-smoke.json
 
       - name: Render benchmark evidence
+        id: report
         run: >-
           pixi run bench-report build/bench-smoke.json
           --output build/bench-smoke.md
 
-      - name: Upload benchmark evidence
+      - name: Record primary job outcomes
+        if: always()
+        env:
+          SUITE_OUTCOME: ${{ steps.suite.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+          CONTRACT_OUTCOME: ${{ steps.contract.outcome }}
+          TEST_OUTCOME: ${{ steps.test.outcome }}
+          BENCHMARK_OUTCOME: ${{ steps.benchmark.outcome }}
+          REPORT_OUTCOME: ${{ steps.report.outcome }}
+        run: |
+          mkdir -p build/test-results
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          names = ("suite", "build", "lint", "contract", "test", "benchmark", "report")
+          outcomes = {name: os.environ[name.upper() + "_OUTCOME"] for name in names}
+          Path("build/test-results/job-outcomes.json").write_text(
+              json.dumps(outcomes, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+
+      - name: Upload test and benchmark evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: benchmark-smoke-x86-64
+          name: rclcppyy-linux-64-primary-evidence
           path: |
+            build/test-results
             build/bench-smoke.json
             build/bench-smoke.md
-          if-no-files-found: ignore
+          if-no-files-found: error
+          retention-days: 14
 
   native-architecture:
     name: native source + package (${{ matrix.platform }})
@@ -96,8 +133,9 @@ jobs:
       # cppyy is compiled from its upstream source distribution on ARM64.
       MAKE_NPROCS: "2"
       STDCXX: "17"
+      RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
       # ARM source tests and the x86 local-channel package build use this pinned
-      # dependency checkout. The normal x86 Pixi solve remains on published 0.1.0.
+      # dependency checkout. suite-contract proves this exact source identity.
       PYTHONPATH: ${{ github.workspace }}/_deps/cppyy_kit:${{ github.workspace }}/_deps/cppyy_kit/rclcpp_kit
     strategy:
       fail-fast: false
@@ -119,7 +157,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: e009fea9ba3d07870638de344a589a5ee56a8b03
+          ref: a7068db8a5b8e0f7383867e149aec5cddac42247
           path: _deps/cppyy_kit
 
       - name: Verify native runner architecture
@@ -133,6 +171,12 @@ jobs:
           cache: true
           cache-key: rclcppyy-${{ matrix.platform }}-
           cache-write: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
+      - name: Verify pinned suite source identity
+        id: suite
+        run: |
+          mkdir -p build/test-results
+          pixi run suite-contract | tee build/test-results/suite-source.json
 
       - name: Restore generated C++ caches
         id: generated-cache
@@ -155,21 +199,27 @@ jobs:
           pixi list > build/test-results/packages.txt
 
       - name: Build source
+        id: build
         run: pixi run build
 
       - name: Prove startup hook through ROS launch and CLI
+        id: launch
         run: pixi run launch-contract
 
       - name: Prove custom-interface AOT interoperability
+        id: custom_interfaces
         run: pixi run custom-interfaces
 
       - name: Lint source
+        id: lint
         run: pixi run lint
 
       - name: Validate compatibility contract
+        id: contract
         run: pixi run contract
 
       - name: Test source
+        id: test
         run: pixi run test-ci
 
       - name: Build and prove conda package
@@ -195,6 +245,29 @@ jobs:
           linux-aarch64 conda package currently exists. Source-test success does not
           claim that the conda artifact can be installed on ARM64.
           EOF
+
+      - name: Record native job outcomes
+        if: always()
+        env:
+          SUITE_OUTCOME: ${{ steps.suite.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          LAUNCH_OUTCOME: ${{ steps.launch.outcome }}
+          CUSTOM_INTERFACES_OUTCOME: ${{ steps.custom_interfaces.outcome }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+          CONTRACT_OUTCOME: ${{ steps.contract.outcome }}
+          TEST_OUTCOME: ${{ steps.test.outcome }}
+        run: |
+          mkdir -p build/test-results
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          names = (
+              "suite", "build", "launch", "custom_interfaces", "lint", "contract", "test")
+          outcomes = {name: os.environ[name.upper() + "_OUTCOME"] for name in names}
+          Path("build/test-results/job-outcomes.json").write_text(
+              json.dumps(outcomes, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
 
       - name: Upload native test and package evidence
         if: always()

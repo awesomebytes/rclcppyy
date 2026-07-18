@@ -44,9 +44,9 @@ rattler-build build \
   -c conda-forge \
   --output-dir "$output_dir"
 
-artifact="$(find "$output_dir" -name 'ros-jazzy-rclcppyy-0.2.0-*.conda' -print -quit)"
+artifact="$(find "$output_dir" -name 'ros-jazzy-rclcppyy-0.3.0-*.conda' -print -quit)"
 if [ -z "$artifact" ]; then
-  echo "Expected ros-jazzy-rclcppyy 0.2.0 artifact in $output_dir" >&2
+  echo "Expected ros-jazzy-rclcppyy 0.3.0 artifact in $output_dir" >&2
   exit 1
 fi
 echo "Built artifact: $artifact"

@@ -12,38 +12,20 @@ fi
 # build. Package proofs run in a separate fresh environment.
 export PYTHONPATH="$PIXI_PROJECT_ROOT${PYTHONPATH:+:$PYTHONPATH}"
 
-# Development branches of rclcppyy and rclcpp_kit evolve together. Prefer the
-# sibling capability-layer checkout when present; release/package proofs run in
-# fresh workspaces and therefore exercise declared package dependencies instead.
-_suite_src="$PIXI_PROJECT_ROOT/../cppyy_kit"
+# Development branches of rclcppyy and the supporting suite evolve together. Only
+# activate the exact reviewed source revision; scripts/ci/verify_suite_source.py
+# also checks cleanliness, recipe versions, and active Python roots before tests.
+_suite_src="${RCLCPPYY_SUITE_SRC:-$PIXI_PROJECT_ROOT/../cppyy_kit}"
 _rclcpp_kit_src="$_suite_src/rclcpp_kit"
-if [ -d "$_suite_src/cppyy_kit" ] && [ -d "$_rclcpp_kit_src/rclcpp_kit" ]; then
+_suite_lock="$PIXI_PROJECT_ROOT/suite-source.lock.json"
+_expected_suite_commit="$(sed -n 's/.*"commit": "\([0-9a-f]*\)".*/\1/p' "$_suite_lock")"
+_actual_suite_commit="$(git -C "$_suite_src" rev-parse HEAD 2>/dev/null || true)"
+if [ -n "$_expected_suite_commit" ] && \
+   [ "$_actual_suite_commit" = "$_expected_suite_commit" ] && \
+   [ -d "$_suite_src/cppyy_kit" ] && [ -d "$_rclcpp_kit_src/rclcpp_kit" ]; then
     export PYTHONPATH="$_rclcpp_kit_src:$_suite_src:$PYTHONPATH"
+else
+    echo "rclcppyy: reviewed suite source is unavailable; suite-contract will fail." >&2
 fi
 
-# --- heavy_hz demo bridge (DEV/demo-only, gated to the heavydemo env) ---------
-# The default env pins the PUBLISHED suite (cppyy-kit / rclcpp-kit 0.1.0), which
-# predates the zero-config auto-PCH. The `heavydemo` env (scripts/heavy_hz_demo/)
-# bridges the newer suite from a sibling cppyy_kit *source* checkout: this block
-# puts that checkout's cppyy_kit + rclcpp_kit FIRST on PYTHONPATH so `import
-# rclcppyy` runs on the newer auto-PCH -- which is what the cold-vs-warm startup
-# story measures. It runs AFTER `source setup.bash` above, so the bridge prepend
-# wins over the ament/site-packages entries setup.bash adds. Gated on
-# PIXI_ENVIRONMENT_NAME (pixi sets it before activation, unlike a feature's
-# activation.env which lands too late for this guard), so it is a no-op in every
-# other env and nothing here touches the default env's published-channel
-# dependency. CPPYY_KIT_SRC overrides the checkout path. Mirrors the pre-release
-# bridge; see RELEASING.md "Channel swap" for that history.
-if [ "$PIXI_ENVIRONMENT_NAME" = "heavydemo" ]; then
-    CPPYY_KIT_SRC="${CPPYY_KIT_SRC:-$PIXI_PROJECT_ROOT/../cppyy_kit}"
-    if [ -d "$CPPYY_KIT_SRC/cppyy_kit" ] && [ -d "$CPPYY_KIT_SRC/rclcpp_kit/rclcpp_kit" ]; then
-        _suite_bridge="$PIXI_PROJECT_ROOT/.suite_bridge"
-        mkdir -p "$_suite_bridge"
-        ln -sfn "$CPPYY_KIT_SRC/cppyy_kit" "$_suite_bridge/cppyy_kit"
-        ln -sfn "$CPPYY_KIT_SRC/rclcpp_kit/rclcpp_kit" "$_suite_bridge/rclcpp_kit"
-        export PYTHONPATH="$_suite_bridge${PYTHONPATH:+:$PYTHONPATH}"
-    else
-        echo "heavydemo: CPPYY_KIT_SRC=$CPPYY_KIT_SRC has no cppyy_kit/ + rclcpp_kit/rclcpp_kit/;" \
-             "rclcppyy will fall back to the published suite 0.1.0 (no auto-PCH)." >&2
-    fi
-fi
+unset _suite_src _rclcpp_kit_src _suite_lock _expected_suite_commit _actual_suite_commit

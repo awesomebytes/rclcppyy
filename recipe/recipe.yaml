@@ -3,7 +3,7 @@ schema_version: 1
 context:
   name: ros-jazzy-rclcppyy
   # Keep in sync with package.xml <version>.
-  version: "0.2.0"
+  version: "0.3.0"
 
 package:
   name: ${{ name }}

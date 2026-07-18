@@ -32,6 +32,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Verify tag matches all release metadata
+        run: python3 scripts/ci/verify_release_version.py "${GITHUB_REF_NAME}"
+
       - name: Set up pixi
         uses: prefix-dev/setup-pixi@v0.10.0
         with:

@@ -73,9 +73,9 @@ native_module = importlib.import_module("rclcpp_kit.native")
 native_pipeline_module = importlib.import_module("rclcpp_kit.native_pipeline")
 native_service_module = importlib.import_module("rclcpp_kit.native_service")
 type_adapter_module = importlib.import_module("rclcpp_kit.type_adapter")
-for package_name in (
-        "cppyy-kit", "ros-jazzy-rclcpp-kit", "ros-jazzy-rclcppyy"):
+for package_name in ("cppyy-kit", "ros-jazzy-rclcpp-kit"):
     assert_conda_version(package_name, "0.2.0")
+assert_conda_version("ros-jazzy-rclcppyy", "0.3.0")
 print("rclcppyy:", rclcppyy.__file__)
 print("borrowed_publish:", borrowed_publish.__file__)
 print("native:", native_module.__file__)
