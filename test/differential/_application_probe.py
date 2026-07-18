@@ -111,6 +111,8 @@ def _run(mode):
     from rclpy.lifecycle import LifecycleNode, LifecyclePublisher, TransitionCallbackReturn
     from rclpy.node import Node as StockNode
     from rclpy.parameter import Parameter
+    from rclpy.parameter import parameter_value_to_python
+    from rclpy.parameter_client import AsyncParameterClient
     from rclpy.publisher import Publisher
     from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
     from rclpy.qos_overriding_options import QoSOverridingOptions
@@ -413,6 +415,65 @@ def _run(mode):
             "callbacks": parameter_callbacks,
             "listed": "corpus_value" in node.list_parameters([], 1).names,
         }
+
+        parameter_events = []
+
+        def on_parameter_event(event):
+            if event.node != node.get_fully_qualified_name():
+                return
+            for changed in event.changed_parameters:
+                if changed.name == "corpus_value":
+                    parameter_events.append({
+                        "name": changed.name,
+                        "value": parameter_value_to_python(changed.value),
+                    })
+
+        parameter_client = AsyncParameterClient(
+            factory_node, node.get_fully_qualified_name())
+        parameter_event_sub = parameter_client.on_parameter_event(
+            on_parameter_event)
+        parameter_executor = SingleThreadedExecutor(context=context)
+        parameter_executor.add_node(node)
+        parameter_executor.add_node(factory_node)
+        parameter_client_attrs = (
+            "_get_parameter_client",
+            "_list_parameter_client",
+            "_set_parameter_client",
+            "_get_parameter_types_client",
+            "_describe_parameters_client",
+            "_set_parameters_atomically_client",
+        )
+        try:
+            if not parameter_client.wait_for_services(timeout_sec=TIMEOUT_S):
+                raise AssertionError("remote parameter services were not discovered")
+            remote_set = parameter_client.set_parameters([
+                Parameter("corpus_value", value=11),
+            ])
+            _spin_executor_until(
+                parameter_executor,
+                lambda: remote_set.done() and any(
+                    event["value"] == 11 for event in parameter_events),
+            )
+            remote_get = parameter_client.get_parameters(["corpus_value"])
+            _spin_executor_until(parameter_executor, remote_get.done)
+            observations["remote_parameters"] = {
+                "set_successful": [
+                    result.successful for result in remote_set.result().results
+                ],
+                "get_values": [
+                    parameter_value_to_python(value)
+                    for value in remote_get.result().values
+                ],
+                "events": parameter_events,
+                "local_value": node.get_parameter("corpus_value").value,
+            }
+        finally:
+            parameter_executor.remove_node(factory_node)
+            parameter_executor.remove_node(node)
+            parameter_executor.shutdown(timeout_sec=1.0)
+            factory_node.destroy_subscription(parameter_event_sub)
+            for attribute in parameter_client_attrs:
+                factory_node.destroy_client(getattr(parameter_client, attribute))
 
         lifecycle_node = None
         failing_lifecycle_node = None

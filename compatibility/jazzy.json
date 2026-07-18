@@ -293,12 +293,12 @@
       "id": "parameter.remote",
       "area": "parameter",
       "api": "AsyncParameterClient and remote parameter events",
-      "support": "experimental",
+      "support": "certified",
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["rclcppyy/monkey.py"],
-      "notes": "Constructor-owned parameter services remain stock-compatible, but remote client calls and parameter-event delivery do not yet have a dedicated differential corpus."
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "notes": "An AsyncParameterClient discovers all six stock services, remotely sets and gets a declared parameter, observes the matching ParameterEvent value, and tears down every client and subscription. The exact stock objects remain authoritative and activated behavior matches the stock corpus."
     },
     {
       "id": "lifecycle.node",

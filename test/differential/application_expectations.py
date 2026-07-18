@@ -38,6 +38,8 @@ APPLICATION_PARITY = (
                       "Local service/client futures and teardown match stock."),
     ParityExpectation("parameters.behavior", ("parameters",),
                       "Parameter declaration, callbacks, mutation, and listing match stock."),
+    ParityExpectation("parameters.remote", ("remote_parameters",),
+                      "Remote parameter calls and event delivery match stock."),
     ParityExpectation("lifecycle.identity", ("lifecycle_identity",),
                       "Lifecycle node, subclass, publisher, and Context identities match stock."),
     ParityExpectation("lifecycle.services", ("lifecycle_services",),
