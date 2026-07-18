@@ -201,7 +201,8 @@ jobs:
             build/release
             compatibility/jazzy.json
             compatibility/manifest.schema.json
-            schemas/benchmark-v2.schema.json
+            schemas/benchmark-v3.schema.json
+            schemas/compatibility-performance-evidence-v1.schema.json
           if-no-files-found: error
           retention-days: 90
 

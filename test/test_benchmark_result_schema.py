@@ -151,3 +151,12 @@ def test_portable_v3_schema_requires_wire_and_backend_evidence():
     wire = portable["properties"]["results"]["items"]["properties"]["wire_values"]
     assert wire["properties"]["value_contract_verified"] == {"const": True}
     assert wire["properties"]["violations"] == {"const": 0}
+
+
+def test_release_evidence_publishes_current_benchmark_schemas():
+    workflow = (REPO_ROOT / ".github" / "workflows" / "release.yml").read_text(
+        encoding="utf-8")
+
+    assert "schemas/benchmark-v3.schema.json" in workflow
+    assert "schemas/compatibility-performance-evidence-v1.schema.json" in workflow
+    assert "schemas/benchmark-v2.schema.json" not in workflow
