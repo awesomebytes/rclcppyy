@@ -32,6 +32,7 @@ def test_required_cpp_fails_before_creating_unsupported_entity():
     proc = run_helper("_required_cpp_helper.py")
     details = format_output(proc)
     assert "REQUIRED_PUBLISHER_OK" in proc.stdout, details
+    assert "REQUIRED_PUBLISH_FAIL_CLOSED_OK" in proc.stdout, details
     assert "REQUIRED_FAIL_CLOSED_OK" in proc.stdout, details
     assert "REQUIRED_CONTROL_PLANE_OK" in proc.stdout, details
     assert proc.returncode == 0, details
@@ -44,4 +45,11 @@ def test_compatible_control_plane_status_and_warnings_are_bounded():
     assert "CONTROL_PLANE_WARN_ONCE_OK" in proc.stdout, details
     assert "CONTROL_PLANE_SIGNATURES_OK" in proc.stdout, details
     assert "CONTROL_PLANE_LIFECYCLE_OK" in proc.stdout, details
+    assert proc.returncode == 0, details
+
+
+def test_compatible_publish_fallback_is_visible():
+    proc = run_helper("_publish_fallback_helper.py")
+    details = format_output(proc)
+    assert "COMPATIBLE_PUBLISH_FALLBACK_VISIBLE_OK" in proc.stdout, details
     assert proc.returncode == 0, details

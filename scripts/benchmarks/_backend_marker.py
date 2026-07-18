@@ -48,14 +48,24 @@ def emit_status_backend(role, entity_type):
     """
     import rclcppyy
 
+    snapshot = rclcppyy.status()
     matching = [
         record
-        for record in rclcppyy.status()["entities"]
+        for record in snapshot["entities"]
         if record["metadata"].get("entity_type") == entity_type
     ]
     if not matching:
         raise RuntimeError(f"no backend decision recorded for {entity_type}")
     decision = matching[-1]
+    if role == "publisher":
+        completed = [
+            record
+            for record in snapshot["operations"]
+            if record["metadata"].get("operation") == "publish"
+        ]
+        if not completed:
+            raise RuntimeError("no completed publish backend decision recorded")
+        decision = completed[-1]
     _emit(
         role,
         decision["backend"],

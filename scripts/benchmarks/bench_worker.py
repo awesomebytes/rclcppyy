@@ -144,13 +144,18 @@ def _run_python(args):
 
     if args.role == "publisher":
         publisher = node.create_publisher(codec.message_type, args.topic, 10)
-        _emit_backend(args.backend, "publisher", publisher)
         sequence = 0
+        last_backend = None
 
         def publish_one():
-            nonlocal sequence
+            nonlocal last_backend, sequence
             publisher.publish(codec.make(sequence, time.monotonic_ns()))
             sequence += 1
+            current_backend = getattr(
+                publisher, "_rclcppyy_last_publish_backend", args.backend)
+            if current_backend != last_backend:
+                _emit_backend(args.backend, "publisher", publisher)
+                last_backend = current_backend
 
         timer = node.create_timer(1.0 / args.rate_hz, publish_one)  # noqa: F841 - node owns timer
     else:
@@ -180,13 +185,16 @@ def _run_native(args):
 
     if args.role == "publisher":
         publisher = node.create_publisher[codec.message_type](args.topic, 10)
-        _emit_backend(args.backend, "publisher", publisher)
         sequence = 0
+        backend_emitted = False
 
         def publish_one():
-            nonlocal sequence
+            nonlocal backend_emitted, sequence
             publisher.publish(codec.make(sequence, time.monotonic_ns()))
             sequence += 1
+            if not backend_emitted:
+                _emit_backend(args.backend, "publisher", publisher)
+                backend_emitted = True
 
         callback = cppyy.gbl.std.function["void()"](publish_one)
         timer = node.create_wall_timer(

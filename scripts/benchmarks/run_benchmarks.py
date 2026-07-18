@@ -358,6 +358,10 @@ def run_case(case, duration, warmup_timeout, sample_hz=DEFAULT_SAMPLE_HZ, echo=F
         window = next(result for result in snapshot["results"] if result["run_id"] == run_id)
         if window["messages"]["received"] <= 0:
             raise RuntimeError("measurement window received no messages")
+        # Re-read publisher evidence after the window. Compatibility workers
+        # emit a new marker and remain tainted if any later operation falls back.
+        pub_backend = require_backend_marker(
+            publisher, "publisher", expected["publisher"])
 
         return {
             "case_id": case["case_id"],

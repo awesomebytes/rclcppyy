@@ -8,7 +8,7 @@ rclcppyy.enable_cpp_acceleration(profile="required_cpp")
 
 import rclpy  # noqa: E402
 from rclpy.action import ActionClient, ActionServer  # noqa: E402
-from rclpy.executors import MultiThreadedExecutor  # noqa: E402
+from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor  # noqa: E402
 from rclpy.lifecycle import LifecycleNode  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from rclpy.parameter import Parameter  # noqa: E402
@@ -16,6 +16,7 @@ from rclpy.publisher import Publisher  # noqa: E402
 from rclpy.task import Future  # noqa: E402
 from std_msgs.msg import String  # noqa: E402
 from std_srvs.srv import SetBool  # noqa: E402
+from rclcppyy import monkey as monkey_module  # noqa: E402
 
 
 def _must_reject_without_entity(node, collection_name, create):
@@ -48,6 +49,29 @@ def main():
     assert type(publisher) is Publisher
     assert hasattr(publisher, "_rclcppyy_publish_route")
     print("REQUIRED_PUBLISHER_OK", flush=True)
+
+    observed = []
+    proof_executor = SingleThreadedExecutor(context=context)
+    proof_executor.add_node(node)
+    subscription = monkey_module._original_create_subscription(
+        node, String, "required_cpp", lambda message: observed.append(message.data), 10)
+    publisher.publish(String(data="cpp-route"))
+    for _ in range(20):
+        proof_executor.spin_once(timeout_sec=0.05)
+        if observed:
+            break
+    assert observed == ["cpp-route"]
+
+    class RejectingRoute:
+        def publish(self, _publisher, _message):
+            raise TypeError("deliberate route rejection")
+
+    publisher._rclcppyy_publish_route = RejectingRoute()
+    _must_reject(lambda: publisher.publish(String(data="must-not-fallback")))
+    for _ in range(3):
+        proof_executor.spin_once(timeout_sec=0.01)
+    assert observed == ["cpp-route"]
+    print("REQUIRED_PUBLISH_FAIL_CLOSED_OK", flush=True)
 
     _must_reject_without_entity(
         node,
@@ -148,6 +172,7 @@ def main():
         "create_lifecycle_node",
         "create_action_client",
         "create_action_server",
+        "publish",
     } <= rejected, status
     infrastructure = [
         record for record in status["entities"]
@@ -169,6 +194,9 @@ def main():
         "result", "exception", "canceled",
     } <= future_outcomes, status
     node.destroy_publisher(publisher)
+    node.destroy_subscription(subscription)
+    proof_executor.remove_node(node)
+    proof_executor.shutdown(timeout_sec=1.0)
     node.destroy_node()
     context.shutdown()
 

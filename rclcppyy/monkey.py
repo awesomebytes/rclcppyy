@@ -257,6 +257,8 @@ def _create_publisher_wrapper(
     publisher._rclcppyy_publish_route = route
     publisher._rclcppyy_policy = _POLICY
     publisher._rclcppyy_reported_fallbacks = set()
+    publisher._rclcppyy_publish_tainted = False
+    publisher._rclcppyy_last_publish_backend = None
     record_decision(
         "entities",
         "cpp",
@@ -298,6 +300,23 @@ def _record_publish_fallback_once(publisher, reason):
     )
 
 
+def _record_cpp_publish_once(publisher):
+    if not _claim_once(publisher, "publish_cpp"):
+        return
+    policy = getattr(publisher, "_rclcppyy_policy", _POLICY)
+    record_decision(
+        "operations",
+        "cpp",
+        "same-handle C++ publish completed",
+        policies=("borrowed_rcl_handle", policy.name),
+        metadata={
+            "operation": "publish",
+            "topic": getattr(publisher, "topic_name", None),
+            "profile": policy.name,
+        },
+    )
+
+
 def _publish_wrapper(self, message):
     route = getattr(self, "_rclcppyy_publish_route", None)
     if route is None:
@@ -308,18 +327,36 @@ def _publish_wrapper(self, message):
         if policy.require_cpp:
             _unavailable("publish", reason)
         _record_publish_fallback_once(self, reason)
-        return _original_publish(self, message)
+        result = _original_publish(self, message)
+        self._rclcppyy_publish_tainted = True
+        self._rclcppyy_last_publish_backend = "python"
+        return result
     try:
-        return route.publish(self, message)
-    except TypeError:
-        # Preserve the stock exception contract for invalid message objects.
-        return _original_publish(self, message)
+        result = route.publish(self, message)
+    except TypeError as exc:
+        reason = "same-handle C++ publish rejected the message: %s" % exc
+        if policy.require_cpp:
+            _unavailable("publish", reason)
+        # Compatible mode preserves the stock exception contract for invalid
+        # objects, but also records the complete-operation fallback.
+        _record_publish_fallback_once(self, reason)
+        result = _original_publish(self, message)
+        self._rclcppyy_publish_tainted = True
+        self._rclcppyy_last_publish_backend = "python"
+        return result
     except Exception as exc:
         reason = "same-handle C++ publish failed: %s" % exc
         if policy.require_cpp:
             _unavailable("publish", reason)
         _record_publish_fallback_once(self, reason)
-        return _original_publish(self, message)
+        result = _original_publish(self, message)
+        self._rclcppyy_publish_tainted = True
+        self._rclcppyy_last_publish_backend = "python"
+        return result
+    _record_cpp_publish_once(self)
+    if not self._rclcppyy_publish_tainted:
+        self._rclcppyy_last_publish_backend = "cpp"
+    return result
 
 
 def _create_subscription_wrapper(self, *args, **kwargs):
