@@ -1,7 +1,8 @@
-"""Bounded, source-compatible control plane over direct ``rclcpp`` pub/sub."""
+"""Bounded, source-compatible control plane over direct ``rclcpp`` entities."""
 
 from __future__ import annotations
 
+import math
 import os
 import sys
 
@@ -38,17 +39,19 @@ class _DirectRuntime:
         self.executor = None
         self.nodes = []
         self.context = _DirectContext(self)
+        self._shutting_down = False
 
     def init(self, arguments) -> None:
         if self.ok():
             raise RuntimeError("direct_cpp context is already initialized")
         from rclcpp_kit.native import NativeSession
 
+        self._shutting_down = False
         self.session = NativeSession(arguments=arguments).open()
         self.executor = self.session.create_executor("single_threaded")
 
     def ok(self) -> bool:
-        if self.session is None or self.session.closed:
+        if self._shutting_down or self.session is None or self.session.closed:
             return False
         return bool(self.session.context.is_valid())
 
@@ -71,15 +74,32 @@ class _DirectRuntime:
     def spin_once(self, node, timeout_sec) -> None:
         if node not in self.nodes or node._direct_cpp_node is None:
             raise ValueError("node is not owned by the active direct_cpp context")
+        executor = self.executor
+        if executor is None or not self.ok():
+            raise RuntimeError("direct_cpp context is not initialized")
         if timeout_sec is None or timeout_sec < 0:
-            self.executor.spin_once()
+            executor.spin_once()
         else:
             duration = cppyy.gbl.std.chrono.nanoseconds(int(timeout_sec * 1e9))
-            self.executor.spin_once(duration)
+            executor.spin_once(duration)
+
+    def spin(self, node) -> None:
+        if node not in self.nodes or node._direct_cpp_node is None:
+            raise ValueError("node is not owned by the active direct_cpp context")
+        while self.ok():
+            try:
+                self.spin_once(node, 0.1)
+            except Exception:
+                if self._shutting_down or not self.ok():
+                    return
+                raise
 
     def shutdown(self) -> None:
         if self.session is None:
             return
+        self._shutting_down = True
+        if self.executor is not None:
+            self.executor.cancel()
         for node in tuple(self.nodes):
             node._mark_runtime_shutdown()
         self.nodes.clear()
@@ -129,6 +149,7 @@ class DirectNode:
             str(node_name), namespace=str(namespace or ""))
         self._direct_cpp_publishers = []
         self._direct_cpp_subscriptions = []
+        self._direct_cpp_timers = []
         _runtime().attach(self, self._direct_cpp_node)
         record_decision(
             "nodes",
@@ -149,6 +170,10 @@ class DirectNode:
     @property
     def subscriptions(self):
         return [item.entity for item in self._direct_cpp_subscriptions]
+
+    @property
+    def timers(self):
+        return list(self._direct_cpp_timers)
 
     def get_name(self):
         return str(self._require_node().get_name())
@@ -225,16 +250,81 @@ class DirectNode:
         self._record_entity("subscription", topic, msg_type)
         return subscription.entity
 
+    def create_timer(
+        self,
+        timer_period_sec,
+        callback,
+        callback_group=None,
+        clock=None,
+        autostart=True,
+        **options,
+    ):
+        requested = {
+            "callback_group": callback_group is not None,
+            "clock": clock is not None,
+            "autostart": autostart is not True,
+            **{str(name): True for name in options},
+        }
+        self._reject_entity_options("timer", requested)
+        if not callable(callback):
+            raise TypeError("timer callback must be callable")
+        if (
+            isinstance(timer_period_sec, bool)
+            or not isinstance(timer_period_sec, (int, float))
+        ):
+            raise TypeError("timer period must be a finite positive number")
+        period = float(timer_period_sec)
+        if not math.isfinite(period) or period <= 0:
+            raise ValueError("timer period must be a finite positive number")
+        period_ns = int(period * 1e9)
+        if period_ns <= 0:
+            raise ValueError("timer period must be at least one nanosecond")
+
+        from rclcpp_kit import direct_entities
+
+        timer = direct_entities.create_wall_timer(
+            self._require_node(), period_ns, callback)
+        self._direct_cpp_timers.append(timer)
+        record_decision(
+            "entities",
+            "cpp",
+            "direct rclcpp wall timer with Python callback",
+            policies=("direct_cpp", "native_timer_authority", "no_conversion"),
+            metadata={
+                "entity_type": "timer",
+                "period_ns": period_ns,
+                "clock": "steady",
+                "callback_handoff": "direct_std_function",
+                "creation_route": timer.creation_route,
+                "native_type": timer.native_type_name,
+            },
+        )
+        return timer
+
+    def destroy_timer(self, timer):
+        for index, candidate in enumerate(self._direct_cpp_timers):
+            if timer is candidate:
+                candidate.destroy()
+                del self._direct_cpp_timers[index]
+                return True
+        return False
+
     def destroy_node(self):
         node = self._direct_cpp_node
         if node is None:
             return
+        for timer in tuple(self._direct_cpp_timers):
+            timer.destroy()
+        self._direct_cpp_timers.clear()
         self._direct_cpp_publishers.clear()
         self._direct_cpp_subscriptions.clear()
         _runtime().detach(self, node)
         self._direct_cpp_node = None
 
     def _mark_runtime_shutdown(self):
+        for timer in tuple(self._direct_cpp_timers):
+            timer.destroy()
+        self._direct_cpp_timers.clear()
         self._direct_cpp_publishers.clear()
         self._direct_cpp_subscriptions.clear()
         self._direct_cpp_node = None
@@ -332,8 +422,10 @@ def _direct_spin_once(node, *, executor=None, timeout_sec=None):
     _runtime().spin_once(node, timeout_sec)
 
 
-def _direct_spin(*_args, **_kwargs):
-    _unsupported("direct_cpp first slice supports rclpy.spin_once only")
+def _direct_spin(node, executor=None):
+    if executor is not None:
+        _unsupported("direct_cpp does not accept a public executor")
+    _runtime().spin(node)
 
 
 def activate() -> bool:

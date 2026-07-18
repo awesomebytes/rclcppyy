@@ -14,6 +14,15 @@ def test_direct_cpp_source_compatible_pubsub_and_lifetime():
     assert "DIRECT_CPP_TEARDOWN_OK" in process.stdout
 
 
+def test_direct_cpp_native_timer_and_bounded_spin():
+    process = run_helper("_direct_cpp_timer_helper.py", timeout=180)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_TIMER_FAIL_CLOSED_OK" in process.stdout
+    assert "DIRECT_CPP_TIMER_CONTROL_OK" in process.stdout
+    assert "DIRECT_CPP_TIMER_EXCEPTION_OK" in process.stdout
+    assert "DIRECT_CPP_SPIN_INTERRUPT_OK" in process.stdout
+
+
 def test_direct_cpp_rejects_supported_message_imported_before_activation():
     process = run_helper("_direct_cpp_stale_import_helper.py", timeout=180)
     assert process.returncode == 0, format_output(process)
