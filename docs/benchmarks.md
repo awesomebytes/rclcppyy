@@ -14,6 +14,7 @@ compatible, native C++ representation, and conventional AOT lanes distinct:
 - [service client](service-client-benchmark.md)
 - [timer/executor](timer-executor-benchmark.md)
 - [action client](action-client-benchmark.md)
+- [C++ topology fusion](fusion-pipeline-benchmark.md)
 
 ## Modes
 
