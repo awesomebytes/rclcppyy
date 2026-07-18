@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "contract_id": "rclpy-jazzy-7.1.11-reviewed-v1",
+  "source": {
+    "repository": "https://github.com/ros2/rclpy.git",
+    "revision": "baf9d72cfa127e391a89b4ab51ba9e55c37041fd",
+    "release": "7.1.11",
+    "package_version": "7.1.11",
+    "test_root": "rclpy/test"
+  },
+  "inventory": {
+    "algorithm": "sha256-path-content-v1",
+    "file_pattern": "test_*.py",
+    "file_count": 52,
+    "digest": "42afd6886e22b637020cc3ab81291153e3a6d819caf521e16c2571414bd8306e"
+  },
+  "selection": [
+    {
+      "path": "test_action_client.py",
+      "reason": "Action-client construction, discovery, goals, feedback, cancellation, and results exercise unchanged action behavior."
+    },
+    {
+      "path": "test_action_server.py",
+      "reason": "Action-server goal, cancel, execute, feedback, expiry, and error contracts exercise unchanged action behavior."
+    },
+    {
+      "path": "test_callback_group.py",
+      "reason": "Callback-group entity assignment and mutual-exclusion behavior cover a core executor contract."
+    },
+    {
+      "path": "test_create_node.py",
+      "reason": "Node construction, namespaces, validation, and parameter overrides cover unchanged node identity."
+    },
+    {
+      "path": "test_executor.py",
+      "reason": "Single- and multi-threaded execution, futures, coroutine tasks, shutdown, and reentrancy cover executor behavior."
+    },
+    {
+      "path": "test_init_shutdown.py",
+      "reason": "Context initialization, shutdown, signals, domain IDs, and invalid sequences cover process lifecycle behavior."
+    },
+    {
+      "path": "test_lifecycle.py",
+      "reason": "Lifecycle construction, transitions, services, and publishers cover lifecycle compatibility."
+    },
+    {
+      "path": "test_publisher.py",
+      "reason": "Publisher naming, remapping, acknowledgement, and logging cover the accelerated same-handle publisher.",
+      "requires_cpp_publish": true
+    },
+    {
+      "path": "test_qos.py",
+      "reason": "QoS construction, conversion, presets, validation, and compatibility cover policy fidelity."
+    },
+    {
+      "path": "test_serialization.py",
+      "reason": "Message serialization round trips cover message and type-support fidelity."
+    },
+    {
+      "path": "test_service.py",
+      "reason": "Service naming, namespaces, remapping, and logging cover unchanged service construction."
+    },
+    {
+      "path": "test_subscription.py",
+      "reason": "Subscription naming, remapping, counts, callbacks, and content filtering cover unchanged subscription behavior."
+    },
+    {
+      "path": "test_timer.py",
+      "reason": "Timer periods, callback counts, cancel/reset, scheduling, and autostart cover timer behavior."
+    }
+  ],
+  "reviewed_exclusions": [
+    {
+      "id": "next-runtime-entity-slice",
+      "paths": [
+        "test_action_graph.py",
+        "test_client.py",
+        "test_create_while_spinning.py",
+        "test_destruction.py",
+        "test_destruction_order.py",
+        "test_events_executor.py",
+        "test_guard_condition.py",
+        "test_qos_event.py",
+        "test_qos_overriding_options.py",
+        "test_rate.py",
+        "test_rosout_subscription.py",
+        "test_service_introspection.py",
+        "test_wait_for_message.py",
+        "test_waitable.py"
+      ],
+      "reason": "Reviewed but deferred from the first bounded runtime slice; add only after each contract is classified and stable on both supported architectures."
+    },
+    {
+      "id": "next-node-control-plane-slice",
+      "paths": [
+        "test_logging.py",
+        "test_logging_rosout.py",
+        "test_logging_service.py",
+        "test_node.py",
+        "test_parameter.py",
+        "test_parameter_client.py",
+        "test_parameter_event_handler.py",
+        "test_parameter_service.py",
+        "test_time_source.py",
+        "test_type_description_service.py"
+      ],
+      "reason": "Reviewed control-plane coverage is broader than the first compatibility gate and remains an explicit follow-up slice."
+    },
+    {
+      "id": "upstream-unit-and-validation-slice",
+      "paths": [
+        "test_clock.py",
+        "test_context.py",
+        "test_expand_topic_name.py",
+        "test_messages.py",
+        "test_task.py",
+        "test_time.py",
+        "test_topic_endpoint_info.py",
+        "test_topic_or_service_is_hidden.py",
+        "test_type_hash.py",
+        "test_utilities.py",
+        "test_validate_full_topic_name.py",
+        "test_validate_namespace.py",
+        "test_validate_node_name.py",
+        "test_validate_topic_name.py"
+      ],
+      "reason": "Reviewed as mostly unit, validation, or query coverage; it adds less backend-specific evidence than the selected runtime contracts."
+    },
+    {
+      "id": "requires-upstream-built-test-extension",
+      "paths": [
+        "test_type_support.py"
+      ],
+      "reason": "Requires the upstream repository's separately built test_rclpy extension, which the source-only contract environment intentionally does not build."
+    }
+  ]
+}

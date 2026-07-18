@@ -235,6 +235,7 @@ Tasks:
 |---|---|
 | `pixi run build` | `colcon build --packages-select rclcppyy` into `install/` |
 | `pixi run test` | `pytest test/` (bringup, monkeypatch, pub/sub roundtrip, serialization parity, tf, clean-exit, kit shims) |
+| `pixi run -e upstream-contract upstream-contract` | validate and run the exact [reviewed upstream rclpy contract slice](docs/upstream-rclpy-contract.md) |
 | `pixi run lint` | `flake8 rclcppyy test` |
 | `pixi run clean` | remove `build/ install/ log/` |
 | `pixi run bench` | rclpy-vs-rclcppyy CPU comparison table (1 kHz + 10 kHz) |

@@ -70,7 +70,7 @@ custom-interfaces = "bash scripts/ci/prove_custom_interfaces.sh"
 launch-contract = "bash scripts/ci/prove_launch_cli.sh"
 scan-acceleration = "python skills/rclcppyy-accelerate/scripts/scan_project.py"
 rewrite-evidence = "python skills/rclcppyy-accelerate/fixtures/rewrite_projects/evidence_protocol.py --output build/rewrite-fixture-evidence.json"
-lint = "flake8 rclcppyy test launch/hook_probe.launch.py scripts/check_compatibility_manifest.py scripts/ci/hook_launch_probe.py scripts/ci/stress_runtime.py scripts/ci/verify_suite_source.py scripts/ci/verify_release_version.py skills/rclcppyy-accelerate/scripts/scan_project.py skills/rclcppyy-accelerate/fixtures/rewrite_projects test/fixtures/custom_interfaces/run_interop.py scripts/benchmarks/_result_schema.py scripts/benchmarks/_backend_marker.py scripts/benchmarks/_benchmark_matrix.py scripts/benchmarks/_benchmark_protocol.py scripts/benchmarks/_domain_lease.py scripts/benchmarks/bench_worker.py scripts/benchmarks/run_benchmarks.py scripts/benchmarks/render_report.py scripts/benchmarks/bench_pub_rclpy.py scripts/benchmarks/bench_sub_rclpy.py scripts/benchmarks/bench_pub_rclcppyy_monkeypatch.py scripts/benchmarks/bench_sub_rclcppyy_monkeypatched.py scripts/benchmarks/bench_pub_rclcppyy.py scripts/benchmarks/bench_sub_rclcppyy.py"
+lint = "flake8 rclcppyy test launch/hook_probe.launch.py scripts/check_compatibility_manifest.py scripts/ci/hook_launch_probe.py scripts/ci/stress_runtime.py scripts/ci/verify_suite_source.py scripts/ci/verify_release_version.py scripts/ci/run_upstream_rclpy_contract.py skills/rclcppyy-accelerate/scripts/scan_project.py skills/rclcppyy-accelerate/fixtures/rewrite_projects test/fixtures/custom_interfaces/run_interop.py scripts/benchmarks/_result_schema.py scripts/benchmarks/_backend_marker.py scripts/benchmarks/_benchmark_matrix.py scripts/benchmarks/_benchmark_protocol.py scripts/benchmarks/_domain_lease.py scripts/benchmarks/bench_worker.py scripts/benchmarks/run_benchmarks.py scripts/benchmarks/render_report.py scripts/benchmarks/bench_pub_rclpy.py scripts/benchmarks/bench_sub_rclpy.py scripts/benchmarks/bench_pub_rclcppyy_monkeypatch.py scripts/benchmarks/bench_sub_rclcppyy_monkeypatched.py scripts/benchmarks/bench_pub_rclcppyy.py scripts/benchmarks/bench_sub_rclcppyy.py"
 contract = "python scripts/check_compatibility_manifest.py compatibility/jazzy.json"
 # rclpy-vs-rclcppyy CPU comparison in one command (default: 1 kHz + 10 kHz).
 # Extra flags pass straight through, e.g. `pixi run bench --rate 5000 --duration 10`.
@@ -151,6 +151,16 @@ rattler-build = ">=0.68,<0.69"
 # recipe's isolated import test. CPPYY_KIT_SRC can select another suite checkout.
 pkg-build = "bash scripts/ci/build_local_package_stack.sh ${CPPYY_KIT_SRC:-../cppyy_kit} output"
 
+# Optional upstream contract environment. The production/default dependency
+# surface stays unchanged; test_msgs is needed only by the reviewed upstream
+# rclpy tests selected in compatibility/upstream-rclpy-contract.json.
+[feature.upstream-contract.dependencies]
+ros-jazzy-test-msgs = "*"
+
+[feature.upstream-contract.tasks]
+upstream-contract = "python scripts/ci/run_upstream_rclpy_contract.py"
+upstream-contract-validate = "python scripts/ci/run_upstream_rclpy_contract.py --validate-only"
+
 [environments]
 # solve-group = "default" pins the shared ROS/cppyy stack to the default env's
 # versions, so enabling `demos` never re-resolves it. The kit spike envs
@@ -163,3 +173,4 @@ demos = { features = ["demos"], solve-group = "default" }
 heavydemo = { features = ["heavydemo"], solve-group = "default" }
 # no-default-feature: the packaging tooling doesn't need the ROS/cppyy stack.
 pkg = { features = ["pkg"], no-default-feature = true }
+upstream-contract = { features = ["upstream-contract"], solve-group = "default" }

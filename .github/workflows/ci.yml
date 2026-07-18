@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
+      RCLPY_CONTRACT_SRC: ${{ github.workspace }}/_deps/rclpy-contract
       PYTHONPATH: ${{ github.workspace }}/_deps/cppyy_kit:${{ github.workspace }}/_deps/cppyy_kit/rclcpp_kit
     steps:
       - name: Checkout
@@ -30,6 +31,13 @@ jobs:
           repository: awesomebytes/cppyy_kit
           ref: 0a2933d7e463e4d28662e76e8be864afeef6c255
           path: _deps/cppyy_kit
+
+      - name: Checkout pinned upstream rclpy contract source
+        uses: actions/checkout@v5
+        with:
+          repository: ros2/rclpy
+          ref: baf9d72cfa127e391a89b4ab51ba9e55c37041fd
+          path: _deps/rclpy-contract
 
       - name: Set up pixi
         uses: prefix-dev/setup-pixi@v0.10.0
@@ -75,6 +83,10 @@ jobs:
         id: test
         run: pixi run test-ci
 
+      - name: Run reviewed upstream rclpy contract
+        id: upstream_contract
+        run: pixi run -e upstream-contract upstream-contract
+
       # End-to-end proof that rclcppyy actually publishes over the C++ backend.
       # Cold cppyy JIT of rclcpp on a 2-core hosted runner is far slower than a
       # dev box, so the warmup budget is generous; run_benchmarks.py already
@@ -99,6 +111,7 @@ jobs:
           LINT_OUTCOME: ${{ steps.lint.outcome }}
           CONTRACT_OUTCOME: ${{ steps.contract.outcome }}
           TEST_OUTCOME: ${{ steps.test.outcome }}
+          UPSTREAM_CONTRACT_OUTCOME: ${{ steps.upstream_contract.outcome }}
           BENCHMARK_OUTCOME: ${{ steps.benchmark.outcome }}
           REPORT_OUTCOME: ${{ steps.report.outcome }}
         run: |
@@ -107,7 +120,9 @@ jobs:
           import json
           import os
           from pathlib import Path
-          names = ("suite", "build", "lint", "contract", "test", "benchmark", "report")
+          names = (
+              "suite", "build", "lint", "contract", "test", "upstream_contract",
+              "benchmark", "report")
           outcomes = {name: os.environ[name.upper() + "_OUTCOME"] for name in names}
           Path("build/test-results/job-outcomes.json").write_text(
               json.dumps(outcomes, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -134,6 +149,7 @@ jobs:
       MAKE_NPROCS: "2"
       STDCXX: "17"
       RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
+      RCLPY_CONTRACT_SRC: ${{ github.workspace }}/_deps/rclpy-contract
       # ARM source tests and the x86 local-channel package build use this pinned
       # dependency checkout. suite-contract proves this exact source identity.
       PYTHONPATH: ${{ github.workspace }}/_deps/cppyy_kit:${{ github.workspace }}/_deps/cppyy_kit/rclcpp_kit
@@ -159,6 +175,13 @@ jobs:
           repository: awesomebytes/cppyy_kit
           ref: 0a2933d7e463e4d28662e76e8be864afeef6c255
           path: _deps/cppyy_kit
+
+      - name: Checkout pinned upstream rclpy contract source
+        uses: actions/checkout@v5
+        with:
+          repository: ros2/rclpy
+          ref: baf9d72cfa127e391a89b4ab51ba9e55c37041fd
+          path: _deps/rclpy-contract
 
       - name: Verify native runner architecture
         run: test "$(uname -m)" = "${{ matrix.machine }}"
@@ -222,6 +245,10 @@ jobs:
         id: test
         run: pixi run test-ci
 
+      - name: Run reviewed upstream rclpy contract
+        id: upstream_contract
+        run: pixi run -e upstream-contract upstream-contract
+
       - name: Build and prove conda package
         if: ${{ always() && matrix.package_proof }}
         run: |
@@ -256,6 +283,7 @@ jobs:
           LINT_OUTCOME: ${{ steps.lint.outcome }}
           CONTRACT_OUTCOME: ${{ steps.contract.outcome }}
           TEST_OUTCOME: ${{ steps.test.outcome }}
+          UPSTREAM_CONTRACT_OUTCOME: ${{ steps.upstream_contract.outcome }}
         run: |
           mkdir -p build/test-results
           python3 - <<'PY'
@@ -263,7 +291,8 @@ jobs:
           import os
           from pathlib import Path
           names = (
-              "suite", "build", "launch", "custom_interfaces", "lint", "contract", "test")
+              "suite", "build", "launch", "custom_interfaces", "lint", "contract",
+              "test", "upstream_contract")
           outcomes = {name: os.environ[name.upper() + "_OUTCOME"] for name in names}
           Path("build/test-results/job-outcomes.json").write_text(
               json.dumps(outcomes, indent=2, sort_keys=True) + "\n", encoding="utf-8")
