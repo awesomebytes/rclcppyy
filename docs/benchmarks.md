@@ -54,6 +54,52 @@ measurement mode. Smoke reports identify validation-only evidence; measurement
 reports identify characterization inputs and do not select a winner. A separate
 reviewed analysis must combine repeated controlled runs before making a claim.
 
+## Native Python Boundary Characterization
+
+`run_boundary_benchmark.py` isolates one narrower question from ROS transport:
+how much of a deterministic native loop remains when every iteration crosses
+from C++ into a Python transform and back. It executes the same uint64 transform
+in three forms:
+
+- `cppyy-python-boundary`: a compiled C++ loop invokes a Python callable and
+  consumes its C++ return value on every iteration;
+- `cppyy-fused`: the transform and loop remain in C++ loaded through cppyy, with
+  no per-iteration Python callback;
+- `aot-cpp`: an independently compiled `-O3` ELF executable runs the shared C++
+  kernel without cppyy.
+
+Run the backend/parity smoke gate directly through the project environment:
+
+```bash
+pixi run python scripts/benchmarks/run_boundary_benchmark.py \
+  --smoke \
+  --output build/boundary-smoke.json
+```
+
+An intentional characterization uses fresh processes for every repetition:
+
+```bash
+pixi run python scripts/benchmarks/run_boundary_benchmark.py \
+  --iterations 50000 \
+  --repetitions 5 \
+  --output build/boundary-characterization.json
+```
+
+The parent compiles the AOT worker in a private temporary directory, places each
+sample in a new process group, assigns a unique run token, and rejects a result
+unless the PID, execution model, observed Python callback count, and checksum
+match the selected variant. JIT/AOT compilation, import, process startup, and
+warmup are recorded or excluded from the timed loop. The portable result schema
+is [`boundary-benchmark-v1.schema.json`](../schemas/boundary-benchmark-v1.schema.json).
+
+Raw medians and ratios quantify this particular run, but the schema fixes both
+`performance_claims_allowed` and comparison `interpretation_allowed` to false.
+The Python-boundary delta includes the small Python transform body as well as the
+language crossing; it is not a pure ABI-call measurement. The standalone kernel
+does not initialize ROS, so these results do not measure executors, DDS, message
+conversion, transport, or end-to-end latency. cppyy JIT code generation also is
+not assumed to match the AOT compiler's `-O3` optimization level.
+
 ## Evidence And Statistics
 
 Every successful row includes separate publisher/subscriber backend markers.
