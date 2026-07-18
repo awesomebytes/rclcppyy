@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timezone
 import faulthandler
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -21,12 +22,56 @@ import time
 import uuid
 
 
-SCHEMA = "rclcppyy.runtime-stress/v2"
-SIGNAL_SCHEMA = "rclcppyy.signal-stress/v1"
+SCHEMA = "rclcppyy.runtime-stress/v3"
+SIGNAL_SCHEMA = "rclcppyy.signal-stress/v2"
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _rss_kib() -> int:
     return int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
+
+def _git(repo: Path, *arguments: str) -> str | None:
+    process = subprocess.run(
+        ["git", "-C", str(repo), *arguments],
+        capture_output=True,
+        text=True,
+        timeout=5,
+        check=False,
+    )
+    return process.stdout.strip() if process.returncode == 0 else None
+
+
+def _source_metadata() -> dict:
+    lock_path = REPO_ROOT / "suite-source.lock.json"
+    suite_lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    spec = importlib.util.find_spec("rclcpp_kit")
+    suite_origin = None if spec is None else spec.origin
+    suite_checkout = None
+    suite_commit = None
+    suite_dirty = None
+    if suite_origin:
+        checkout = _git(Path(suite_origin).resolve().parent, "rev-parse", "--show-toplevel")
+        if checkout:
+            suite_checkout = str(Path(checkout).resolve())
+            suite_commit = _git(Path(checkout), "rev-parse", "HEAD")
+            status = _git(Path(checkout), "status", "--porcelain")
+            suite_dirty = None if status is None else bool(status)
+    product_status = _git(REPO_ROOT, "status", "--porcelain")
+    return {
+        "product": {
+            "repository": str(REPO_ROOT),
+            "commit": _git(REPO_ROOT, "rev-parse", "HEAD"),
+            "dirty": None if product_status is None else bool(product_status),
+        },
+        "suite": {
+            "locked_commit": suite_lock.get("commit"),
+            "repository": suite_checkout,
+            "active_commit": suite_commit,
+            "dirty": suite_dirty,
+            "module_origin": suite_origin,
+        },
+    }
 
 
 def entity_churn(cycles: int, seed: int) -> dict:
@@ -271,6 +316,7 @@ def _failure(round_index: int, probe: str, exception: Exception, **fields) -> di
 def run_signal_stress(repetitions: int, timeout: float, accelerated: bool) -> dict:
     started_at = datetime.now(timezone.utc).isoformat()
     started = time.monotonic()
+    source = _source_metadata()
     results = []
     failures = []
     for attempt in range(repetitions):
@@ -287,8 +333,10 @@ def run_signal_stress(repetitions: int, timeout: float, accelerated: bool) -> di
     return {
         "schema": SIGNAL_SCHEMA,
         "started_at": started_at,
+        "command": list(sys.argv),
         "architecture": platform.machine(),
         "python": platform.python_version(),
+        "source": source,
         "backend": "accelerated" if accelerated else "stock",
         "parameters": {
             "requested_repetitions": repetitions,
@@ -305,6 +353,7 @@ def run_signal_stress(repetitions: int, timeout: float, accelerated: bool) -> di
             "failures": len(failures),
             "duration_s": round(time.monotonic() - started, 6),
         },
+        "performance_claims_allowed": False,
     }
 
 
@@ -322,6 +371,7 @@ def run_stress(args, *, enable_acceleration=None, rmw_identifier=None) -> dict:
     enable_acceleration()
     started_at = datetime.now(timezone.utc).isoformat()
     started = time.monotonic()
+    source = _source_metadata()
     start_rss = _rss_kib()
     rounds = []
     failures = []
@@ -385,8 +435,10 @@ def run_stress(args, *, enable_acceleration=None, rmw_identifier=None) -> dict:
     evidence = {
         "schema": SCHEMA,
         "started_at": started_at,
+        "command": list(sys.argv),
         "architecture": platform.machine(),
         "python": platform.python_version(),
+        "source": source,
         "rmw_implementation": rmw_identifier(),
         "parameters": {
             "cycles": args.cycles,
@@ -419,6 +471,7 @@ def run_stress(args, *, enable_acceleration=None, rmw_identifier=None) -> dict:
             "duration_s": round(time.monotonic() - started, 6),
             "peak_rss_growth_kib": rss_growth,
         },
+        "performance_claims_allowed": False,
     }
     if args.max_rss_growth_kib and rss_growth > args.max_rss_growth_kib:
         evidence["failures"].append({

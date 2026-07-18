@@ -53,10 +53,15 @@ def test_runtime_stress_emits_repeated_structured_evidence(tmp_path):
     assert "RUNTIME_STRESS_OK rounds=2" in result.stdout
 
     evidence = json.loads(output.read_text(encoding="utf-8"))
-    assert evidence["schema"] == "rclcppyy.runtime-stress/v2"
+    assert evidence["schema"] == "rclcppyy.runtime-stress/v3"
     assert evidence["architecture"]
     assert evidence["rmw_implementation"]
     assert evidence["parameters"]["seed"] == 314159
+    assert evidence["source"]["product"]["commit"]
+    assert isinstance(evidence["source"]["product"]["dirty"], bool)
+    assert evidence["source"]["suite"]["active_commit"] == (
+        evidence["source"]["suite"]["locked_commit"])
+    assert evidence["performance_claims_allowed"] is False
     assert [item["seed"] for item in evidence["rounds"]] == [314159, 314160]
     assert evidence["summary"]["rounds"] == 2
     assert evidence["summary"]["result"] == "pass"
@@ -153,8 +158,9 @@ def test_signal_only_stress_retains_backend_specific_failure(monkeypatch):
     evidence = stress_runtime.run_signal_stress(
         repetitions=20, timeout=30.0, accelerated=False)
 
-    assert evidence["schema"] == "rclcppyy.signal-stress/v1"
+    assert evidence["schema"] == "rclcppyy.signal-stress/v2"
     assert evidence["backend"] == "stock"
+    assert evidence["performance_claims_allowed"] is False
     assert evidence["summary"]["result"] == "fail"
     assert evidence["summary"]["attempts"] == 3
     assert evidence["summary"]["clean_shutdowns"] == 2
