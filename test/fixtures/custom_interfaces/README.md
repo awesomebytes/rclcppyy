@@ -8,6 +8,12 @@ runner exercises the same peer twice:
 - the compatible backend repeats the application and requires its custom-message
   publisher to report `cpp`, while unsupported subscription/control-plane routes
   remain stock Python.
+- each mode runs the same generated-action Python server/client contract for
+  accepted and rejected goals, feedback, results, cancellation, callback groups,
+  custom Context ownership, and waitable teardown;
+- activated evidence must match the stock action contract exactly and report both
+  action classes as Python-owned. The AOT `rclcpp_action` server remains a separate
+  cross-language client interoperability proof, not a C++ action backend claim.
 
 Both modes write JSON evidence under `build/test-results`. Run the complete,
 bounded proof with:

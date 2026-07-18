@@ -10,6 +10,7 @@ from rclcppyy import monkey
 rclcppyy.enable_cpp_acceleration(profile="compatible", warn_fallback=True)
 
 import rclpy  # noqa: E402
+from rclpy.action import ActionClient, ActionServer  # noqa: E402
 from rclpy.client import Client  # noqa: E402
 from rclpy.executors import MultiThreadedExecutor  # noqa: E402
 from rclpy.guard_condition import GuardCondition  # noqa: E402
@@ -95,6 +96,8 @@ def main():
         Future.set_exception: monkey._original_future_set_exception,
         Future.cancel: monkey._original_future_cancel,
         LifecycleNode.__init__: monkey._original_lifecycle_node_init,
+        ActionClient.__init__: monkey._original_action_client_init,
+        ActionServer.__init__: monkey._original_action_server_init,
     }
     assert all(
         function.__name__ == original.__name__

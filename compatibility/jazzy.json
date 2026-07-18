@@ -44,8 +44,8 @@
       "backend": "mixed",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_hook.py", "test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
-      "notes": "The original Node, Publisher, executor, and Future classes are patched in place and message classes are not replaced. Function aliases captured from the rclpy module before activation retain stock behavior but are not instrumented; overridden subclass methods remain user-owned."
+      "evidence": ["test/test_hook.py", "test/test_differential_application.py", "test/differential/_application_probe.py", "test/fixtures/custom_interfaces/run_interop.py", "rclcppyy/monkey.py"],
+      "notes": "The original Node, Publisher, executor, Future, LifecycleNode, ActionClient, and ActionServer classes are patched in place and message classes are not replaced. Function aliases captured from the rclpy module before activation retain stock behavior but are not instrumented; overridden subclass methods remain user-owned."
     },
     {
       "id": "node.create_node",
@@ -121,8 +121,8 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["rclcppyy/monkey.py"],
-      "notes": "Compatible mode does not redirect generated imports, so stock service/action types remain available. Service types are covered by the application corpus; a full action contract remains open."
+      "evidence": ["test/fixtures/custom_interfaces/run_interop.py", "test/fixtures/custom_interfaces/rclcppyy_test_interfaces/action/Accumulate.action", "rclcppyy/monkey.py"],
+      "notes": "Compatible mode does not redirect generated imports. One source-built nested message/service/action package is proven with stock generated classes and behavior, but broader generated interface shapes are not implied."
     },
     {
       "id": "publisher.basic",
@@ -248,13 +248,35 @@
     {
       "id": "action.client_server",
       "area": "action",
-      "api": "rclpy.action ActionClient and ActionServer",
-      "support": "experimental",
+      "api": "ActionClient and ActionServer with generated action types: accept, reject, feedback, result, and cancel",
+      "support": "certified",
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["README.md", "rclcppyy/monkey.py"],
-      "notes": "Action classes and executors are unmodified stock rclpy. A full goal/cancel/result/feedback differential contract remains open."
+      "evidence": ["test/fixtures/custom_interfaces/run_interop.py", "test/fixtures/custom_interfaces/rclcppyy_test_interfaces/action/Accumulate.action", "scripts/ci/prove_custom_interfaces.sh", "test/test_policy.py", "test/_control_plane_helper.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "notes": "Exact stock ActionClient/ActionServer objects, generated types, nodes, custom Context, reentrant groups, and MultiThreadedExecutor semantics remain authoritative. Activated behavior must equal stock for success, rejection, complete feedback, result, cancellation, callback order, and teardown; status reports Python ownership and required_cpp rejects before handle or waitable creation. No C++ action route is claimed."
+    },
+    {
+      "id": "action.cpp_server_interop",
+      "area": "action",
+      "api": "Stock-authoritative Python ActionClient interoperating with an ahead-of-time rclcpp_action server",
+      "support": "certified",
+      "backend": "python",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["test/fixtures/custom_interfaces/run_interop.py", "test/fixtures/custom_interfaces/rclcppyy_test_peer/src/interop_peer.cpp", "scripts/ci/prove_custom_interfaces.sh", "rclcppyy/monkey.py"],
+      "notes": "A generated nested action proves discovery, goal acceptance, feedback, successful result, and teardown against a separately compiled C++ server on x86-64 and ARM64 CI. The Python client remains explicitly reported as Python-owned."
+    },
+    {
+      "id": "action.advanced_and_error_paths",
+      "area": "action",
+      "api": "Custom action QoS, explicit goal UUIDs, synchronous calls, abort/error callbacks, concurrent goals, and result expiry",
+      "support": "experimental",
+      "backend": "python",
+      "fallback": "safe",
+      "default": false,
+      "evidence": ["test/fixtures/custom_interfaces/run_interop.py", "rclcppyy/monkey.py"],
+      "notes": "The certified corpus uses explicit callback groups and result_timeout, but custom QoS, UUID injection, synchronous APIs, abort and exception propagation, concurrency stress, and expired-result behavior remain unproven."
     },
     {
       "id": "parameter.local",

@@ -7,6 +7,7 @@ from rclcppyy import BackendUnavailableError
 rclcppyy.enable_cpp_acceleration(profile="required_cpp")
 
 import rclpy  # noqa: E402
+from rclpy.action import ActionClient, ActionServer  # noqa: E402
 from rclpy.executors import MultiThreadedExecutor  # noqa: E402
 from rclpy.lifecycle import LifecycleNode  # noqa: E402
 from rclpy.node import Node  # noqa: E402
@@ -110,6 +111,21 @@ def main():
         start_parameter_services=False,
     ))
     assert sorted(node.get_node_names()) == names_before_lifecycle
+
+    waitables_before_action = tuple(node.waitables)
+    graph_before_action = (
+        sorted(node.get_topic_names_and_types()),
+        sorted(node.get_service_names_and_types()),
+    )
+    _must_reject(lambda: ActionClient(
+        node, object, "required_action_client"))
+    _must_reject(lambda: ActionServer(
+        node, object, "required_action_server"))
+    assert tuple(node.waitables) == waitables_before_action
+    assert (
+        sorted(node.get_topic_names_and_types()),
+        sorted(node.get_service_names_and_types()),
+    ) == graph_before_action
     print("REQUIRED_CONTROL_PLANE_OK", flush=True)
 
     status = rclcppyy.status()
@@ -130,6 +146,8 @@ def main():
         "spin_once",
         "multi_threaded_spin",
         "create_lifecycle_node",
+        "create_action_client",
+        "create_action_server",
     } <= rejected, status
     infrastructure = [
         record for record in status["entities"]

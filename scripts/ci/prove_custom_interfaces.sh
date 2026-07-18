@@ -29,11 +29,16 @@ test -x "$peer"
 
 for mode in stock activated; do
   echo "Running custom-interface AOT proof: $mode"
+  reference_args=()
+  if [[ "$mode" == "activated" ]]; then
+    reference_args=(--reference "$evidence_root/custom-interface-stock.json")
+  fi
   timeout --signal=TERM --kill-after=10s 300s \
     python "$fixture_root/run_interop.py" \
       --mode "$mode" \
       --peer "$peer" \
-      --evidence "$evidence_root/custom-interface-$mode.json"
+      --evidence "$evidence_root/custom-interface-$mode.json" \
+      "${reference_args[@]}"
 done
 
 echo "CUSTOM_INTERFACE_AOT_INTEROP_OK"

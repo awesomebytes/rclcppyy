@@ -7,6 +7,7 @@ from functools import wraps
 from inspect import signature
 
 import rclpy
+from rclpy.action import ActionClient, ActionServer
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.lifecycle import LifecycleNode
 from rclpy.node import Node
@@ -33,6 +34,8 @@ _original_future_set_result = Future.set_result
 _original_future_set_exception = Future.set_exception
 _original_future_cancel = Future.cancel
 _original_lifecycle_node_init = LifecycleNode.__init__
+_original_action_client_init = ActionClient.__init__
+_original_action_server_init = ActionServer.__init__
 
 _PATCHED = False
 _POLICY = resolve_policy()
@@ -579,6 +582,62 @@ def _lifecycle_node_init_wrapper(
     )
 
 
+def _action_type_name(action_type):
+    return "%s.%s" % (action_type.__module__, action_type.__qualname__)
+
+
+@wraps(_original_action_client_init)
+def _action_client_init_wrapper(
+    self,
+    node,
+    action_type,
+    action_name,
+    *args,
+    **kwargs,
+):
+    reason = "action clients have no certified C++ ownership route"
+    if _POLICY.require_cpp:
+        _unavailable("create_action_client", reason)
+    _original_action_client_init(
+        self, node, action_type, action_name, *args, **kwargs)
+    _record_python_entity(
+        node,
+        "action_client",
+        reason,
+        metadata={
+            "action_name": action_name,
+            "action_type": _action_type_name(action_type),
+        },
+        policies=("stock_action_authority", _POLICY.name),
+    )
+
+
+@wraps(_original_action_server_init)
+def _action_server_init_wrapper(
+    self,
+    node,
+    action_type,
+    action_name,
+    *args,
+    **kwargs,
+):
+    reason = "action servers have no certified C++ ownership route"
+    if _POLICY.require_cpp:
+        _unavailable("create_action_server", reason)
+    _original_action_server_init(
+        self, node, action_type, action_name, *args, **kwargs)
+    _record_python_entity(
+        node,
+        "action_server",
+        reason,
+        metadata={
+            "action_name": action_name,
+            "action_type": _action_type_name(action_type),
+        },
+        policies=("stock_action_authority", _POLICY.name),
+    )
+
+
 _NODE_PATCHES = (
     ("create_publisher", _create_publisher_wrapper, _original_create_publisher),
     ("create_subscription", _create_subscription_wrapper, _original_create_subscription),
@@ -624,6 +683,8 @@ def patch_ros2(profile="compatible", *, warn_fallback=False):
     Future.set_exception = _future_set_exception_wrapper
     Future.cancel = _future_cancel_wrapper
     LifecycleNode.__init__ = _lifecycle_node_init_wrapper
+    ActionClient.__init__ = _action_client_init_wrapper
+    ActionServer.__init__ = _action_server_init_wrapper
     _PATCHED = True
     record_decision(
         "operations",

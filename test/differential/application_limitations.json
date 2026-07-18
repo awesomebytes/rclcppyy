@@ -21,7 +21,7 @@
       "coverage": "excluded",
       "check": "none",
       "expected": null,
-      "reason": "Action goal, result, feedback, and cancellation require a dedicated multi-node corpus."
+      "reason": "No action package is installed in the base corpus; generated-action differential coverage runs in the custom-interfaces task."
     }
   ]
 }
