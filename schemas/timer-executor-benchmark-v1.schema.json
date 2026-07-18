@@ -1,0 +1,494 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/awesomebytes/rclcppyy/schemas/timer-executor-benchmark-v1.schema.json",
+  "title": "rclcppyy Jazzy/Cyclone timer executor benchmark v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generated_at",
+    "mode",
+    "command",
+    "environment",
+    "parameters",
+    "isolation",
+    "aot_build",
+    "cache",
+    "source_files",
+    "results",
+    "failures",
+    "claims",
+    "interpretation"
+  ],
+  "properties": {
+    "schema": {"const": "rclcppyy.timer-executor-benchmark/v1"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "mode": {"const": "measurement"},
+    "command": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "environment": {"type": "object"},
+    "parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variants",
+        "period_ns",
+        "warmup_firings",
+        "measured_firings",
+        "repetitions",
+        "requested_rmw",
+        "ros_distro",
+        "execution_order"
+      ],
+      "properties": {
+        "variants": {
+          "const": [
+            "stock-rclpy",
+            "compatible-rclcppyy",
+            "native-python-callback",
+            "native-cpp-callback",
+            "aot-staged"
+          ]
+        },
+        "period_ns": {"const": 1000000},
+        "warmup_firings": {"const": 500},
+        "measured_firings": {"const": 5000},
+        "repetitions": {"const": 5},
+        "requested_rmw": {"const": "rmw_cyclonedds_cpp"},
+        "ros_distro": {"const": "jazzy"},
+        "execution_order": {
+          "type": "array",
+          "minItems": 25,
+          "maxItems": 25,
+          "uniqueItems": true,
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fresh_worker_process_per_sample",
+        "fresh_process_group_per_sample",
+        "unique_node_per_sample",
+        "one_leased_domain_per_run",
+        "rotating_variant_order",
+        "ros_domain_id"
+      ],
+      "properties": {
+        "fresh_worker_process_per_sample": {"const": true},
+        "fresh_process_group_per_sample": {"const": true},
+        "unique_node_per_sample": {"const": true},
+        "one_leased_domain_per_run": {"const": true},
+        "rotating_variant_order": {"const": true},
+        "ros_domain_id": {"type": "integer", "minimum": 0, "maximum": 232}
+      }
+    },
+    "aot_build": {"$ref": "#/$defs/aot_build"},
+    "cache": {"$ref": "#/$defs/cache"},
+    "source_files": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runner", "protocol", "worker", "aot_source", "aot_cmake"],
+      "properties": {
+        "runner": {"$ref": "#/$defs/sha256"},
+        "protocol": {"$ref": "#/$defs/sha256"},
+        "worker": {"$ref": "#/$defs/sha256"},
+        "aot_source": {"$ref": "#/$defs/sha256"},
+        "aot_cmake": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "results": {"type": "array", "items": {"$ref": "#/$defs/sample"}},
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["case_id", "variant", "repetition", "error"],
+        "properties": {
+          "case_id": {"type": "string", "minLength": 1},
+          "variant": {"$ref": "#/$defs/variant"},
+          "repetition": {"type": "integer", "minimum": 1, "maximum": 5},
+          "error": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "claims": {
+      "const": {"enabled": false, "reason": "characterization_only"}
+    },
+    "interpretation": {
+      "const": {"enabled": false, "reason": "raw_evidence_only"}
+    }
+  },
+  "$defs": {
+    "variant": {
+      "enum": [
+        "stock-rclpy",
+        "compatible-rclcppyy",
+        "native-python-callback",
+        "native-cpp-callback",
+        "aot-staged"
+      ]
+    },
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "artifact": {
+      "type": "object",
+      "required": ["cached", "path", "sha256", "size_bytes"],
+      "properties": {
+        "cached": {"type": "boolean"},
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1}
+      }
+    },
+    "prewarm": {
+      "type": "object",
+      "required": ["schema", "pid", "loaded_rmw", "source_id", "artifact"],
+      "properties": {
+        "schema": {"const": "rclcppyy.timer-executor-prewarm/v1"},
+        "pid": {"type": "integer", "minimum": 1},
+        "loaded_rmw": {"const": "rmw_cyclonedds_cpp"},
+        "source_id": {"type": "string", "pattern": "^[a-f0-9]{16}$"},
+        "artifact": {"$ref": "#/$defs/artifact"},
+        "stdout_diagnostics": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "cache": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "isolated_root",
+        "autopch_disabled",
+        "fresh_process_per_phase",
+        "compilation_excluded_from_samples",
+        "warm_hits_verified",
+        "persisted_after_run",
+        "phases"
+      ],
+      "properties": {
+        "isolated_root": {"const": true},
+        "autopch_disabled": {"const": true},
+        "fresh_process_per_phase": {"const": true},
+        "compilation_excluded_from_samples": {"const": true},
+        "warm_hits_verified": {"const": true},
+        "persisted_after_run": {"const": false},
+        "phases": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["cold", "warm"],
+          "properties": {
+            "cold": {"$ref": "#/$defs/prewarm"},
+            "warm": {"$ref": "#/$defs/prewarm"}
+          }
+        }
+      }
+    },
+    "aot_build": {
+      "type": "object",
+      "required": [
+        "build_type",
+        "private_build_directory",
+        "build_directory_persisted",
+        "compiler",
+        "compiler_version",
+        "compile_command",
+        "source_sha256",
+        "cmake_sha256",
+        "compile_commands_sha256",
+        "executable_sha256",
+        "executable_format",
+        "build_elapsed_ns"
+      ],
+      "properties": {
+        "build_type": {"const": "Release"},
+        "private_build_directory": {"const": true},
+        "build_directory_persisted": {"const": false},
+        "compiler": {"type": "string", "minLength": 1},
+        "compiler_version": {"type": "string", "minLength": 1},
+        "compile_command": {
+          "type": "string",
+          "allOf": [
+            {"pattern": "(^| )-O3( |$)"},
+            {"pattern": "(^| )-DNDEBUG( |$)"}
+          ]
+        },
+        "source_sha256": {"$ref": "#/$defs/sha256"},
+        "cmake_sha256": {"$ref": "#/$defs/sha256"},
+        "compile_commands_sha256": {"$ref": "#/$defs/sha256"},
+        "executable_sha256": {"$ref": "#/$defs/sha256"},
+        "executable_format": {"const": "ELF"},
+        "build_elapsed_ns": {"type": "integer", "minimum": 1}
+      }
+    },
+    "marker": {
+      "type": "object",
+      "required": ["authority", "implementation"],
+      "properties": {
+        "authority": {"enum": ["python", "cpp"]},
+        "implementation": {"type": "string", "minLength": 1},
+        "clock": {"const": "steady"},
+        "period_ns": {"const": 1000000},
+        "callback_language": {"enum": ["python", "cpp"]},
+        "kind": {"const": "single_threaded"},
+        "threads": {"const": 1}
+      }
+    },
+    "identity": {
+      "type": "object",
+      "required": ["schema", "event", "variant", "run_token", "pid", "process_group_id"],
+      "properties": {
+        "schema": {"const": "rclcppyy.timer-executor-event/v1"},
+        "event": {"enum": ["ready", "armed", "report"]},
+        "variant": {"$ref": "#/$defs/variant"},
+        "run_token": {"type": "string", "pattern": "^timer_[a-f0-9]{32}$"},
+        "pid": {"type": "integer", "minimum": 1},
+        "process_group_id": {"type": "integer", "minimum": 1}
+      }
+    },
+    "ready": {
+      "allOf": [
+        {"$ref": "#/$defs/identity"},
+        {
+          "type": "object",
+          "required": [
+            "node_name",
+            "loaded_rmw",
+            "execution_model",
+            "warmup_firings",
+            "timer_canceled",
+            "timer_marker",
+            "executor_marker",
+            "cache"
+          ],
+          "properties": {
+            "event": {"const": "ready"},
+            "node_name": {"type": "string", "pattern": "^timer_executor_[a-f0-9]{12}$"},
+            "loaded_rmw": {"const": "rmw_cyclonedds_cpp"},
+            "execution_model": {"type": "string", "minLength": 1},
+            "warmup_firings": {"const": 500},
+            "timer_canceled": {"const": true},
+            "timer_marker": {"$ref": "#/$defs/marker"},
+            "executor_marker": {"$ref": "#/$defs/marker"},
+            "cache": {"type": "object"},
+            "activation": {"type": "object"}
+          }
+        }
+      ]
+    },
+    "armed": {
+      "allOf": [
+        {"$ref": "#/$defs/identity"},
+        {
+          "type": "object",
+          "required": ["cpu_clock", "timer_reset"],
+          "properties": {
+            "event": {"const": "armed"},
+            "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
+            "timer_reset": {"const": true}
+          }
+        }
+      ]
+    },
+    "percentiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["p50", "p95", "p99", "max"],
+      "properties": {
+        "p50": {"type": "integer"},
+        "p95": {"type": "integer"},
+        "p99": {"type": "integer"},
+        "max": {"type": "integer"}
+      }
+    },
+    "deadline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["signed_ns", "absolute_ns"],
+      "properties": {
+        "signed_ns": {"$ref": "#/$defs/percentiles"},
+        "absolute_ns": {"$ref": "#/$defs/percentiles"}
+      }
+    },
+    "report": {
+      "allOf": [
+        {"$ref": "#/$defs/identity"},
+        {
+          "type": "object",
+          "required": [
+            "warmup_firings",
+            "measured_firings",
+            "recurrence_state",
+            "checksum",
+            "python_callback_count",
+            "measured_python_callback_count",
+            "python_boundary_crossings",
+            "post_cancel_firings",
+            "exceptions",
+            "cpu_time_ns",
+            "cpu_clock",
+            "wall_duration_ns",
+            "scheduled_deadline_error",
+            "missed_periods",
+            "timer_canceled",
+            "teardown_clean",
+            "executor_thread_joined"
+          ],
+          "properties": {
+            "event": {"const": "report"},
+            "warmup_firings": {"const": 500},
+            "measured_firings": {"const": 5000},
+            "recurrence_state": {"type": "integer", "minimum": 0},
+            "checksum": {"type": "integer", "minimum": 0},
+            "python_callback_count": {"type": "integer", "minimum": 0},
+            "measured_python_callback_count": {"type": "integer", "minimum": 0},
+            "python_boundary_crossings": {"type": "integer", "minimum": 0},
+            "post_cancel_firings": {"const": 0},
+            "exceptions": {"const": 0},
+            "cpu_time_ns": {"type": "integer", "minimum": 1},
+            "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
+            "wall_duration_ns": {"type": "integer", "minimum": 1},
+            "scheduled_deadline_error": {"$ref": "#/$defs/deadline"},
+            "missed_periods": {"type": "integer", "minimum": 0},
+            "timer_canceled": {"const": true},
+            "teardown_clean": {"const": true},
+            "executor_thread_joined": {"const": true}
+          }
+        }
+      ]
+    },
+    "graph_observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observed", "observations", "elapsed_ns"],
+      "properties": {
+        "observed": {"const": true},
+        "observations": {"type": "integer", "minimum": 1},
+        "elapsed_ns": {"type": "integer", "minimum": 0}
+      }
+    },
+    "sample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "case_id",
+        "variant",
+        "repetition",
+        "run_token",
+        "node_name",
+        "worker_pid",
+        "worker_process_group_id",
+        "ros_domain_id",
+        "requested_rmw",
+        "ros_distro",
+        "graph",
+        "worker_ready",
+        "worker_armed",
+        "worker_report",
+        "timing",
+        "correctness_verified",
+        "teardown_verified",
+        "diagnostics"
+      ],
+      "properties": {
+        "schema": {"const": "rclcppyy.timer-executor-sample/v1"},
+        "case_id": {"type": "string", "minLength": 1},
+        "variant": {"$ref": "#/$defs/variant"},
+        "repetition": {"type": "integer", "minimum": 1, "maximum": 5},
+        "run_token": {"type": "string", "pattern": "^timer_[a-f0-9]{32}$"},
+        "node_name": {"type": "string", "pattern": "^timer_executor_[a-f0-9]{12}$"},
+        "worker_pid": {"type": "integer", "minimum": 1},
+        "worker_process_group_id": {"type": "integer", "minimum": 1},
+        "ros_domain_id": {"type": "integer", "minimum": 0, "maximum": 232},
+        "requested_rmw": {"const": "rmw_cyclonedds_cpp"},
+        "ros_distro": {"const": "jazzy"},
+        "graph": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "present_after_ready",
+            "absent_after_exit",
+            "presence_observation",
+            "absence_observation"
+          ],
+          "properties": {
+            "present_after_ready": {"const": true},
+            "absent_after_exit": {"const": true},
+            "presence_observation": {"$ref": "#/$defs/graph_observation"},
+            "absence_observation": {"$ref": "#/$defs/graph_observation"}
+          }
+        },
+        "worker_ready": {"$ref": "#/$defs/ready"},
+        "worker_armed": {"$ref": "#/$defs/armed"},
+        "worker_report": {"$ref": "#/$defs/report"},
+        "timing": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "worker_cpu_ns_per_firing",
+            "effective_frequency_hz",
+            "scheduled_deadline_error",
+            "missed_periods"
+          ],
+          "properties": {
+            "worker_cpu_ns_per_firing": {"type": "number", "exclusiveMinimum": 0},
+            "effective_frequency_hz": {"type": "number", "exclusiveMinimum": 0},
+            "scheduled_deadline_error": {"$ref": "#/$defs/deadline"},
+            "missed_periods": {"type": "integer", "minimum": 0}
+          }
+        },
+        "correctness_verified": {"const": true},
+        "teardown_verified": {"const": true},
+        "diagnostics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["stdout", "stderr"],
+          "properties": {
+            "stdout": {"type": "array", "items": {"type": "string"}},
+            "stderr": {"type": ["string", "null"]}
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "variant": {"enum": ["stock-rclpy", "compatible-rclcppyy", "native-python-callback"]}
+            },
+            "required": ["variant"]
+          },
+          "then": {
+            "properties": {
+              "worker_report": {
+                "properties": {
+                  "python_callback_count": {"const": 5500},
+                  "measured_python_callback_count": {"const": 5000},
+                  "python_boundary_crossings": {"const": 5500}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "variant": {"enum": ["native-cpp-callback", "aot-staged"]}
+            },
+            "required": ["variant"]
+          },
+          "then": {
+            "properties": {
+              "worker_report": {
+                "properties": {
+                  "python_callback_count": {"const": 0},
+                  "measured_python_callback_count": {"const": 0},
+                  "python_boundary_crossings": {"const": 0}
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
