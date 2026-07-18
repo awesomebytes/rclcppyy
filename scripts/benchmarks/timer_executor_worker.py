@@ -84,6 +84,17 @@ def _armed(args) -> dict:
         "armed",
         cpu_clock="CLOCK_PROCESS_CPUTIME_ID",
         timer_reset=True,
+        measurement_starts_after_emit=False,
+    )
+
+
+def _measurement_ready(args) -> dict:
+    return _event(
+        args,
+        "armed",
+        cpu_clock="CLOCK_PROCESS_CPUTIME_ID",
+        timer_reset=False,
+        measurement_starts_after_emit=True,
     )
 
 
@@ -239,11 +250,11 @@ def _python_authority(args, *, activate: bool) -> int:
     measured["count"] = 0
     recurrence.update(value=RECURRENCE_SEED, checksum=0)
     errors.clear()
+    _emit(_measurement_ready(args))
     phase["name"] = "measured"
     timing["epoch_ns"] = time.monotonic_ns()
     timing["cpu_start_ns"] = time.process_time_ns()
     timer.reset()
-    _emit(_armed(args))
     while measured["count"] < args.measured_firings:
         executor.spin_once(timeout_sec=0.1)
 
@@ -374,11 +385,11 @@ def _direct_cpp_python_callback(args) -> int:
     measured["count"] = 0
     recurrence.update(value=RECURRENCE_SEED, checksum=0)
     errors.clear()
+    _emit(_measurement_ready(args))
     phase["name"] = "measured"
     timing["epoch_ns"] = time.monotonic_ns()
     timing["cpu_start_ns"] = time.process_time_ns()
     timer.reset()
-    _emit(_armed(args))
     while measured["count"] < args.measured_firings:
         rclpy.spin_once(node, timeout_sec=0.1)
 
@@ -764,11 +775,14 @@ def _native_python_callback(args) -> int:
     ))
     if sys.stdin.readline().rstrip("\n") != "START":
         raise RuntimeError("timer worker expected START")
+    measured["count"] = 0
+    recurrence.update(value=RECURRENCE_SEED, checksum=0)
+    errors.clear()
+    _emit(_measurement_ready(args))
     phase["name"] = "measured"
     timing["epoch_ns"] = time.monotonic_ns()
     timing["cpu_start_ns"] = time.process_time_ns()
     timer.reset()
-    _emit(_armed(args))
     if not measured_done.wait(timeout=30.0):
         raise RuntimeError("native Python timer measurement timed out")
     canceled_count = measured["count"]

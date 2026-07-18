@@ -211,7 +211,8 @@ int run(int argc, char ** argv)
             << "\"event\":\"armed\",\"variant\":\"aot-staged\","
             << "\"run_token\":" << quote(token) << ",\"pid\":" << getpid()
             << ",\"process_group_id\":" << getpgrp()
-            << ",\"cpu_clock\":\"CLOCK_PROCESS_CPUTIME_ID\",\"timer_reset\":true}"
+            << ",\"cpu_clock\":\"CLOCK_PROCESS_CPUTIME_ID\",\"timer_reset\":true,"
+            << "\"measurement_starts_after_emit\":false}"
             << std::endl;
   executor.spin();
   const auto canceled_count = state.measured;

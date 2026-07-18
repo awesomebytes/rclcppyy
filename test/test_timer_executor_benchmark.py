@@ -94,6 +94,7 @@ def _sample(variant, repetition=1, index=0):
     node_name = "timer_executor_" + token[6:18]
     pid = 1000 + index
     spec = protocol.VARIANTS[variant]
+    starts_after_emit = spec["callback_language"] == "python"
     cache_marker = {
         "state": "not_applicable",
         "kind": spec["cache_kind"],
@@ -231,7 +232,8 @@ def _sample(variant, repetition=1, index=0):
             "pid": pid,
             "process_group_id": pid,
             "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
-            "timer_reset": True,
+            "timer_reset": not starts_after_emit,
+            "measurement_starts_after_emit": starts_after_emit,
         },
         "worker_report": report,
         "timing": {
@@ -330,7 +332,11 @@ def test_each_variant_satisfies_the_exact_sample_contract(variant):
         ("stock-rclpy", ("worker_ready", "timer_marker", "period_ns"), 2_000_000),
         ("stock-rclpy", ("worker_ready", "timer_marker", "authority"), "cpp"),
         ("stock-rclpy", ("worker_ready", "executor_marker", "threads"), 2),
-        ("stock-rclpy", ("worker_armed", "timer_reset"), False),
+        ("stock-rclpy", ("worker_armed", "timer_reset"), True),
+        ("stock-rclpy", (
+            "worker_armed", "measurement_starts_after_emit"), False),
+        ("native-cpp-callback", (
+            "worker_armed", "measurement_starts_after_emit"), True),
         ("stock-rclpy", ("worker_report", "checksum"), 0),
         ("stock-rclpy", ("worker_report", "python_boundary_crossings"), 0),
         ("stock-rclpy", ("worker_report", "post_cancel_firings"), 1),
@@ -553,6 +559,8 @@ def test_live_cyclone_python_timer_graph_and_protocol(monkeypatch, variant):
             runner._finish(process, 30.0, "timer smoke")
             observer.wait_for(node_name, present=False, timeout=10.0)
             assert armed["cpu_clock"] == "CLOCK_PROCESS_CPUTIME_ID"
+            assert armed["timer_reset"] is False
+            assert armed["measurement_starts_after_emit"] is True
             assert (report["recurrence_state"], report["checksum"]) == (
                 protocol.expected_recurrence(20))
             assert report["python_boundary_crossings"] == 25

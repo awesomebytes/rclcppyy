@@ -301,6 +301,7 @@ def _validate_ready(ready: dict, sample: dict, cache: dict) -> None:
 
 
 def _validate_armed(armed: dict, sample: dict) -> None:
+    starts_after_emit = VARIANTS[sample["variant"]]["callback_language"] == "python"
     expected = {
         "schema": EVENT_SCHEMA,
         "event": "armed",
@@ -309,7 +310,8 @@ def _validate_armed(armed: dict, sample: dict) -> None:
         "pid": sample["worker_pid"],
         "process_group_id": sample["worker_pid"],
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
-        "timer_reset": True,
+        "timer_reset": not starts_after_emit,
+        "measurement_starts_after_emit": starts_after_emit,
     }
     if armed != expected:
         raise ValueError("timer ARMED evidence is invalid")

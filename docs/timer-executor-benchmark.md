@@ -30,6 +30,13 @@ exact final state and checksum across implementations. Each sample proves its no
 appears after readiness, disappears after exit, stops after timer cancellation, and
 leaves no pending post-cancel callback.
 
+Python-callback lanes emit their measurement-ready record while the timer remains
+canceled, then establish the deadline epoch and reset immediately after the record
+is flushed. Their evidence therefore reports `timer_reset: false` and
+`measurement_starts_after_emit: true`. Native C++ and AOT lanes retain their
+arm-before-record order and report the inverse markers. This keeps protocol output
+or GIL hand-off time out of the Python lanes' scheduled-deadline offset.
+
 The primary metric is worker `CLOCK_PROCESS_CPUTIME_ID` nanoseconds per measured
 firing. Secondary evidence includes effective frequency, signed and absolute
 scheduled-deadline error p50/p95/p99/max, missed periods, exceptions, and a bounded

@@ -316,11 +316,16 @@
         {"$ref": "#/$defs/identity"},
         {
           "type": "object",
-          "required": ["cpu_clock", "timer_reset"],
+          "required": [
+            "cpu_clock",
+            "timer_reset",
+            "measurement_starts_after_emit"
+          ],
           "properties": {
             "event": {"const": "armed"},
             "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
-            "timer_reset": {"const": true}
+            "timer_reset": {"type": "boolean"},
+            "measurement_starts_after_emit": {"type": "boolean"}
           }
         }
       ]
@@ -519,6 +524,12 @@
                   "measured_python_callback_count": {"const": 5000},
                   "python_boundary_crossings": {"const": 5500}
                 }
+              },
+              "worker_armed": {
+                "properties": {
+                  "timer_reset": {"const": false},
+                  "measurement_starts_after_emit": {"const": true}
+                }
               }
             }
           }
@@ -537,6 +548,12 @@
                   "python_callback_count": {"const": 0},
                   "measured_python_callback_count": {"const": 0},
                   "python_boundary_crossings": {"const": 0}
+                }
+              },
+              "worker_armed": {
+                "properties": {
+                  "timer_reset": {"const": true},
+                  "measurement_starts_after_emit": {"const": false}
                 }
               }
             }
