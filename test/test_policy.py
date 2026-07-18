@@ -33,4 +33,14 @@ def test_required_cpp_fails_before_creating_unsupported_entity():
     details = format_output(proc)
     assert "REQUIRED_PUBLISHER_OK" in proc.stdout, details
     assert "REQUIRED_FAIL_CLOSED_OK" in proc.stdout, details
+    assert "REQUIRED_CONTROL_PLANE_OK" in proc.stdout, details
+    assert proc.returncode == 0, details
+
+
+def test_compatible_control_plane_status_and_warnings_are_bounded():
+    proc = run_helper("_control_plane_helper.py")
+    details = format_output(proc)
+    assert "CONTROL_PLANE_STATUS_OK" in proc.stdout, details
+    assert "CONTROL_PLANE_WARN_ONCE_OK" in proc.stdout, details
+    assert "CONTROL_PLANE_SIGNATURES_OK" in proc.stdout, details
     assert proc.returncode == 0, details

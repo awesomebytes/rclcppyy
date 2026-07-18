@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+import threading
 import time
 import traceback
 
@@ -27,10 +28,10 @@ def _spin_until(node, predicate, executor, timeout=TIMEOUT_S):
 def _run(mode):
     import rclpy
     from rcl_interfaces.msg import SetParametersResult
-    from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
+    from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
     from rclpy.context import Context
     from rclpy.event_handler import PublisherEventCallbacks, SubscriptionEventCallbacks
-    from rclpy.executors import SingleThreadedExecutor
+    from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
     from rclpy.node import Node as StockNode
     from rclpy.parameter import Parameter
     from rclpy.publisher import Publisher
@@ -245,6 +246,44 @@ def _run(mode):
             "propagated_type": exception_name,
         }
 
+        mte_node = rclpy.create_node(
+            "diff_application_mte", context=context,
+            start_parameter_services=False)
+        mte_group = ReentrantCallbackGroup()
+        mte_executor = MultiThreadedExecutor(num_threads=2, context=context)
+        mte_calls = []
+        mte_timer = None
+        spin_thread = None
+        try:
+            def on_mte_timer():
+                mte_calls.append("mte")
+                mte_timer.cancel()
+
+            mte_timer = mte_node.create_timer(
+                0.01, on_mte_timer, callback_group=mte_group)
+            mte_executor.add_node(mte_node)
+            spin_thread = threading.Thread(target=mte_executor.spin, daemon=True)
+            spin_thread.start()
+            deadline = time.monotonic() + TIMEOUT_S
+            while not mte_calls and time.monotonic() < deadline:
+                time.sleep(0.01)
+            if mte_calls != ["mte"]:
+                raise AssertionError("MultiThreadedExecutor timer did not run")
+            observations["multi_threaded_executor"] = {
+                "calls": mte_calls,
+                "callback_group_has_timer": mte_group.has_entity(mte_timer),
+            }
+        finally:
+            mte_executor.shutdown(timeout_sec=1.0)
+            if spin_thread is not None:
+                spin_thread.join(timeout=1.0)
+                if spin_thread.is_alive():
+                    raise AssertionError("MultiThreadedExecutor spin thread did not stop")
+            mte_executor.remove_node(mte_node)
+            if mte_timer is not None:
+                mte_node.destroy_timer(mte_timer)
+            mte_node.destroy_node()
+
         sim_node = rclpy.create_node(
             "diff_application_sim_time",
             context=context,
@@ -345,6 +384,30 @@ def _run(mode):
                 "backend": "python",
                 "minimum": 1,
                 "metadata": {"entity_type": "timer", "profile": "compatible"},
+            },
+            {
+                "kind": "entities",
+                "backend": "python",
+                "minimum": 1,
+                "metadata": {"entity_type": "service", "profile": "compatible"},
+            },
+            {
+                "kind": "entities",
+                "backend": "python",
+                "minimum": 1,
+                "metadata": {"entity_type": "client", "profile": "compatible"},
+            },
+            {
+                "kind": "entities",
+                "backend": "python",
+                "minimum": 1,
+                "metadata": {"entity_type": "guard_condition", "profile": "compatible"},
+            },
+            {
+                "kind": "operations",
+                "backend": "python",
+                "minimum": 1,
+                "metadata": {"operation": "set_parameters", "profile": "compatible"},
             },
         ]
         backend_status = backend_module.status()

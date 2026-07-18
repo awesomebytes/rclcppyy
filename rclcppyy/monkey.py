@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import warnings
+from inspect import signature
 
 from rclpy.node import Node
 from rclpy.publisher import Publisher
@@ -14,6 +15,11 @@ from rclcppyy.policy import BackendUnavailableError, resolve_policy
 _original_create_publisher = Node.create_publisher
 _original_create_subscription = Node.create_subscription
 _original_create_timer = Node.create_timer
+_original_create_service = Node.create_service
+_original_create_client = Node.create_client
+_original_create_guard_condition = Node.create_guard_condition
+_original_set_parameters = Node.set_parameters
+_original_set_parameters_atomically = Node.set_parameters_atomically
 _original_publish = Publisher.publish
 
 _PATCHED = False
@@ -47,8 +53,17 @@ def _record_node_once(node):
     return status_id
 
 
-def _record_python_entity(node, entity_type, reason, metadata=None):
-    _warn_once(reason)
+def _record_python_entity(
+    node,
+    entity_type,
+    reason,
+    metadata=None,
+    *,
+    warn=True,
+    policies=None,
+):
+    if warn:
+        _warn_once(reason)
     values = {
         "entity_type": entity_type,
         "node_id": _record_node_once(node),
@@ -57,6 +72,23 @@ def _record_python_entity(node, entity_type, reason, metadata=None):
     values.update(metadata or {})
     record_decision(
         "entities",
+        "python",
+        reason,
+        policies=policies or ("stock_fallback", _POLICY.name),
+        metadata=values,
+    )
+
+
+def _record_python_operation(node, operation, reason, metadata=None):
+    _warn_once(reason)
+    values = {
+        "operation": operation,
+        "node_id": _record_node_once(node),
+        "profile": _POLICY.name,
+    }
+    values.update(metadata or {})
+    record_decision(
+        "operations",
         "python",
         reason,
         policies=("stock_fallback", _POLICY.name),
@@ -73,6 +105,38 @@ def _unavailable(operation, reason):
         metadata={"operation": operation, "profile": _POLICY.name},
     )
     raise BackendUnavailableError(reason)
+
+
+def _stock_entity(node, operation, entity_type, reason, create, metadata=None):
+    """Create one stock entity or fail before invoking its constructor."""
+    initializing = not hasattr(node, "_type_description_service")
+    if _POLICY.require_cpp and not initializing:
+        _unavailable(operation, reason)
+    entity = create()
+    values = metadata(entity) if callable(metadata) else (metadata or {})
+    if initializing:
+        values["requested_operation"] = operation
+        _record_python_entity(
+            node,
+            entity_type,
+            "stock Node constructor owns this compatibility entity",
+            values,
+            warn=False,
+            policies=("stock_node_infrastructure", _POLICY.name),
+        )
+    else:
+        _record_python_entity(node, entity_type, reason, values)
+    return entity
+
+
+def _stock_operation(node, operation, reason, invoke, metadata=None):
+    """Run one stock operation or fail before it can mutate the node."""
+    if _POLICY.require_cpp:
+        _unavailable(operation, reason)
+    result = invoke()
+    values = metadata(result) if callable(metadata) else (metadata or {})
+    _record_python_operation(node, operation, reason, values)
+    return result
 
 
 def _load_borrowed_publish():
@@ -197,22 +261,123 @@ def _publish_wrapper(self, message):
 
 def _create_subscription_wrapper(self, *args, **kwargs):
     reason = "subscription take/dispatch has no certified same-handle C++ route"
-    if _POLICY.require_cpp:
-        _unavailable("create_subscription", reason)
-    subscription = _original_create_subscription(self, *args, **kwargs)
     topic = args[1] if len(args) > 1 else kwargs.get("topic")
-    _record_python_entity(self, "subscription", reason, metadata={"topic": topic})
-    return subscription
+    return _stock_entity(
+        self,
+        "create_subscription",
+        "subscription",
+        reason,
+        lambda: _original_create_subscription(self, *args, **kwargs),
+        metadata={"topic": topic},
+    )
 
 
 def _create_timer_wrapper(self, *args, **kwargs):
     reason = "timer/executor integration has no certified same-handle C++ route"
-    if _POLICY.require_cpp:
-        _unavailable("create_timer", reason)
-    timer = _original_create_timer(self, *args, **kwargs)
     period = args[0] if args else kwargs.get("timer_period_sec")
-    _record_python_entity(self, "timer", reason, metadata={"period_sec": period})
-    return timer
+    return _stock_entity(
+        self,
+        "create_timer",
+        "timer",
+        reason,
+        lambda: _original_create_timer(self, *args, **kwargs),
+        metadata={"period_sec": period},
+    )
+
+
+def _create_service_wrapper(self, *args, **kwargs):
+    reason = "service request/response has no certified same-handle C++ route"
+    requested_name = args[1] if len(args) > 1 else kwargs.get("srv_name")
+    return _stock_entity(
+        self,
+        "create_service",
+        "service",
+        reason,
+        lambda: _original_create_service(self, *args, **kwargs),
+        metadata=lambda service: {
+            "requested_name": requested_name,
+            "service_name": service.service_name,
+        },
+    )
+
+
+def _create_client_wrapper(self, *args, **kwargs):
+    reason = "client request/response has no certified same-handle C++ route"
+    requested_name = args[1] if len(args) > 1 else kwargs.get("srv_name")
+    return _stock_entity(
+        self,
+        "create_client",
+        "client",
+        reason,
+        lambda: _original_create_client(self, *args, **kwargs),
+        metadata=lambda client: {
+            "requested_name": requested_name,
+            "service_name": client.service_name,
+        },
+    )
+
+
+def _create_guard_condition_wrapper(self, *args, **kwargs):
+    reason = "guard conditions have no certified C++ executor route"
+    return _stock_entity(
+        self,
+        "create_guard_condition",
+        "guard_condition",
+        reason,
+        lambda: _original_create_guard_condition(self, *args, **kwargs),
+    )
+
+
+def _set_parameters_wrapper(self, parameter_list):
+    reason = "parameter mutation has no certified same-handle C++ route"
+    return _stock_operation(
+        self,
+        "set_parameters",
+        reason,
+        lambda: _original_set_parameters(self, parameter_list),
+        metadata=lambda results: {
+            "parameter_names": [parameter.name for parameter in parameter_list],
+            "successful": all(result.successful for result in results),
+        },
+    )
+
+
+def _set_parameters_atomically_wrapper(self, parameter_list):
+    reason = "parameter mutation has no certified same-handle C++ route"
+    return _stock_operation(
+        self,
+        "set_parameters_atomically",
+        reason,
+        lambda: _original_set_parameters_atomically(self, parameter_list),
+        metadata=lambda result: {
+            "parameter_names": [parameter.name for parameter in parameter_list],
+            "successful": result.successful,
+        },
+    )
+
+
+_NODE_PATCHES = (
+    ("create_publisher", _create_publisher_wrapper, _original_create_publisher),
+    ("create_subscription", _create_subscription_wrapper, _original_create_subscription),
+    ("create_timer", _create_timer_wrapper, _original_create_timer),
+    ("create_service", _create_service_wrapper, _original_create_service),
+    ("create_client", _create_client_wrapper, _original_create_client),
+    (
+        "create_guard_condition",
+        _create_guard_condition_wrapper,
+        _original_create_guard_condition,
+    ),
+    ("set_parameters", _set_parameters_wrapper, _original_set_parameters),
+    (
+        "set_parameters_atomically",
+        _set_parameters_atomically_wrapper,
+        _original_set_parameters_atomically,
+    ),
+)
+for _name, _wrapper, _original in _NODE_PATCHES:
+    # Keep inspect.signature-compatible call surfaces without changing wrapper
+    # names used by startup-hook diagnostics.
+    _wrapper.__signature__ = signature(_original)
 
 
 def patch_ros2(profile="compatible", *, warn_fallback=False):
@@ -226,9 +391,8 @@ def patch_ros2(profile="compatible", *, warn_fallback=False):
         return True
 
     _POLICY = requested
-    Node.create_publisher = _create_publisher_wrapper
-    Node.create_subscription = _create_subscription_wrapper
-    Node.create_timer = _create_timer_wrapper
+    for name, wrapper, _original in _NODE_PATCHES:
+        setattr(Node, name, wrapper)
     Publisher.publish = _publish_wrapper
     _PATCHED = True
     record_decision(

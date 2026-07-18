@@ -34,6 +34,8 @@ APPLICATION_PARITY = (
                       "Parameter declaration, callbacks, mutation, and listing match stock."),
     ParityExpectation("callback.exception", ("callback_exception",),
                       "Executor callback exceptions preserve their Python type."),
+    ParityExpectation("executor.multi_threaded", ("multi_threaded_executor",),
+                      "MultiThreadedExecutor and reentrant callback groups match stock."),
     ParityExpectation("sim_time.behavior", ("sim_time",),
                       "Simulated time activation and /clock delivery match stock."),
     ParityExpectation("executor.spin", ("spin",),
