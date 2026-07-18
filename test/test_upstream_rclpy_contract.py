@@ -96,8 +96,8 @@ def test_repository_manifest_has_exact_review_partition():
         for group in manifest["reviewed_exclusions"]
         for path in group["paths"]
     }
-    assert len(selected) == 26
-    assert len(excluded) == 26
+    assert len(selected) == 35
+    assert len(excluded) == 17
     assert not selected & excluded
     assert len(selected | excluded) == manifest["inventory"]["file_count"]
     assert len(manifest["support_files"]) == 5
@@ -110,7 +110,10 @@ def test_repository_manifest_has_exact_review_partition():
         group for group in manifest["reviewed_exclusions"]
         if group["id"] == "fails-with-stock-installed-extension"
     )
-    assert stock_failure["paths"] == ["test_destruction_order.py"]
+    assert stock_failure["paths"] == [
+        "test_destruction_order.py",
+        "test_type_description_service.py",
+    ]
 
 
 def test_validate_source_accepts_exact_clean_checkout(tmp_path):

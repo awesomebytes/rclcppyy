@@ -56,15 +56,17 @@ JUnit files and `summary.json` are written under
 The reviewed runtime slice covers actions and action graph queries, callback
 groups, clients, concurrent entity creation, active entity destruction,
 single-threaded, multi-threaded, and event-driven executors, guard conditions,
-context lifecycle, lifecycle nodes, publishers, QoS and QoS events, rates,
-rosout, serialization, services and service introspection, subscriptions, timers,
-message waiting, and custom waitables.
+context lifecycle, lifecycle nodes, logging and rosout, node graph and control-plane
+behavior, local and remote parameters, publishers, QoS and QoS events, rates,
+serialization, services and service introspection, subscriptions, simulated time,
+timers, message waiting, and custom waitables.
 
 Exclusions are visible follow-up work and must not be reported as passing
-coverage. One pinned upstream destruction-order file is excluded separately
-because it fails unchanged with stock `rclpy==7.1.11`: the installed pybind Node
-type rejects the test's ad hoc `node.handle.context_handle` attribute assignment.
-That is a stock baseline failure, not an architecture or RMW skip and not backend
+coverage. Two pinned upstream files are excluded separately because they fail
+unchanged with stock `rclpy==7.1.11`: the installed pybind Node rejects the
+destruction-order test's ad hoc `node.handle.context_handle` assignment, and the
+stock client rejects a graph-derived `TypeHash` in the type-description request.
+These are stock baseline failures, not architecture or RMW skips and not backend
 evidence.
 
 To update the pin or selection:

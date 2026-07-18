@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "contract_id": "rclpy-jazzy-7.1.11-reviewed-v2",
+  "contract_id": "rclpy-jazzy-7.1.11-reviewed-v3",
   "source": {
     "repository": "https://github.com/ros2/rclpy.git",
     "revision": "baf9d72cfa127e391a89b4ab51ba9e55c37041fd",
@@ -90,6 +90,38 @@
       "reason": "Lifecycle construction, transitions, services, and publishers cover lifecycle compatibility."
     },
     {
+      "path": "test_logging.py",
+      "reason": "Logger hierarchy, severity, formatting, directories, throttling, and time sources cover unchanged logging behavior."
+    },
+    {
+      "path": "test_logging_rosout.py",
+      "reason": "Rosout delivery, severity, names, disabled output, and node destruction cover unchanged logging transport behavior."
+    },
+    {
+      "path": "test_logging_service.py",
+      "reason": "Logger-level get and set services cover unchanged node logging control-plane behavior."
+    },
+    {
+      "path": "test_node.py",
+      "reason": "The full node contract covers graph queries, entities, parameters, remapping, clocks, rosout, and service configuration."
+    },
+    {
+      "path": "test_parameter.py",
+      "reason": "Parameter values, conversions, YAML parsing, equality, arrays, and validation cover unchanged value semantics."
+    },
+    {
+      "path": "test_parameter_client.py",
+      "reason": "Asynchronous parameter client get, set, describe, list, delete, and YAML loading cover remote parameter behavior."
+    },
+    {
+      "path": "test_parameter_event_handler.py",
+      "reason": "Parameter event handlers and callback registration, matching, removal, and cleanup cover event behavior."
+    },
+    {
+      "path": "test_parameter_service.py",
+      "reason": "Node parameter services cover declare, describe, get, set, atomic set, list, and undeclared behavior."
+    },
+    {
       "path": "test_publisher.py",
       "reason": "Publisher naming, remapping, acknowledgement, and logging cover the accelerated same-handle publisher.",
       "requires_cpp_publish": true
@@ -135,6 +167,10 @@
       "reason": "Timer periods, callback counts, cancel/reset, scheduling, and autostart cover timer behavior."
     },
     {
+      "path": "test_time_source.py",
+      "reason": "Clock attachment, simulated time, jumps, parameters, and clock topics cover unchanged time-source behavior."
+    },
+    {
       "path": "test_wait_for_message.py",
       "reason": "Synchronous message waiting with default and explicit QoS plus timeout covers unchanged convenience API behavior."
     },
@@ -147,25 +183,10 @@
     {
       "id": "fails-with-stock-installed-extension",
       "paths": [
-        "test_destruction_order.py"
-      ],
-      "reason": "The unchanged test fails with stock rclpy 7.1.11 because its assignment to node.handle.context_handle is rejected by the installed pybind Node type, so it cannot provide backend evidence in this source-only gate."
-    },
-    {
-      "id": "next-node-control-plane-slice",
-      "paths": [
-        "test_logging.py",
-        "test_logging_rosout.py",
-        "test_logging_service.py",
-        "test_node.py",
-        "test_parameter.py",
-        "test_parameter_client.py",
-        "test_parameter_event_handler.py",
-        "test_parameter_service.py",
-        "test_time_source.py",
+        "test_destruction_order.py",
         "test_type_description_service.py"
       ],
-      "reason": "Reviewed control-plane coverage is broader than the first compatibility gate and remains an explicit follow-up slice."
+      "reason": "These unchanged tests fail with stock rclpy 7.1.11: the installed pybind Node rejects destruction-order's ad hoc context_handle assignment, and the stock client rejects the graph-derived TypeHash in the type-description request. They cannot provide backend evidence in this source-only gate."
     },
     {
       "id": "upstream-unit-and-validation-slice",
