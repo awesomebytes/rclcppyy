@@ -21,7 +21,7 @@ import time
 import uuid
 
 
-SCHEMA = "rclcppyy.runtime-stress/v1"
+SCHEMA = "rclcppyy.runtime-stress/v2"
 
 
 def _rss_kib() -> int:
@@ -256,17 +256,35 @@ def _write_evidence(path: Path, evidence: dict) -> None:
     temporary.replace(path)
 
 
-def run_stress(args) -> dict:
-    import rclcppyy
-    import rclpy  # noqa: F401
-    from rclpy.utilities import get_rmw_implementation_identifier
+def _failure(round_index: int, probe: str, exception: Exception, **fields) -> dict:
+    value = {
+        "round": round_index,
+        "probe": probe,
+        "exception_type": type(exception).__name__,
+        "error": str(exception),
+    }
+    value.update(fields)
+    return value
+
+
+def run_stress(args, *, enable_acceleration=None, rmw_identifier=None) -> dict:
+    if enable_acceleration is None or rmw_identifier is None:
+        import rclcppyy
+        from rclpy.utilities import get_rmw_implementation_identifier
+
+        if enable_acceleration is None:
+            enable_acceleration = rclcppyy.enable_cpp_acceleration
+        if rmw_identifier is None:
+            rmw_identifier = get_rmw_implementation_identifier
 
     # Exclude one-time interpreter/header setup from the entity-lifetime RSS budget.
-    rclcppyy.enable_cpp_acceleration()
+    enable_acceleration()
     started_at = datetime.now(timezone.utc).isoformat()
     started = time.monotonic()
     start_rss = _rss_kib()
     rounds = []
+    failures = []
+    signal_probe_enabled = args.signal_repetitions > 0
     round_index = 0
     while (
         round_index < args.repetitions
@@ -274,19 +292,53 @@ def run_stress(args) -> dict:
     ):
         round_seed = args.seed + round_index
         round_started = time.monotonic()
-        churn = entity_churn(args.cycles, round_seed)
-        concurrent = concurrent_publish(args.threads, args.messages_per_thread)
-        signals = [signal_shutdown(args.timeout)
-                   for _ in range(args.signal_repetitions)]
-        rounds.append({
+        round_evidence = {
             "index": round_index,
             "seed": round_seed,
-            "duration_s": round(time.monotonic() - round_started, 6),
-            "entity_churn": churn,
-            "concurrent_publish": concurrent,
-            "signal_shutdown": signals,
-        })
+            "entity_churn": None,
+            "concurrent_publish": None,
+            "signal_shutdown": [],
+        }
+        fatal_failure = False
+        try:
+            round_evidence["entity_churn"] = entity_churn(args.cycles, round_seed)
+        except Exception as exception:
+            failures.append(_failure(round_index, "entity_churn", exception))
+            fatal_failure = True
+        if not fatal_failure:
+            try:
+                round_evidence["concurrent_publish"] = concurrent_publish(
+                    args.threads, args.messages_per_thread)
+            except Exception as exception:
+                failures.append(_failure(round_index, "concurrent_publish", exception))
+                fatal_failure = True
+        if not fatal_failure and signal_probe_enabled:
+            for repetition in range(args.signal_repetitions):
+                try:
+                    round_evidence["signal_shutdown"].append(
+                        signal_shutdown(args.timeout))
+                except Exception as exception:
+                    failures.append(_failure(
+                        round_index,
+                        "signal_shutdown",
+                        exception,
+                        repetition=repetition,
+                        accelerated=True,
+                    ))
+                    # Each signal worker is isolated, so churn/concurrency can keep
+                    # soaking. One timeout is enough to fail the gate; disabling
+                    # later signal attempts avoids spending 30 seconds per repeat.
+                    signal_probe_enabled = False
+                    round_evidence["signal_probe_disabled_after_failure"] = True
+                    break
+        elif not signal_probe_enabled and args.signal_repetitions:
+            round_evidence["signal_probe_skipped_after_failure"] = True
+        round_evidence["duration_s"] = round(
+            time.monotonic() - round_started, 6)
+        rounds.append(round_evidence)
         round_index += 1
+        if fatal_failure:
+            break
 
     rss_growth = max(0, _rss_kib() - start_rss)
     evidence = {
@@ -294,7 +346,7 @@ def run_stress(args) -> dict:
         "started_at": started_at,
         "architecture": platform.machine(),
         "python": platform.python_version(),
-        "rmw_implementation": get_rmw_implementation_identifier(),
+        "rmw_implementation": rmw_identifier(),
         "parameters": {
             "cycles": args.cycles,
             "threads": args.threads,
@@ -307,26 +359,36 @@ def run_stress(args) -> dict:
             "max_rss_growth_kib": args.max_rss_growth_kib,
         },
         "rounds": rounds,
+        "failures": failures,
         "summary": {
+            "result": "fail" if failures else "pass",
             "rounds": len(rounds),
             "entity_cycles": sum(
-                item["entity_churn"]["cycles"] for item in rounds),
+                item["entity_churn"]["cycles"]
+                for item in rounds if item["entity_churn"] is not None),
             "messages_expected": sum(
                 item["concurrent_publish"]["messages_expected"]
-                for item in rounds),
+                for item in rounds if item["concurrent_publish"] is not None),
             "messages_received": sum(
                 item["concurrent_publish"]["messages_received"]
-                for item in rounds),
+                for item in rounds if item["concurrent_publish"] is not None),
             "clean_signal_shutdowns": sum(
                 len(item["signal_shutdown"]) for item in rounds),
+            "failures": len(failures),
             "duration_s": round(time.monotonic() - started, 6),
             "peak_rss_growth_kib": rss_growth,
         },
     }
     if args.max_rss_growth_kib and rss_growth > args.max_rss_growth_kib:
-        raise AssertionError(
-            "peak RSS growth %d KiB exceeds budget %d KiB" % (
-                rss_growth, args.max_rss_growth_kib))
+        evidence["failures"].append({
+            "round": None,
+            "probe": "rss_budget",
+            "exception_type": "BudgetExceeded",
+            "error": "peak RSS growth %d KiB exceeds budget %d KiB" % (
+                rss_growth, args.max_rss_growth_kib),
+        })
+        evidence["summary"]["failures"] = len(evidence["failures"])
+        evidence["summary"]["result"] = "fail"
     return evidence
 
 
@@ -357,9 +419,10 @@ def main(argv=None) -> int:
         args.threads,
         args.messages_per_thread,
         args.repetitions,
-        args.signal_repetitions,
     ) <= 0:
         parser.error("cycle, thread, message, and repetition counts must be positive")
+    if args.signal_repetitions < 0:
+        parser.error("signal repetitions must not be negative")
     if args.timeout <= 0:
         parser.error("timeout must be positive")
     if min(args.min_duration_seconds, args.max_rss_growth_kib) < 0:
@@ -367,6 +430,16 @@ def main(argv=None) -> int:
     evidence = run_stress(args)
     if args.output is not None:
         _write_evidence(args.output, evidence)
+    if evidence["failures"]:
+        print(
+            "RUNTIME_STRESS_FAILED rounds=%d failures=%d duration_s=%.3f" % (
+                evidence["summary"]["rounds"],
+                evidence["summary"]["failures"],
+                evidence["summary"]["duration_s"],
+            ),
+            file=sys.stderr,
+        )
+        return 1
     print(
         "RUNTIME_STRESS_OK rounds=%d duration_s=%.3f rss_growth_kib=%d" % (
             evidence["summary"]["rounds"],

@@ -3,7 +3,9 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+from types import SimpleNamespace
 
+import scripts.ci.stress_runtime as stress_runtime
 import yaml
 
 
@@ -51,12 +53,14 @@ def test_runtime_stress_emits_repeated_structured_evidence(tmp_path):
     assert "RUNTIME_STRESS_OK rounds=2" in result.stdout
 
     evidence = json.loads(output.read_text(encoding="utf-8"))
-    assert evidence["schema"] == "rclcppyy.runtime-stress/v1"
+    assert evidence["schema"] == "rclcppyy.runtime-stress/v2"
     assert evidence["architecture"]
     assert evidence["rmw_implementation"]
     assert evidence["parameters"]["seed"] == 314159
     assert [item["seed"] for item in evidence["rounds"]] == [314159, 314160]
     assert evidence["summary"]["rounds"] == 2
+    assert evidence["summary"]["result"] == "pass"
+    assert evidence["failures"] == []
     assert evidence["summary"]["entity_cycles"] == 4
     assert evidence["summary"]["messages_expected"] == 2000
     assert evidence["summary"]["messages_received"] == 2000
@@ -66,3 +70,66 @@ def test_runtime_stress_emits_repeated_structured_evidence(tmp_path):
         for item in evidence["rounds"])
     assert evidence["summary"]["peak_rss_growth_kib"] >= 0
     assert not list(tmp_path.glob(".*.tmp"))
+
+
+def test_runtime_stress_retains_partial_evidence_after_signal_failure(monkeypatch):
+    monkeypatch.setattr(
+        stress_runtime,
+        "entity_churn",
+        lambda cycles, seed: {"cycles": cycles, "peak_rss_growth_kib": 0},
+    )
+    monkeypatch.setattr(
+        stress_runtime,
+        "concurrent_publish",
+        lambda threads, messages: {
+            "threads": threads,
+            "messages_per_thread": messages,
+            "qos_depth": threads * messages,
+            "messages_expected": threads * messages,
+            "messages_received": threads * messages,
+        },
+    )
+
+    def fail_signal(_timeout):
+        raise AssertionError("captured signal timeout")
+
+    monkeypatch.setattr(stress_runtime, "signal_shutdown", fail_signal)
+    arguments = SimpleNamespace(
+        cycles=2,
+        threads=4,
+        messages_per_thread=250,
+        timeout=30.0,
+        repetitions=2,
+        signal_repetitions=5,
+        min_duration_seconds=0.0,
+        seed=17,
+        max_rss_growth_kib=0,
+    )
+
+    evidence = stress_runtime.run_stress(
+        arguments,
+        enable_acceleration=lambda: None,
+        rmw_identifier=lambda: "test_rmw",
+    )
+
+    assert evidence["summary"] == {
+        "result": "fail",
+        "rounds": 2,
+        "entity_cycles": 4,
+        "messages_expected": 2000,
+        "messages_received": 2000,
+        "clean_signal_shutdowns": 0,
+        "failures": 1,
+        "duration_s": evidence["summary"]["duration_s"],
+        "peak_rss_growth_kib": evidence["summary"]["peak_rss_growth_kib"],
+    }
+    assert evidence["failures"] == [{
+        "round": 0,
+        "probe": "signal_shutdown",
+        "exception_type": "AssertionError",
+        "error": "captured signal timeout",
+        "repetition": 0,
+        "accelerated": True,
+    }]
+    assert evidence["rounds"][0]["signal_probe_disabled_after_failure"] is True
+    assert evidence["rounds"][1]["signal_probe_skipped_after_failure"] is True
