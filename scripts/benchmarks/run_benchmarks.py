@@ -22,7 +22,6 @@ Usage:
 """
 
 import argparse
-import json
 import os
 import re
 import signal
@@ -36,7 +35,10 @@ from pathlib import Path
 
 import psutil
 
+from _result_schema import build_document, dumps, write
+
 HERE = Path(__file__).resolve().parent
+REPO_ROOT = HERE.parent.parent
 
 # Each variant is a publisher/subscriber script pair. The subscribers print a
 # periodic stat line every 1000 received messages; the publishers take a target
@@ -400,7 +402,11 @@ def main():
     )
     parser.add_argument(
         "--json", action="store_true",
-        help="emit machine-readable JSON on stdout instead of a table",
+        help="emit a versioned machine-readable JSON document instead of a table",
+    )
+    parser.add_argument(
+        "--output", type=Path, default=None,
+        help="also write the versioned JSON document atomically to this path",
     )
     parser.add_argument(
         "--warmup-timeout", type=float, default=60.0,
@@ -436,21 +442,39 @@ def main():
                 ))
             except RuntimeError as exc:
                 log(f"  FAILED: {exc}")
-                failures.append((v, rate, str(exc).splitlines()[0]))
+                failures.append({
+                    "variant": v,
+                    "target_rate_hz": rate,
+                    "error": str(exc).splitlines()[0],
+                })
         all_results[rate] = results
         if not args.json:
             print_table(rate, results)
 
+    document = build_document(
+        repo_root=REPO_ROOT,
+        benchmark_name="pubsub_cpu_latency",
+        parameters={
+            "variants": variants,
+            "target_rates_hz": rates,
+            "duration_s": duration,
+            "warmup_timeout_s": args.warmup_timeout,
+        },
+        results_by_rate=all_results,
+        failures=failures,
+    )
+    if args.output is not None:
+        write(document, args.output)
+
     if args.json:
-        print(json.dumps(
-            {str(k): v for k, v in all_results.items()}, indent=2
-        ))
+        print(dumps(document), end="")
     else:
         print()
         if failures:
             log(f"{len(failures)} run(s) failed:")
-            for v, rate, msg in failures:
-                log(f"  - {v} @ {rate} Hz: {msg}")
+            for failure in failures:
+                log(f"  - {failure['variant']} @ {failure['target_rate_hz']} Hz: "
+                    f"{failure['error']}")
         else:
             log("All runs completed.")
 
