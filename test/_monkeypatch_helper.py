@@ -11,6 +11,7 @@ Prints one marker per checkpoint and ``MONKEYPATCH_ALL_OK`` last on success:
   MSG_REDIRECT_OK  - an imported message class is now the cppyy C++ type
   ROUNDTRIP_OK     - pub/sub roundtrip through the patched rclpy API
 """
+import json
 import time
 
 import rclcppyy
@@ -50,14 +51,9 @@ def main():
     sub = node.create_subscription(String, TOPIC, on_msg, 10)  # noqa: F841 - keep alive
     pub = node.create_publisher(String, TOPIC, 10)
 
-    rclcpp = rclcppyy.bringup_rclcpp()
-    executor = rclcpp.executors.SingleThreadedExecutor()
-    executor.add_node(node._rclcpp_node)
-
     deadline = time.monotonic() + SPIN_DEADLINE_S
     while pub.get_subscription_count() < 1 and time.monotonic() < deadline:
-        executor.spin_some()
-        time.sleep(0.05)
+        rclpy.spin_once(node, timeout_sec=0.05)
     assert pub.get_subscription_count() >= 1, "subscription never matched publisher"
 
     expected = [f"monkey hello {i}" for i in range(N_MESSAGES)]
@@ -66,11 +62,26 @@ def main():
         pub.publish(String(data=payload))
 
     while len(received) < N_MESSAGES and time.monotonic() < deadline:
-        executor.spin_some()
-        time.sleep(0.01)
+        rclpy.spin_once(node, timeout_sec=0.05)
 
     assert received == expected, f"payload mismatch: {received!r} != {expected!r}"
     print("ROUNDTRIP_OK", flush=True)
+
+    status = rclcppyy.status()
+    json.dumps(status)
+    assert status["counts"]["nodes"]["cpp"] >= 1, status
+    entity_types = {
+        record["metadata"].get("entity_type")
+        for record in status["entities"]
+        if record["backend"] == "cpp"
+    }
+    assert {"publisher", "subscription"} <= entity_types, status
+    operations = {
+        record["metadata"].get("operation")
+        for record in status["operations"]
+    }
+    assert {"enable_cpp_acceleration", "create_node", "spin_once"} <= operations, status
+    print("STATUS_OK", flush=True)
 
     print("MONKEYPATCH_ALL_OK", flush=True)
     # A normal return exits cleanly (see _pubsub_plain_helper.py): rclcppyy's

@@ -129,6 +129,22 @@ project. Installing rclcppyy pulls its runtime deps `ros-jazzy-rclcpp-kit` and
 - Acceleration is opt-in per process; without the one-line call, your code is
   ordinary `rclpy`.
 
+### Inspect backend decisions
+
+`rclcppyy.status()` returns a JSON-serializable process snapshot of the backend
+selected for accelerated nodes, entities, and operations:
+
+```python
+report = rclcppyy.status()
+for entity in report["entities"]:
+    print(entity["backend"], entity["reason"], entity["policies"])
+```
+
+Each decision reports `cpp`, `python`, or `unsupported`, along with active
+policies and value-only metadata such as the entity type, topic, and message
+type. History is bounded to the latest 256 records per category; aggregate
+counts and dropped-record counts remain available for long-running processes.
+
 ## Powered by the cppyy_kit suite
 
 As of **0.2.0**, `rclcppyy` is the ROS 2 drop-in *product* in a larger family. The

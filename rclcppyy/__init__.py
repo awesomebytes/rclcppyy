@@ -13,6 +13,7 @@ import importlib
 # Public API. ``bringup_rclcpp`` / ``shutdown_rclcpp`` come from the (silent)
 # bringup shim, which node.py / monkey.py also use internally.
 from rclcppyy.bringup_rclcpp import bringup_rclcpp, shutdown_rclcpp
+from rclcppyy._status import status
 from rclcppyy.node import RclcppyyNode
 from rclcppyy.monkey import patch_ros2, patch_node_class
 Node = RclcppyyNode
@@ -78,6 +79,7 @@ def enable_cpp_acceleration(patch_node=True):
 __all__ = [
     'bringup_rclcpp',
     'shutdown_rclcpp',
+    'status',
     'RclcppyyNode',
     'Node',
     'enable_cpp_acceleration',

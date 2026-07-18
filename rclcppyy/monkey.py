@@ -7,6 +7,7 @@ from rclpy.node import Node
 from rclcppyy.node import RclcppyyNode
 from rclcppyy.monkeypatch_messages import install_ros_message_hook, convert_already_imported_python_msgs_to_cpp
 from rclcppyy.bringup_rclcpp import bringup_rclcpp
+from rclcppyy._status import record_decision
 
 # Store original functions
 _original_create_node = rclpy.create_node
@@ -42,6 +43,14 @@ def patch_ros2():
 
     # Monkey-patch Node.create_subscription
     Node.create_subscription = _create_subscription_wrapper
+
+    record_decision(
+        "operations",
+        "cpp",
+        "rclpy entry points patched for compatible C++ acceleration",
+        policies=("process_global_patch", "compatible_profile"),
+        metadata={"operation": "enable_cpp_acceleration"},
+    )
     
     print("ROS2 C++ acceleration enabled!")
     return True
@@ -51,7 +60,35 @@ def _create_node_wrapper(*args, **kwargs):
     Wrapper for rclpy.create_node that returns RclcppyyNode instead.
     This maintains the same API but uses our C++-backed node.
     """
-    return RclcppyyNode(*args, **kwargs)
+    node = RclcppyyNode(*args, **kwargs)
+    record_decision(
+        "operations",
+        "cpp",
+        "rclpy.create_node routed to RclcppyyNode",
+        policies=("rclpy_compatibility",),
+        metadata={
+            "operation": "create_node",
+            "node_id": node._rclcppyy_status_id,
+        },
+    )
+    return node
+
+
+def _record_node_operation_once(node, operation, backend, reason, policies=(), metadata=None):
+    """Record a routing decision once without adding work to every spin call."""
+    reported = getattr(node, "_rclcppyy_reported_operations", None)
+    if reported is not None:
+        decision_key = (operation, backend, tuple(policies))
+        if decision_key in reported:
+            return
+        reported.add(decision_key)
+    operation_metadata = dict(metadata or {})
+    operation_metadata["operation"] = operation
+    node_id = getattr(node, "_rclcppyy_status_id", None)
+    if node_id is not None:
+        operation_metadata["node_id"] = node_id
+    record_decision(
+        "operations", backend, reason, policies=policies, metadata=operation_metadata)
 
 def _spin_wrapper(*args, **kwargs):
     """
@@ -59,6 +96,26 @@ def _spin_wrapper(*args, **kwargs):
     """
     rclcpp = bringup_rclcpp()
     node = args[0]
+    if isinstance(node, RclcppyyNode):
+        policies = ["single_node_rclcpp_spin"]
+        if kwargs.get("executor") is not None:
+            policies.append("custom_executor_ignored")
+        _record_node_operation_once(
+            node,
+            "spin",
+            "cpp",
+            "rclpy.spin routed to rclcpp.spin",
+            policies=policies,
+            metadata={"executor_requested": kwargs.get("executor") is not None},
+        )
+    else:
+        _record_node_operation_once(
+            node,
+            "spin",
+            "unsupported",
+            "patched rclpy.spin only supports RclcppyyNode",
+            metadata={"node_type": type(node).__name__},
+        )
     rclcpp.spin(node._rclcpp_node)
 
 
@@ -89,7 +146,26 @@ def _spin_once_wrapper(node, *, executor=None, timeout_sec=None):
     ready; a finite timeout waits at most that long (rclcpp uses -1ns for "block").
     """
     if not isinstance(node, RclcppyyNode):
+        _record_node_operation_once(
+            node,
+            "spin_once",
+            "python",
+            "non-accelerated node delegated to the original rclpy.spin_once",
+            policies=("stock_fallback",),
+            metadata={"node_type": type(node).__name__},
+        )
         return _original_spin_once(node, executor=executor, timeout_sec=timeout_sec)
+    policies = ["persistent_single_threaded_executor"]
+    if executor is not None:
+        policies.append("custom_executor_ignored")
+    _record_node_operation_once(
+        node,
+        "spin_once",
+        "cpp",
+        "rclpy.spin_once routed to a persistent rclcpp executor",
+        policies=policies,
+        metadata={"executor_requested": executor is not None},
+    )
     import cppyy
     _get_spin_executor(node)  # ensure created + node added
     ex = node._rclcppyy_spin_executor
@@ -106,7 +182,20 @@ def _create_subscription_wrapper(self, *args, **kwargs):
     if isinstance(self, RclcppyyNode):
         return self.create_subscription(*args, **kwargs)
     else:
-        return _original_node_create_subscription(self, *args, **kwargs)
+        subscription = _original_node_create_subscription(self, *args, **kwargs)
+        topic = args[1] if len(args) > 1 else kwargs.get("topic")
+        record_decision(
+            "entities",
+            "python",
+            "non-accelerated node delegated to rclpy subscription creation",
+            policies=("stock_fallback",),
+            metadata={
+                "entity_type": "subscription",
+                "node_type": type(self).__name__,
+                "topic": topic,
+            },
+        )
+        return subscription
 
 def patch_node_class():
     """
@@ -117,4 +206,4 @@ def patch_node_class():
     # This is a more aggressive approach and might cause issues
     # so we make it optional
     rclpy.node.Node = RclcppyyNode
-    return True 
+    return True

@@ -26,6 +26,7 @@ class TestMonkeypatch(unittest.TestCase):
         self.assertIn("MSG_REDIRECT_OK", out, format_output(proc))
         self.assertIn("CREATE_NODE_OK", out, format_output(proc))
         self.assertIn("ROUNDTRIP_OK", out, format_output(proc))
+        self.assertIn("STATUS_OK", out, format_output(proc))
         self.assertIn("MONKEYPATCH_ALL_OK", out, format_output(proc))
         self.assertEqual(proc.returncode, 0, format_output(proc))
 
