@@ -1,7 +1,9 @@
 import importlib.util
+import json
 from pathlib import Path
 
 import pytest
+import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,3 +28,33 @@ def test_release_metadata_and_tag_are_exactly_aligned():
 def test_release_rejects_arbitrary_or_stale_tag(tag):
     with pytest.raises(ValueError, match="release tag mismatch"):
         verify_release_version.verify(ROOT, tag)
+
+
+def test_release_requires_dual_arch_source_preflight_and_exact_suite_build():
+    workflow = yaml.safe_load(
+        (ROOT / ".github" / "workflows" / "release.yml").read_text())
+    jobs = workflow["jobs"]
+    preflight = jobs["preflight"]
+    release = jobs["release"]
+    matrix = preflight["strategy"]["matrix"]["include"]
+    assert {(item["platform"], item["machine"]) for item in matrix} == {
+        ("linux-64", "x86_64"),
+        ("linux-aarch64", "aarch64"),
+    }
+    assert release["needs"] == "preflight"
+
+    suite_commit = json.loads(
+        (ROOT / "suite-source.lock.json").read_text())["commit"]
+    suite_refs = []
+    for job in (preflight, release):
+        for step in job["steps"]:
+            settings = step.get("with", {})
+            if settings.get("repository") == "awesomebytes/cppyy_kit":
+                suite_refs.append(settings.get("ref"))
+    assert suite_refs == [suite_commit, suite_commit]
+
+    release_commands = "\n".join(
+        step.get("run", "") for step in release["steps"])
+    assert "build_local_package_stack.sh" in release_commands
+    assert "_deps/cppyy_kit output" in release_commands
+    assert "local-package-attestation.json" in release_commands

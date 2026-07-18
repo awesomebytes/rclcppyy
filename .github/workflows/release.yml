@@ -25,12 +25,105 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  preflight:
+    name: source preflight (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 240
+    env:
+      MAKE_NPROCS: "2"
+      STDCXX: "17"
+      RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
+      RCLPY_CONTRACT_SRC: ${{ github.workspace }}/_deps/rclpy-contract
+      PYTHONPATH: ${{ github.workspace }}/_deps/cppyy_kit:${{ github.workspace }}/_deps/cppyy_kit/rclcpp_kit
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            platform: linux-64
+            machine: x86_64
+          - runner: ubuntu-24.04-arm
+            platform: linux-aarch64
+            machine: aarch64
+    steps:
+      - name: Checkout exact tag source
+        uses: actions/checkout@v5
+
+      - name: Checkout pinned kit sources
+        uses: actions/checkout@v5
+        with:
+          repository: awesomebytes/cppyy_kit
+          ref: 6a89d92484afbe540f7fb56bbb5d183ae252c995
+          path: _deps/cppyy_kit
+
+      - name: Checkout pinned upstream contract source
+        uses: actions/checkout@v5
+        with:
+          repository: ros2/rclpy
+          ref: baf9d72cfa127e391a89b4ab51ba9e55c37041fd
+          path: _deps/rclpy-contract
+
+      - name: Verify tag and runner architecture
+        run: |
+          test "$(uname -m)" = "${{ matrix.machine }}"
+          python3 scripts/ci/verify_release_version.py "${GITHUB_REF_NAME}"
+
+      - name: Set up source-test environment
+        uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          pixi-version: v0.70.0
+          environments: default
+          cache: true
+          cache-key: release-preflight-${{ matrix.platform }}-
+          cache-write: false
+
+      - name: Verify exact suite source and build
+        run: |
+          mkdir -p build/release-preflight
+          pixi run suite-contract | tee build/release-preflight/suite-source.json
+          pixi run build
+
+      - name: Run compatibility and integration gates
+        run: |
+          set -euo pipefail
+          pixi run lint
+          pixi run contract
+          pixi run launch-contract
+          pixi run custom-interfaces
+          pixi run test-ci
+
+      - name: Run reviewed upstream contracts
+        run: |
+          pixi run -e upstream-contract upstream-contract
+          pixi run -e upstream-contract upstream-content-filter-contract
+
+      - name: Upload preflight evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-preflight-${{ matrix.platform }}-${{ github.ref_name }}
+          path: |
+            build/release-preflight
+            build/test-results
+          if-no-files-found: error
+          retention-days: 90
+
   release:
     name: build, prove artifact, upload
+    needs: preflight
     runs-on: ubuntu-latest
+    env:
+      RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: Checkout pinned kit sources
+        uses: actions/checkout@v5
+        with:
+          repository: awesomebytes/cppyy_kit
+          ref: 6a89d92484afbe540f7fb56bbb5d183ae252c995
+          path: _deps/cppyy_kit
 
       - name: Verify tag matches all release metadata
         run: python3 scripts/ci/verify_release_version.py "${GITHUB_REF_NAME}"
@@ -42,27 +135,26 @@ jobs:
           # Only the packaging env; it doesn't pull the ROS/cppyy stack.
           environments: pkg
 
-      # rattler-build also runs the recipe's import smoke test in a fresh env, which
-      # now resolves the 0.2.0 suite run-deps (ros-jazzy-rclcpp-kit, cppyy-kit) — so
-      # the build must see the awesomebytes channel. RELEASE CHOREOGRAPHY: the suite
-      # is published to awesomebytes BEFORE this rclcppyy release runs (RELEASING.md).
-      # (Local dev uses `pixi run -e pkg pkg-build`, which points at the local
-      # rattler-build channel instead of awesomebytes.)
-      - name: Build conda package
+      # Build the complete local stack from immutable archives. This binds the product
+      # proof to suite-source.lock.json instead of trusting only a matching package
+      # version from a mutable channel.
+      - name: Build exact locked conda stack
         run: |
-          pixi run -e pkg rattler-build build --recipe recipe/recipe.yaml \
-            -c https://repo.prefix.dev/awesomebytes -c robostack-jazzy -c conda-forge \
-            --output-dir output
+          pixi run -e pkg bash scripts/ci/build_local_package_stack.sh \
+            _deps/cppyy_kit output
 
       - name: Identify the release artifact
         id: artifact
         run: |
           set -euo pipefail
           mkdir -p build/release
-          mapfile -t artifacts < <(find output -type f -name '*.conda' | sort)
+          mapfile -t artifacts < <(
+            find output -type f -name 'ros-jazzy-rclcppyy-*.conda' | sort
+          )
           test "${#artifacts[@]}" -eq 1
           printf 'path=%s\n' "${artifacts[0]}" >> "$GITHUB_OUTPUT"
           sha256sum "${artifacts[0]}" | tee build/release/SHA256SUMS
+          cp output/local-package-attestation.json build/release/
 
       # The point of releasing: a user with no clone gets a working install from
       # the channel alone, including the same-handle serialized publisher route.

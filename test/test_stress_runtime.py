@@ -4,9 +4,22 @@ from pathlib import Path
 import subprocess
 import sys
 
+import yaml
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "ci" / "stress_runtime.py"
+
+
+def test_scheduled_hardening_overrides_rmw_after_pixi_activation():
+    workflow = yaml.safe_load(
+        (ROOT / ".github" / "workflows" / "scheduled.yml").read_text())
+    steps = workflow["jobs"]["native-safety"]["steps"]
+    commands = "\n".join(step.get("run", "") for step in steps)
+    assert 'pixi run env RMW_IMPLEMENTATION="$rmw" pytest' in commands
+    assert 'pixi run env RMW_IMPLEMENTATION="$rmw" \\' in commands
+    assert "python scripts/ci/stress_runtime.py" in commands
+    assert 'RMW_IMPLEMENTATION="$rmw" pixi run' not in commands
 
 
 def test_runtime_stress_emits_repeated_structured_evidence(tmp_path):
