@@ -120,3 +120,7 @@ compatible profile requires an explicit review that records:
 An optimization is not promoted solely because it is faster in one benchmark.
 Unsupported middleware capabilities, uncertain ownership, semantic changes, or an
 unmeasured workload keep it explicit even when the native implementation is sound.
+
+The repository assigns the router, policy, manifest, and this gate to CODEOWNERS.
+The protected default branch must require a CODEOWNERS approval for that assignment
+to become an enforced merge gate; the files alone do not replace branch protection.

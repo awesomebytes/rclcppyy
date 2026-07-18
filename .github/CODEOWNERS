@@ -1,0 +1,5 @@
+# Contract-changing compatibility and default-policy changes require owner review.
+/compatibility/                              sammypfeiffer@gmail.com
+/rclcppyy/monkey.py                          sammypfeiffer@gmail.com
+/rclcppyy/policy.py                          sammypfeiffer@gmail.com
+/docs/backend-selection.md                   sammypfeiffer@gmail.com
