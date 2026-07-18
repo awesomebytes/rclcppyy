@@ -1,0 +1,317 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/awesomebytes/rclcppyy/schemas/service-callback-benchmark-v1.schema.json",
+  "title": "rclcppyy Jazzy/Cyclone service callback benchmark v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "generated_at",
+    "command",
+    "environment",
+    "benchmark",
+    "results",
+    "comparison",
+    "failures"
+  ],
+  "properties": {
+    "schema": {"const": "rclcppyy.service-callback-benchmark/v1"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "command": {"type": "array", "items": {"type": "string"}},
+    "environment": {"type": "object"},
+    "benchmark": {
+      "type": "object",
+      "required": [
+        "name",
+        "mode",
+        "performance_claims_allowed",
+        "parameters",
+        "isolation",
+        "aot_build",
+        "cache",
+        "source_files",
+        "statistics",
+        "scope"
+      ],
+      "properties": {
+        "name": {"const": "jazzy_cyclone_setbool_callback_cpu"},
+        "mode": {"enum": ["smoke", "measurement"]},
+        "performance_claims_allowed": {"const": false},
+        "parameters": {
+          "type": "object",
+          "required": [
+            "variants",
+            "messages",
+            "warmup_requests",
+            "repetitions",
+            "requested_rmw",
+            "qos",
+            "execution_order"
+          ],
+          "properties": {
+            "variants": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {"$ref": "#/$defs/variant"}
+            },
+            "messages": {"type": "integer", "minimum": 1, "maximum": 100000},
+            "warmup_requests": {"type": "integer", "minimum": 1, "maximum": 100000},
+            "repetitions": {"type": "integer", "minimum": 1, "maximum": 30},
+            "requested_rmw": {"const": "rmw_cyclonedds_cpp"},
+            "qos": {"$ref": "#/$defs/qos"},
+            "execution_order": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "isolation": {
+          "type": "object",
+          "required": [
+            "fresh_process_pair_per_sample",
+            "two_process_groups_per_sample",
+            "unique_service_per_sample",
+            "one_leased_domain_per_run",
+            "rotating_variant_order",
+            "ros_domain_id"
+          ],
+          "properties": {
+            "fresh_process_pair_per_sample": {"const": true},
+            "two_process_groups_per_sample": {"const": true},
+            "unique_service_per_sample": {"const": true},
+            "one_leased_domain_per_run": {"const": true},
+            "rotating_variant_order": {"const": true},
+            "ros_domain_id": {"type": "integer", "minimum": 0, "maximum": 232}
+          }
+        },
+        "aot_build": {"type": "object"},
+        "cache": {"type": "object"},
+        "source_files": {"type": "object"},
+        "statistics": {"type": "object"},
+        "scope": {
+          "type": "object",
+          "required": ["ros_distribution", "rmw", "steady_state_only", "maximum_rate_claim", "cross_machine_claim"],
+          "properties": {
+            "ros_distribution": {"const": "jazzy"},
+            "rmw": {"const": "rmw_cyclonedds_cpp"},
+            "steady_state_only": {"const": true},
+            "maximum_rate_claim": {"const": false},
+            "cross_machine_claim": {"const": false}
+          }
+        }
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "schema",
+          "case_id",
+          "variant",
+          "repetition",
+          "run_token",
+          "ros_domain_id",
+          "requested_rmw",
+          "qos",
+          "server_pid",
+          "client_pid",
+          "topology",
+          "server_ready",
+          "server_armed",
+          "server_report",
+          "client_result",
+          "client_teardown",
+          "timing",
+          "backend_verified",
+          "correctness_verified",
+          "teardown_verified"
+        ],
+        "properties": {
+          "schema": {"const": "rclcppyy.service-callback-sample/v1"},
+          "variant": {"$ref": "#/$defs/variant"},
+          "repetition": {"type": "integer", "minimum": 1},
+          "run_token": {"type": "string", "pattern": "^run_[a-f0-9]{32}$"},
+          "ros_domain_id": {"type": "integer", "minimum": 0, "maximum": 232},
+          "requested_rmw": {"const": "rmw_cyclonedds_cpp"},
+          "qos": {"$ref": "#/$defs/qos"},
+          "server_pid": {"type": "integer", "minimum": 1},
+          "client_pid": {"type": "integer", "minimum": 1},
+          "topology": {
+            "type": "object",
+            "required": ["process_count", "fresh_process_groups", "server_node", "client_node", "service_name"],
+            "properties": {
+              "process_count": {"const": 2},
+              "fresh_process_groups": {"const": true},
+              "server_node": {"type": "string", "minLength": 1},
+              "client_node": {"type": "string", "minLength": 1},
+              "service_name": {"type": "string", "minLength": 1}
+            }
+          },
+          "backend_verified": {"const": true},
+          "correctness_verified": {"const": true},
+          "teardown_verified": {"const": true},
+          "server_ready": {
+            "type": "object",
+            "required": ["schema", "event", "variant", "execution_model", "service_authority"],
+            "properties": {
+              "schema": {"const": "rclcppyy.service-callback-server-event/v1"},
+              "event": {"const": "ready"},
+              "variant": {"$ref": "#/$defs/variant"},
+              "execution_model": {"type": "string", "minLength": 1},
+              "service_authority": {"enum": ["python", "cpp"]}
+            }
+          },
+          "server_armed": {
+            "type": "object",
+            "required": ["schema", "event", "variant", "run_token", "pid", "process_group_id", "warmup_requests", "cpu_clock"],
+            "properties": {
+              "schema": {"const": "rclcppyy.service-callback-server-event/v1"},
+              "event": {"const": "armed"},
+              "variant": {"$ref": "#/$defs/variant"},
+              "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"}
+            }
+          },
+          "server_report": {
+            "type": "object",
+            "required": [
+              "schema",
+              "event",
+              "total_requests",
+              "measured_requests",
+              "python_callback_count_total",
+              "python_boundary_crossings_measured",
+              "exceptions",
+              "pending_requests",
+              "cpu_time_ns",
+              "cpu_clock",
+              "rss_guard",
+              "correct",
+              "teardown_clean"
+            ],
+            "properties": {
+              "schema": {"const": "rclcppyy.service-callback-server-event/v1"},
+              "event": {"const": "report"},
+              "cpu_time_ns": {"type": "integer", "minimum": 0},
+              "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
+              "rss_guard": {"$ref": "#/$defs/rss_guard"},
+              "correct": {"const": true},
+              "teardown_clean": {"const": true}
+            }
+          },
+          "client_result": {
+            "type": "object",
+            "required": [
+              "schema",
+              "event",
+              "execution_model",
+              "messages",
+              "response_checksum",
+              "elapsed_ns",
+              "cpu_time_ns",
+              "cpu_clock",
+              "rss_guard",
+              "topology_verified",
+              "qos_verified",
+              "qos",
+              "pending_requests",
+              "latency_ns"
+            ],
+            "properties": {
+              "schema": {"const": "rclcppyy.service-callback-client-event/v1"},
+              "event": {"const": "measured"},
+              "execution_model": {"const": "identical-release-aot-one-outstanding-client"},
+              "cpu_time_ns": {"type": "integer", "minimum": 0},
+              "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
+              "rss_guard": {"$ref": "#/$defs/rss_guard"},
+              "topology_verified": {"const": true},
+              "qos_verified": {"const": true},
+              "qos": {"$ref": "#/$defs/qos"},
+              "pending_requests": {"const": 0},
+              "latency_ns": {
+                "type": "array",
+                "minItems": 1,
+                "items": {"type": "integer", "minimum": 1}
+              }
+            }
+          },
+          "client_teardown": {
+            "type": "object",
+            "required": ["schema", "event", "run_token", "pid", "process_group_id", "endpoint_disappeared", "teardown_clean"],
+            "properties": {
+              "schema": {"const": "rclcppyy.service-callback-client-event/v1"},
+              "event": {"const": "teardown"},
+              "endpoint_disappeared": {"const": true},
+              "teardown_clean": {"const": true}
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {"properties": {"variant": {"const": "stock-rclpy"}}, "required": ["variant"]},
+            "then": {"properties": {"server_ready": {"properties": {"execution_model": {"const": "same-python-service-stock-rclpy"}, "service_authority": {"const": "python"}}}}}
+          },
+          {
+            "if": {"properties": {"variant": {"const": "compatible-rclcppyy"}}, "required": ["variant"]},
+            "then": {"properties": {"server_ready": {"properties": {"execution_model": {"const": "same-python-service-compatible-activation"}, "service_authority": {"const": "python"}}}}}
+          },
+          {
+            "if": {"properties": {"variant": {"const": "native-python-callback"}}, "required": ["variant"]},
+            "then": {"properties": {"server_ready": {"properties": {"execution_model": {"const": "native-rclcpp-service-python-callback"}, "service_authority": {"const": "cpp"}}}}}
+          },
+          {
+            "if": {"properties": {"variant": {"const": "native-cpp-callback"}}, "required": ["variant"]},
+            "then": {"properties": {"server_ready": {"properties": {"execution_model": {"const": "native-session-cpp-service-callback"}, "service_authority": {"const": "cpp"}}}}}
+          },
+          {
+            "if": {"properties": {"variant": {"const": "aot-staged"}}, "required": ["variant"]},
+            "then": {"properties": {"server_ready": {"properties": {"execution_model": {"const": "conventional-release-aot-service"}, "service_authority": {"const": "cpp"}}}}}
+          }
+        ]
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "required": ["raw_medians", "paired_ratios_to_stock", "paired_ratios_to_aot", "interpretation_allowed", "note"],
+      "properties": {
+        "interpretation_allowed": {"const": false},
+        "raw_medians": {"type": "object"},
+        "paired_ratios_to_stock": {"type": "object"},
+        "paired_ratios_to_aot": {"type": "object"},
+        "note": {"type": "string", "minLength": 1}
+      }
+    },
+    "failures": {"type": "array", "items": {"type": "object"}}
+  },
+  "$defs": {
+    "variant": {
+      "enum": [
+        "stock-rclpy",
+        "compatible-rclcppyy",
+        "native-python-callback",
+        "native-cpp-callback",
+        "aot-staged"
+      ]
+    },
+    "qos": {
+      "type": "object",
+      "required": ["history", "depth", "reliability", "durability"],
+      "properties": {
+        "history": {"const": "keep_last"},
+        "depth": {"const": 10},
+        "reliability": {"const": "reliable"},
+        "durability": {"const": "volatile"}
+      }
+    },
+    "rss_guard": {
+      "type": "object",
+      "required": ["kind", "unit", "baseline_peak_bytes", "final_peak_bytes", "growth_bytes", "limit_bytes", "within_limit"],
+      "properties": {
+        "kind": {"const": "post-warmup-peak-rss-growth"},
+        "unit": {"const": "bytes"},
+        "baseline_peak_bytes": {"type": "integer", "minimum": 1},
+        "final_peak_bytes": {"type": "integer", "minimum": 1},
+        "growth_bytes": {"type": "integer", "minimum": 0},
+        "limit_bytes": {"const": 67108864},
+        "within_limit": {"const": true}
+      }
+    }
+  }
+}
