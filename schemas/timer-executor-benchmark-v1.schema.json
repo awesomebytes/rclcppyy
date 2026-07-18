@@ -44,6 +44,7 @@
           "const": [
             "stock-rclpy",
             "compatible-rclcppyy",
+            "direct-cpp-rclcppyy",
             "native-python-callback",
             "native-cpp-callback",
             "aot-staged"
@@ -57,8 +58,8 @@
         "ros_distro": {"const": "jazzy"},
         "execution_order": {
           "type": "array",
-          "minItems": 25,
-          "maxItems": 25,
+          "minItems": 30,
+          "maxItems": 30,
           "uniqueItems": true,
           "items": {"type": "string"}
         }
@@ -125,6 +126,7 @@
       "enum": [
         "stock-rclpy",
         "compatible-rclcppyy",
+        "direct-cpp-rclcppyy",
         "native-python-callback",
         "native-cpp-callback",
         "aot-staged"
@@ -453,7 +455,7 @@
         {
           "if": {
             "properties": {
-              "variant": {"enum": ["stock-rclpy", "compatible-rclcppyy", "native-python-callback"]}
+              "variant": {"enum": ["stock-rclpy", "compatible-rclcppyy", "direct-cpp-rclcppyy", "native-python-callback"]}
             },
             "required": ["variant"]
           },

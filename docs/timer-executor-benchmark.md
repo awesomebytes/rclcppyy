@@ -8,13 +8,18 @@ performance claims disabled.
 
 1. `stock-rclpy`: stock timer, executor, and Python callback.
 2. `compatible-rclcppyy`: activation-only control with the same stock authority.
-3. `native-python-callback`: managed `rclcpp` timer and executor entering Python
+3. `direct-cpp-rclcppyy`: the source-compatible `Node.create_timer` and
+   `rclpy.spin_once` surface backed by the same session-owned `rclcpp` timer and
+   executor, entering Python once per firing.
+4. `native-python-callback`: managed `rclcpp` timer and executor entering Python
    once per firing.
-4. `native-cpp-callback`: content-addressed C++ timer callback with no per-firing
+5. `native-cpp-callback`: content-addressed C++ timer callback with no per-firing
    Python crossing.
-5. `aot-staged`: conventional Release-mode `rclcpp` executable.
+6. `aot-staged`: conventional Release-mode `rclcpp` executable.
 
-The compatible lane is not an acceleration claim. The two C++ callback lanes keep
+The compatible lane is not an acceleration claim. The direct lane keeps the
+unchanged Python callback workload while changing timer and executor authority.
+The two C++ callback lanes keep
 all recurrence and timing state in C++ and report zero per-firing Python crossings.
 
 ## Fixed contract
@@ -36,7 +41,7 @@ excludes all compilation and prewarming from samples.
 
 ## Running
 
-Run the fixed 25-sample matrix only on a quiet host:
+Run the fixed 30-sample matrix only on a quiet host:
 
 ```bash
 RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \

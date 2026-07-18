@@ -275,6 +275,147 @@ def _python_authority(args, *, activate: bool) -> int:
     return 0
 
 
+def _direct_cpp_python_callback(args) -> int:
+    import rclcppyy as active_product
+
+    active_product.enable_cpp_acceleration(profile="direct_cpp")
+
+    import rclpy
+    from rclpy.node import Node
+    from rclcppyy import direct_cpp
+
+    rclpy.init(args=[])
+    node = Node(args.node_name)
+    runtime = direct_cpp._runtime()
+    phase = {"name": "warmup"}
+    warmup = {"count": 0}
+    measured = {"count": 0}
+    recurrence = {"value": RECURRENCE_SEED, "checksum": 0}
+    errors = []
+    timing = {}
+    timer = None
+
+    def callback():
+        if phase["name"] == "warmup":
+            warmup["count"] += 1
+            if warmup["count"] == args.warmup_firings:
+                timer.cancel()
+                phase["name"] = "idle"
+            return
+        if phase["name"] != "measured":
+            return
+        measured["count"] += 1
+        actual_ns = time.monotonic_ns()
+        expected_ns = timing["epoch_ns"] + measured["count"] * PERIOD_NS
+        errors.append(actual_ns - expected_ns)
+        _advance(recurrence)
+        if measured["count"] == args.measured_firings:
+            timer.cancel()
+            timing["cpu_stop_ns"] = time.process_time_ns()
+            timing["wall_stop_ns"] = time.monotonic_ns()
+            phase["name"] = "done"
+
+    timer = node.create_timer(PERIOD_NS / 1e9, callback, autostart=True)
+    while warmup["count"] < args.warmup_firings:
+        rclpy.spin_once(node, timeout_sec=0.1)
+
+    records = [
+        record for record in active_product.status()["entities"]
+        if record["metadata"].get("entity_type") == "timer"
+    ]
+    if not records or records[-1]["backend"] != "cpp":
+        raise RuntimeError("direct timer did not record native authority")
+    timer_record = records[-1]
+    executor_type = _cpp_name(runtime.executor)
+    activation = {
+        "profile": "direct_cpp",
+        "timer_status_backend": "cpp",
+        "timer_decision_id": timer_record["id"],
+        "timer_creation_route": timer_record["metadata"]["creation_route"],
+        "callback_handoff": timer_record["metadata"]["callback_handoff"],
+        "native_timer_type": timer_record["metadata"]["native_type"],
+        "native_executor_type": executor_type,
+        "executor_session_owned": (
+            runtime.session is not None
+            and runtime.executor is not None
+            and any(
+                runtime.executor is candidate
+                for candidate in runtime.session.executors
+            )
+        ),
+    }
+    _emit(_event(
+        args,
+        "ready",
+        node_name=args.node_name,
+        loaded_rmw=_loaded_rmw(),
+        execution_model=VARIANTS[args.variant]["execution_model"],
+        warmup_firings=warmup["count"],
+        timer_canceled=timer.is_canceled(),
+        timer_marker={
+            "authority": "cpp",
+            "implementation": timer.__cpp_name__,
+            "clock": "steady",
+            "period_ns": timer.timer_period_ns,
+            "callback_language": "python",
+        },
+        executor_marker={
+            "authority": "cpp",
+            "implementation": executor_type,
+            "kind": "single_threaded",
+            "threads": 1,
+        },
+        cache={"state": "process_warm", "kind": "direct-rclcpp-runtime"},
+        activation=activation,
+    ))
+    if sys.stdin.readline().rstrip("\n") != "START":
+        raise RuntimeError("timer worker expected START")
+
+    measured["count"] = 0
+    recurrence.update(value=RECURRENCE_SEED, checksum=0)
+    errors.clear()
+    phase["name"] = "measured"
+    timing["epoch_ns"] = time.monotonic_ns()
+    timing["cpu_start_ns"] = time.process_time_ns()
+    timer.reset()
+    _emit(_armed(args))
+    while measured["count"] < args.measured_firings:
+        rclpy.spin_once(node, timeout_sec=0.1)
+
+    canceled_count = measured["count"]
+    for _ in range(3):
+        rclpy.spin_once(node, timeout_sec=0.001)
+    post_cancel = measured["count"] - canceled_count
+    timer_canceled = timer.is_canceled()
+    timer_destroyed = node.destroy_timer(timer)
+    node.destroy_node()
+    rclpy.shutdown()
+    teardown_clean = (
+        timer_canceled
+        and timer_destroyed
+        and not rclpy.ok()
+        and runtime.session is None
+        and runtime.executor is None
+        and not runtime.nodes
+    )
+    _emit(_report(
+        args,
+        cpu_time_ns=timing["cpu_stop_ns"] - timing["cpu_start_ns"],
+        wall_duration_ns=timing["wall_stop_ns"] - timing["epoch_ns"],
+        errors=errors,
+        state=recurrence["value"],
+        checksum=recurrence["checksum"],
+        python_callbacks=args.warmup_firings + args.measured_firings,
+        measured_python_callbacks=args.measured_firings,
+        python_crossings=args.warmup_firings + args.measured_firings,
+        post_cancel_firings=post_cancel,
+        exceptions=0,
+        teardown_clean=teardown_clean,
+        executor_thread_joined=True,
+    ))
+    return 0
+
+
 def _probe_sources() -> tuple[str, str]:
     declarations = r"""
 #include <cstdint>
@@ -768,6 +909,8 @@ def main() -> int:
         return _python_authority(args, activate=False)
     if args.variant == "compatible-rclcppyy":
         return _python_authority(args, activate=True)
+    if args.variant == "direct-cpp-rclcppyy":
+        return _direct_cpp_python_callback(args)
     if args.variant == "native-python-callback":
         return _native_python_callback(args)
     return _native_cpp_callback(args)

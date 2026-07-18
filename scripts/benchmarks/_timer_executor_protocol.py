@@ -46,6 +46,14 @@ VARIANTS = {
         "cache_kind": "activation-only",
         "python_crossings_per_firing": 1,
     },
+    "direct-cpp-rclcppyy": {
+        "execution_model": "direct-rclcpp-wall-timer-python-callback",
+        "timer_authority": "cpp",
+        "executor_authority": "cpp",
+        "callback_language": "python",
+        "cache_kind": "direct-rclcpp-runtime",
+        "python_crossings_per_firing": 1,
+    },
     "native-python-callback": {
         "execution_model": "managed-rclcpp-wall-timer-python-callback",
         "timer_authority": "cpp",
@@ -255,6 +263,31 @@ def _validate_ready(ready: dict, sample: dict, cache: dict) -> None:
             raise ValueError("compatible timer must be activation-only")
         if not isinstance(activation, dict) or activation.get("timer_status_backend") != "python":
             raise ValueError("compatible timer did not prove Python authority")
+    elif variant == "direct-cpp-rclcppyy":
+        activation = ready.get("activation")
+        expected_activation = {
+            "profile": "direct_cpp",
+            "timer_status_backend": "cpp",
+            "timer_decision_id": activation.get("timer_decision_id")
+            if isinstance(activation, dict) else None,
+            "timer_creation_route": "rclcpp_wall_timer",
+            "callback_handoff": "direct_std_function",
+            "executor_session_owned": True,
+            "native_timer_type": ready["timer_marker"]["implementation"],
+            "native_executor_type": ready["executor_marker"]["implementation"],
+        }
+        if artifact != {"state": "process_warm", "kind": "direct-rclcpp-runtime"}:
+            raise ValueError("direct timer runtime cache marker is invalid")
+        if activation != expected_activation or not _positive_int(
+                activation.get("timer_decision_id")):
+            raise ValueError("direct timer did not prove its source-compatible route")
+        if not ready["timer_marker"]["implementation"].startswith(
+                "rclcpp::WallTimer<"):
+            raise ValueError("direct timer marker is not a native rclcpp wall timer")
+        if not ready[
+                "executor_marker"]["implementation"].startswith(
+                "rclcpp::executors::SingleThreadedExecutor"):
+            raise ValueError("direct executor marker is not the session native executor")
     elif artifact.get("state") not in ("not_applicable", "process_warm"):
         raise ValueError("timer cache state is invalid")
 

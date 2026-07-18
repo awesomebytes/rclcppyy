@@ -106,6 +106,21 @@ def _sample(variant, repetition=1, index=0):
             "timer_status_backend": "python",
             "timer_decision_id": 7,
         }
+    elif variant == "direct-cpp-rclcppyy":
+        cache_marker = {
+            "state": "process_warm",
+            "kind": "direct-rclcpp-runtime",
+        }
+        activation = {
+            "profile": "direct_cpp",
+            "timer_status_backend": "cpp",
+            "timer_decision_id": 8,
+            "timer_creation_route": "rclcpp_wall_timer",
+            "callback_handoff": "direct_std_function",
+            "executor_session_owned": True,
+            "native_timer_type": "rclcpp::WallTimer<std::function<void()>>",
+            "native_executor_type": "rclcpp::executors::SingleThreadedExecutor",
+        }
     elif variant == "native-python-callback":
         cache_marker = {
             "state": "process_warm",
@@ -152,6 +167,11 @@ def _sample(variant, repetition=1, index=0):
         },
         "cache": cache_marker,
     }
+    if variant == "direct-cpp-rclcppyy":
+        ready["timer_marker"]["implementation"] = (
+            "rclcpp::WallTimer<std::function<void()>>")
+        ready["executor_marker"]["implementation"] = (
+            "rclcpp::executors::SingleThreadedExecutor")
     if activation is not None:
         ready["activation"] = activation
 
@@ -319,6 +339,16 @@ def test_each_variant_satisfies_the_exact_sample_contract(variant):
         ("stock-rclpy", ("worker_report", "teardown_clean"), False),
         ("stock-rclpy", ("graph", "present_after_ready"), False),
         ("stock-rclpy", ("graph", "absence_observation", "observed"), False),
+        ("direct-cpp-rclcppyy", (
+            "worker_ready", "activation", "callback_handoff"), "python_dispatch"),
+        ("direct-cpp-rclcppyy", (
+            "worker_ready", "timer_marker", "implementation"), "PythonTimer"),
+        ("direct-cpp-rclcppyy", (
+            "worker_ready", "executor_marker", "implementation"), "PythonExecutor"),
+        ("direct-cpp-rclcppyy", (
+            "worker_ready", "activation", "native_timer_type"), "rclcpp::TimerBase"),
+        ("direct-cpp-rclcppyy", (
+            "worker_report", "python_boundary_crossings"), 0),
         ("native-cpp-callback", ("worker_report", "python_callback_count"), 1),
         ("native-cpp-callback", ("worker_ready", "cache", "hit"), False),
         ("aot-staged", ("worker_ready", "cache", "state"), "process_warm"),
@@ -357,10 +387,11 @@ def test_cache_contract_rejects_invalid_cold_warm_evidence(path, value):
 def test_complete_document_and_rotating_order_validate():
     document = _document()
     protocol.validate_document(document)
-    assert len(document["results"]) == 25
-    assert document["parameters"]["execution_order"][:6] == [
+    assert len(document["results"]) == 30
+    assert document["parameters"]["execution_order"][:7] == [
         "stock-rclpy__rep_1",
         "compatible-rclcppyy__rep_1",
+        "direct-cpp-rclcppyy__rep_1",
         "native-python-callback__rep_1",
         "native-cpp-callback__rep_1",
         "aot-staged__rep_1",
@@ -410,6 +441,8 @@ def test_schema_encodes_the_same_negative_contracts():
     assert properties["interpretation"]["const"]["enabled"] is False
     assert properties["parameters"]["properties"]["requested_rmw"]["const"] == (
         protocol.RMW)
+    assert properties["parameters"]["properties"]["variants"]["const"] == list(
+        protocol.VARIANTS)
     report = schema["$defs"]["report"]["allOf"][1]["properties"]
     assert report["cpu_clock"]["const"] == "CLOCK_PROCESS_CPUTIME_ID"
     assert report["post_cancel_firings"]["const"] == 0
@@ -443,7 +476,8 @@ def test_private_aot_helper_builds_release_o3_ndebug(tmp_path):
     os.environ.get("ROS_DISTRO") != protocol.ROS_DISTRO,
     reason="live timer smoke requires ROS 2 Jazzy",
 )
-def test_live_cyclone_stock_timer_graph_and_protocol(monkeypatch):
+@pytest.mark.parametrize("variant", ("stock-rclpy", "direct-cpp-rclcppyy"))
+def test_live_cyclone_python_timer_graph_and_protocol(monkeypatch, variant):
     from _domain_lease import acquire_domain
 
     token = "timer_" + uuid.uuid4().hex
@@ -464,7 +498,7 @@ def test_live_cyclone_stock_timer_graph_and_protocol(monkeypatch):
                 "-u",
                 str(runner.WORKER),
                 "--variant",
-                "stock-rclpy",
+                variant,
                 "--node-name",
                 node_name,
                 "--run-token",
@@ -490,6 +524,21 @@ def test_live_cyclone_stock_timer_graph_and_protocol(monkeypatch):
             assert report["python_boundary_crossings"] == 25
             assert report["post_cancel_firings"] == 0
             assert report["teardown_clean"] is True
+            if variant == "direct-cpp-rclcppyy":
+                assert ready["activation"] == {
+                    "profile": "direct_cpp",
+                    "timer_status_backend": "cpp",
+                    "timer_decision_id": ready["activation"]["timer_decision_id"],
+                    "timer_creation_route": "rclcpp_wall_timer",
+                    "callback_handoff": "direct_std_function",
+                    "executor_session_owned": True,
+                    "native_timer_type": ready["timer_marker"]["implementation"],
+                    "native_executor_type": ready["executor_marker"]["implementation"],
+                }
+                assert "rclcpp::WallTimer" in ready[
+                    "timer_marker"]["implementation"]
+                assert "rclcpp::executors::SingleThreadedExecutor" in ready[
+                    "executor_marker"]["implementation"]
         finally:
             runner._stop_process(process)
             if observer is not None:
