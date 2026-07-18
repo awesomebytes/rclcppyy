@@ -8,6 +8,7 @@ from inspect import signature
 
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
+from rclpy.lifecycle import LifecycleNode
 from rclpy.node import Node
 from rclpy.publisher import Publisher
 from rclpy.task import Future
@@ -31,6 +32,7 @@ _original_multi_threaded_spin = MultiThreadedExecutor.spin
 _original_future_set_result = Future.set_result
 _original_future_set_exception = Future.set_exception
 _original_future_cancel = Future.cancel
+_original_lifecycle_node_init = LifecycleNode.__init__
 
 _PATCHED = False
 _POLICY = resolve_policy()
@@ -549,6 +551,34 @@ def _future_cancel_wrapper(self):
     return result
 
 
+@wraps(_original_lifecycle_node_init)
+def _lifecycle_node_init_wrapper(
+    self,
+    node_name,
+    *,
+    enable_communication_interface=True,
+    **kwargs,
+):
+    reason = "lifecycle state machines have no certified C++ ownership route"
+    if _POLICY.require_cpp:
+        _unavailable("create_lifecycle_node", reason)
+    _original_lifecycle_node_init(
+        self,
+        node_name,
+        enable_communication_interface=enable_communication_interface,
+        **kwargs,
+    )
+    _record_python_entity(
+        self,
+        "lifecycle_node",
+        reason,
+        metadata={
+            "communication_interface": enable_communication_interface,
+            "node_class": "%s.%s" % (type(self).__module__, type(self).__qualname__),
+        },
+    )
+
+
 _NODE_PATCHES = (
     ("create_publisher", _create_publisher_wrapper, _original_create_publisher),
     ("create_subscription", _create_subscription_wrapper, _original_create_subscription),
@@ -593,6 +623,7 @@ def patch_ros2(profile="compatible", *, warn_fallback=False):
     Future.set_result = _future_set_result_wrapper
     Future.set_exception = _future_set_exception_wrapper
     Future.cancel = _future_cancel_wrapper
+    LifecycleNode.__init__ = _lifecycle_node_init_wrapper
     _PATCHED = True
     record_decision(
         "operations",

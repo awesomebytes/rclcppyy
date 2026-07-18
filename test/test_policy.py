@@ -43,4 +43,5 @@ def test_compatible_control_plane_status_and_warnings_are_bounded():
     assert "CONTROL_PLANE_STATUS_OK" in proc.stdout, details
     assert "CONTROL_PLANE_WARN_ONCE_OK" in proc.stdout, details
     assert "CONTROL_PLANE_SIGNATURES_OK" in proc.stdout, details
+    assert "CONTROL_PLANE_LIFECYCLE_OK" in proc.stdout, details
     assert proc.returncode == 0, details

@@ -13,6 +13,7 @@ import rclpy  # noqa: E402
 from rclpy.client import Client  # noqa: E402
 from rclpy.executors import MultiThreadedExecutor  # noqa: E402
 from rclpy.guard_condition import GuardCondition  # noqa: E402
+from rclpy.lifecycle import LifecycleNode  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from rclpy.parameter import Parameter  # noqa: E402
 from rclpy.service import Service  # noqa: E402
@@ -45,6 +46,18 @@ def main():
         node.set_parameters([Parameter("value", value=1)])
         node.set_parameters([Parameter("value", value=2)])
 
+    with warnings.catch_warnings(record=True) as lifecycle_warnings:
+        warnings.simplefilter("always")
+        lifecycle_nodes = [
+            LifecycleNode(
+                "lifecycle_%d" % index,
+                context=context,
+                enable_communication_interface=False,
+                start_parameter_services=False,
+            )
+            for index in range(2)
+        ]
+
     assert all(type(service) is Service for service in services)
     assert all(type(client) is Client for client in clients)
     assert all(type(guard) is GuardCondition for guard in guards)
@@ -54,6 +67,14 @@ def main():
         if "rclcppyy fell back to stock rclpy" in str(warning.message)
     ]
     assert len(fallback_warnings) == 4, [str(warning.message) for warning in caught]
+    lifecycle_fallback_warnings = [
+        warning for warning in lifecycle_warnings
+        if "rclcppyy fell back to stock rclpy" in str(warning.message)
+    ]
+    assert len(lifecycle_fallback_warnings) == 1, [
+        str(warning.message) for warning in lifecycle_warnings
+    ]
+    assert all(type(item) is LifecycleNode for item in lifecycle_nodes)
 
     original_methods = {
         "create_service": monkey._original_create_service,
@@ -73,6 +94,7 @@ def main():
         Future.set_result: monkey._original_future_set_result,
         Future.set_exception: monkey._original_future_set_exception,
         Future.cancel: monkey._original_future_cancel,
+        LifecycleNode.__init__: monkey._original_lifecycle_node_init,
     }
     assert all(
         function.__name__ == original.__name__
@@ -98,9 +120,21 @@ def main():
     ]
     assert len(parameter_records) == 2
     assert all(record["metadata"]["successful"] for record in parameter_records)
+    lifecycle_records = [
+        record for record in status["entities"]
+        if record["backend"] == "python"
+        and record["metadata"].get("entity_type") == "lifecycle_node"
+        and "stock_fallback" in record["policies"]
+    ]
+    assert len(lifecycle_records) == 2
+    assert all(
+        record["metadata"]["communication_interface"] is False
+        for record in lifecycle_records
+    )
     print("CONTROL_PLANE_STATUS_OK", flush=True)
     print("CONTROL_PLANE_WARN_ONCE_OK", flush=True)
     print("CONTROL_PLANE_SIGNATURES_OK", flush=True)
+    print("CONTROL_PLANE_LIFECYCLE_OK", flush=True)
 
     for client in clients:
         node.destroy_client(client)
@@ -108,6 +142,8 @@ def main():
         node.destroy_service(service)
     for guard in guards:
         node.destroy_guard_condition(guard)
+    for lifecycle_node in lifecycle_nodes:
+        lifecycle_node.destroy_node()
     node.destroy_node()
     context.shutdown()
 

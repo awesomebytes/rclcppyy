@@ -21,14 +21,7 @@
       "coverage": "excluded",
       "check": "none",
       "expected": null,
-      "reason": "Action client/server behavior requires a separate multi-node lifecycle corpus."
-    },
-    {
-      "id": "lifecycle.application_corpus",
-      "coverage": "excluded",
-      "check": "none",
-      "expected": null,
-      "reason": "Managed lifecycle transitions require a dedicated transition and service corpus."
+      "reason": "Action goal, result, feedback, and cancellation require a dedicated multi-node corpus."
     }
   ]
 }

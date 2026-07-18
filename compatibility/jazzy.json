@@ -281,13 +281,46 @@
     {
       "id": "lifecycle.node",
       "area": "lifecycle",
-      "api": "rclpy.lifecycle.LifecycleNode",
+      "api": "LifecycleNode construction, configure, cleanup, and unconfigured shutdown",
+      "support": "certified",
+      "backend": "python",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_control_plane_helper.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "notes": "The exact stock class, pre-activation subclass, Context, state machine, callbacks, and teardown remain authoritative. Communication-enabled and disabled construction, successful and failed configure callbacks, cleanup, unconfigured shutdown, bounded fallback reporting, signature preservation, and required_cpp rejection before Node initialization are covered."
+    },
+    {
+      "id": "lifecycle.communication_interface",
+      "area": "lifecycle",
+      "api": "LifecycleNode change_state, get_state, get_available_states, get_available_transitions, and get_transition_graph services",
+      "support": "certified",
+      "backend": "python",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "notes": "All five stock lifecycle services are discovered and queried in a custom Context. Service-driven activate/deactivate, state responses, transition inventories, callback inputs, and client teardown match the stock application corpus; lifecycle-node status represents their aggregate stock ownership."
+    },
+    {
+      "id": "lifecycle.publisher",
+      "area": "lifecycle",
+      "api": "LifecycleNode.create_lifecycle_publisher and activation-gated publish",
+      "support": "certified",
+      "backend": "mixed",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "notes": "The exact stock LifecyclePublisher and managed activation flag remain authoritative. Inactive publishes are suppressed, while active publishes use the existing certified same-handle C++ Publisher.publish route and deliver to a stock subscription; deactivation and destruction match stock."
+    },
+    {
+      "id": "lifecycle.error_processing",
+      "area": "lifecycle",
+      "api": "LifecycleNode ERROR callback processing, invalid transitions, and shutdown from active or inactive states",
       "support": "experimental",
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["rclcppyy/monkey.py"],
-      "notes": "Lifecycle classes and transition services are unmodified stock rclpy. Transition and teardown differential coverage remains open."
+      "evidence": ["test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "notes": "Configure FAILURE and recovery to an unconfigured shutdown are covered, but ERROR/on_error behavior, invalid transition exceptions, and every shutdown origin do not yet have differential evidence."
     },
     {
       "id": "context.clean_exit",

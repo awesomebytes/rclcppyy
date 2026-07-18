@@ -8,6 +8,7 @@ rclcppyy.enable_cpp_acceleration(profile="required_cpp")
 
 import rclpy  # noqa: E402
 from rclpy.executors import MultiThreadedExecutor  # noqa: E402
+from rclpy.lifecycle import LifecycleNode  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from rclpy.parameter import Parameter  # noqa: E402
 from rclpy.publisher import Publisher  # noqa: E402
@@ -100,6 +101,15 @@ def main():
     canceled_future = Future()
     assert canceled_future.cancel() is None
     assert canceled_future.cancelled()
+
+    names_before_lifecycle = sorted(node.get_node_names())
+    _must_reject(lambda: LifecycleNode(
+        "required_lifecycle",
+        context=context,
+        enable_communication_interface=False,
+        start_parameter_services=False,
+    ))
+    assert sorted(node.get_node_names()) == names_before_lifecycle
     print("REQUIRED_CONTROL_PLANE_OK", flush=True)
 
     status = rclcppyy.status()
@@ -119,6 +129,7 @@ def main():
         "spin",
         "spin_once",
         "multi_threaded_spin",
+        "create_lifecycle_node",
     } <= rejected, status
     infrastructure = [
         record for record in status["entities"]
