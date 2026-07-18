@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
+import faulthandler
 import json
 import os
 from pathlib import Path
@@ -148,13 +149,15 @@ def concurrent_publish(threads: int, messages_per_thread: int) -> dict:
     }
 
 
-def signal_worker() -> None:
-    import rclcppyy
+def signal_worker(accelerated: bool = True) -> None:
     import rclpy
     from rclpy._rclpy_pybind11 import RCLError
     from rclpy.executors import ExternalShutdownException
 
-    rclcppyy.enable_cpp_acceleration()
+    if accelerated:
+        import rclcppyy
+        rclcppyy.enable_cpp_acceleration()
+    faulthandler.register(signal.SIGUSR1, all_threads=True)
     rclpy.init(args=[])
     node = rclpy.create_node("stress_signal_%d" % os.getpid())
     ready_timer = None
@@ -182,10 +185,11 @@ def signal_worker() -> None:
     print("SIGNAL_WORKER_CLEAN", flush=True)
 
 
-def signal_shutdown(timeout: float) -> dict:
+def signal_shutdown(timeout: float, accelerated: bool = True) -> dict:
     started = time.monotonic()
+    worker_flag = "--signal-worker" if accelerated else "--stock-signal-worker"
     process = subprocess.Popen(
-        [sys.executable, str(Path(__file__).resolve()), "--signal-worker"],
+        [sys.executable, str(Path(__file__).resolve()), worker_flag],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         start_new_session=True,
@@ -207,7 +211,22 @@ def signal_shutdown(timeout: float) -> dict:
         selector.close()
         assert b"SIGNAL_WORKER_READY" in output, output.decode(errors="replace")
         os.killpg(process.pid, signal.SIGTERM)
-        stdout, stderr = process.communicate(timeout=timeout)
+        try:
+            stdout, stderr = process.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            os.killpg(process.pid, signal.SIGUSR1)
+            time.sleep(0.25)
+            os.killpg(process.pid, signal.SIGKILL)
+            stdout, stderr = process.communicate(timeout=5)
+            output.extend(stdout)
+            raise AssertionError(
+                "signal worker timed out after %.3fs (accelerated=%s):\n%s\n%s" % (
+                    timeout,
+                    accelerated,
+                    output.decode(errors="replace"),
+                    stderr.decode(errors="replace"),
+                )
+            )
         output.extend(stdout)
         rendered = output.decode(errors="replace")
         assert process.returncode == 0, (
@@ -221,6 +240,7 @@ def signal_shutdown(timeout: float) -> dict:
     print("SIGNAL_SHUTDOWN_OK")
     return {
         "returncode": process.returncode,
+        "accelerated": accelerated,
         "clean_marker": True,
         "duration_s": round(time.monotonic() - started, 6),
     }
@@ -323,9 +343,14 @@ def main(argv=None) -> int:
     parser.add_argument("--max-rss-growth-kib", type=int, default=0)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--signal-worker", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument(
+        "--stock-signal-worker", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
     if args.signal_worker:
-        signal_worker()
+        signal_worker(accelerated=True)
+        return 0
+    if args.stock_signal_worker:
+        signal_worker(accelerated=False)
         return 0
     if min(
         args.cycles,
