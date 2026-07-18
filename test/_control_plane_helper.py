@@ -4,6 +4,10 @@
 import inspect
 import warnings
 
+from rclpy.task import Future
+
+STOCK_FUTURE_METHODS = (Future.set_result, Future.set_exception, Future.cancel)
+
 import rclcppyy
 from rclcppyy import monkey
 
@@ -18,7 +22,6 @@ from rclpy.lifecycle import LifecycleNode  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from rclpy.parameter import Parameter  # noqa: E402
 from rclpy.service import Service  # noqa: E402
-from rclpy.task import Future  # noqa: E402
 from std_srvs.srv import SetBool  # noqa: E402
 
 
@@ -92,9 +95,6 @@ def main():
         rclpy.spin: monkey._original_spin,
         rclpy.spin_once: monkey._original_spin_once,
         MultiThreadedExecutor.spin: monkey._original_multi_threaded_spin,
-        Future.set_result: monkey._original_future_set_result,
-        Future.set_exception: monkey._original_future_set_exception,
-        Future.cancel: monkey._original_future_cancel,
         LifecycleNode.__init__: monkey._original_lifecycle_node_init,
         ActionClient.__init__: monkey._original_action_client_init,
         ActionServer.__init__: monkey._original_action_server_init,
@@ -104,6 +104,7 @@ def main():
         and inspect.signature(function) == inspect.signature(original)
         for function, original in runtime_functions.items()
     )
+    assert (Future.set_result, Future.set_exception, Future.cancel) == STOCK_FUTURE_METHODS
 
     status = rclcppyy.status()
     entity_counts = {

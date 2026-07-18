@@ -19,6 +19,9 @@ def assert_heavy_absent():
 
 
 def compatible():
+    from rclpy.task import Future
+
+    stock_future_methods = (Future.set_result, Future.set_exception, Future.cancel)
     import rclcppyy
 
     assert_heavy_absent()
@@ -35,16 +38,13 @@ def compatible():
     assert_heavy_absent()
 
     from rclpy.publisher import Publisher
-    from rclpy.task import Future
     from rclcppyy import monkey
     from rclcppyy import patch_node_class, patch_ros2
 
     assert patch_ros2 is monkey.patch_ros2
     assert patch_node_class is monkey.patch_node_class
     assert Publisher.publish is monkey._original_publish
-    assert Future.set_result is monkey._original_future_set_result
-    assert Future.set_exception is monkey._original_future_set_exception
-    assert Future.cancel is monkey._original_future_cancel
+    assert (Future.set_result, Future.set_exception, Future.cancel) == stock_future_methods
     assert_heavy_absent()
     print("COMPATIBLE_IMPORT_GRAPH_LIGHT_OK", flush=True)
 
@@ -98,15 +98,13 @@ def native_exports():
 
 
 def future_identity():
+    from rclpy.task import Future
+
+    stock_future_methods = (Future.set_result, Future.set_exception, Future.cancel)
     import rclcppyy
 
     rclcppyy.enable_cpp_acceleration(profile=sys.argv[2])
-    from rclpy.task import Future
-    from rclcppyy import monkey
-
-    assert Future.set_result is monkey._original_future_set_result
-    assert Future.set_exception is monkey._original_future_set_exception
-    assert Future.cancel is monkey._original_future_cancel
+    assert (Future.set_result, Future.set_exception, Future.cancel) == stock_future_methods
     print("FUTURE_METHOD_IDENTITY_OK", flush=True)
 
 

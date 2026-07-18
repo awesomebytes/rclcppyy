@@ -12,7 +12,6 @@ from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
 from rclpy.lifecycle import LifecycleNode
 from rclpy.node import Node
 from rclpy.publisher import Publisher
-from rclpy.task import Future
 
 from rclcppyy._status import record_decision
 from rclcppyy.policy import BackendUnavailableError, resolve_policy
@@ -31,9 +30,6 @@ _original_spin = rclpy.spin
 _original_spin_once = rclpy.spin_once
 _original_single_threaded_spin = SingleThreadedExecutor.spin
 _original_multi_threaded_spin = MultiThreadedExecutor.spin
-_original_future_set_result = Future.set_result
-_original_future_set_exception = Future.set_exception
-_original_future_cancel = Future.cancel
 _original_lifecycle_node_init = LifecycleNode.__init__
 _original_action_client_init = ActionClient.__init__
 _original_action_server_init = ActionServer.__init__
@@ -846,9 +842,6 @@ def patch_ros2(profile="compatible", *, warn_fallback=False):
         MultiThreadedExecutor.spin = _optimized_executor_spin_wrapper
     else:
         MultiThreadedExecutor.spin = _multi_threaded_spin_wrapper
-    Future.set_result = _original_future_set_result
-    Future.set_exception = _original_future_set_exception
-    Future.cancel = _original_future_cancel
     LifecycleNode.__init__ = _lifecycle_node_init_wrapper
     ActionClient.__init__ = _action_client_init_wrapper
     ActionServer.__init__ = _action_server_init_wrapper

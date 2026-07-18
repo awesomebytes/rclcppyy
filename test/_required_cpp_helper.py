@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Required-C++ policy rejects uncertified operations without partial entities."""
 
+from rclpy.task import Future
+
+STOCK_FUTURE_METHODS = (Future.set_result, Future.set_exception, Future.cancel)
+
 import rclcppyy
 from rclcppyy import BackendUnavailableError
 
@@ -13,7 +17,6 @@ from rclpy.lifecycle import LifecycleNode  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from rclpy.parameter import Parameter  # noqa: E402
 from rclpy.publisher import Publisher  # noqa: E402
-from rclpy.task import Future  # noqa: E402
 from std_msgs.msg import String  # noqa: E402
 from std_srvs.srv import SetBool  # noqa: E402
 from rclcppyy import monkey as monkey_module  # noqa: E402
@@ -140,9 +143,7 @@ def main():
     canceled_future = Future()
     assert canceled_future.cancel() is None
     assert canceled_future.cancelled()
-    assert Future.set_result is monkey_module._original_future_set_result
-    assert Future.set_exception is monkey_module._original_future_set_exception
-    assert Future.cancel is monkey_module._original_future_cancel
+    assert (Future.set_result, Future.set_exception, Future.cancel) == STOCK_FUTURE_METHODS
 
     names_before_lifecycle = sorted(node.get_node_names())
     _must_reject(lambda: LifecycleNode(
