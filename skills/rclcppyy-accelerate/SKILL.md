@@ -11,15 +11,20 @@ backend evidence and measurements; never assume that entering C++ is faster.
 ## Workflow
 
 1. Read repository instructions and establish a clean, reproducible test command.
-2. Run `scripts/scan_project.py TARGET --output build/rclcppyy-scan.json`.
+2. From the repository root or this skill directory, run
+   `pixi run scan-acceleration TARGET --strict --output build/rclcppyy-scan.json`.
+   Interpret `TARGET` and the output path relative to the repository root; use
+   absolute paths for targets outside it.
 3. Inspect the scan, relevant source, launch/config files, and current tests. Treat
-   scanner recommendations as inputs, not conclusions.
+   scanner recommendations as inputs, not conclusions. Resolve every reported
+   blocker before selecting an implementation tier.
 4. Read `references/techniques.md` and select the lowest applicable tier:
    - Tier 0: compatible activation and status only.
    - Tier 1: semantics-preserving cache/configuration improvements.
    - Tier 2: explicit managed `rclcpp` options or native entities.
    - Tier 3: editable native callback or fused pipeline.
-   - Tier 4: domain-kit/library-native data path.
+   - Tier 4: domain-kit/library-native data path when a callback-level use is
+     measured, not merely because a native library is imported.
 5. Before editing, capture stock correctness and structured benchmark evidence.
 6. Implement one bounded change. Keep compatible mode contract-preserving; put
    scheduling, ownership, buffering, reuse, loaning, and fusion behind explicit
@@ -46,7 +51,8 @@ backend evidence and measurements; never assume that entering C++ is faster.
 
 ## Resources
 
-- `scripts/scan_project.py`: deterministic AST inventory and recommendation inputs.
+- `scripts/scan_project.py`: relocation-stable AST inventory and evidence-linked
+  recommendation inputs. The Pixi task supplies its interpreter.
 - `references/techniques.md`: tier and workload decision table.
 - `references/patterns.md`: activation, managed-native, callback, and pipeline forms.
 - `references/hazards.md`: ABI, lifetime, concurrency, cache, and teardown hazards.

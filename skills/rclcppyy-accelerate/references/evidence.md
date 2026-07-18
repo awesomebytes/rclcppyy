@@ -1,5 +1,12 @@
 # Evidence Gates
 
+## Scanner gate
+
+Treat scan confidence as static-syntax confidence, never runtime or performance
+confidence. Every recommendation carries its source evidence and blockers. Stop
+before editing when the scan is incomplete, explicitly scanner-only, or lacks the
+correctness and benchmark commands needed by the gates below.
+
 ## Before editing
 
 1. Run existing correctness tests.
