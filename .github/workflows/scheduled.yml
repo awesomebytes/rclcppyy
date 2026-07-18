@@ -73,6 +73,9 @@ jobs:
           set -euo pipefail
           for rmw in rmw_cyclonedds_cpp rmw_fastrtps_cpp; do
             RMW_IMPLEMENTATION="$rmw" pixi run python scripts/ci/stress_runtime.py \
+              --repetitions 3 --signal-repetitions 5 \
+              --min-duration-seconds 900 --max-rss-growth-kib 262144 \
+              --output "build/scheduled/stress-${rmw}.json" \
               2>&1 | tee "build/scheduled/stress-${rmw}.log"
           done
       - name: Exercise isolated cold, warm, and corrupt generated caches
