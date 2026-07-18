@@ -14,6 +14,28 @@
     "file_count": 52,
     "digest": "42afd6886e22b637020cc3ab81291153e3a6d819caf521e16c2571414bd8306e"
   },
+  "support_files": [
+    {
+      "path": "mock_compat.py",
+      "digest": "b47e582512d4755fe5b3c2350a4fa888e957f8b782732afbf45d711915a507e8"
+    },
+    {
+      "path": "resources/test_node/complicated_wildcards.yaml",
+      "digest": "7d0c2308368b5e480722b8ec00018391164ed3b84b5e2b5559e0cd0ae02f0daf"
+    },
+    {
+      "path": "resources/test_node/params_by_order.yaml",
+      "digest": "98f86743ea0a429f5b3f3ca825f631d41f816976d9e6e8078c2491c95b337e53"
+    },
+    {
+      "path": "resources/test_node/test_parameters.yaml",
+      "digest": "8b1042257d5b95d05d58316b7e2f948564d108576609e776edf968b556631ba7"
+    },
+    {
+      "path": "resources/test_node/wildcards.yaml",
+      "digest": "b52388a36af10bec68a01c2331e068c0b4f5f828e0cee7d225b54fdbea963adb"
+    }
+  ],
   "selection": [
     {
       "path": "test_action_graph.py",

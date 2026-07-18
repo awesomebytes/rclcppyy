@@ -9,6 +9,7 @@ The machine-readable policy is
 
 - the upstream repository, full Git commit, release, and installed package version;
 - a digest of every `rclpy/test/test_*.py` path and its contents;
+- explicit hashes for non-test helper/resource files needed by selected tests;
 - the exact selected test files and why each is in the gate;
 - every unselected test file, grouped under an explicit reviewed exclusion reason.
 
@@ -36,7 +37,10 @@ without network access. Set `RCLPY_CONTRACT_SRC` to use another location. The
 optional `upstream-contract` Pixi environment carries `test_msgs`; the default
 runtime and development environment does not gain that test-only dependency.
 
-Each selected upstream file runs in a fresh process. That preserves the upstream
+Each selected upstream file runs in a fresh process. Pinned helper files and
+resources are copied beside it in a neutral temporary package, which supports
+relative imports and file-relative resource lookup without placing the upstream
+`rclpy` source package on `PYTHONPATH`. That preserves the upstream
 suite's process-global context assumptions and prevents one file's signal,
 executor, or shutdown state from contaminating another. The runner stages only the
 selected file, so it uses the installed rclpy package rather than importing Python

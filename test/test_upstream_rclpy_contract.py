@@ -100,6 +100,7 @@ def test_repository_manifest_has_exact_review_partition():
     assert len(excluded) == 26
     assert not selected & excluded
     assert len(selected | excluded) == manifest["inventory"]["file_count"]
+    assert len(manifest["support_files"]) == 5
     publisher = next(
         entry for entry in manifest["selection"]
         if entry["path"] == "test_publisher.py"
@@ -120,6 +121,7 @@ def test_validate_source_accepts_exact_clean_checkout(tmp_path):
 
     assert report["revision"] == manifest_data["source"]["revision"]
     assert report["inventory_file_count"] == 2
+    assert report["support_file_count"] == 0
     assert report["selected_files"] == 1
     assert report["excluded_files"] == 1
 
@@ -160,6 +162,34 @@ def test_validate_source_rejects_incomplete_review_partition(tmp_path):
 
     with pytest.raises(contract.ContractError, match="partition"):
         contract.validate_source(manifest, source)
+
+
+def test_validate_source_rejects_support_file_drift(tmp_path):
+    source, manifest_data = _fake_checkout(tmp_path)
+    support = source / "rclpy" / "test" / "helper.py"
+    support.write_text("VALUE = 1\n", encoding="utf-8")
+    _run("git", "add", ".", cwd=source)
+    _run("git", "commit", "-m", "support", cwd=source)
+    manifest_data["source"]["revision"] = _run("git", "rev-parse", "HEAD", cwd=source)
+    manifest_data["support_files"] = [{
+        "path": "helper.py",
+        "digest": "0" * hashlib.sha256().digest_size * 2,
+    }]
+    manifest = contract.load_manifest(_write_manifest(tmp_path, manifest_data))
+
+    with pytest.raises(contract.ContractError, match="support file content drift"):
+        contract.validate_source(manifest, source)
+
+
+def test_load_manifest_rejects_unsafe_support_path(tmp_path):
+    _, manifest_data = _fake_checkout(tmp_path)
+    manifest_data["support_files"] = [{
+        "path": "../helper.py",
+        "digest": "0" * 64,
+    }]
+
+    with pytest.raises(contract.ContractError, match="safe relative path"):
+        contract.load_manifest(_write_manifest(tmp_path, manifest_data))
 
 
 def test_load_manifest_rejects_short_revision(tmp_path):

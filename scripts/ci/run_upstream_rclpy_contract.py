@@ -107,6 +107,30 @@ def load_manifest(path):
         "inventory.digest must be a lowercase SHA-256 digest",
     )
 
+    support_files = manifest.get("support_files", [])
+    _require(isinstance(support_files, list), "support_files must be a list")
+    support_paths = []
+    for entry in support_files:
+        _require(isinstance(entry, dict), "support file entries must be objects")
+        path = entry.get("path")
+        _require(isinstance(path, str) and path, "support file path is required")
+        relative = Path(path)
+        _require(
+            not relative.is_absolute() and ".." not in relative.parts,
+            "support file path must be a safe relative path: %s" % path,
+        )
+        digest = entry.get("digest", "")
+        _require(
+            len(digest) == 64
+            and all(character in "0123456789abcdef" for character in digest),
+            "support file %s needs a lowercase SHA-256 digest" % path,
+        )
+        support_paths.append(relative.as_posix())
+    _require(
+        len(support_paths) == len(set(support_paths)),
+        "support_files contains duplicate paths",
+    )
+
     selection = manifest.get("selection")
     _require(isinstance(selection, list) and selection, "selection must not be empty")
     selected_paths = []
@@ -218,6 +242,15 @@ def validate_source(manifest, source):
         "upstream test inventory content drift: expected %s, got %s"
         % (inventory["digest"], actual_digest),
     )
+    for entry in manifest.get("support_files", []):
+        path = test_root / entry["path"]
+        _require(path.is_file(), "upstream support file is missing: %s" % path)
+        actual = hashlib.sha256(path.read_bytes()).hexdigest()
+        _require(
+            actual == entry["digest"],
+            "upstream support file content drift for %s: expected %s, got %s"
+            % (entry["path"], entry["digest"], actual),
+        )
 
     selected = {entry["path"] for entry in manifest["selection"]}
     excluded = {
@@ -237,6 +270,7 @@ def validate_source(manifest, source):
         "package_version": package_version,
         "inventory_digest": actual_digest,
         "inventory_file_count": len(actual_paths),
+        "support_file_count": len(manifest.get("support_files", [])),
         "selected_files": len(selected),
         "excluded_files": len(excluded),
         "test_root": str(test_root),
@@ -354,7 +388,15 @@ def run_contract(args, manifest, source_report):
         relative = entry["path"]
         started = time.monotonic()
         with tempfile.TemporaryDirectory(prefix="rclcppyy-upstream-contract-") as stage:
-            staged_file = Path(stage) / relative
+            staged_root = Path(stage) / "rclpy_contract_tests"
+            staged_root.mkdir()
+            (staged_root / "__init__.py").write_text("", encoding="utf-8")
+            for support in manifest.get("support_files", []):
+                source_path = test_root / support["path"]
+                staged_support = staged_root / support["path"]
+                staged_support.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(source_path, staged_support)
+            staged_file = staged_root / relative
             shutil.copyfile(test_root / relative, staged_file)
             junit_xml = evidence_dir / (Path(relative).stem + ".xml")
             junit_xml.unlink(missing_ok=True)
