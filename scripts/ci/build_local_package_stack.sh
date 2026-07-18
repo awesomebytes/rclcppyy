@@ -18,7 +18,7 @@ case "$(uname -m)" in
 esac
 
 repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
-suite_checkout="${1:-$repo_root/../cppyy_kit}"
+suite_checkout="${1:-${CPPYY_KIT_SRC:-$repo_root/../cppyy_kit}}"
 requested_output="${2:-$repo_root/output}"
 case "$suite_checkout" in
   /*) ;;

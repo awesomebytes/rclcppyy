@@ -150,7 +150,7 @@ rattler-build = ">=0.68,<0.69"
 [feature.pkg.tasks]
 # Build the suite core and rclcppyy into one local channel, then run each
 # recipe's isolated import test. CPPYY_KIT_SRC can select another suite checkout.
-pkg-build = "bash scripts/ci/build_local_package_stack.sh ${CPPYY_KIT_SRC:-../cppyy_kit} output"
+pkg-build = "bash scripts/ci/build_local_package_stack.sh"
 
 # Optional upstream contract environment. The production/default dependency
 # surface stays unchanged; test_msgs is needed only by the reviewed upstream
