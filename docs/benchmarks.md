@@ -9,6 +9,7 @@ The CPU-first ROS entity protocols are documented separately. Each keeps stock,
 compatible, native C++ representation, and conventional AOT lanes distinct:
 
 - [relay pub/sub](relay-boundary-benchmark.md)
+- [C++-owning message facade](message-facade-benchmark.md)
 - [service callback/server](service-callback-benchmark.md)
 - [service client](service-client-benchmark.md)
 - [timer/executor](timer-executor-benchmark.md)
