@@ -716,43 +716,6 @@ def _optimized_executor_spin_wrapper(self):
     return result
 
 
-def _record_future_completion(future, outcome, detail=None):
-    metadata = {"outcome": outcome}
-    if detail is not None:
-        metadata["detail_type"] = type(detail).__name__
-    _record_runtime_operation(
-        future,
-        "future",
-        "stock rclpy Future remains authoritative",
-        metadata=metadata,
-        once_key=("future", outcome),
-        authority="stock_future_authority",
-    )
-
-
-@wraps(_original_future_set_result)
-def _future_set_result_wrapper(self, result):
-    value = _original_future_set_result(self, result)
-    _record_future_completion(self, "result", result)
-    return value
-
-
-@wraps(_original_future_set_exception)
-def _future_set_exception_wrapper(self, exception):
-    value = _original_future_set_exception(self, exception)
-    _record_future_completion(self, "exception", exception)
-    return value
-
-
-@wraps(_original_future_cancel)
-def _future_cancel_wrapper(self):
-    was_canceled = self.cancelled()
-    result = _original_future_cancel(self)
-    if not was_canceled and self.cancelled():
-        _record_future_completion(self, "canceled")
-    return result
-
-
 @wraps(_original_lifecycle_node_init)
 def _lifecycle_node_init_wrapper(
     self,
@@ -883,9 +846,9 @@ def patch_ros2(profile="compatible", *, warn_fallback=False):
         MultiThreadedExecutor.spin = _optimized_executor_spin_wrapper
     else:
         MultiThreadedExecutor.spin = _multi_threaded_spin_wrapper
-    Future.set_result = _future_set_result_wrapper
-    Future.set_exception = _future_set_exception_wrapper
-    Future.cancel = _future_cancel_wrapper
+    Future.set_result = _original_future_set_result
+    Future.set_exception = _original_future_set_exception
+    Future.cancel = _original_future_cancel
     LifecycleNode.__init__ = _lifecycle_node_init_wrapper
     ActionClient.__init__ = _action_client_init_wrapper
     ActionServer.__init__ = _action_server_init_wrapper

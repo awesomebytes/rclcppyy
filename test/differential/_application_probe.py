@@ -1140,12 +1140,6 @@ def _run(mode):
                 "kind": "operations",
                 "backend": "python",
                 "minimum": 1,
-                "metadata": {"operation": "future", "profile": "compatible"},
-            },
-            {
-                "kind": "operations",
-                "backend": "python",
-                "minimum": 1,
                 "metadata": {"operation": "spin", "profile": "compatible"},
             },
             {

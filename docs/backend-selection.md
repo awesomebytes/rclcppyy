@@ -33,6 +33,12 @@ The original `Node`, `Context`, executors, generated messages, entities, and
 node or split ownership. This gives unedited software a conservative baseline with
 backend reporting and no implicit publisher implementation change.
 
+Compatible import and activation are intentionally lightweight: they do not import
+cppyy, initialize Cling, load native factories, or import the legacy companion node.
+Those dependencies load on demand through the existing public exports. Future
+completion methods also retain exact stock identity because every executor callback
+Task completes through that hot path.
+
 The compatibility manifest at `compatibility/jazzy.json` is the source of truth
 for certified, stock-authoritative, experimental, unsupported, and unassessed
 surfaces. Its closed upstream mapping accounts for every selected test and reviewed
@@ -79,8 +85,8 @@ rclcppyy.enable_cpp_acceleration(profile="required_cpp")
 An operation without a certified route raises `BackendUnavailableError` before
 creating an entity or starting executor work. Stock infrastructure that is part of
 preserving the compatible object model can still exist; the runtime status explains
-its authority. Future completion, for example, remains stock-authoritative because
-replacing it would destabilize executor semantics.
+its authority. Future completion remains the exact stock implementation under every
+profile because executor callback Tasks use these methods on the hot path.
 
 Strict mode is an assertion mechanism, not a promise that the whole application is
 C++. Tests must check the operation records they depend on.

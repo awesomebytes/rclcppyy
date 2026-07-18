@@ -54,6 +54,9 @@ existing native publisher handle. It creates no companion node or endpoint.
 
 - Existing node, graph, context, remapping, parameter, executor, and teardown
   behavior stays authoritative in `rclpy`.
+- Importing and enabling the compatible profile does not initialize cppyy, Cling,
+  native factories, or the legacy companion-node implementation. Explicit C++
+  profiles and APIs load those dependencies only when first used.
 - `rclcppyy.status()` reports the backend selected for each routed entity and
   operation.
 - `profile="publisher_cpp"` explicitly enables the permissive same-handle C++

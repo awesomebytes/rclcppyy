@@ -12,6 +12,7 @@ rclcppyy.enable_cpp_acceleration()
 import rclpy  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from rclpy.publisher import Publisher  # noqa: E402
+from rclpy.task import Future  # noqa: E402
 from rclcppyy import monkey as monkey_module  # noqa: E402
 from std_msgs.msg import String  # noqa: E402
 
@@ -28,6 +29,9 @@ def main():
 
     monkey_module._load_borrowed_publish = unexpected_borrowed_route
     assert Publisher.publish is monkey_module._original_publish
+    assert Future.set_result is monkey_module._original_future_set_result
+    assert Future.set_exception is monkey_module._original_future_set_exception
+    assert Future.cancel is monkey_module._original_future_cancel
     assert not hasattr(String, "__smartptr__")
     print("MESSAGE_CONTRACT_OK", flush=True)
 

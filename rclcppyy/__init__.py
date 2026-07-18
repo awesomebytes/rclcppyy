@@ -9,28 +9,39 @@ one-line monkeypatch (``enable_cpp_acceleration``) and re-exports the moved piec
 through deprecation shims. See the README for the new architecture.
 """
 import importlib
+import sys
+from types import ModuleType
 
-# Public API. ``bringup_rclcpp`` / ``shutdown_rclcpp`` come from the (silent)
-# bringup shim, which node.py / monkey.py also use internally.
-from rclcppyy.bringup_rclcpp import bringup_rclcpp, shutdown_rclcpp
 from rclcppyy._status import status
 from rclcppyy._status import record_decision
-from rclcppyy.node import RclcppyyNode
-from rclcppyy.monkey import patch_ros2, patch_node_class
 from rclcppyy.policy import AccelerationPolicy, BackendUnavailableError
-from rclcpp_kit.native import (
-    NativeCapabilities,
-    NativeSession,
-    native as _native_session,
-    publisher_capabilities,
-)
-Node = RclcppyyNode
 
-# The moved re-export submodules are imported lazily: ``import rclcppyy`` must not
-# fire their DeprecationWarnings for the product's own use, but accessing
-# ``rclcppyy.tf`` (or ``from rclcppyy import tf`` / ``rclcppyy.serialization`` ...)
-# imports the shim and warns, nudging callers to ``rclcpp_kit.<name>``.
 _MOVED_SUBMODULES = ("serialization", "rosbag2_cpp", "rosbag2_py_compat", "tf")
+_LAZY_EXPORTS = {
+    "bringup_rclcpp": ("rclcppyy.bringup_rclcpp", "bringup_rclcpp"),
+    "shutdown_rclcpp": ("rclcppyy.bringup_rclcpp", "shutdown_rclcpp"),
+    "RclcppyyNode": ("rclcppyy.node", "RclcppyyNode"),
+    "Node": ("rclcppyy.node", "RclcppyyNode"),
+    "patch_ros2": ("rclcppyy.monkey", "patch_ros2"),
+    "patch_node_class": ("rclcppyy.monkey", "patch_node_class"),
+    "NativeCapabilities": ("rclcpp_kit.native", "NativeCapabilities"),
+    "NativeSession": ("rclcpp_kit.native", "NativeSession"),
+    "publisher_capabilities": ("rclcpp_kit.native", "publisher_capabilities"),
+}
+
+
+class _RclcppyyModule(ModuleType):
+    def __getattribute__(self, name):
+        value = super().__getattribute__(name)
+        if name == "bringup_rclcpp" and isinstance(value, ModuleType):
+            return value.bringup_rclcpp
+        return value
+
+
+# Importing the legacy ``rclcppyy.bringup_rclcpp`` submodule makes importlib bind
+# that module on its parent package. Preserve the historical callable package
+# export regardless of whether the submodule or package attribute is imported first.
+sys.modules[__name__].__class__ = _RclcppyyModule
 
 
 def __getattr__(name):
@@ -38,11 +49,17 @@ def __getattr__(name):
         module = importlib.import_module(f"rclcppyy.{name}")
         globals()[name] = module
         return module
+    target = _LAZY_EXPORTS.get(name)
+    if target is not None:
+        module_name, attribute = target
+        value = getattr(importlib.import_module(module_name), attribute)
+        globals()[name] = value
+        return value
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def __dir__():
-    return sorted(list(globals()) + list(_MOVED_SUBMODULES))
+    return sorted(set(globals()) | set(__all__))
 
 
 def enable_cpp_acceleration(
@@ -74,7 +91,8 @@ def enable_cpp_acceleration(
         import rclcppyy; rclcppyy.enable_cpp_acceleration()
         ```
     """
-    # Apply monkey patching
+    from rclcppyy.monkey import patch_node_class, patch_ros2
+
     result = patch_ros2(profile=profile, warn_fallback=warn_fallback)
 
     # Optionally patch the Node class directly
@@ -86,8 +104,10 @@ def enable_cpp_acceleration(
 
 def native(arguments=None):
     """Create a managed session whose entities are the real C++ objects."""
+    from rclcpp_kit.native import native as native_session
+
     normalized_arguments = tuple(arguments or ())
-    session = _native_session(arguments=normalized_arguments)
+    session = native_session(arguments=normalized_arguments)
     record_decision(
         "operations",
         "cpp",

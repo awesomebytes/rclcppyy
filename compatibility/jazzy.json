@@ -68,8 +68,8 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_monkeypatch.py", "test/_monkeypatch_helper.py"],
-      "notes": "The default compatible profile preserves stock node, context, executor, message, entity, and Publisher.publish authority. Explicit publisher_cpp and required_cpp profiles separately expose the certified same-handle C++ publisher route."
+      "evidence": ["test/test_monkeypatch.py", "test/_monkeypatch_helper.py", "test/test_lazy_imports.py", "test/_lazy_import_helper.py"],
+      "notes": "The default compatible profile preserves stock node, context, executor, message, entity, and Publisher.publish authority. Its import and activation graph excludes cppyy, Cling bringup, native factories, and the legacy node. Explicit publisher_cpp and required_cpp profiles separately expose the certified same-handle C++ publisher route."
     },
     {
       "id": "activation.startup_hook.enabled",
@@ -102,7 +102,7 @@
       "fallback": "safe",
       "default": true,
       "evidence": ["test/test_hook.py", "test/test_differential_application.py", "test/differential/_application_probe.py", "test/fixtures/custom_interfaces/run_interop.py", "rclcppyy/monkey.py"],
-      "notes": "The original Node, Publisher, executor, Future, LifecycleNode, ActionClient, and ActionServer classes are patched in place and message classes are not replaced. Function aliases captured from the rclpy module before activation retain stock behavior but are not instrumented; overridden subclass methods remain user-owned."
+      "notes": "The original Node, Publisher, executor, LifecycleNode, ActionClient, and ActionServer classes are patched in place and message classes are not replaced. Future completion methods retain exact stock identity so executor Task completion has no instrumentation overhead. Function aliases captured from the rclpy module before activation retain stock behavior but are not instrumented; overridden subclass methods remain user-owned."
     },
     {
       "id": "node.create_node",
@@ -310,8 +310,8 @@
       "backend": "python",
       "fallback": "not_applicable",
       "default": true,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
-      "notes": "Future completion remains stock-authoritative under every policy to avoid destabilizing executor internals. Result completion, done callbacks, signature preservation, and required_cpp behavior are covered."
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "test/test_lazy_imports.py", "test/_lazy_import_helper.py", "rclcppyy/monkey.py"],
+      "notes": "Future completion remains stock-authoritative under every policy to avoid destabilizing executor internals and per-callback overhead. Fresh-process tests prove exact stock set_result, set_exception, and cancel method identity for compatible, publisher_cpp, required_cpp, and optimized profiles; behavioral parity covers results, exceptions, cancellation, and done callbacks."
     },
     {
       "id": "executor.guard_condition",

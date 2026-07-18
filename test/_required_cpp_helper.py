@@ -140,6 +140,9 @@ def main():
     canceled_future = Future()
     assert canceled_future.cancel() is None
     assert canceled_future.cancelled()
+    assert Future.set_result is monkey_module._original_future_set_result
+    assert Future.set_exception is monkey_module._original_future_set_exception
+    assert Future.cancel is monkey_module._original_future_cancel
 
     names_before_lifecycle = sorted(node.get_node_names())
     _must_reject(lambda: LifecycleNode(
@@ -199,16 +202,6 @@ def main():
     assert {"publisher", "service"} <= {
         record["metadata"].get("entity_type") for record in infrastructure
     }, status
-    future_outcomes = {
-        record["metadata"].get("outcome")
-        for record in status["operations"]
-        if record["backend"] == "python"
-        and record["metadata"].get("operation") == "future"
-        and "stock_future_authority" in record["policies"]
-    }
-    assert {
-        "result", "exception", "canceled",
-    } <= future_outcomes, status
     node.destroy_publisher(publisher)
     node.destroy_subscription(subscription)
     proof_executor.remove_node(node)
