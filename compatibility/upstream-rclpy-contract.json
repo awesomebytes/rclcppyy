@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "contract_id": "rclpy-jazzy-7.1.11-reviewed-v1",
+  "contract_id": "rclpy-jazzy-7.1.11-reviewed-v2",
   "source": {
     "repository": "https://github.com/ros2/rclpy.git",
     "revision": "baf9d72cfa127e391a89b4ab51ba9e55c37041fd",
@@ -16,6 +16,10 @@
   },
   "selection": [
     {
+      "path": "test_action_graph.py",
+      "reason": "Action graph discovery by action name and node identity covers unchanged action graph behavior."
+    },
+    {
       "path": "test_action_client.py",
       "reason": "Action-client construction, discovery, goals, feedback, cancellation, and results exercise unchanged action behavior."
     },
@@ -28,12 +32,32 @@
       "reason": "Callback-group entity assignment and mutual-exclusion behavior cover a core executor contract."
     },
     {
+      "path": "test_client.py",
+      "reason": "Client discovery, synchronous and asynchronous calls, concurrency, remapping, and timeout behavior cover unchanged client operation."
+    },
+    {
       "path": "test_create_node.py",
       "reason": "Node construction, namespaces, validation, and parameter overrides cover unchanged node identity."
     },
     {
+      "path": "test_create_while_spinning.py",
+      "reason": "Creating subscriptions, services, guard conditions, timers, and waitables while spinning covers runtime entity mutation."
+    },
+    {
+      "path": "test_destruction.py",
+      "reason": "Node and entity destruction during active execution covers unchanged ownership, invalid-handle, and teardown behavior."
+    },
+    {
+      "path": "test_events_executor.py",
+      "reason": "Experimental event-driven execution across topics, services, timers, and actions covers unchanged opt-in executor behavior."
+    },
+    {
       "path": "test_executor.py",
       "reason": "Single- and multi-threaded execution, futures, coroutine tasks, shutdown, and reentrancy cover executor behavior."
+    },
+    {
+      "path": "test_guard_condition.py",
+      "reason": "Guard-condition triggering and repeated triggering cover unchanged executor wake-up behavior."
     },
     {
       "path": "test_init_shutdown.py",
@@ -53,6 +77,22 @@
       "reason": "QoS construction, conversion, presets, validation, and compatibility cover policy fidelity."
     },
     {
+      "path": "test_qos_event.py",
+      "reason": "Publisher and subscription QoS events cover unchanged callback, matched-status, and event lifetime behavior."
+    },
+    {
+      "path": "test_qos_overriding_options.py",
+      "reason": "QoS override declaration, validation, callbacks, and entity identifiers cover unchanged runtime configuration behavior."
+    },
+    {
+      "path": "test_rate.py",
+      "reason": "Rate periods, destruction, executor interaction, and shutdown wake-up cover unchanged rate behavior."
+    },
+    {
+      "path": "test_rosout_subscription.py",
+      "reason": "Parent, child, hierarchical, parameterized, and disabled rosout logging cover unchanged log transport behavior."
+    },
+    {
       "path": "test_serialization.py",
       "reason": "Message serialization round trips cover message and type-support fidelity."
     },
@@ -61,34 +101,33 @@
       "reason": "Service naming, namespaces, remapping, and logging cover unchanged service construction."
     },
     {
+      "path": "test_service_introspection.py",
+      "reason": "Service introspection metadata and contents cover unchanged request, response, sequence, and timestamp event behavior."
+    },
+    {
       "path": "test_subscription.py",
       "reason": "Subscription naming, remapping, counts, callbacks, and content filtering cover unchanged subscription behavior."
     },
     {
       "path": "test_timer.py",
       "reason": "Timer periods, callback counts, cancel/reset, scheduling, and autostart cover timer behavior."
+    },
+    {
+      "path": "test_wait_for_message.py",
+      "reason": "Synchronous message waiting with default and explicit QoS plus timeout covers unchanged convenience API behavior."
+    },
+    {
+      "path": "test_waitable.py",
+      "reason": "Custom client, service, timer, subscription, guard-condition, and mutually-exclusive waitables cover executor extension behavior."
     }
   ],
   "reviewed_exclusions": [
     {
-      "id": "next-runtime-entity-slice",
+      "id": "fails-with-stock-installed-extension",
       "paths": [
-        "test_action_graph.py",
-        "test_client.py",
-        "test_create_while_spinning.py",
-        "test_destruction.py",
-        "test_destruction_order.py",
-        "test_events_executor.py",
-        "test_guard_condition.py",
-        "test_qos_event.py",
-        "test_qos_overriding_options.py",
-        "test_rate.py",
-        "test_rosout_subscription.py",
-        "test_service_introspection.py",
-        "test_wait_for_message.py",
-        "test_waitable.py"
+        "test_destruction_order.py"
       ],
-      "reason": "Reviewed but deferred from the first bounded runtime slice; add only after each contract is classified and stable on both supported architectures."
+      "reason": "The unchanged test fails with stock rclpy 7.1.11 because its assignment to node.handle.context_handle is rejected by the installed pybind Node type, so it cannot provide backend evidence in this source-only gate."
     },
     {
       "id": "next-node-control-plane-slice",

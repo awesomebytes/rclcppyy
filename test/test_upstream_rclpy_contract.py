@@ -96,8 +96,8 @@ def test_repository_manifest_has_exact_review_partition():
         for group in manifest["reviewed_exclusions"]
         for path in group["paths"]
     }
-    assert len(selected) == 13
-    assert len(excluded) == 39
+    assert len(selected) == 26
+    assert len(excluded) == 26
     assert not selected & excluded
     assert len(selected | excluded) == manifest["inventory"]["file_count"]
     publisher = next(
@@ -105,6 +105,11 @@ def test_repository_manifest_has_exact_review_partition():
         if entry["path"] == "test_publisher.py"
     )
     assert publisher["requires_cpp_publish"] is True
+    stock_failure = next(
+        group for group in manifest["reviewed_exclusions"]
+        if group["id"] == "fails-with-stock-installed-extension"
+    )
+    assert stock_failure["paths"] == ["test_destruction_order.py"]
 
 
 def test_validate_source_accepts_exact_clean_checkout(tmp_path):
