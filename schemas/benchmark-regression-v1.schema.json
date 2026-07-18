@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/awesomebytes/rclcppyy/schemas/benchmark-regression-v1.schema.json",
+  "title": "rclcppyy repeated benchmark regression result v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "decision",
+    "performance_claims_allowed",
+    "budget",
+    "evidence",
+    "aggregates",
+    "comparisons",
+    "violations"
+  ],
+  "properties": {
+    "schema": {"const": "rclcppyy.benchmark-regression/v1"},
+    "decision": {"enum": ["pass", "fail", "calibration_required"]},
+    "performance_claims_allowed": {"const": false},
+    "budget": {"type": "object"},
+    "evidence": {"type": "object"},
+    "aggregates": {"type": "array", "items": {"type": "object"}},
+    "comparisons": {"type": "array", "items": {"type": "object"}},
+    "violations": {"type": "array", "items": {"type": "object"}}
+  }
+}

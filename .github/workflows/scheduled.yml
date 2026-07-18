@@ -148,6 +148,12 @@ jobs:
               --payload-bytes 0,4096 --duration 15 \
               --output "build/dedicated-benchmark/run-${repeat}.json"
           done
+      - name: Gate repeated results against reviewed architecture budget
+        run: |
+          pixi run bench-regression \
+            --budget "benchmarks/regression-budgets/${{ matrix.machine }}.json" \
+            --output build/dedicated-benchmark/regression.json \
+            build/dedicated-benchmark/run-{1,2,3,4,5}.json
       - name: Upload raw benchmark evidence
         if: always()
         uses: actions/upload-artifact@v4

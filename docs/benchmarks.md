@@ -54,6 +54,54 @@ measurement mode. Smoke reports identify validation-only evidence; measurement
 reports identify characterization inputs and do not select a winner. A separate
 reviewed analysis must combine repeated controlled runs before making a claim.
 
+## Regression Gate
+
+The opt-in dedicated workflow runs the complete measurement matrix five times on
+each self-hosted architecture and then invokes `bench-regression`. The comparator
+accepts only clean-source measurement artifacts with no failures. It rejects
+changes in source commit, machine, runtime, ROS/RMW environment, matrix dimensions,
+case coverage, or observed publisher/subscriber backend evidence between repeats.
+
+The comparator records each case's raw values and median. Reviewed comparisons are
+relative: candidate and reference cases are paired within each repetition and the
+gate evaluates the median of those paired ratios. This limits sensitivity to one
+outlying run while preserving the same-machine comparison. Effective message rate
+uses a minimum ratio; latency percentiles and publisher/subscriber CPU use maximum
+ratios.
+
+Architecture budgets live in `benchmarks/regression-budgets/` and conform to
+[`benchmark-regression-budget-v1.schema.json`](../schemas/benchmark-regression-budget-v1.schema.json).
+The deterministic output conforms to
+[`benchmark-regression-v1.schema.json`](../schemas/benchmark-regression-v1.schema.json).
+It always sets `performance_claims_allowed` to false: passing a reviewed regression
+budget means no reviewed budget was exceeded, not that a broader performance claim
+has been established.
+
+Both committed architecture budgets initially use `status: calibration_required`
+and contain no thresholds. This is intentional: hosted CI or development-machine
+measurements must not define dedicated-hardware policy. In this state the comparator
+writes `regression.json` and exits with status 2, so the opt-in job cannot appear to
+pass without a reviewed budget.
+
+To calibrate one architecture:
+
+1. Run several dedicated workflow executions under fixed machine controls.
+2. Review the uploaded raw runs and `regression.json` for stability and coverage.
+3. Pin the exact CPU model and logical CPU count in that architecture's budget.
+4. Add reviewer identity, review time, case selectors, and evidence-derived relative
+   ratio limits; change the status to `reviewed`.
+5. Re-run the dedicated workflow. Exit status 0 means every reviewed limit passed;
+   status 1 means invalid evidence or a regression violation.
+
+Run the same gate locally only with repeated results from one controlled machine:
+
+```bash
+pixi run bench-regression \
+  --budget benchmarks/regression-budgets/x86_64.json \
+  --output build/dedicated-benchmark/regression.json \
+  build/dedicated-benchmark/run-{1,2,3,4,5}.json
+```
+
 ## Native Python Boundary Characterization
 
 `run_boundary_benchmark.py` isolates one narrower question from ROS transport:

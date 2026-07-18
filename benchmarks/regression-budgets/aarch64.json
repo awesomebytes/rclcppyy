@@ -1,0 +1,15 @@
+{
+  "architecture": "aarch64",
+  "comparisons": [],
+  "environment": {
+    "rmw_implementation": "rmw_cyclonedds_cpp",
+    "ros_distribution": "jazzy"
+  },
+  "machine": {
+    "cpu_model": null,
+    "logical_cpu_count": null
+  },
+  "minimum_repetitions": 5,
+  "schema": "rclcppyy.benchmark-regression-budget/v1",
+  "status": "calibration_required"
+}
