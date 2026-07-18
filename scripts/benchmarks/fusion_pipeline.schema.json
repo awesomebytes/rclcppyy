@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rclcppyy.local/schemas/fusion-pipeline-benchmark-v1.json",
+  "title": "rclcppyy controlled C++ topology-fusion benchmark",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generated_at",
+    "command",
+    "environment",
+    "benchmark",
+    "results",
+    "comparison",
+    "failures"
+  ],
+  "properties": {
+    "schema": {"const": "rclcppyy.fusion-pipeline-benchmark/v1"},
+    "generated_at": {"type": "string"},
+    "command": {"type": "array", "items": {"type": "string"}},
+    "environment": {"type": "object"},
+    "benchmark": {
+      "type": "object",
+      "required": [
+        "name",
+        "mode",
+        "performance_claims_allowed",
+        "parameters",
+        "isolation",
+        "aot_build",
+        "cache",
+        "source_files",
+        "statistics",
+        "contract_change"
+      ],
+      "properties": {
+        "name": {"const": "controlled_cpp_topology_fusion"},
+        "mode": {"enum": ["smoke", "measurement"]},
+        "performance_claims_allowed": {"const": false},
+        "parameters": {
+          "type": "object",
+          "required": [
+            "variants",
+            "messages",
+            "warmup_messages",
+            "repetitions",
+            "requested_rmw",
+            "ros_distro",
+            "qos",
+            "execution_order"
+          ],
+          "properties": {
+            "variants": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {"enum": ["aot-staged", "cppyy-fused", "aot-fused"]}
+            },
+            "messages": {"type": "integer", "minimum": 1},
+            "warmup_messages": {"type": "integer", "minimum": 1},
+            "repetitions": {"type": "integer", "minimum": 1},
+            "requested_rmw": {"const": "rmw_cyclonedds_cpp"},
+            "ros_distro": {"const": "jazzy"},
+            "qos": {"type": "object"},
+            "execution_order": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "isolation": {"type": "object"},
+        "aot_build": {"type": "object"},
+        "cache": {"type": "object"},
+        "source_files": {"type": "object"},
+        "statistics": {"type": "object"},
+        "contract_change": {
+          "type": "object",
+          "required": [
+            "opt_in",
+            "external_input_output_unchanged",
+            "logical_transform_sequence_unchanged",
+            "removed_intermediate_ros_topics",
+            "removed_intermediate_entity_pairs",
+            "intermediate_graph_observability_preserved"
+          ],
+          "properties": {
+            "opt_in": {"const": true},
+            "external_input_output_unchanged": {"const": true},
+            "logical_transform_sequence_unchanged": {"const": true},
+            "removed_intermediate_ros_topics": {"const": 3},
+            "removed_intermediate_entity_pairs": {"const": 3},
+            "intermediate_graph_observability_preserved": {"const": false}
+          }
+        }
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "schema",
+          "variant",
+          "relay_ready",
+          "driver_warmed",
+          "relay_armed",
+          "driver_measured",
+          "relay_report",
+          "driver_teardown",
+          "timing"
+        ],
+        "properties": {
+          "schema": {"const": "rclcppyy.fusion-pipeline-sample/v1"},
+          "variant": {"enum": ["aot-staged", "cppyy-fused", "aot-fused"]},
+          "relay_ready": {
+            "type": "object",
+            "required": ["representation", "python_message_conversions", "composition"],
+            "properties": {
+              "representation": {"const": "std_msgs::msg::UInt64"},
+              "python_message_conversions": {"const": 0},
+              "composition": {"type": "object"}
+            }
+          },
+          "driver_warmed": {"type": "object"},
+          "relay_armed": {"type": "object"},
+          "driver_measured": {"type": "object"},
+          "relay_report": {
+            "type": "object",
+            "required": [
+              "python_callback_count",
+              "python_boundary_crossings",
+              "python_message_conversions"
+            ],
+            "properties": {
+              "python_callback_count": {"const": 0},
+              "python_boundary_crossings": {"const": 0},
+              "python_message_conversions": {"const": 0}
+            }
+          },
+          "driver_teardown": {"type": "object"},
+          "timing": {"type": "object"}
+        }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "required": ["interpretation_allowed"],
+      "properties": {"interpretation_allowed": {"const": false}}
+    },
+    "failures": {"type": "array"}
+  }
+}
