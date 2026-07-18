@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://awesomebytes.github.io/rclcppyy/schema/compatibility-v1.json",
+  "$id": "https://awesomebytes.github.io/rclcppyy/schema/compatibility-v2.json",
   "title": "rclcppyy compatibility manifest",
   "type": "object",
-  "required": ["schema", "ros_distribution", "reviewed_at", "entries"],
+  "required": ["schema", "ros_distribution", "reviewed_at", "upstream_contract", "entries"],
   "additionalProperties": false,
   "properties": {
     "schema": {
-      "const": "rclcppyy.compatibility/v1"
+      "const": "rclcppyy.compatibility/v2"
     },
     "ros_distribution": {
       "type": "string",
@@ -17,14 +17,55 @@
       "type": "string",
       "format": "date"
     },
+    "upstream_contract": {
+      "$ref": "#/$defs/upstream_contract"
+    },
     "entries": {
       "type": "array",
+      "minItems": 1,
       "items": {
         "$ref": "#/$defs/entry"
       }
     }
   },
   "$defs": {
+    "upstream_contract": {
+      "type": "object",
+      "required": ["manifest", "coverage"],
+      "additionalProperties": false,
+      "properties": {
+        "manifest": {
+          "type": "string",
+          "minLength": 1
+        },
+        "coverage": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/upstream_coverage"
+          }
+        }
+      }
+    },
+    "upstream_coverage": {
+      "type": "object",
+      "required": ["path", "disposition", "entry_id"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "disposition": {
+          "enum": ["selected", "reviewed_exclusion"]
+        },
+        "entry_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_.-]+$"
+        }
+      }
+    },
     "entry": {
       "type": "object",
       "required": [
@@ -58,7 +99,13 @@
             "parameter",
             "lifecycle",
             "context",
-            "serialization"
+            "serialization",
+            "logging",
+            "qos",
+            "time",
+            "graph",
+            "utility",
+            "type_support"
           ]
         },
         "api": {
@@ -66,7 +113,13 @@
           "minLength": 1
         },
         "support": {
-          "enum": ["certified", "experimental", "unsupported"]
+          "enum": [
+            "certified",
+            "stock_authoritative",
+            "experimental",
+            "unsupported",
+            "unassessed"
+          ]
         },
         "backend": {
           "enum": ["cpp", "python", "mixed", "none"]

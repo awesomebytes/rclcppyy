@@ -33,8 +33,11 @@ route is certified for that operation. The complete operation otherwise remains
 stock Python; `rclcppyy` does not create a companion node or split ownership.
 
 The compatibility manifest at `compatibility/jazzy.json` is the source of truth
-for certified, experimental, and unsupported surfaces. Activation alone is not
-evidence that a particular operation used C++.
+for certified, stock-authoritative, experimental, unsupported, and unassessed
+surfaces. Its closed upstream mapping accounts for every selected test and reviewed
+exclusion in the pinned Jazzy contract. Stock-authoritative means compatible stock
+Python behavior, not a C++ route; activation alone is not evidence that a particular
+operation used C++.
 
 ## Required-C++ profile
 

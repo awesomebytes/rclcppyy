@@ -1,7 +1,64 @@
 {
-  "schema": "rclcppyy.compatibility/v1",
+  "schema": "rclcppyy.compatibility/v2",
   "ros_distribution": "jazzy",
   "reviewed_at": "2026-07-18",
+  "upstream_contract": {
+    "manifest": "compatibility/upstream-rclpy-contract.json",
+    "coverage": [
+      {"path": "test_action_graph.py", "disposition": "selected", "entry_id": "action.graph_queries"},
+      {"path": "test_action_client.py", "disposition": "selected", "entry_id": "action.client_server"},
+      {"path": "test_action_server.py", "disposition": "selected", "entry_id": "action.concurrent_abort_error_expiry"},
+      {"path": "test_callback_group.py", "disposition": "selected", "entry_id": "executor.stock_extensions"},
+      {"path": "test_client.py", "disposition": "selected", "entry_id": "service.extended_stock_surface"},
+      {"path": "test_create_node.py", "disposition": "selected", "entry_id": "node.create_node"},
+      {"path": "test_create_while_spinning.py", "disposition": "selected", "entry_id": "node.extended_stock_surface"},
+      {"path": "test_destruction.py", "disposition": "selected", "entry_id": "node.extended_stock_surface"},
+      {"path": "test_events_executor.py", "disposition": "selected", "entry_id": "executor.stock_extensions"},
+      {"path": "test_executor.py", "disposition": "selected", "entry_id": "executor.stock_extensions"},
+      {"path": "test_guard_condition.py", "disposition": "selected", "entry_id": "executor.guard_condition"},
+      {"path": "test_init_shutdown.py", "disposition": "selected", "entry_id": "context.stock_initialization"},
+      {"path": "test_lifecycle.py", "disposition": "selected", "entry_id": "lifecycle.node"},
+      {"path": "test_logging.py", "disposition": "selected", "entry_id": "logging.stock_surface"},
+      {"path": "test_logging_rosout.py", "disposition": "selected", "entry_id": "logging.stock_surface"},
+      {"path": "test_logging_service.py", "disposition": "selected", "entry_id": "logging.stock_surface"},
+      {"path": "test_node.py", "disposition": "selected", "entry_id": "node.extended_stock_surface"},
+      {"path": "test_parameter.py", "disposition": "selected", "entry_id": "parameter.value_and_event_helpers"},
+      {"path": "test_parameter_client.py", "disposition": "selected", "entry_id": "parameter.remote"},
+      {"path": "test_parameter_event_handler.py", "disposition": "selected", "entry_id": "parameter.value_and_event_helpers"},
+      {"path": "test_parameter_service.py", "disposition": "selected", "entry_id": "parameter.local"},
+      {"path": "test_publisher.py", "disposition": "selected", "entry_id": "publisher.basic"},
+      {"path": "test_qos.py", "disposition": "selected", "entry_id": "qos.stock_surface"},
+      {"path": "test_qos_event.py", "disposition": "selected", "entry_id": "qos.stock_surface"},
+      {"path": "test_qos_overriding_options.py", "disposition": "selected", "entry_id": "qos.stock_surface"},
+      {"path": "test_rate.py", "disposition": "selected", "entry_id": "time.stock_surface"},
+      {"path": "test_rosout_subscription.py", "disposition": "selected", "entry_id": "logging.stock_surface"},
+      {"path": "test_serialization.py", "disposition": "selected", "entry_id": "serialization.stock_functions"},
+      {"path": "test_service.py", "disposition": "selected", "entry_id": "service.client_server"},
+      {"path": "test_service_introspection.py", "disposition": "selected", "entry_id": "service.extended_stock_surface"},
+      {"path": "test_subscription.py", "disposition": "selected", "entry_id": "subscription.advanced_options"},
+      {"path": "test_timer.py", "disposition": "selected", "entry_id": "timer.wall"},
+      {"path": "test_time_source.py", "disposition": "selected", "entry_id": "time.stock_surface"},
+      {"path": "test_wait_for_message.py", "disposition": "selected", "entry_id": "subscription.wait_for_message"},
+      {"path": "test_waitable.py", "disposition": "selected", "entry_id": "executor.stock_extensions"},
+      {"path": "test_clock.py", "disposition": "selected", "entry_id": "time.stock_surface"},
+      {"path": "test_context.py", "disposition": "selected", "entry_id": "context.stock_initialization"},
+      {"path": "test_expand_topic_name.py", "disposition": "selected", "entry_id": "graph.utility_surface"},
+      {"path": "test_messages.py", "disposition": "selected", "entry_id": "message.value_semantics"},
+      {"path": "test_task.py", "disposition": "selected", "entry_id": "executor.stock_extensions"},
+      {"path": "test_time.py", "disposition": "selected", "entry_id": "time.stock_surface"},
+      {"path": "test_topic_endpoint_info.py", "disposition": "selected", "entry_id": "graph.utility_surface"},
+      {"path": "test_topic_or_service_is_hidden.py", "disposition": "selected", "entry_id": "graph.utility_surface"},
+      {"path": "test_type_hash.py", "disposition": "selected", "entry_id": "type_support.stock_surface"},
+      {"path": "test_utilities.py", "disposition": "selected", "entry_id": "utility.process_surface"},
+      {"path": "test_validate_full_topic_name.py", "disposition": "selected", "entry_id": "graph.utility_surface"},
+      {"path": "test_validate_namespace.py", "disposition": "selected", "entry_id": "graph.utility_surface"},
+      {"path": "test_validate_node_name.py", "disposition": "selected", "entry_id": "graph.utility_surface"},
+      {"path": "test_validate_topic_name.py", "disposition": "selected", "entry_id": "graph.utility_surface"},
+      {"path": "test_destruction_order.py", "disposition": "reviewed_exclusion", "entry_id": "node.private_destruction_order"},
+      {"path": "test_type_description_service.py", "disposition": "reviewed_exclusion", "entry_id": "type_support.type_description_service"},
+      {"path": "test_type_support.py", "disposition": "reviewed_exclusion", "entry_id": "type_support.negative_validation"}
+    ]
+  },
   "entries": [
     {
       "id": "activation.source.enable",
@@ -213,15 +270,26 @@
       "notes": "The wrapper delegates to stock execution and reports Python authority. Timer, guard, service, simulated-time, custom executor, signature, and required_cpp fail-before-spin behavior are covered. Timer, subscription, service, and guard callback exceptions preserve their exact user-defined Python types."
     },
     {
-      "id": "executor.custom_and_multi_threaded",
+      "id": "executor.multi_threaded",
       "area": "executor",
-      "api": "Custom executors, MultiThreadedExecutor, callback groups, and waitables",
+      "api": "MultiThreadedExecutor with reentrant and mutually exclusive callback groups",
+      "support": "certified",
+      "backend": "python",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "test/test_optimized_signal_wake.py", "test/_optimized_signal_worker.py", "rclcppyy/monkey.py"],
+      "notes": "A two-thread MultiThreadedExecutor with a reentrant callback group, shutdown, status reporting, exception preservation, and required_cpp rejection is covered by differential evidence. The stock executor remains authoritative; custom Executor subclasses and sustained cross-architecture stress are not implied."
+    },
+    {
+      "id": "executor.custom_overrides_and_stress",
+      "area": "executor",
+      "api": "Custom Executor subclasses, overridden scheduling internals, and sustained cross-architecture stress",
       "support": "experimental",
       "backend": "python",
       "fallback": "safe",
       "default": false,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "test/test_optimized_signal_wake.py", "test/_optimized_signal_worker.py", "rclcppyy/monkey.py"],
-      "notes": "A two-thread MultiThreadedExecutor with a reentrant callback group, shutdown, status reporting, and required_cpp rejection is covered. Optimized direct single- and multi-threaded spin use bounded stock waits and preserve signatures, membership, and exceptions. Custom executor overrides, waitables, and sustained cross-architecture stress remain open."
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "notes": "Selected stock executor extensions are covered separately. Arbitrary Executor overrides can bypass or conflict with patched methods, and sustained workload evidence across architectures remains incomplete."
     },
     {
       "id": "executor.optimized_signal_wake_mitigation",
@@ -290,15 +358,26 @@
       "notes": "A generated nested action proves discovery, goal acceptance, feedback, successful result, and teardown against a separately compiled C++ server on local x86-64. The same source proof is wired into native ARM64 CI but is not certified there until a remote run succeeds. The Python client remains explicitly reported as Python-owned."
     },
     {
-      "id": "action.advanced_and_error_paths",
+      "id": "action.concurrent_abort_error_expiry",
       "area": "action",
-      "api": "Custom action QoS, explicit goal UUIDs, synchronous calls, abort/error callbacks, concurrent goals, and result expiry",
+      "api": "Concurrent goals, abort, execute exceptions, feedback validation, cancellation, and result expiry",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "rclcppyy/monkey.py"],
+      "notes": "The pinned activated upstream ActionServer contract covers multiple and duplicate goals, accept/reject, abort, execute exceptions, feedback type errors, cancellation, and result expiry. These paths remain exact stock rclpy behavior; no C++ action route is claimed."
+    },
+    {
+      "id": "action.custom_qos_uuid_sync",
+      "area": "action",
+      "api": "Custom action QoS, explicit goal UUIDs, and synchronous ActionClient calls",
       "support": "experimental",
       "backend": "python",
       "fallback": "safe",
       "default": false,
-      "evidence": ["test/fixtures/custom_interfaces/run_interop.py", "rclcppyy/monkey.py"],
-      "notes": "The certified corpus uses explicit callback groups and result_timeout, but custom QoS, UUID injection, synchronous APIs, abort and exception propagation, concurrency stress, and expired-result behavior remain unproven."
+      "evidence": ["test/fixtures/custom_interfaces/run_interop.py", "compatibility/upstream-rclpy-contract.json", "rclcppyy/monkey.py"],
+      "notes": "The passing action corpus does not exercise custom action QoS profiles, explicit goal UUID injection, or the synchronous ActionClient APIs. Those narrower paths remain experimental."
     },
     {
       "id": "parameter.local",
@@ -393,11 +472,11 @@
       "area": "context",
       "api": "Repeated init/shutdown of the default global Context",
       "support": "unsupported",
-      "backend": "mixed",
+      "backend": "none",
       "fallback": "unsafe",
       "default": false,
       "evidence": ["rclcppyy/bringup_rclcpp.py", "rclcppyy/monkey.py"],
-      "notes": "The explicit-Context matrix does not prove repeated default-global initialization or interactions with the process-global rclcpp bringup Context."
+      "notes": "The pinned stock initialization tests run without exercising a C++ publisher in that process. Repeated default-global initialization after the same-handle route has initialized process-global rclcpp state remains unsupported; use explicit Context objects."
     },
     {
       "id": "serialization.cdr_parity",
@@ -409,6 +488,204 @@
       "default": false,
       "evidence": ["test/test_serialization_parity.py"],
       "notes": "Flat and tested message bytes match the stock serializer; this is a native capability and not yet a global rclpy.serialization patch."
+    },
+    {
+      "id": "action.graph_queries",
+      "area": "action",
+      "api": "get_action_names_and_types and per-node action client/server graph queries",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "not_applicable",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "notes": "The pinned activated action-graph tests preserve names, types, and node identity. These graph queries are untouched stock rclpy operations."
+    },
+    {
+      "id": "context.stock_initialization",
+      "area": "context",
+      "api": "Stock Context construction, init/shutdown sequences, signals, domain IDs, callbacks, and context-manager use",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "notes": "The selected initialization and Context files pass with activation, including invalid sequences and repeated shutdown. This does not cover repeated default-Context initialization after a C++ publisher route has initialized process-global rclcpp state."
+    },
+    {
+      "id": "executor.stock_extensions",
+      "area": "executor",
+      "api": "Callback groups, add/remove node, tasks and coroutines, spin_until_future_complete, selected Waitables, and EventsExecutor",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "rclcppyy/monkey.py"],
+      "notes": "The pinned activated tests cover stock single- and multi-threaded scheduling, tasks, coroutine callbacks, runtime entity mutation, callback-group exclusion, representative custom waitables, and the opt-in EventsExecutor. EventsExecutor retains its upstream experimental status; arbitrary Executor method overrides and sustained stress are excluded from this entry."
+    },
+    {
+      "id": "graph.utility_surface",
+      "area": "graph",
+      "api": "Topic expansion and validation, namespace/node validation, hidden-name classification, TopicEndpointInfo, and TypeHash graph values",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "not_applicable",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "notes": "The pinned value and validation tests preserve accepted values, invalid indices, exception types, endpoint identity, GIDs, QoS, and type hashes."
+    },
+    {
+      "id": "logging.stock_surface",
+      "area": "logging",
+      "api": "Logger hierarchy, severity, throttling, rosout transport, and logging services",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "notes": "Activated upstream tests cover logger configuration and formatting, once/throttle/skip-first filters, ROS-time throttling, rosout delivery and disablement, hierarchy, and get/set logging services."
+    },
+    {
+      "id": "message.value_semantics",
+      "area": "message",
+      "api": "Generated Python message defaults, constants, equality, inequality, and serialization errors",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "not_applicable",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "notes": "Compatible activation retains the installed generated Python classes, and the selected message tests preserve their value semantics. Arbitrary interface shapes beyond the reviewed generated packages are not implied."
+    },
+    {
+      "id": "node.extended_stock_surface",
+      "area": "node",
+      "api": "Stock Node accessors, graph queries/counts, name resolution, clocks, logger, executor association, parameter files, dynamic entity creation, and destruction",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_differential_application.py", "test/differential/_application_probe.py"],
+      "notes": "The full selected Node, create-while-spinning, and destruction files pass under activation. This entry covers unchanged stock behavior, including invalid-handle and active-executor teardown, but excludes private native-handle mutation."
+    },
+    {
+      "id": "parameter.value_and_event_helpers",
+      "area": "parameter",
+      "api": "Parameter values and conversion, YAML parsing, descriptors, and ParameterEventHandler callback management",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "not_applicable",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "notes": "The selected parameter value and event-handler tests preserve arrays, equality, validation, YAML loading, callback registration/removal/order, event matching, and path resolution."
+    },
+    {
+      "id": "qos.stock_surface",
+      "area": "qos",
+      "api": "QoS profiles, policies, presets, compatibility, events, and overriding options",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_differential_application.py", "test/differential/_application_probe.py"],
+      "notes": "Construction, conversion, validation, compatibility, runtime overrides, event-handle lifetime, incompatible-QoS callbacks, and matched/unmatched callbacks remain stock-authoritative. Middleware-specific event generation outside the reviewed matrix is not implied."
+    },
+    {
+      "id": "serialization.stock_functions",
+      "area": "serialization",
+      "api": "rclpy.serialization.serialize_message and deserialize_message",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "not_applicable",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_serialization_parity.py"],
+      "notes": "Stock serialization round trips and error behavior pass under activation. The separate native CDR API is opt-in and does not replace these functions."
+    },
+    {
+      "id": "service.extended_stock_surface",
+      "area": "service",
+      "api": "Client synchronous/asynchronous calls, concurrency, discovery, remapping, timeouts, and service introspection",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "rclcppyy/monkey.py"],
+      "notes": "The pinned activated tests cover concurrent and synchronous calls, timeout behavior, name remapping, type rejection, timestamps, and service-introspection metadata and contents. No C++ service route is claimed."
+    },
+    {
+      "id": "subscription.wait_for_message",
+      "area": "subscription",
+      "api": "rclpy.wait_for_message with default or explicit QoS and timeout",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "notes": "The synchronous convenience API remains stock-authoritative and passes message, explicit-QoS, and timeout cases under activation."
+    },
+    {
+      "id": "time.stock_surface",
+      "area": "time",
+      "api": "Clock, ROSClock, Time, Duration, Rate, TimeSource, jump callbacks, sleep, and simulated time",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_differential_application.py", "test/differential/_application_probe.py"],
+      "notes": "The selected tests cover construction, arithmetic and comparison, message conversion, clock sleep and shutdown, ROS-time activation, jumps, clock attachment, Rate destruction/wake, and /clock delivery."
+    },
+    {
+      "id": "type_support.stock_surface",
+      "area": "type_support",
+      "api": "TypeHash values and type-support checks for installed generated message and service classes",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "not_applicable",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "notes": "TypeHash semantics and happy-path type-support loading used by selected waitables are covered. Negative checks requiring the upstream-built test extension are tracked separately as unassessed."
+    },
+    {
+      "id": "utility.process_surface",
+      "area": "utility",
+      "api": "Default-context helpers, ROS argument removal, ok/shutdown helpers, RMW identity, available RMWs, timeout conversion, and signal options",
+      "support": "stock_authoritative",
+      "backend": "python",
+      "fallback": "not_applicable",
+      "default": true,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "notes": "The pinned utilities and initialization tests preserve process helper return values and signal-handler option behavior. Default-Context reuse after C++ bringup remains subject to the explicit unsupported entry."
+    },
+    {
+      "id": "node.private_destruction_order",
+      "area": "node",
+      "api": "Destruction ordering after direct mutation of the private native context_handle",
+      "support": "unassessed",
+      "backend": "none",
+      "fallback": "not_applicable",
+      "default": false,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "docs/upstream-rclpy-contract.md"],
+      "notes": "The unchanged pinned test fails with the stock installed extension because its ad hoc private context_handle assignment is rejected. Normal public destruction behavior is covered separately; this private mutation is not compatibility evidence."
+    },
+    {
+      "id": "type_support.type_description_service",
+      "area": "type_support",
+      "api": "TypeDescriptionService request using a graph-derived TypeHash",
+      "support": "unassessed",
+      "backend": "none",
+      "fallback": "not_applicable",
+      "default": false,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "docs/upstream-rclpy-contract.md"],
+      "notes": "The unchanged pinned test fails with stock rclpy 7.1.11 because the installed client rejects the graph-derived TypeHash. The source-only gate therefore cannot establish backend compatibility for this request path."
+    },
+    {
+      "id": "type_support.negative_validation",
+      "area": "type_support",
+      "api": "Type-support validation failures for invalid message, service, and mock types",
+      "support": "unassessed",
+      "backend": "none",
+      "fallback": "not_applicable",
+      "default": false,
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "docs/upstream-rclpy-contract.md"],
+      "notes": "The excluded test requires the upstream repository's separately built test extension. Installed generated types are covered on the happy path, but these negative and mock-type contracts remain unassessed."
     }
   ]
 }
