@@ -96,8 +96,8 @@ def test_repository_manifest_has_exact_review_partition():
         for group in manifest["reviewed_exclusions"]
         for path in group["paths"]
     }
-    assert len(selected) == 35
-    assert len(excluded) == 17
+    assert len(selected) == 49
+    assert len(excluded) == 3
     assert not selected & excluded
     assert len(selected | excluded) == manifest["inventory"]["file_count"]
     assert len(manifest["support_files"]) == 5

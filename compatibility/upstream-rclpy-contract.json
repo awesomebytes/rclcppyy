@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "contract_id": "rclpy-jazzy-7.1.11-reviewed-v3",
+  "contract_id": "rclpy-jazzy-7.1.11-reviewed-v4",
   "source": {
     "repository": "https://github.com/ros2/rclpy.git",
     "revision": "baf9d72cfa127e391a89b4ab51ba9e55c37041fd",
@@ -177,6 +177,62 @@
     {
       "path": "test_waitable.py",
       "reason": "Custom client, service, timer, subscription, guard-condition, and mutually-exclusive waitables cover executor extension behavior."
+    },
+    {
+      "path": "test_clock.py",
+      "reason": "Clock construction, sleep, jump callbacks, ROS time overrides, and shutdown behavior cover the clock contract."
+    },
+    {
+      "path": "test_context.py",
+      "reason": "Context construction and repeated shutdown cover the base context lifetime contract."
+    },
+    {
+      "path": "test_expand_topic_name.py",
+      "reason": "Topic-name expansion across node names and namespaces covers unchanged name resolution behavior."
+    },
+    {
+      "path": "test_messages.py",
+      "reason": "Generated message equality, inequality, constants, defaults, and serialization errors cover message semantics."
+    },
+    {
+      "path": "test_task.py",
+      "reason": "Future and Task completion, cancellation, exceptions, callbacks, and coroutine behavior cover executor primitives."
+    },
+    {
+      "path": "test_time.py",
+      "reason": "Time construction, arithmetic, comparison, conversion, and message round trips cover value semantics."
+    },
+    {
+      "path": "test_topic_endpoint_info.py",
+      "reason": "Topic endpoint type, names, namespaces, type hashes, GIDs, and QoS cover graph-query value behavior."
+    },
+    {
+      "path": "test_topic_or_service_is_hidden.py",
+      "reason": "Hidden topic and service name classification covers unchanged graph visibility rules."
+    },
+    {
+      "path": "test_type_hash.py",
+      "reason": "Type-hash construction, equality, representation, versioning, and detail values cover introspection semantics."
+    },
+    {
+      "path": "test_utilities.py",
+      "reason": "Default contexts, initialization helpers, RMW identity, and timeout conversion cover process utilities."
+    },
+    {
+      "path": "test_validate_full_topic_name.py",
+      "reason": "Full topic and service name validation covers unchanged validation results and exception contracts."
+    },
+    {
+      "path": "test_validate_namespace.py",
+      "reason": "Namespace validation covers unchanged accepted values, invalid indices, and exception contracts."
+    },
+    {
+      "path": "test_validate_node_name.py",
+      "reason": "Node-name validation covers unchanged accepted values, invalid indices, and exception contracts."
+    },
+    {
+      "path": "test_validate_topic_name.py",
+      "reason": "Topic and service name validation covers unchanged accepted values, invalid indices, and exceptions."
     }
   ],
   "reviewed_exclusions": [
@@ -187,26 +243,6 @@
         "test_type_description_service.py"
       ],
       "reason": "These unchanged tests fail with stock rclpy 7.1.11: the installed pybind Node rejects destruction-order's ad hoc context_handle assignment, and the stock client rejects the graph-derived TypeHash in the type-description request. They cannot provide backend evidence in this source-only gate."
-    },
-    {
-      "id": "upstream-unit-and-validation-slice",
-      "paths": [
-        "test_clock.py",
-        "test_context.py",
-        "test_expand_topic_name.py",
-        "test_messages.py",
-        "test_task.py",
-        "test_time.py",
-        "test_topic_endpoint_info.py",
-        "test_topic_or_service_is_hidden.py",
-        "test_type_hash.py",
-        "test_utilities.py",
-        "test_validate_full_topic_name.py",
-        "test_validate_namespace.py",
-        "test_validate_node_name.py",
-        "test_validate_topic_name.py"
-      ],
-      "reason": "Reviewed as mostly unit, validation, or query coverage; it adds less backend-specific evidence than the selected runtime contracts."
     },
     {
       "id": "requires-upstream-built-test-extension",

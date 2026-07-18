@@ -59,7 +59,9 @@ single-threaded, multi-threaded, and event-driven executors, guard conditions,
 context lifecycle, lifecycle nodes, logging and rosout, node graph and control-plane
 behavior, local and remote parameters, publishers, QoS and QoS events, rates,
 serialization, services and service introspection, subscriptions, simulated time,
-timers, message waiting, and custom waitables.
+timers, clocks and time values, futures/tasks, graph value objects, name expansion
+and validation, process utilities, generated message values, message waiting, and
+custom waitables.
 
 Exclusions are visible follow-up work and must not be reported as passing
 coverage. Two pinned upstream files are excluded separately because they fail
