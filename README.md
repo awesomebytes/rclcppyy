@@ -330,10 +330,10 @@ BEST_EFFORT topic is received normally; no `CYCLONEDDS_URI` tuning is required. 
 
 The startup hook is covered by `test/test_hook.py` (install / uninstall / status;
 `RCLCPPYY_ENABLE_HOOK=1` accelerates a fresh `import rclpy`; unset and `=0` leave
-stock rclpy untouched). For the acceleration on a node that *reads* message fields —
-where stock rclpy pays a per-message Python deserialisation that `ros2 topic hz`
-(raw subscription) does not — `scripts/heavy_hz_demo/run_heavy_hz.py` is a controlled
-publisher/subscriber harness (`pixi run -e heavydemo demo-heavy-hz`).
+stock rclpy untouched). `scripts/heavy_hz_demo/run_heavy_hz.py` remains a controlled
+large-message workload harness (`pixi run -e heavydemo demo-heavy-hz`), but its
+subscriber timing is not evidence of transparent acceleration while compatible
+subscription take and dispatch remain stock Python.
 
 > **Dev bridge.** The startup measurement and the fastest bring-up use the
 > zero-config auto-PCH, which postdates the published suite 0.1.0. Until the next

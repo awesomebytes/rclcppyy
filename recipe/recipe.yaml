@@ -72,9 +72,9 @@ about:
   summary: rclcpp bindings via cppyy — use ROS 2 C++ APIs from Python
   description: |
     rclcppyy exposes rclcpp (and related ROS 2 C++ APIs) to Python via cppyy,
-    letting rclpy-style code run on the C++ backend for lower CPU usage. It also
-    provides an enable_cpp_acceleration() monkeypatch so existing rclpy code can
-    use the C++ backend with a single line.
+    preserving stock rclpy objects while certified operations use explicit C++
+    routes with backend evidence. It also provides an enable_cpp_acceleration()
+    entry point so existing rclpy code can opt into those routes with a single line.
 
 extra:
   recipe-maintainers:
