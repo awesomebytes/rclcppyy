@@ -32,3 +32,10 @@ correctness and benchmark commands needed by the gates below.
 - Correctness/API coverage and explicit exclusions.
 - Before/after metrics with raw artifact paths and environment.
 - Negative results and remaining bottlenecks.
+
+## Runnable examples
+
+`fixtures/rewrite_projects/evidence_protocol.py` exercises one bounded rewrite at
+Tiers 0, 2, and 3. Use these projects to understand the evidence shape, not as
+universal benchmark results. Their artifacts intentionally use smoke mode and
+retain a blocker until the same cases are repeated on a controlled benchmark host.

@@ -53,6 +53,10 @@ backend evidence and measurements; never assume that entering C++ is faster.
 
 - `scripts/scan_project.py`: relocation-stable AST inventory and evidence-linked
   recommendation inputs. The Pixi task supplies its interpreter.
+- `fixtures/rewrite_projects/`: runnable stock/rewrite examples for compatible
+  activation, managed native ownership, and fused native callback tiers. Their
+  paired artifacts prove bounded behavior and backend routes while explicitly
+  forbidding performance claims from smoke timing.
 - `references/techniques.md`: tier and workload decision table.
 - `references/patterns.md`: activation, managed-native, callback, and pipeline forms.
 - `references/hazards.md`: ABI, lifetime, concurrency, cache, and teardown hazards.
