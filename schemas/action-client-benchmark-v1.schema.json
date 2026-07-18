@@ -1,0 +1,728 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/awesomebytes/rclcppyy/schemas/action-client-benchmark-v1.schema.json",
+  "title": "rclcppyy Jazzy/Cyclone action client benchmark v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generated_at",
+    "mode",
+    "command",
+    "environment",
+    "parameters",
+    "isolation",
+    "aot_build",
+    "cache",
+    "source_files",
+    "results",
+    "failures",
+    "claims",
+    "interpretation"
+  ],
+  "properties": {
+    "schema": {"const": "rclcppyy.action-client-benchmark/v1"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "mode": {"const": "measurement"},
+    "command": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "environment": {"type": "object"},
+    "parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variants",
+        "warmup_goals",
+        "measured_goals",
+        "feedback_per_goal",
+        "repetitions",
+        "requested_rmw",
+        "ros_distro",
+        "action_type",
+        "qos",
+        "execution_order"
+      ],
+      "properties": {
+        "variants": {
+          "const": [
+            "stock-rclpy",
+            "compatible-rclcppyy",
+            "native-python-orchestrated",
+            "native-cpp-state-machine",
+            "aot-staged"
+          ]
+        },
+        "warmup_goals": {"const": 20},
+        "measured_goals": {"const": 500},
+        "feedback_per_goal": {"const": 3},
+        "repetitions": {"const": 5},
+        "requested_rmw": {"const": "rmw_cyclonedds_cpp"},
+        "ros_distro": {"const": "jazzy"},
+        "action_type": {"const": "tf2_msgs/action/LookupTransform"},
+        "qos": {"$ref": "#/$defs/qos"},
+        "execution_order": {
+          "type": "array",
+          "minItems": 25,
+          "maxItems": 25,
+          "uniqueItems": true,
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fresh_process_pair_per_sample",
+        "fresh_process_groups_per_sample",
+        "unique_action_and_nodes_per_sample",
+        "one_leased_domain_per_run",
+        "rotating_variant_order",
+        "ros_domain_id"
+      ],
+      "properties": {
+        "fresh_process_pair_per_sample": {"const": true},
+        "fresh_process_groups_per_sample": {"const": true},
+        "unique_action_and_nodes_per_sample": {"const": true},
+        "one_leased_domain_per_run": {"const": true},
+        "rotating_variant_order": {"const": true},
+        "ros_domain_id": {"type": "integer", "minimum": 0, "maximum": 232}
+      }
+    },
+    "aot_build": {"$ref": "#/$defs/aot_build"},
+    "cache": {"$ref": "#/$defs/cache"},
+    "source_files": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runner", "protocol", "worker", "server_source", "client_source", "aot_cmake"
+      ],
+      "properties": {
+        "runner": {"$ref": "#/$defs/sha256"},
+        "protocol": {"$ref": "#/$defs/sha256"},
+        "worker": {"$ref": "#/$defs/sha256"},
+        "server_source": {"$ref": "#/$defs/sha256"},
+        "client_source": {"$ref": "#/$defs/sha256"},
+        "aot_cmake": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "results": {"type": "array", "items": {"$ref": "#/$defs/sample"}},
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["case_id", "variant", "repetition", "error"],
+        "properties": {
+          "case_id": {"type": "string", "minLength": 1},
+          "variant": {"$ref": "#/$defs/variant"},
+          "repetition": {"type": "integer", "minimum": 1, "maximum": 5},
+          "error": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "claims": {"const": {"enabled": false, "reason": "characterization_only"}},
+    "interpretation": {"const": {"enabled": false, "reason": "raw_evidence_only"}}
+  },
+  "$defs": {
+    "variant": {
+      "enum": [
+        "stock-rclpy",
+        "compatible-rclcppyy",
+        "native-python-orchestrated",
+        "native-cpp-state-machine",
+        "aot-staged"
+      ]
+    },
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "qos_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["history", "depth", "reliability", "durability"],
+      "properties": {
+        "history": {"enum": ["keep_last", "system_default"]},
+        "depth": {"type": "integer", "minimum": 0},
+        "reliability": {"enum": ["reliable", "system_default"]},
+        "durability": {"enum": ["volatile", "transient_local", "system_default"]}
+      }
+    },
+    "qos": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "goal_service", "result_service", "cancel_service", "feedback_topic", "status_topic"
+      ],
+      "properties": {
+        "goal_service": {"$ref": "#/$defs/qos_policy"},
+        "result_service": {"$ref": "#/$defs/qos_policy"},
+        "cancel_service": {"$ref": "#/$defs/qos_policy"},
+        "feedback_topic": {"$ref": "#/$defs/qos_policy"},
+        "status_topic": {"$ref": "#/$defs/qos_policy"}
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "required": ["cached", "path", "sha256", "size_bytes"],
+      "properties": {
+        "cached": {"type": "boolean"},
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1}
+      }
+    },
+    "prewarm": {
+      "type": "object",
+      "required": [
+        "schema", "pid", "loaded_rmw", "state_machine_source_id", "artifacts"
+      ],
+      "properties": {
+        "schema": {"const": "rclcppyy.action-client-prewarm/v1"},
+        "pid": {"type": "integer", "minimum": 1},
+        "loaded_rmw": {"const": "rmw_cyclonedds_cpp"},
+        "state_machine_source_id": {"type": "string", "pattern": "^[a-f0-9]{16}$"},
+        "artifacts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["native_action_client", "state_machine"],
+          "properties": {
+            "native_action_client": {"$ref": "#/$defs/artifact"},
+            "state_machine": {"$ref": "#/$defs/artifact"}
+          }
+        },
+        "stdout_diagnostics": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "cache": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "isolated_root",
+        "autopch_disabled",
+        "fresh_process_per_phase",
+        "compilation_excluded_from_samples",
+        "warm_hits_verified",
+        "persisted_after_run",
+        "phases"
+      ],
+      "properties": {
+        "isolated_root": {"const": true},
+        "autopch_disabled": {"const": true},
+        "fresh_process_per_phase": {"const": true},
+        "compilation_excluded_from_samples": {"const": true},
+        "warm_hits_verified": {"const": true},
+        "persisted_after_run": {"const": false},
+        "phases": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["cold", "warm"],
+          "properties": {
+            "cold": {"$ref": "#/$defs/prewarm"},
+            "warm": {"$ref": "#/$defs/prewarm"}
+          }
+        }
+      }
+    },
+    "aot_build": {
+      "type": "object",
+      "required": [
+        "build_type",
+        "private_build_directory",
+        "build_directory_persisted",
+        "compiler",
+        "compiler_version",
+        "compile_commands",
+        "server_source_sha256",
+        "client_source_sha256",
+        "cmake_sha256",
+        "executables",
+        "build_elapsed_ns"
+      ],
+      "properties": {
+        "build_type": {"const": "Release"},
+        "private_build_directory": {"const": true},
+        "build_directory_persisted": {"const": false},
+        "compiler": {"type": "string", "minLength": 1},
+        "compiler_version": {"type": "string", "minLength": 1},
+        "compile_commands": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["server", "client"],
+          "properties": {
+            "server": {"type": "string", "pattern": "-O3.*-DNDEBUG"},
+            "client": {"type": "string", "pattern": "-O3.*-DNDEBUG"}
+          }
+        },
+        "server_source_sha256": {"$ref": "#/$defs/sha256"},
+        "client_source_sha256": {"$ref": "#/$defs/sha256"},
+        "cmake_sha256": {"$ref": "#/$defs/sha256"},
+        "executables": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["server", "client"],
+          "properties": {
+            "server": {"$ref": "#/$defs/executable"},
+            "client": {"$ref": "#/$defs/executable"}
+          }
+        },
+        "build_elapsed_ns": {"type": "integer", "minimum": 1}
+      }
+    },
+    "executable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "sha256"],
+      "properties": {
+        "format": {"const": "ELF"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observed", "observations", "elapsed_ns"],
+      "properties": {
+        "observed": {"const": true},
+        "observations": {"type": "integer", "minimum": 1},
+        "elapsed_ns": {"type": "integer", "minimum": 0}
+      }
+    },
+    "percentiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["p50", "p95", "p99", "max"],
+      "properties": {
+        "p50": {"type": "integer", "minimum": 0},
+        "p95": {"type": "integer", "minimum": 0},
+        "p99": {"type": "integer", "minimum": 0},
+        "max": {"type": "integer", "minimum": 0}
+      }
+    },
+    "latency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["send_to_accept", "send_to_first_feedback", "send_to_result"],
+      "properties": {
+        "send_to_accept": {"$ref": "#/$defs/percentiles"},
+        "send_to_first_feedback": {"$ref": "#/$defs/percentiles"},
+        "send_to_result": {"$ref": "#/$defs/percentiles"}
+      }
+    },
+    "rss": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind", "unit", "baseline_peak_bytes", "final_peak_bytes", "growth_bytes",
+        "limit_bytes", "within_limit"
+      ],
+      "properties": {
+        "kind": {"const": "post-warmup-peak-rss-growth"},
+        "unit": {"const": "bytes"},
+        "baseline_peak_bytes": {"type": "integer", "minimum": 0},
+        "final_peak_bytes": {"type": "integer", "minimum": 0},
+        "growth_bytes": {"type": "integer", "minimum": 0},
+        "limit_bytes": {"const": 134217728},
+        "within_limit": {"const": true}
+      }
+    },
+    "crossings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["goal", "feedback", "result", "total"],
+      "properties": {
+        "goal": {"type": "integer", "minimum": 0},
+        "feedback": {"type": "integer", "minimum": 0},
+        "result": {"type": "integer", "minimum": 0},
+        "total": {"type": "integer", "minimum": 0}
+      }
+    },
+    "client_ready": {
+      "type": "object",
+      "required": [
+        "schema", "event", "variant", "run_token", "pid", "process_group_id",
+        "node_name", "action_name", "loaded_rmw", "action_type", "execution_model",
+        "action_authority", "action_implementation", "goal_representation", "qos",
+        "endpoints", "executor", "cache", "warmup_goals", "warmup_checksum",
+        "warmup_feedback", "warmup_results", "warmup_terminal_success", "active_goals",
+        "pending_operations"
+      ],
+      "properties": {
+        "schema": {"const": "rclcppyy.action-client-event/v1"},
+        "event": {"const": "ready"},
+        "variant": {"$ref": "#/$defs/variant"},
+        "loaded_rmw": {"const": "rmw_cyclonedds_cpp"},
+        "action_type": {"const": "tf2_msgs/action/LookupTransform"},
+        "action_authority": {"enum": ["python", "cpp"]},
+        "action_implementation": {"type": "string", "minLength": 1},
+        "goal_representation": {"enum": ["python-message", "cpp-message"]},
+        "qos": {"$ref": "#/$defs/qos"},
+        "endpoints": {"type": "object"},
+        "executor": {
+          "type": "object",
+          "required": ["authority", "kind", "threads"],
+          "properties": {
+            "authority": {"enum": ["python", "cpp"]},
+            "kind": {"const": "single_threaded"},
+            "threads": {"const": 1}
+          }
+        },
+        "cache": {"type": "object"},
+        "warmup_goals": {"const": 20},
+        "warmup_checksum": {"const": 210},
+        "warmup_feedback": {"const": 60},
+        "warmup_results": {"const": 20},
+        "warmup_terminal_success": {"const": 20},
+        "active_goals": {"const": 0},
+        "pending_operations": {"const": 0}
+      }
+    },
+    "server_ready": {
+      "type": "object",
+      "required": [
+        "schema", "event", "variant", "run_token", "pid", "process_group_id",
+        "node_name", "action_name", "loaded_rmw", "action_type", "action_authority",
+        "qos", "endpoints", "executor"
+      ],
+      "properties": {
+        "schema": {"const": "rclcppyy.action-server-event/v1"},
+        "event": {"const": "ready"},
+        "variant": {"$ref": "#/$defs/variant"},
+        "loaded_rmw": {"const": "rmw_cyclonedds_cpp"},
+        "action_type": {"const": "tf2_msgs/action/LookupTransform"},
+        "action_authority": {"const": "cpp"},
+        "qos": {"$ref": "#/$defs/qos"},
+        "endpoints": {"type": "object"},
+        "executor": {
+          "const": {"authority": "cpp", "kind": "single_threaded", "threads": 1}
+        }
+      }
+    },
+    "client_report": {
+      "type": "object",
+      "required": [
+        "schema", "event", "variant", "run_token", "pid", "process_group_id",
+        "warmup_goals", "measured_goals", "goals_sent", "goals_accepted",
+        "goals_rejected", "feedback_received", "feedback_dropped", "results_received",
+        "terminal_succeeded", "sequence_checksum", "last_sequence", "active_goals",
+        "pending_operations", "exceptions", "python_crossings",
+        "no_python_message_conversion", "cpu_time_ns", "cpu_clock", "wall_duration_ns",
+        "latency_ns", "rss_guard", "orchestration_poll_count", "teardown_clean",
+        "executor_thread_joined"
+      ],
+      "properties": {
+        "schema": {"const": "rclcppyy.action-client-event/v1"},
+        "event": {"const": "report"},
+        "variant": {"$ref": "#/$defs/variant"},
+        "warmup_goals": {"const": 20},
+        "measured_goals": {"const": 500},
+        "goals_sent": {"const": 520},
+        "goals_accepted": {"const": 520},
+        "goals_rejected": {"const": 0},
+        "feedback_received": {"const": 1560},
+        "feedback_dropped": {"const": 0},
+        "results_received": {"const": 520},
+        "terminal_succeeded": {"const": 520},
+        "sequence_checksum": {"const": 125250},
+        "last_sequence": {"const": 500},
+        "active_goals": {"const": 0},
+        "pending_operations": {"const": 0},
+        "exceptions": {"const": 0},
+        "python_crossings": {"$ref": "#/$defs/crossings"},
+        "cpu_time_ns": {"type": "integer", "minimum": 1},
+        "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
+        "wall_duration_ns": {"type": "integer", "minimum": 1},
+        "latency_ns": {"$ref": "#/$defs/latency"},
+        "rss_guard": {"$ref": "#/$defs/rss"},
+        "orchestration_poll_count": {"type": "integer", "minimum": 0},
+        "teardown_clean": {"const": true},
+        "executor_thread_joined": {"const": true}
+      }
+    },
+    "server_report": {
+      "type": "object",
+      "required": [
+        "schema", "event", "goals_received", "goals_accepted", "goals_rejected",
+        "feedback_sent", "results_sent", "terminal_succeeded", "warmup_checksum",
+        "measured_checksum", "active_goals", "pending_operations", "exceptions",
+        "cpu_time_ns", "cpu_clock", "cpu_role", "rss_guard", "teardown_clean"
+      ],
+      "properties": {
+        "schema": {"const": "rclcppyy.action-server-event/v1"},
+        "event": {"const": "report"},
+        "goals_received": {"const": 520},
+        "goals_accepted": {"const": 520},
+        "goals_rejected": {"const": 0},
+        "feedback_sent": {"const": 1560},
+        "results_sent": {"const": 520},
+        "terminal_succeeded": {"const": 520},
+        "warmup_checksum": {"const": 210},
+        "measured_checksum": {"const": 125250},
+        "active_goals": {"const": 0},
+        "pending_operations": {"const": 0},
+        "exceptions": {"const": 0},
+        "cpu_time_ns": {"type": "integer", "minimum": 1},
+        "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
+        "cpu_role": {"const": "drift_diagnostic_only"},
+        "rss_guard": {"$ref": "#/$defs/rss"},
+        "teardown_clean": {"const": true}
+      }
+    },
+    "sample": {
+      "type": "object",
+      "required": [
+        "schema", "case_id", "variant", "repetition", "run_token", "action_name",
+        "server_node", "client_node", "server_pid", "client_pid", "ros_domain_id",
+        "requested_rmw", "ros_distro", "topology", "graph", "server_ready",
+        "client_ready", "client_armed", "client_report", "server_report", "timing",
+        "server_cpu_diagnostic", "correctness_verified", "teardown_verified", "diagnostics"
+      ],
+      "properties": {
+        "schema": {"const": "rclcppyy.action-client-sample/v1"},
+        "case_id": {"type": "string", "minLength": 1},
+        "variant": {"$ref": "#/$defs/variant"},
+        "repetition": {"type": "integer", "minimum": 1, "maximum": 5},
+        "run_token": {"type": "string", "pattern": "^action_[a-f0-9]{32}$"},
+        "action_name": {
+          "type": "string",
+          "pattern": "^/rclcppyy/action_benchmark/run_[a-f0-9]{32}$"
+        },
+        "server_node": {"type": "string", "pattern": "^action_server_[a-f0-9]{12}$"},
+        "client_node": {"type": "string", "pattern": "^action_client_[a-f0-9]{12}$"},
+        "server_pid": {"type": "integer", "minimum": 1},
+        "client_pid": {"type": "integer", "minimum": 1},
+        "ros_domain_id": {"type": "integer", "minimum": 0, "maximum": 232},
+        "requested_rmw": {"const": "rmw_cyclonedds_cpp"},
+        "ros_distro": {"const": "jazzy"},
+        "topology": {"type": "object"},
+        "graph": {
+          "type": "object",
+          "required": [
+            "server_present_after_ready", "client_present_after_ready",
+            "exact_endpoints_present", "client_absent_after_exit", "server_absent_after_exit",
+            "endpoints_absent_after_exit", "ready_observation", "client_exit_observation",
+            "final_observation"
+          ],
+          "properties": {
+            "server_present_after_ready": {"const": true},
+            "client_present_after_ready": {"const": true},
+            "exact_endpoints_present": {"const": true},
+            "client_absent_after_exit": {"const": true},
+            "server_absent_after_exit": {"const": true},
+            "endpoints_absent_after_exit": {"const": true},
+            "ready_observation": {"$ref": "#/$defs/observation"},
+            "client_exit_observation": {"$ref": "#/$defs/observation"},
+            "final_observation": {"$ref": "#/$defs/observation"}
+          }
+        },
+        "server_ready": {"$ref": "#/$defs/server_ready"},
+        "client_ready": {"$ref": "#/$defs/client_ready"},
+        "client_armed": {
+          "type": "object",
+          "required": ["schema", "event", "cpu_clock", "measurement_reset"],
+          "properties": {
+            "schema": {"const": "rclcppyy.action-client-event/v1"},
+            "event": {"const": "armed"},
+            "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
+            "measurement_reset": {"const": true}
+          }
+        },
+        "client_report": {"$ref": "#/$defs/client_report"},
+        "server_report": {"$ref": "#/$defs/server_report"},
+        "timing": {
+          "type": "object",
+          "required": [
+            "client_cpu_ns_per_completed_goal", "completed_goals_per_second", "latency_ns"
+          ],
+          "properties": {
+            "client_cpu_ns_per_completed_goal": {"type": "number", "exclusiveMinimum": 0},
+            "completed_goals_per_second": {"type": "number", "exclusiveMinimum": 0},
+            "latency_ns": {"$ref": "#/$defs/latency"}
+          }
+        },
+        "server_cpu_diagnostic": {"type": "object"},
+        "correctness_verified": {"const": true},
+        "teardown_verified": {"const": true},
+        "diagnostics": {"type": "object"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"variant": {"const": "stock-rclpy"}}, "required": ["variant"]},
+          "then": {
+            "properties": {
+              "client_ready": {
+                "properties": {
+                  "execution_model": {"const": "stock-rclpy-action-client-python-goals"},
+                  "action_authority": {"const": "python"},
+                  "action_implementation": {"const": "rclpy.action.client.ActionClient"},
+                  "goal_representation": {"const": "python-message"}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"variant": {"const": "compatible-rclcppyy"}},
+            "required": ["variant"]
+          },
+          "then": {
+            "properties": {
+              "client_ready": {
+                "properties": {
+                  "execution_model": {
+                    "const": "compatible-activation-stock-python-action-client"
+                  },
+                  "action_authority": {"const": "python"},
+                  "action_implementation": {"const": "rclpy.action.client.ActionClient"},
+                  "goal_representation": {"const": "python-message"}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"variant": {"const": "native-python-orchestrated"}},
+            "required": ["variant"]
+          },
+          "then": {
+            "properties": {
+              "client_ready": {
+                "properties": {
+                  "execution_model": {
+                    "const": "managed-rclcpp-action-client-python-orchestration"
+                  },
+                  "action_authority": {"const": "cpp"},
+                  "action_implementation": {
+                    "const": "rclcpp_kit.native_action.NativeActionClient"
+                  },
+                  "goal_representation": {"const": "cpp-message"}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"variant": {"const": "native-cpp-state-machine"}},
+            "required": ["variant"]
+          },
+          "then": {
+            "properties": {
+              "client_ready": {
+                "properties": {
+                  "execution_model": {"const": "content-addressed-cpp-action-state-machine"},
+                  "action_authority": {"const": "cpp"},
+                  "action_implementation": {
+                    "const": "rclcppyy_action_benchmark::StateMachine"
+                  },
+                  "goal_representation": {"const": "cpp-message"}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"variant": {"const": "aot-staged"}}, "required": ["variant"]},
+          "then": {
+            "properties": {
+              "client_ready": {
+                "properties": {
+                  "execution_model": {
+                    "const": "conventional-release-aot-rclcpp-action-client"
+                  },
+                  "action_authority": {"const": "cpp"},
+                  "action_implementation": {
+                    "const": "rclcpp_action::Client<LookupTransform>"
+                  },
+                  "goal_representation": {"const": "cpp-message"}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "variant": {
+                "enum": [
+                  "stock-rclpy", "compatible-rclcppyy", "native-python-orchestrated"
+                ]
+              }
+            },
+            "required": ["variant"]
+          },
+          "then": {
+            "properties": {
+              "client_report": {
+                "properties": {
+                  "python_crossings": {
+                    "const": {"goal": 520, "feedback": 1560, "result": 520, "total": 2600}
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "variant": {"enum": ["stock-rclpy", "compatible-rclcppyy"]}
+            },
+            "required": ["variant"]
+          },
+          "then": {
+            "properties": {
+              "client_report": {
+                "properties": {
+                  "no_python_message_conversion": {"const": false}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "variant": {
+                "enum": [
+                  "native-python-orchestrated", "native-cpp-state-machine", "aot-staged"
+                ]
+              }
+            },
+            "required": ["variant"]
+          },
+          "then": {
+            "properties": {
+              "client_report": {
+                "properties": {
+                  "python_crossings": {
+                    "type": "object"
+                  },
+                  "no_python_message_conversion": {"const": true}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "variant": {"enum": ["native-cpp-state-machine", "aot-staged"]}
+            },
+            "required": ["variant"]
+          },
+          "then": {
+            "properties": {
+              "client_report": {
+                "properties": {
+                  "python_crossings": {
+                    "const": {"goal": 0, "feedback": 0, "result": 0, "total": 0}
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
