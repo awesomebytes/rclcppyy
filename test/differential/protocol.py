@@ -124,7 +124,7 @@ def validate_result(result):
             raise ProtocolError("stock result cannot claim backend expectations")
         if result["backend_status"] is not None:
             raise ProtocolError("stock result must not import backend status evidence")
-        if not result["backend_verified"]:
+        if result["outcome"] == "pass" and not result["backend_verified"]:
             raise ProtocolError("stock result must verify its unmodified process mode")
     elif result["outcome"] == "pass":
         if not result["backend_expectations"]:

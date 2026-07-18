@@ -92,6 +92,18 @@ def test_result_protocol_recomputes_activated_backend_evidence():
         encode_result(result)
 
 
+def test_error_result_can_report_backend_as_unverified():
+    result = _result()
+    result["outcome"] = "error"
+    result["backend_verified"] = False
+    result["error"] = {
+        "type": "RuntimeError",
+        "message": "probe failed",
+        "traceback": "traceback",
+    }
+    assert parse_result_lines(encode_result(result))["outcome"] == "error"
+
+
 def test_domain_leases_are_unique_and_supply_child_environment(tmp_path):
     with acquire_domain(tmp_path) as first, acquire_domain(tmp_path) as second:
         assert first.domain_id != second.domain_id
