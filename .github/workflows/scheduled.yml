@@ -1,0 +1,133 @@
+name: Scheduled hardening
+
+on:
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+    inputs:
+      dedicated_benchmarks:
+        description: Run full matrices on labeled self-hosted benchmark machines
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scheduled-hardening-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  native-safety:
+    name: safety (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            platform: linux-64
+            machine: x86_64
+          - runner: ubuntu-24.04-arm
+            platform: linux-aarch64
+            machine: aarch64
+    env:
+      MAKE_NPROCS: '2'
+      STDCXX: '17'
+      PYTHONPATH: ${{ github.workspace }}/_deps/cppyy_kit:${{ github.workspace }}/_deps/cppyy_kit/rclcpp_kit
+    steps:
+      - uses: actions/checkout@v5
+      - name: Checkout pinned kit sources
+        uses: actions/checkout@v5
+        with:
+          repository: awesomebytes/cppyy_kit
+          ref: e009fea9ba3d07870638de344a589a5ee56a8b03
+          path: _deps/cppyy_kit
+      - name: Verify architecture
+        run: test "$(uname -m)" = "${{ matrix.machine }}"
+      - uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          pixi-version: v0.70.0
+          environments: default
+          cache: true
+          cache-key: scheduled-${{ matrix.platform }}-
+          cache-write: false
+      - name: Validate source and compatibility manifest
+        run: |
+          pixi run lint
+          pixi run contract
+      - name: Run full contract with both RMWs
+        run: |
+          set -euo pipefail
+          mkdir -p build/scheduled
+          for rmw in rmw_cyclonedds_cpp rmw_fastrtps_cpp; do
+            RMW_IMPLEMENTATION="$rmw" pixi run pytest test/ -v -ra \
+              --junitxml="build/scheduled/${rmw}.xml"
+          done
+      - name: Run churn, concurrent publisher, and signal probes
+        run: |
+          set -euo pipefail
+          for rmw in rmw_cyclonedds_cpp rmw_fastrtps_cpp; do
+            RMW_IMPLEMENTATION="$rmw" pixi run python scripts/ci/stress_runtime.py \
+              2>&1 | tee "build/scheduled/stress-${rmw}.log"
+          done
+      - name: Exercise isolated cold and warm generated caches
+        run: |
+          set -euo pipefail
+          cache_root="$RUNNER_TEMP/rclcppyy-cold-cache"
+          rm -rf "$cache_root"
+          for state in cold warm; do
+            XDG_CACHE_HOME="$cache_root" CPPYY_KIT_NO_AUTOPCH=1 \
+              pixi run pytest test/test_phase0_same_handle_publisher.py -q \
+              2>&1 | tee "build/scheduled/cache-${state}.log"
+          done
+      - name: Upload scheduled evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scheduled-${{ matrix.platform }}
+          path: build/scheduled
+          if-no-files-found: error
+          retention-days: 30
+
+  dedicated-benchmark:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.dedicated_benchmarks }}
+    name: dedicated benchmark (${{ matrix.machine }})
+    runs-on: [self-hosted, linux, benchmark, '${{ matrix.machine }}']
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        machine: [x86_64, aarch64]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          pixi-version: v0.70.0
+          environments: default
+          cache: false
+      - name: Record machine controls
+        run: |
+          mkdir -p build/dedicated-benchmark
+          uname -a | tee build/dedicated-benchmark/machine.txt
+          lscpu | tee -a build/dedicated-benchmark/machine.txt
+          cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor \
+            | tee -a build/dedicated-benchmark/machine.txt || true
+      - name: Run repeated raw matrices
+        run: |
+          set -euo pipefail
+          for repeat in 1 2 3 4 5; do
+            pixi run bench --backends rclpy,rclcppyy,rclcppyy-templated \
+              --workloads small-string,nested-header --rate 1000,10000 \
+              --payload-bytes 0,4096 --duration 15 \
+              --output "build/dedicated-benchmark/run-${repeat}.json"
+          done
+      - name: Upload raw benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-${{ matrix.machine }}-${{ github.sha }}
+          path: build/dedicated-benchmark
+          if-no-files-found: error
+          retention-days: 90
