@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import shlex
 
 from _result_schema import validate_document
 
@@ -13,6 +14,8 @@ from _result_schema import validate_document
 def _cell(value) -> str:
     if value is None:
         return "n/a"
+    if isinstance(value, (dict, list)):
+        value = json.dumps(value, sort_keys=True, separators=(",", ":"))
     if isinstance(value, float):
         value = "%.3f" % value
     return str(value).replace("|", "\\|").replace("\n", " ")
@@ -113,7 +116,7 @@ def render(document: dict) -> str:
     else:
         lines.append("None.")
 
-    command = " ".join(_cell(value) for value in document.get("command", []))
+    command = shlex.join(str(value) for value in document.get("command", []))
     lines.extend([
         "",
         "## Reproduction",

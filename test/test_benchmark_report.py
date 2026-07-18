@@ -29,7 +29,7 @@ def _document(mode="smoke"):
             "mode": mode,
             "performance_claims_allowed": mode == "measurement",
             "matrix": {},
-            "statistics": {"latency": "nearest-rank"},
+            "statistics": {"latency": "nearest-rank", "cpu": "sample mean"},
         },
         "results": [{
             "case_id": "case",
@@ -55,11 +55,20 @@ def _document(mode="smoke"):
 
 def test_smoke_report_forbids_claims_and_shows_backend_route():
     first = report_module.render(_document())
-    second = report_module.render(copy.deepcopy(_document()))
+    reordered = copy.deepcopy(_document())
+    reordered["benchmark"]["statistics"] = {
+        "cpu": "sample mean", "latency": "nearest-rank"}
+    second = report_module.render(reordered)
     assert first == second
     assert "Smoke artifact. Performance claims are forbidden" in first
     assert "cpp -> python" in first
     assert "| 100 | 0 | 999.500 |" in first
+
+
+def test_reproduction_command_is_shell_quoted():
+    document = _document()
+    document["command"].append("value with spaces")
+    assert "'value with spaces'" in report_module.render(document)
 
 
 def test_measurement_report_does_not_declare_a_winner():
