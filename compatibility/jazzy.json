@@ -1,7 +1,7 @@
 {
   "schema": "rclcppyy.compatibility/v2",
   "ros_distribution": "jazzy",
-  "reviewed_at": "2026-07-18",
+  "reviewed_at": "2026-07-19",
   "upstream_contract": {
     "manifest": "compatibility/upstream-rclpy-contract.json",
     "coverage": [
@@ -169,6 +169,17 @@
       "default": false,
       "evidence": ["test/test_message_facade.py", "test/_message_facade_product_helper.py", "test/_message_facade_gate_helper.py", "test/_message_facade_stale_import_helper.py", "rclcppyy/monkey.py", "docs/backend-selection.md"],
       "notes": "On the reviewed Jazzy rclpy 7.1.11/Cyclone stack, late-imported String and UInt64 facades own distinct C++ messages and preserve the tested generated constructor, valid-field, repr, equality, copy, pickle, callback, MessageInfo, stock entity, graph, callback-group, destruction, and reinitialization observations. Same-handle publish and serialized take avoid Python-to-C++ whole-message conversion. Unsupported layouts, stale imports, raw/event/content-filter subscriptions, and custom publishers remain visibly stock; invalid unchecked field assignments may fail earlier to preserve valid C++ storage, and take failure propagates without an unsafe retry. No performance benefit is asserted."
+    },
+    {
+      "id": "message.direct_cpp_first_slice",
+      "area": "message",
+      "api": "profile=direct_cpp std_msgs/String and UInt64 pub/sub first slice",
+      "support": "experimental",
+      "backend": "cpp",
+      "fallback": "none",
+      "default": false,
+      "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_helper.py", "test/_direct_cpp_stale_import_helper.py", "rclcppyy/direct_cpp.py", "rclcppyy/direct_messages.py", "docs/backend-selection.md"],
+      "notes": "On Jazzy/Cyclone, early activation replaces the supported imports with actual cppyy C++ classes and provides one NativeSession-owned rclcpp node authority for the common subclassed Node, integer-depth publisher/subscription, and spin_once pattern. Publishing uses actual C++ messages without generated-Python conversion or serialization. Each subscription callback receives one owning native C++ copy so retained messages remain valid. Unsupported types, QoS forms, entity options, stale imports, public executors, and uncovered operations fail closed. This incomplete surface is experimental and has no performance claim; it requires a dedicated benchmark lane."
     },
     {
       "id": "message.nested_and_sequence_conversion",

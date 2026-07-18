@@ -8,17 +8,18 @@ from _run_helper import format_output, run_helper
 
 
 @pytest.mark.parametrize(
-    "name,required,contract_changes,cpp_publisher,message_facade",
+    "name,required,contract_changes,cpp_publisher,message_facade,direct_cpp",
     [
-        ("compatible", False, False, False, False),
-        ("publisher_cpp", False, False, True, False),
-        ("required_cpp", True, False, True, False),
-        ("optimized", False, True, False, False),
-        ("message_facade", False, False, True, True),
+        ("compatible", False, False, False, False, False),
+        ("publisher_cpp", False, False, True, False, False),
+        ("required_cpp", True, False, True, False, False),
+        ("optimized", False, True, False, False, False),
+        ("message_facade", False, False, True, True, False),
+        ("direct_cpp", True, True, True, False, True),
     ],
 )
 def test_profile_semantics(
-    name, required, contract_changes, cpp_publisher, message_facade,
+    name, required, contract_changes, cpp_publisher, message_facade, direct_cpp,
 ):
     policy = resolve_policy(name, warn_fallback=True)
     assert policy.name == name
@@ -26,6 +27,7 @@ def test_profile_semantics(
     assert policy.allow_contract_changes is contract_changes
     assert policy.use_cpp_publisher is cpp_publisher
     assert policy.use_cpp_message_facade is message_facade
+    assert policy.use_direct_cpp is direct_cpp
     assert policy.warn_fallback is True
 
 

@@ -67,6 +67,14 @@ message layouts, pre-activation class aliases, raw subscriptions, subscriptions
 with event callbacks or content filters, and custom publisher classes remain
 stock and are reported as such.
 
+The experimental `profile="direct_cpp"` first slice goes further: on Jazzy with
+Cyclone DDS, unchanged `Node` subclasses using integer-depth `create_publisher`,
+`create_subscription`, and `rclpy.spin_once` can use actual `rclcpp` nodes,
+entities, and `String`/`UInt64` messages. It must be enabled before importing
+`rclpy.node` or either supported message. Unsupported options fail before entity
+creation. Subscription callbacks receive one owning native C++ copy; there is no
+generated Python message, representation conversion, or serialization boundary.
+
 ## What you get
 
 - Existing node, graph, context, remapping, parameter, executor, and teardown
@@ -80,6 +88,8 @@ stock and are reported as such.
   publisher route and reports any fallback to stock publishing.
 - `profile="message_facade"` opts `String` and `UInt64` into C++-owning storage
   and direct same-handle publish/take on the reviewed Jazzy/Cyclone executor ABI.
+- `profile="direct_cpp"` is the bounded source-compatible correctness lane for a
+  single native node authority and fully C++ pub/sub data representation.
 - `profile="required_cpp"` fails before creating an entity when no certified C++
   route exists, so tests and benchmarks cannot pass through silent fallback.
 - The separate native lane exposes `rclcpp` and other C++ libraries directly when
@@ -208,6 +218,11 @@ backend fact; a benefit requires separate, repeated, architecture-specific evide
   `spin()` calls. This prevents a missed signal guard wake from leaving an
   invalid Context blocked indefinitely, at the cost of periodic idle wake-ups.
   It is a reliability mitigation, not a C++ route or performance claim.
+- `profile="direct_cpp"` currently covers only `std_msgs/String` and `UInt64`,
+  positive integer depth, the common node/publisher/subscription call pattern,
+  and `rclpy.spin_once`. It is not yet a general `rclpy` replacement. Its one
+  native C++ callback copy must be measured in a dedicated direct-profile
+  benchmark, separately from borrowed-handle and native-only results.
 - `rclcppyy.Node` remains the legacy companion-node prototype. It is not the
   transparent compatibility architecture and should not be used for new
   compatibility work.

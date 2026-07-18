@@ -11,6 +11,7 @@ evidence to decide whether a more specialized lane is worthwhile.
 | Run existing `rclpy` software unchanged | `enable_cpp_acceleration()` | Exact stock Python object identities and behavior, including `Publisher.publish` | Operations remain stock Python and report that authority |
 | Try same-handle C++ publishing without changing application code | `enable_cpp_acceleration(profile="publisher_cpp")` | Exact stock publisher object and graph endpoint; explicit publish implementation change | Falls back to stock publishing visibly if preparation or a publish fails |
 | Keep supported messages in C++ storage through publish and take | `enable_cpp_acceleration(profile="message_facade")` before message imports | Exact stock Node, Context, Publisher, Subscription, callback-group, graph, and destruction objects; generated-style `String` and `UInt64` classes own C++ storage | Unsupported layouts/options stay visibly stock; a failed take raises without an unsafe retry |
+| Exercise the bounded source-compatible direct-C++ pub/sub slice | `enable_cpp_acceleration(profile="direct_cpp")` before node/message imports | One native `rclcpp` node authority; actual C++ `String`/`UInt64`, publisher, and subscription objects | Any unreviewed type, QoS form, option, executor, or operation fails before side effects |
 | Prove that a selected operation cannot fall back | `enable_cpp_acceleration(profile="required_cpp")` | Exact stock contract for supported operations | Rejects an unsupported operation before its side effects |
 | Use a C++-only ROS facility from Python | `rclcppyy.native()` | Explicit native API; not a drop-in `rclpy` replacement | Capability queries and normal exceptions make unsupported facilities visible |
 | Remove Python from a measured hot path | `rclcpp_kit` native callbacks, services, clients, actions, components, lifecycle nodes, or fused pipelines | Explicit opt-in contract for ownership, scheduling, and delivery | Compilation and construction are explicit; generated code and counters are inspectable |
@@ -139,6 +140,45 @@ Correctness and future performance measurements must exclude activation, JIT, DD
 discovery, and endpoint warmup from the steady-state window. No performance benefit
 is claimed until the dedicated repeated benchmark clears the normal promotion
 gate on both x86_64 and ARM64.
+
+## Direct-C++ first slice
+
+`direct_cpp` is a deliberately narrow correctness profile for the future
+source-compatible native backend:
+
+```python
+import rclcppyy
+
+rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
+
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+```
+
+On the reviewed Jazzy/Cyclone stack, `Node` can still be subclassed and the common
+positional `create_publisher(Message, topic, depth)` and
+`create_subscription(Message, topic, callback, depth)` calls create typed raw
+`rclcpp` entities. `String(data=...)` and `UInt64(data=...)` construct the actual
+cppyy C++ classes. Publish uses that object directly, with no Python-message
+conversion or serialization path. `rclpy.spin_once(node, timeout_sec=...)` drives
+the session-owned native single-threaded executor.
+
+The supported message set is exactly `std_msgs/msg/String` and
+`std_msgs/msg/UInt64`, and QoS is exactly a positive integer depth. Activation
+must precede `rclpy.node`, `rclpy.executors`, and supported message imports.
+Callback groups, events, QoS overrides, raw/content-filter subscriptions, custom
+publisher classes, public executors, continuous `spin`, timers, services,
+actions, parameters, and the rest of the `rclpy` surface are rejected rather than
+falling back onto a second authority.
+
+cppyy's callback argument is borrowed for the duration of the shared-pointer
+call. To preserve the `rclpy` expectation that a callback may retain its message,
+the first slice hands the callback one owning native C++ copy. This is still a
+C++ message with no Python representation conversion or serialization, but it is
+a measured compatibility cost. Direct-profile results therefore require their
+own benchmark lane and must not be inferred from borrowed-handle or native-only
+benchmarks. No performance benefit is claimed by this correctness slice.
 
 ## Optimized profile
 

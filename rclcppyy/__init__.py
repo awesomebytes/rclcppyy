@@ -16,6 +16,9 @@ from rclcppyy._status import status
 from rclcppyy._status import record_decision
 from rclcppyy.policy import AccelerationPolicy, BackendUnavailableError
 
+
+_ACTIVE_PROFILE = None
+
 _MOVED_SUBMODULES = ("serialization", "rosbag2_cpp", "rosbag2_py_compat", "tf")
 _LAZY_EXPORTS = {
     "bringup_rclcpp": ("rclcppyy.bringup_rclcpp", "bringup_rclcpp"),
@@ -82,7 +85,7 @@ def enable_cpp_acceleration(
         patch_node (bool): Retained for source compatibility. Node identity is no
                           longer replaced in any profile.
         profile (str): ``compatible``, ``publisher_cpp``, ``message_facade``,
-                       ``required_cpp``, or ``optimized``.
+                       ``required_cpp``, ``optimized``, or ``direct_cpp``.
         warn_fallback (bool): Warn once for each stock fallback reason.
 
     Returns:
@@ -93,9 +96,24 @@ def enable_cpp_acceleration(
         import rclcppyy; rclcppyy.enable_cpp_acceleration()
         ```
     """
+    global _ACTIVE_PROFILE
+    if _ACTIVE_PROFILE is not None:
+        if profile != _ACTIVE_PROFILE:
+            raise RuntimeError(
+                "rclcppyy is already active with profile %r" % _ACTIVE_PROFILE)
+        return True
+
+    if profile == "direct_cpp":
+        from rclcppyy.direct_cpp import activate
+
+        result = activate()
+        _ACTIVE_PROFILE = profile
+        return result
+
     from rclcppyy.monkey import patch_node_class, patch_ros2
 
     result = patch_ros2(profile=profile, warn_fallback=warn_fallback)
+    _ACTIVE_PROFILE = profile
 
     # Optionally patch the Node class directly
     if patch_node:
