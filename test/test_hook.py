@@ -7,7 +7,7 @@ interpreter that processes the installed ``.pth`` from that temp dir via
 ``site.addsitedir`` (the same code path site.py runs at startup), then import rclpy
 and check whether the C++ backend was applied:
 
-  * RCLCPPYY_ENABLE_HOOK=1  -> rclpy.create_node / spin_once are the rclcppyy wrappers
+  * RCLCPPYY_ENABLE_HOOK=1  -> stock Node publisher creation is routed
   * unset                   -> stock rclpy, untouched
   * RCLCPPYY_ENABLE_HOOK=0   -> stock rclpy (only "1" enables)
 
@@ -38,9 +38,11 @@ def _probe_code(site_dir):
     return (
         "import site; site.addsitedir(%r)\n"
         "import rclpy\n"
-        "wrapped = rclpy.create_node.__name__ == '_create_node_wrapper' and \\\n"
-        "          rclpy.spin_once.__name__ == '_spin_once_wrapper'\n"
-        "print('WRAPPED' if wrapped else 'STOCK')\n" % site_dir
+        "from rclpy.node import Node\n"
+        "routed = Node.create_publisher.__name__ == '_create_publisher_wrapper'\n"
+        "stock_authority = rclpy.create_node.__name__ == 'create_node' and \\\n"
+        "                  rclpy.spin_once.__name__ == 'spin_once'\n"
+        "print('ROUTED_STOCK' if routed and stock_authority else 'STOCK')\n" % site_dir
     )
 
 
@@ -75,7 +77,7 @@ class TestHookBehaviour(unittest.TestCase):
         with tempfile.TemporaryDirectory() as site:
             hook.install(site)
             proc = _run(_probe_code(site), {"RCLCPPYY_ENABLE_HOOK": "1"}, timeout=180)
-            self.assertIn("WRAPPED", proc.stdout,
+            self.assertIn("ROUTED_STOCK", proc.stdout,
                           "\nstdout:\n%s\nstderr:\n%s" % (proc.stdout, proc.stderr))
 
     def test_unset_leaves_stock_rclpy(self):

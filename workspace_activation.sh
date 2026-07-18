@@ -12,6 +12,15 @@ fi
 # build. Package proofs run in a separate fresh environment.
 export PYTHONPATH="$PIXI_PROJECT_ROOT${PYTHONPATH:+:$PYTHONPATH}"
 
+# Development branches of rclcppyy and rclcpp_kit evolve together. Prefer the
+# sibling capability-layer checkout when present; release/package proofs run in
+# fresh workspaces and therefore exercise declared package dependencies instead.
+_suite_src="$PIXI_PROJECT_ROOT/../cppyy_kit"
+_rclcpp_kit_src="$_suite_src/rclcpp_kit"
+if [ -d "$_suite_src/cppyy_kit" ] && [ -d "$_rclcpp_kit_src/rclcpp_kit" ]; then
+    export PYTHONPATH="$_rclcpp_kit_src:$_suite_src:$PYTHONPATH"
+fi
+
 # --- heavy_hz demo bridge (DEV/demo-only, gated to the heavydemo env) ---------
 # The default env pins the PUBLISHED suite (cppyy-kit / rclcpp-kit 0.1.0), which
 # predates the zero-config auto-PCH. The `heavydemo` env (scripts/heavy_hz_demo/)

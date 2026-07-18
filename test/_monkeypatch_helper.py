@@ -1,92 +1,93 @@
 #!/usr/bin/env python3
-"""Helper process for test_monkeypatch.py.
+"""End-to-end compatible-profile proof in an isolated interpreter."""
 
-Exercises the ``enable_cpp_acceleration()`` monkeypatch path end to end. This
-patch mutates rclpy process-globally and irreversibly, so it must run in a
-throwaway interpreter -- hence a subprocess helper rather than an in-process
-test.
-
-Prints one marker per checkpoint and ``MONKEYPATCH_ALL_OK`` last on success:
-  CREATE_NODE_OK   - rclpy.create_node returns an RclcppyyNode
-  MSG_REDIRECT_OK  - an imported message class is now the cppyy C++ type
-  ROUNDTRIP_OK     - pub/sub roundtrip through the patched rclpy API
-"""
 import json
+import os
 import time
 
 import rclcppyy
+
 rclcppyy.enable_cpp_acceleration()
 
-# Must be imported after enable_cpp_acceleration() installs the message/node
-# patches, so the ordering below is intentional, not an oversight.
 import rclpy  # noqa: E402
+from rclpy.node import Node  # noqa: E402
+from rclpy.publisher import Publisher  # noqa: E402
 from std_msgs.msg import String  # noqa: E402
-from rclcppyy.node import RclcppyyNode  # noqa: E402
+
 
 SPIN_DEADLINE_S = 15.0
 N_MESSAGES = 5
-TOPIC = "rclcppyy_monkey_roundtrip"
+NAMESPACE = "/rclcppyy_compatible"
+TOPIC = NAMESPACE + "/roundtrip"
 
 
 def main():
-    # Imported message class must have been redirected to the C++ (cppyy) type
-    # by the import hook that enable_cpp_acceleration() installs.
-    assert hasattr(String, "__smartptr__"), (
-        f"String was not redirected to a C++ type: {String.__module__}")
-    assert String.__module__.startswith("cppyy"), String.__module__
-    print("MSG_REDIRECT_OK", flush=True)
+    assert not hasattr(String, "__smartptr__")
+    print("MESSAGE_CONTRACT_OK", flush=True)
 
-    rclpy.init()
-
-    # Patched rclpy.create_node must hand back our C++-backed node.
-    node = rclpy.create_node("rclcppyy_monkey_helper")
-    assert isinstance(node, RclcppyyNode), f"got {type(node)!r}"
-    print("CREATE_NODE_OK", flush=True)
+    context = rclpy.context.Context()
+    context.init(args=[])
+    node_name = "compatible_%d" % os.getpid()
+    node = rclpy.create_node(node_name, namespace=NAMESPACE, context=context)
+    assert type(node) is Node
+    assert node.context is context
+    assert not rclpy.ok(), "default context must remain uninitialized"
+    print("NODE_AUTHORITY_OK", flush=True)
+    executor = rclpy.executors.SingleThreadedExecutor(context=context)
+    executor.add_node(node)
 
     received = []
-
-    def on_msg(msg):
-        received.append(str(msg.data))
-
-    sub = node.create_subscription(String, TOPIC, on_msg, 10)  # noqa: F841 - keep alive
-    pub = node.create_publisher(String, TOPIC, 10)
+    subscription = node.create_subscription(
+        String, TOPIC, lambda message: received.append(message.data), 10)
+    publisher = node.create_publisher(String, TOPIC, 10)
+    assert type(publisher) is Publisher
 
     deadline = time.monotonic() + SPIN_DEADLINE_S
-    while pub.get_subscription_count() < 1 and time.monotonic() < deadline:
-        rclpy.spin_once(node, timeout_sec=0.05)
-    assert pub.get_subscription_count() >= 1, "subscription never matched publisher"
+    while publisher.get_subscription_count() < 1 and time.monotonic() < deadline:
+        executor.spin_once(timeout_sec=0.05)
+    assert publisher.get_subscription_count() >= 1
 
-    expected = [f"monkey hello {i}" for i in range(N_MESSAGES)]
+    expected = ["compatible hello %d" % index for index in range(N_MESSAGES)]
     for payload in expected:
-        # String is now the C++ class with kwargs enabled by the patch.
-        pub.publish(String(data=payload))
-
+        publisher.publish(String(data=payload))
     while len(received) < N_MESSAGES and time.monotonic() < deadline:
-        rclpy.spin_once(node, timeout_sec=0.05)
-
-    assert received == expected, f"payload mismatch: {received!r} != {expected!r}"
+        executor.spin_once(timeout_sec=0.05)
+    assert received == expected, received
     print("ROUNDTRIP_OK", flush=True)
+
+    identity = (node_name, NAMESPACE)
+    assert node.get_node_names_and_namespaces().count(identity) == 1
+    assert not any(name.endswith("_rclcpp") for name, _ in node.get_node_names_and_namespaces())
+    endpoint_identities = [
+        (item.node_name, item.node_namespace)
+        for item in node.get_publishers_info_by_topic(TOPIC)
+    ]
+    assert endpoint_identities == [identity], endpoint_identities
+    print("GRAPH_IDENTITY_OK", flush=True)
 
     status = rclcppyy.status()
     json.dumps(status)
-    assert status["counts"]["nodes"]["cpp"] >= 1, status
-    entity_types = {
-        record["metadata"].get("entity_type")
+    assert status["counts"]["nodes"]["python"] >= 1, status
+    entity_backends = {
+        record["metadata"].get("entity_type"): record["backend"]
         for record in status["entities"]
-        if record["backend"] == "cpp"
     }
-    assert {"publisher", "subscription"} <= entity_types, status
-    operations = {
-        record["metadata"].get("operation")
+    assert entity_backends["publisher"] == "cpp", status
+    assert entity_backends["subscription"] == "python", status
+    assert any(
+        record["metadata"].get("operation") == "enable_cpp_acceleration"
         for record in status["operations"]
-    }
-    assert {"enable_cpp_acceleration", "create_node", "spin_once"} <= operations, status
+    )
     print("STATUS_OK", flush=True)
 
+    assert node.destroy_publisher(publisher)
+    assert node.destroy_subscription(subscription)
+    executor.remove_node(node)
+    node.destroy_node()
+    executor.shutdown(timeout_sec=1.0)
+    context.shutdown()
+    print("STOCK_TEARDOWN_OK", flush=True)
     print("MONKEYPATCH_ALL_OK", flush=True)
-    # A normal return exits cleanly (see _pubsub_plain_helper.py): rclcppyy's
-    # ordered teardown brings the rclcpp context down before interpreter
-    # finalization, so the return code is deterministic without os._exit.
 
 
 if __name__ == "__main__":

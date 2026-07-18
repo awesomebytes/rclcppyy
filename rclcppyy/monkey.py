@@ -1,209 +1,252 @@
-"""
-This file handles monkey-patching rclpy to use rclcpp implementations.
-"""
+"""Transparent acceleration patches over authoritative stock rclpy objects."""
 
-import rclpy
+from __future__ import annotations
+
+import warnings
+
 from rclpy.node import Node
-from rclcppyy.node import RclcppyyNode
-from rclcppyy.monkeypatch_messages import install_ros_message_hook, convert_already_imported_python_msgs_to_cpp
-from rclcppyy.bringup_rclcpp import bringup_rclcpp
+from rclpy.publisher import Publisher
+
 from rclcppyy._status import record_decision
+from rclcppyy.policy import BackendUnavailableError, resolve_policy
 
-# Store original functions
-_original_create_node = rclpy.create_node
-_original_node_create_subscription = Node.create_subscription
-_original_spin_once = rclpy.spin_once
 
-def patch_ros2():
-    """
-    Monkey-patch ROS2 Python API to use C++ implementations.
-    This makes existing Python ROS2 code use C++ under the hood.
-    """
-    # Initialize rclcpp
-    bringup_rclcpp()
+_original_create_publisher = Node.create_publisher
+_original_create_subscription = Node.create_subscription
+_original_create_timer = Node.create_timer
+_original_publish = Publisher.publish
 
-    # Set up automatic message conversion
-    install_ros_message_hook()
-    
-    # Convert already imported Python messages to C++
-    convert_already_imported_python_msgs_to_cpp()
-    
-    # Monkey-patch rclpy.create_node
-    rclpy.create_node = _create_node_wrapper
+_PATCHED = False
+_POLICY = resolve_policy()
+_WARNED_FALLBACKS = set()
 
-    # Monkey-patch rclpy.spin
-    rclpy.spin = _spin_wrapper
 
-    # Monkey-patch rclpy.spin_once. Tools that drive their own loop -- notably the
-    # ros2 CLI (ros2cli's DirectNode discovery loop and `ros2 topic hz`) -- call
-    # rclpy.spin_once(node) rather than rclpy.spin(node). The stock rclpy executor
-    # cannot service an rclcpp-backed node's timers/subscriptions, so without this
-    # the discovery loop spins forever. Delegate to an rclcpp executor instead.
-    rclpy.spin_once = _spin_once_wrapper
+def _warn_once(reason):
+    if not _POLICY.warn_fallback or reason in _WARNED_FALLBACKS:
+        return
+    _WARNED_FALLBACKS.add(reason)
+    warnings.warn("rclcppyy fell back to stock rclpy: %s" % reason, RuntimeWarning)
 
-    # Monkey-patch Node.create_subscription
-    Node.create_subscription = _create_subscription_wrapper
 
-    record_decision(
-        "operations",
-        "cpp",
-        "rclpy entry points patched for compatible C++ acceleration",
-        policies=("process_global_patch", "compatible_profile"),
-        metadata={"operation": "enable_cpp_acceleration"},
-    )
-    
-    print("ROS2 C++ acceleration enabled!")
-    return True
-
-def _create_node_wrapper(*args, **kwargs):
-    """
-    Wrapper for rclpy.create_node that returns RclcppyyNode instead.
-    This maintains the same API but uses our C++-backed node.
-    """
-    node = RclcppyyNode(*args, **kwargs)
-    record_decision(
-        "operations",
-        "cpp",
-        "rclpy.create_node routed to RclcppyyNode",
-        policies=("rclpy_compatibility",),
+def _record_node_once(node):
+    status_id = getattr(node, "_rclcppyy_status_id", None)
+    if status_id is not None:
+        return status_id
+    status_id = record_decision(
+        "nodes",
+        "python",
+        "stock rclpy Node and Context remain authoritative",
+        policies=("stock_node_authority", _POLICY.name),
         metadata={
-            "operation": "create_node",
-            "node_id": node._rclcppyy_status_id,
+            "name": node.get_name(),
+            "namespace": node.get_namespace(),
+            "profile": _POLICY.name,
         },
     )
-    return node
+    node._rclcppyy_status_id = status_id
+    return status_id
 
 
-def _record_node_operation_once(node, operation, backend, reason, policies=(), metadata=None):
-    """Record a routing decision once without adding work to every spin call."""
-    reported = getattr(node, "_rclcppyy_reported_operations", None)
-    if reported is not None:
-        decision_key = (operation, backend, tuple(policies))
-        if decision_key in reported:
-            return
-        reported.add(decision_key)
-    operation_metadata = dict(metadata or {})
-    operation_metadata["operation"] = operation
-    node_id = getattr(node, "_rclcppyy_status_id", None)
-    if node_id is not None:
-        operation_metadata["node_id"] = node_id
+def _record_python_entity(node, entity_type, reason, metadata=None):
+    _warn_once(reason)
+    values = {
+        "entity_type": entity_type,
+        "node_id": _record_node_once(node),
+        "profile": _POLICY.name,
+    }
+    values.update(metadata or {})
     record_decision(
-        "operations", backend, reason, policies=policies, metadata=operation_metadata)
-
-def _spin_wrapper(*args, **kwargs):
-    """
-    Wrapper for rclpy.spin that uses rclcpp.spin
-    """
-    rclcpp = bringup_rclcpp()
-    node = args[0]
-    if isinstance(node, RclcppyyNode):
-        policies = ["single_node_rclcpp_spin"]
-        if kwargs.get("executor") is not None:
-            policies.append("custom_executor_ignored")
-        _record_node_operation_once(
-            node,
-            "spin",
-            "cpp",
-            "rclpy.spin routed to rclcpp.spin",
-            policies=policies,
-            metadata={"executor_requested": kwargs.get("executor") is not None},
-        )
-    else:
-        _record_node_operation_once(
-            node,
-            "spin",
-            "unsupported",
-            "patched rclpy.spin only supports RclcppyyNode",
-            metadata={"node_type": type(node).__name__},
-        )
-    rclcpp.spin(node._rclcpp_node)
-
-
-def _get_spin_executor(node):
-    """A persistent rclcpp SingleThreadedExecutor bound to this node.
-
-    Created once and cached on the node so repeated spin_once calls reuse it (and
-    so the node is never added to two executors). The executor picks up entities
-    the node creates later -- e.g. the hz verb's subscription after DirectNode's
-    discovery timer -- via the node's guard condition.
-    """
-    executor = getattr(node, "_rclcppyy_spin_executor", None)
-    if executor is None:
-        rclcpp = bringup_rclcpp()
-        executor = rclcpp.executors.SingleThreadedExecutor()
-        executor.add_node(node._rclcpp_node)
-        node._rclcppyy_spin_executor = executor
-    return executor
-
-
-def _spin_once_wrapper(node, *, executor=None, timeout_sec=None):
-    """
-    Wrapper for rclpy.spin_once that drives an rclcpp executor for accelerated
-    nodes (rclpy's executor cannot service rclcpp-backed entities). Non-accelerated
-    nodes fall back to the original rclpy.spin_once unchanged.
-
-    Matches rclpy semantics: timeout_sec=None blocks until one piece of work is
-    ready; a finite timeout waits at most that long (rclcpp uses -1ns for "block").
-    """
-    if not isinstance(node, RclcppyyNode):
-        _record_node_operation_once(
-            node,
-            "spin_once",
-            "python",
-            "non-accelerated node delegated to the original rclpy.spin_once",
-            policies=("stock_fallback",),
-            metadata={"node_type": type(node).__name__},
-        )
-        return _original_spin_once(node, executor=executor, timeout_sec=timeout_sec)
-    policies = ["persistent_single_threaded_executor"]
-    if executor is not None:
-        policies.append("custom_executor_ignored")
-    _record_node_operation_once(
-        node,
-        "spin_once",
-        "cpp",
-        "rclpy.spin_once routed to a persistent rclcpp executor",
-        policies=policies,
-        metadata={"executor_requested": executor is not None},
+        "entities",
+        "python",
+        reason,
+        policies=("stock_fallback", _POLICY.name),
+        metadata=values,
     )
-    import cppyy
-    _get_spin_executor(node)  # ensure created + node added
-    ex = node._rclcppyy_spin_executor
-    if timeout_sec is None:
-        ex.spin_once()
-    else:
-        ex.spin_once(cppyy.gbl.std.chrono.nanoseconds(int(timeout_sec * 1e9)))
+
+
+def _unavailable(operation, reason):
+    record_decision(
+        "operations",
+        "unsupported",
+        reason,
+        policies=("required_cpp", "fail_closed"),
+        metadata={"operation": operation, "profile": _POLICY.name},
+    )
+    raise BackendUnavailableError(reason)
+
+
+def _load_borrowed_publish():
+    try:
+        from rclcpp_kit import borrowed_publish
+    except (ImportError, AttributeError) as exc:
+        return None, "installed rclcpp_kit has no same-handle publisher route: %s" % exc
+    return borrowed_publish, None
+
+
+def _create_publisher_wrapper(
+    self,
+    msg_type,
+    topic,
+    qos_profile,
+    *,
+    callback_group=None,
+    event_callbacks=None,
+    qos_overriding_options=None,
+    publisher_class=Publisher,
+):
+    borrowed_publish, unavailable_reason = _load_borrowed_publish()
+    route = None
+    if borrowed_publish is not None:
+        try:
+            # Resolve/JIT before creating the endpoint. Required-C++ failure must
+            # not leave a partially created stock entity behind.
+            route = borrowed_publish.prepare(msg_type)
+        except Exception as exc:
+            unavailable_reason = "same-handle publisher preparation failed: %s" % exc
+
+    if route is None and _POLICY.require_cpp:
+        _unavailable("create_publisher", unavailable_reason)
+
+    publisher = _original_create_publisher(
+        self,
+        msg_type,
+        topic,
+        qos_profile,
+        callback_group=callback_group,
+        event_callbacks=event_callbacks,
+        qos_overriding_options=qos_overriding_options,
+        publisher_class=publisher_class,
+    )
+    node_id = _record_node_once(self)
+    if route is None:
+        _record_python_entity(
+            self,
+            "publisher",
+            unavailable_reason,
+            metadata={"topic": publisher.topic_name},
+        )
+        return publisher
+
+    publisher._rclcppyy_publish_route = route
+    publisher._rclcppyy_policy = _POLICY
+    publisher._rclcppyy_reported_fallbacks = set()
+    record_decision(
+        "entities",
+        "cpp",
+        "stock publisher endpoint uses a same-handle C++ publish route",
+        policies=(
+            "stock_entity_contract",
+            "borrowed_rcl_handle",
+            "python_to_cpp_message_conversion",
+            _POLICY.name,
+        ),
+        metadata={
+            "entity_type": "publisher",
+            "node_id": node_id,
+            "topic": publisher.topic_name,
+            "message_type": route.cpp_type_name,
+            "profile": _POLICY.name,
+        },
+    )
+    return publisher
+
+
+def _record_publish_fallback_once(publisher, reason):
+    reported = getattr(publisher, "_rclcppyy_reported_fallbacks", None)
+    if reported is not None:
+        if reason in reported:
+            return
+        reported.add(reason)
+    _warn_once(reason)
+    record_decision(
+        "operations",
+        "python",
+        reason,
+        policies=("stock_fallback", _POLICY.name),
+        metadata={
+            "operation": "publish",
+            "topic": getattr(publisher, "topic_name", None),
+            "profile": _POLICY.name,
+        },
+    )
+
+
+def _publish_wrapper(self, message):
+    route = getattr(self, "_rclcppyy_publish_route", None)
+    if route is None:
+        return _original_publish(self, message)
+    policy = getattr(self, "_rclcppyy_policy", _POLICY)
+    if isinstance(message, (bytes, bytearray, memoryview)):
+        reason = "serialized-byte publishing has no certified C++ route"
+        if policy.require_cpp:
+            _unavailable("publish", reason)
+        _record_publish_fallback_once(self, reason)
+        return _original_publish(self, message)
+    try:
+        return route.publish(self, message)
+    except TypeError:
+        # Preserve the stock exception contract for invalid message objects.
+        return _original_publish(self, message)
+    except Exception as exc:
+        reason = "same-handle C++ publish failed: %s" % exc
+        if policy.require_cpp:
+            _unavailable("publish", reason)
+        _record_publish_fallback_once(self, reason)
+        return _original_publish(self, message)
+
 
 def _create_subscription_wrapper(self, *args, **kwargs):
-    """
-    Wrapper for Node.create_subscription that uses RclcppyyNode implementation
-    when the node is an RclcppyyNode, otherwise falls back to original.
-    """
-    if isinstance(self, RclcppyyNode):
-        return self.create_subscription(*args, **kwargs)
-    else:
-        subscription = _original_node_create_subscription(self, *args, **kwargs)
-        topic = args[1] if len(args) > 1 else kwargs.get("topic")
-        record_decision(
-            "entities",
-            "python",
-            "non-accelerated node delegated to rclpy subscription creation",
-            policies=("stock_fallback",),
-            metadata={
-                "entity_type": "subscription",
-                "node_type": type(self).__name__,
-                "topic": topic,
-            },
-        )
-        return subscription
+    reason = "subscription take/dispatch has no certified same-handle C++ route"
+    if _POLICY.require_cpp:
+        _unavailable("create_subscription", reason)
+    subscription = _original_create_subscription(self, *args, **kwargs)
+    topic = args[1] if len(args) > 1 else kwargs.get("topic")
+    _record_python_entity(self, "subscription", reason, metadata={"topic": topic})
+    return subscription
+
+
+def _create_timer_wrapper(self, *args, **kwargs):
+    reason = "timer/executor integration has no certified same-handle C++ route"
+    if _POLICY.require_cpp:
+        _unavailable("create_timer", reason)
+    timer = _original_create_timer(self, *args, **kwargs)
+    period = args[0] if args else kwargs.get("timer_period_sec")
+    _record_python_entity(self, "timer", reason, metadata={"period_sec": period})
+    return timer
+
+
+def patch_ros2(profile="compatible", *, warn_fallback=False):
+    """Install idempotent method patches while retaining stock object identity."""
+    global _PATCHED, _POLICY
+    requested = resolve_policy(profile, warn_fallback=warn_fallback)
+    if _PATCHED:
+        if requested != _POLICY:
+            raise RuntimeError(
+                "rclcppyy is already active with profile %r" % _POLICY.name)
+        return True
+
+    _POLICY = requested
+    Node.create_publisher = _create_publisher_wrapper
+    Node.create_subscription = _create_subscription_wrapper
+    Node.create_timer = _create_timer_wrapper
+    Publisher.publish = _publish_wrapper
+    _PATCHED = True
+    record_decision(
+        "operations",
+        "cpp",
+        "installed stock-authority compatibility routing",
+        policies=("stock_node_authority", requested.name),
+        metadata={
+            "operation": "enable_cpp_acceleration",
+            "profile": requested.name,
+        },
+    )
+    return True
+
 
 def patch_node_class():
-    """
-    Monkey-patch the Node class so that any direct instantiations
-    of rclpy.node.Node get our RclcppyyNode instead.
-    """
-    # Replace the Node class with RclcppyyNode
-    # This is a more aggressive approach and might cause issues
-    # so we make it optional
-    rclpy.node.Node = RclcppyyNode
+    """Compatibility alias retained; stock Node identity is intentionally unchanged."""
     return True
+
+
+__all__ = ["patch_ros2", "patch_node_class"]

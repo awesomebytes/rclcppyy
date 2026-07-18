@@ -2,12 +2,13 @@
 
 [![CI](https://github.com/awesomebytes/rclcppyy/actions/workflows/ci.yml/badge.svg)](https://github.com/awesomebytes/rclcppyy/actions/workflows/ci.yml)
 
-**Prototype in Python, run at C++ speed.** `rclcppyy` is a drop-in accelerator for
-`rclpy`: add one line at the top of an existing ROS 2 Python node and its
-publishers, subscriptions, timers, and messages run on the `rclcpp` C++ backend
-instead — no rewrite, no bindings to maintain, no Python⇄C++ message copies on the
-hot path. It is powered by [**cppyy**](https://cppyy.readthedocs.io), which calls
-C++ from Python directly via reflection and just-in-time compilation, and built on
+**Keep the `rclpy` contract; opt into proven C++ paths.** `rclcppyy` is a
+compatibility-first accelerator for existing ROS 2 Python software. Its default
+profile keeps the exact stock node, context, executor, message classes, and entity
+objects, and routes an operation through C++ only when that route has explicit
+contract and backend evidence. It is powered by
+[**cppyy**](https://cppyy.readthedocs.io), which calls C++ from Python directly via
+reflection and just-in-time compilation, and built on
 the [**cppyy_kit suite**](https://github.com/awesomebytes/cppyy_kit) (docs:
 [awesomebytes.github.io/cppyy_kit](https://awesomebytes.github.io/cppyy_kit/)),
 which packages the same "mix Python and C++ with ease" machinery for ROS 2 and a
@@ -22,47 +23,47 @@ Take any ordinary `rclpy` node and add a single line at the top:
 ```python
 import rclcppyy; rclcppyy.enable_cpp_acceleration()
 
-# Everything below is unchanged rclpy — but now runs on the rclcpp C++ backend.
+# Everything below remains ordinary rclpy code and ordinary rclpy objects.
 import rclpy
 from std_msgs.msg import String
 
 rclpy.init()
-node = rclpy.create_node('talker')          # actually an rclcpp-backed node
+node = rclpy.create_node('talker')
 pub = node.create_publisher(String, 'chatter', 10)
 node.create_timer(0.5, lambda: pub.publish(String(data='hello')))
 rclpy.spin(node)
 ```
 
-`enable_cpp_acceleration()` monkeypatches `rclpy` so `create_node`, `spin`,
-publishers, subscriptions, and wall timers are served by `rclcpp`, and message
-classes (e.g. `std_msgs.msg.String`) resolve to their C++ types — the payload lives
-as a C++ object end to end, so there is no per-message Python conversion.
+`enable_cpp_acceleration()` patches methods on the original `rclpy` classes. The
+publisher above remains a stock `rclpy.Publisher` registered with the stock node;
+its current C++ route serializes the message with `rclcpp::Serialization<T>` and
+publishes the serialized bytes through that same native publisher handle. The
+subscription, timer, executor, context, and message class remain stock Python.
 
 ## What you get
 
-Publishing and subscribing on the C++ backend uses **a fraction of the CPU** of
-plain `rclpy` at the same message rate, because the hot path (executor, DDS calls,
-message handling) runs in C++ instead of the Python interpreter. In the run below —
-a small `std_msgs/String` at 1 kHz on the reference machine — the monkeypatched
-node used **roughly 4–6× less CPU** than `rclpy` (publisher *and* subscriber), at
-the same throughput and about half the latency. Measure it on your own machine in
-one command:
+- Existing node, graph, context, remapping, parameter, executor, and teardown
+  behavior stays authoritative in `rclpy`.
+- `rclcppyy.status()` reports the backend selected for each routed entity and
+  operation.
+- `profile="required_cpp"` fails before creating an entity when no certified C++
+  route exists, so tests and benchmarks cannot pass through silent fallback.
+- The separate native lane exposes `rclcpp` and other C++ libraries directly when
+  compatibility is not the primary constraint.
+
+Measure routes on the target workload rather than assuming that crossing into C++
+is automatically faster:
 
 ```bash
-pixi run bench     # rclpy vs rclcppyy CPU comparison table (1 kHz + 10 kHz)
+pixi run bench
 ```
 
-Example output (absolute numbers vary by machine — reproduce it yourself with the
-command above):
-
-```
-  Benchmark @ 1000 Hz target
-  =======================================================================================
-  variant                   pub CPU%  sub CPU%  msgs recv  eff Hz    dropped  avg lat us
-  ---------------------------------------------------------------------------------------
-  rclpy                     17.9      19.2      6000       968.9     0        174.8
-  rclcppyy (monkeypatched)  4.4       3.4       6000       969.4     0        89.0
-```
+The benchmark runner requires machine-readable publisher and subscriber backend
+evidence before it records a result. A current one-second development smoke for a
+tiny String message showed the safe same-handle serialized route was slower than
+stock; that route is correctness-certified but is not advertised as a performance
+win. Native-message and fused C++ paths must clear workload-specific performance
+gates before they are advertised.
 
 For the full, consolidated and freshly-measured benchmark set — across the whole
 suite, including the freeze/AOT optimization ladder — see the
@@ -98,29 +99,32 @@ project. Installing rclcppyy pulls its runtime deps `ros-jazzy-rclcpp-kit` and
 
 ## What accelerates, and what stays rclpy
 
-`rclcppyy` accelerates the pub/sub hot path and keeps everything else on stock
-`rclpy`, so unpatched code keeps working. Be aware of the boundaries:
+The default compatible profile keeps the stock contract and records every current
+boundary:
 
-**Runs on the C++ backend after `enable_cpp_acceleration()`:**
+**Current C++ route after `enable_cpp_acceleration()`:**
 
-- Nodes created via `rclpy.create_node(...)` (returned as C++-backed nodes)
-- Publishers, subscriptions, and wall timers on those nodes
-- `rclpy.spin(node)` (delegates to `rclcpp::spin`)
-- Message types — resolved to their `rclcpp` C++ equivalents on import, kept as C++
-  objects with no Python⇄C++ conversion on publish/receive
+- A stock publisher can serialize through C++ and publish through its existing
+  `rcl_publisher_t`; no companion node or publisher is created.
 
-**Stays on stock rclpy (not accelerated):**
+**Stays on stock `rclpy`:**
 
-- Services and actions
-- Parameters, parameter services, and parameter events
-- Custom executors, callback groups, and multi-threaded spinning — acceleration
-  targets the default single-threaded spin
-- Publisher/subscription event callbacks and QoS overriding options
+- Nodes, contexts, graph identity, message classes, subscriptions, timers, spin,
+  services, actions, parameters, lifecycle nodes, callback groups, and executors.
+- Publisher creation and destruction, QoS, event callbacks, callback groups, and
+  override options. Only the prepared publish operation is routed.
 
 **Known walls:**
 
-- `enable_cpp_acceleration()` monkeypatches `rclpy` **process-globally and
-  irreversibly** — call it once, at the very top, before creating nodes.
+- Activation patches methods **process-globally and irreversibly**. Call it once
+  before creating nodes. Existing Node aliases and subclasses retain their class
+  identity because the original class is patched rather than replaced.
+- `profile="required_cpp"` currently supports the publisher route and rejects
+  subscriptions and timers. `profile="optimized"` reserves explicit
+  contract-changing choices; it does not silently enable them.
+- `rclcppyy.Node` remains the legacy companion-node prototype. It is not the
+  transparent compatibility architecture and should not be used for new
+  compatibility work.
 - The **first** `rclcpp` bringup JIT-compiles headers. The suite ships a zero-config
   Cling PCH cache (`cppyy_kit` auto-PCH) that makes subsequent process starts far
   cheaper (a warm `rclcpp` bringup measured ~1.73 s → ~0.064 s); see the

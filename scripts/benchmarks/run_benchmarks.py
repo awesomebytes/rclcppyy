@@ -51,19 +51,19 @@ VARIANTS = {
         "label": "rclpy",
         "pub": "bench_pub_rclpy.py",
         "sub": "bench_sub_rclpy.py",
-        "expected_backend": "python",
+        "expected_backends": {"publisher": "python", "subscriber": "python"},
     },
     "rclcppyy": {
         "label": "rclcppyy (monkeypatched)",
         "pub": "bench_pub_rclcppyy_monkeypatch.py",
         "sub": "bench_sub_rclcppyy_monkeypatched.py",
-        "expected_backend": "cpp",
+        "expected_backends": {"publisher": "cpp", "subscriber": "python"},
     },
     "rclcppyy-templated": {
         "label": "rclcppyy (pure cppyy)",
         "pub": "bench_pub_rclcppyy.py",
         "sub": "bench_sub_rclcppyy.py",
-        "expected_backend": "cpp",
+        "expected_backends": {"publisher": "cpp", "subscriber": "cpp"},
     },
 }
 DEFAULT_VARIANTS = ["rclpy", "rclcppyy"]
@@ -286,9 +286,11 @@ def run_pair(variant_key, rate, duration, warmup_timeout, sample_hz=2.0, echo=Fa
                 f"--- sub output tail ---\n{sub.tail_text()}"
             )
 
-        expected_backend = spec["expected_backend"]
-        pub_backend = require_backend_marker(pub, "publisher", expected_backend)
-        sub_backend = require_backend_marker(sub, "subscriber", expected_backend)
+        expected_backends = spec["expected_backends"]
+        pub_backend = require_backend_marker(
+            pub, "publisher", expected_backends["publisher"])
+        sub_backend = require_backend_marker(
+            sub, "subscriber", expected_backends["subscriber"])
 
         log(f"  warmed up; measuring for {duration:.0f}s ...")
 
@@ -341,7 +343,7 @@ def run_pair(variant_key, rate, duration, warmup_timeout, sample_hz=2.0, echo=Fa
         return {
             "variant": variant_key,
             "label": spec["label"],
-            "expected_backend": expected_backend,
+            "expected_backends": expected_backends,
             "backend_verified": True,
             "publisher_backend": pub_backend,
             "subscriber_backend": sub_backend,

@@ -8,11 +8,11 @@
       "area": "activation",
       "api": "rclcppyy.enable_cpp_acceleration() before rclpy/message imports",
       "support": "certified",
-      "backend": "cpp",
-      "fallback": "none",
+      "backend": "mixed",
+      "fallback": "safe",
       "default": true,
       "evidence": ["test/test_monkeypatch.py", "test/_monkeypatch_helper.py"],
-      "notes": "Creates an accelerated node, redirects a flat message type, and completes a C++ pub/sub round trip in an isolated interpreter."
+      "notes": "Preserves stock node, context, executor, message, and entity identity; completes a same-handle C++ serialized publish to a stock subscription and reports both routes."
     },
     {
       "id": "activation.startup_hook.enabled",
@@ -23,7 +23,7 @@
       "fallback": "none",
       "default": false,
       "evidence": ["test/test_hook.py"],
-      "notes": "A fresh interpreter proves create_node and spin_once are patched when the opt-in variable is exactly 1."
+      "notes": "A fresh interpreter proves the original Node publisher method is routed while create_node and spin_once remain stock."
     },
     {
       "id": "activation.startup_hook.disabled",
@@ -40,23 +40,23 @@
       "id": "activation.late_import",
       "area": "activation",
       "api": "enable_cpp_acceleration() after rclpy or message modules are imported",
-      "support": "experimental",
+      "support": "certified",
       "backend": "mixed",
-      "fallback": "unsafe",
-      "default": false,
-      "evidence": ["rclcppyy/monkey.py", "rclcppyy/monkeypatch_messages.py"],
-      "notes": "There is best-effort conversion of already imported names, but class aliases and node subclasses captured before patching do not yet have a differential contract test."
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["test/test_hook.py", "rclcppyy/monkey.py"],
+      "notes": "The original Node and Publisher classes are patched in place and message classes are not replaced, so existing module aliases retain identity. Subclasses that override routed methods still need separate coverage."
     },
     {
       "id": "node.create_node",
       "area": "node",
       "api": "rclpy.create_node()",
       "support": "certified",
-      "backend": "mixed",
+      "backend": "python",
       "fallback": "none",
       "default": true,
       "evidence": ["test/test_monkeypatch.py", "test/_monkeypatch_helper.py"],
-      "notes": "Returns RclcppyyNode. The object currently contains both a Python node and a separate C++ node, so graph-identity certification remains separate."
+      "notes": "Returns the exact stock Node. The custom Context, namespace, remaps, parameters, graph identity, and teardown are covered by the differential contract."
     },
     {
       "id": "node.direct_construction",
@@ -73,42 +73,42 @@
       "id": "node.graph_identity",
       "area": "node",
       "api": "Node name/namespace and endpoint identity observed through the ROS graph",
-      "support": "unsupported",
-      "backend": "mixed",
-      "fallback": "unsafe",
+      "support": "certified",
+      "backend": "python",
+      "fallback": "none",
       "default": true,
-      "evidence": ["rclcppyy/node.py"],
-      "notes": "The internal C++ node currently uses a suffixed name and is distinct from the Python node; no transparent graph-identity guarantee exists."
+      "evidence": ["test/test_differential_contract.py", "test/differential/_contract_probe.py"],
+      "notes": "Activated and stock scenarios expose the same single requested node and endpoint identity; no companion node is created."
     },
     {
       "id": "node.subclass_existing_alias",
       "area": "node",
       "api": "Existing subclasses of a Node alias imported before activation",
-      "support": "unsupported",
+      "support": "experimental",
       "backend": "python",
-      "fallback": "unsafe",
+      "fallback": "safe",
       "default": false,
       "evidence": ["rclcppyy/monkey.py"],
-      "notes": "Replacing rclpy.node.Node does not rewrite class objects or aliases captured before activation."
+      "notes": "The original class is now patched in place, but subclasses that override create_publisher/create_subscription/create_timer need a representative corpus test."
     },
     {
       "id": "message.flat_import_after_enable",
       "area": "message",
       "api": "Generated .msg class imported after activation",
       "support": "certified",
-      "backend": "cpp",
+      "backend": "python",
       "fallback": "none",
       "default": true,
       "evidence": ["test/test_monkeypatch.py", "test/_monkeypatch_helper.py"],
-      "notes": "A flat generated message resolves to its C++ class, supports keyword construction, and traverses pub/sub without Python message conversion."
+      "notes": "Generated message classes remain the original Python classes with unchanged identity and constructor behavior in compatible mode."
     },
     {
       "id": "message.nested_and_sequence_conversion",
       "area": "message",
       "api": "Nested messages and primitive sequences on the unpatched-message native rclcpp path",
       "support": "certified",
-      "backend": "cpp",
-      "fallback": "none",
+      "backend": "mixed",
+      "fallback": "safe",
       "default": false,
       "evidence": ["test/test_pubsub_roundtrip.py", "test/_pubsub_nested_helper.py", "test/_pubsub_primitive_array_helper.py"],
       "notes": "The reusable native path has recursive conversion and sequence coverage; transparent import-hook identity for these shapes is not implied."
@@ -117,12 +117,12 @@
       "id": "message.service_action_import",
       "area": "message",
       "api": "Generated service and action class import redirection",
-      "support": "unsupported",
+      "support": "experimental",
       "backend": "python",
-      "fallback": "unsafe",
+      "fallback": "safe",
       "default": true,
-      "evidence": ["rclcppyy/monkeypatch_messages.py"],
-      "notes": "The current import finder recognizes .msg._ modules only."
+      "evidence": ["rclcppyy/monkey.py"],
+      "notes": "Compatible mode does not redirect generated imports, so stock service/action types remain available. End-to-end service/action tests remain open."
     },
     {
       "id": "publisher.basic",
@@ -132,85 +132,85 @@
       "backend": "cpp",
       "fallback": "none",
       "default": true,
-      "evidence": ["test/test_monkeypatch.py", "test/test_pubsub_roundtrip.py"],
-      "notes": "Default publisher creation and ordered payload delivery are covered for flat, nested, and primitive-sequence examples."
+      "evidence": ["test/test_monkeypatch.py", "test/test_differential_contract.py"],
+      "notes": "Creation, QoS ownership, graph endpoint, and destruction remain stock; publish uses C++ serialization over the same native handle and completes an ordered round trip."
     },
     {
       "id": "publisher.advanced_options",
       "area": "publisher",
       "api": "Publisher callback_group, event_callbacks, qos_overriding_options, and publisher_class",
-      "support": "unsupported",
-      "backend": "cpp",
-      "fallback": "unsafe",
+      "support": "experimental",
+      "backend": "mixed",
+      "fallback": "safe",
       "default": false,
-      "evidence": ["rclcppyy/node.py"],
-      "notes": "Several options are currently accepted but ignored rather than preserving the requested behavior."
+      "evidence": ["rclcppyy/monkey.py"],
+      "notes": "All options are forwarded to stock publisher creation; focused event, override, and custom publisher-class contract tests remain open."
     },
     {
       "id": "subscription.basic",
       "area": "subscription",
       "api": "Node.create_subscription(message_type, topic, callback, depth_or_qos)",
       "support": "certified",
-      "backend": "cpp",
+      "backend": "python",
       "fallback": "none",
       "default": true,
       "evidence": ["test/test_monkeypatch.py", "test/test_pubsub_roundtrip.py"],
-      "notes": "Default subscription creation, C++ message callback delivery, and ordered payloads are covered."
+      "notes": "The complete subscription entity and Python callback dispatch remain stock; ordered delivery and visible backend fallback are covered."
     },
     {
       "id": "subscription.advanced_options",
       "area": "subscription",
       "api": "Subscription callback_group, event_callbacks, qos_overriding_options, raw mode, and content filters",
-      "support": "unsupported",
-      "backend": "cpp",
-      "fallback": "unsafe",
+      "support": "experimental",
+      "backend": "python",
+      "fallback": "safe",
       "default": false,
-      "evidence": ["rclcppyy/node.py"],
-      "notes": "Requested callback groups, events, overrides, and raw delivery are ignored or not represented."
+      "evidence": ["rclcppyy/monkey.py"],
+      "notes": "All options are forwarded to stock subscription creation; focused raw, content-filter, event, and override tests remain open."
     },
     {
       "id": "timer.wall",
       "area": "timer",
       "api": "Node.create_timer(period, Python callback)",
       "support": "experimental",
-      "backend": "cpp",
-      "fallback": "none",
+      "backend": "python",
+      "fallback": "safe",
       "default": true,
-      "evidence": ["scripts/benchmarks/bench_pub_rclcppyy_monkeypatch.py", "rclcppyy/node.py"],
-      "notes": "The benchmark exercises the path, but one-shot behavior, callback groups, cancellation/reset, exception propagation, and destruction lack contract tests."
+      "evidence": ["scripts/benchmarks/bench_pub_rclcppyy_monkeypatch.py", "rclcppyy/monkey.py"],
+      "notes": "Timer creation delegates to stock rclpy and reports fallback; focused one-shot, callback-group, cancellation/reset, exception, and destruction tests remain open."
     },
     {
       "id": "executor.spin",
       "area": "executor",
       "api": "rclpy.spin(accelerated_node)",
       "support": "experimental",
-      "backend": "cpp",
-      "fallback": "none",
+      "backend": "python",
+      "fallback": "not_applicable",
       "default": true,
       "evidence": ["scripts/benchmarks/bench_pub_rclcppyy_monkeypatch.py", "rclcppyy/monkey.py"],
-      "notes": "Delegates to rclcpp::spin, but callback exceptions, shutdown, and mixed entities are not contract-certified."
+      "notes": "Compatible activation does not patch rclpy.spin; focused long-running spin, exception, and signal tests remain open."
     },
     {
       "id": "executor.spin_once",
       "area": "executor",
       "api": "rclpy.spin_once(accelerated_node, timeout_sec=...)",
       "support": "experimental",
-      "backend": "cpp",
-      "fallback": "none",
+      "backend": "python",
+      "fallback": "not_applicable",
       "default": true,
       "evidence": ["test/test_hook.py", "test/test_heavy_hz_demo.py", "rclcppyy/monkey.py"],
-      "notes": "The hook and ROS CLI scenario cover the patched path; exact callback-count, timeout, and executor-argument semantics remain unverified."
+      "notes": "Compatible activation leaves rclpy.spin_once unchanged; the differential contract uses an explicit stock executor and exact custom-context ownership."
     },
     {
       "id": "executor.custom_and_multi_threaded",
       "area": "executor",
       "api": "Custom executors, MultiThreadedExecutor, callback groups, and waitables",
-      "support": "unsupported",
-      "backend": "none",
-      "fallback": "unsafe",
+      "support": "experimental",
+      "backend": "python",
+      "fallback": "safe",
       "default": false,
       "evidence": ["README.md", "rclcppyy/monkey.py", "rclcppyy/node.py"],
-      "notes": "The compatibility product currently targets its own single-threaded rclcpp spin path."
+      "notes": "Compatible activation leaves executor and callback-group objects stock. Multi-threaded and waitable stress coverage remains open."
     },
     {
       "id": "service.client_server",
@@ -221,51 +221,51 @@
       "fallback": "unsafe",
       "default": true,
       "evidence": ["README.md", "rclcppyy/node.py", "rclcppyy/monkey.py"],
-      "notes": "Inherited Python entities are not serviced by the patched rclcpp spin path."
+      "notes": "Service/client methods and executors are unmodified stock rclpy. A bidirectional service contract and backend status coverage remain open."
     },
     {
       "id": "action.client_server",
       "area": "action",
       "api": "rclpy.action ActionClient and ActionServer",
-      "support": "unsupported",
+      "support": "experimental",
       "backend": "python",
-      "fallback": "unsafe",
+      "fallback": "safe",
       "default": true,
       "evidence": ["README.md", "rclcppyy/monkey.py"],
-      "notes": "No compatibility adapter or safe mixed-executor fallback is present."
+      "notes": "Action classes and executors are unmodified stock rclpy. A full goal/cancel/result/feedback differential contract remains open."
     },
     {
       "id": "parameter.local_and_remote",
       "area": "parameter",
       "api": "Local parameters, parameter services, and parameter events",
-      "support": "unsupported",
-      "backend": "mixed",
-      "fallback": "unsafe",
+      "support": "certified",
+      "backend": "python",
+      "fallback": "none",
       "default": true,
-      "evidence": ["README.md", "rclcppyy/node.py", "rclcppyy/monkey.py"],
-      "notes": "The Python base node owns parameters, while the accelerated spin path services the separate C++ node. Transparent local/remote behavior is not certified."
+      "evidence": ["test/test_differential_contract.py", "test/differential/_contract_probe.py"],
+      "notes": "The stock node remains sole owner; parameter value, overrides, parameter-service graph identity, and custom Context ownership match the stock scenario."
     },
     {
       "id": "lifecycle.node",
       "area": "lifecycle",
       "api": "rclpy.lifecycle.LifecycleNode",
-      "support": "unsupported",
-      "backend": "none",
-      "fallback": "unsafe",
+      "support": "experimental",
+      "backend": "python",
+      "fallback": "safe",
       "default": true,
       "evidence": ["rclcppyy/monkey.py"],
-      "notes": "Lifecycle node construction and transition services are not patched."
+      "notes": "Lifecycle classes and transition services are unmodified stock rclpy. Transition and teardown differential coverage remains open."
     },
     {
       "id": "context.clean_exit",
       "area": "context",
       "api": "Normal interpreter exit after rclcpp bringup and node creation",
       "support": "certified",
-      "backend": "cpp",
+      "backend": "mixed",
       "fallback": "none",
       "default": true,
-      "evidence": ["test/test_clean_exit.py", "test/_clean_exit_helper.py"],
-      "notes": "An isolated process returns normally without a forced exit or teardown fault."
+      "evidence": ["test/test_clean_exit.py", "test/test_differential_contract.py"],
+      "notes": "Both the native lane and compatible stock-authority scenario return normally without forced exit, leaked graph identity, or teardown fault."
     },
     {
       "id": "context.repeated_init_shutdown",

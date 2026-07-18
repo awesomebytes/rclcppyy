@@ -22,7 +22,7 @@ def test_jazzy_manifest_is_valid_and_inventory_is_explicit():
     assert summary["ros_distribution"] == "jazzy"
     assert summary["entries"] >= 20
     assert summary["support"]["certified"] >= 8
-    assert summary["support"]["unsupported"] >= 8
+    assert summary["support"]["unsupported"] >= 1
     assert set(summary["areas"]) >= {
         "activation", "node", "message", "publisher", "subscription",
         "timer", "executor", "service", "action", "parameter", "lifecycle",

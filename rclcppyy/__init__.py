@@ -16,6 +16,7 @@ from rclcppyy.bringup_rclcpp import bringup_rclcpp, shutdown_rclcpp
 from rclcppyy._status import status
 from rclcppyy.node import RclcppyyNode
 from rclcppyy.monkey import patch_ros2, patch_node_class
+from rclcppyy.policy import AccelerationPolicy, BackendUnavailableError
 Node = RclcppyyNode
 
 # The moved re-export submodules are imported lazily: ``import rclcppyy`` must not
@@ -37,37 +38,36 @@ def __dir__():
     return sorted(list(globals()) + list(_MOVED_SUBMODULES))
 
 
-def enable_cpp_acceleration(patch_node=True):
+def enable_cpp_acceleration(
+    patch_node=True,
+    *,
+    profile="compatible",
+    warn_fallback=False,
+):
     """
     Enable C++ acceleration for ROS2 Python code.
 
-    This will:
-    1. Set up automatic message conversion from Python to C++
-    2. Monkey-patch rclpy.create_node to return RclcppyyNode
-    3. Monkey-patch ROS2 message imports to use C++ versions
+    The compatible profile keeps stock rclpy nodes, contexts, executors, message
+    classes, and entity objects authoritative. Certified operations use C++ over
+    their existing native handles; unsupported operations remain stock and are
+    visible in :func:`status`.
 
     Args:
-        patch_node (bool): If True, also monkey-patch rclpy.node.Node class directly.
-                          This is more aggressive but ensures all nodes use C++.
+        patch_node (bool): Retained for source compatibility. Node identity is no
+                          longer replaced in any profile.
+        profile (str): ``compatible``, ``required_cpp``, or ``optimized``.
+        warn_fallback (bool): Warn once for each stock fallback reason.
 
     Returns:
         bool: True if successful
 
     Example:
         ```python
-        import rclpy
-        from std_msgs.msg import String
-
-        # Add this single line to your existing ROS2 Python code:
         import rclcppyy; rclcppyy.enable_cpp_acceleration()
-
-        # Rest of your code remains unchanged
-        rclpy.init()
-        node = rclpy.create_node('my_node')  # Actually returns a RclcppyyNode
         ```
     """
     # Apply monkey patching
-    result = patch_ros2()
+    result = patch_ros2(profile=profile, warn_fallback=warn_fallback)
 
     # Optionally patch the Node class directly
     if patch_node:
@@ -85,6 +85,8 @@ __all__ = [
     'enable_cpp_acceleration',
     'patch_ros2',
     'patch_node_class',
+    'AccelerationPolicy',
+    'BackendUnavailableError',
     'rosbag2_cpp',
     'serialization',
     'rosbag2_py_compat',
