@@ -72,7 +72,7 @@ jobs:
             RMW_IMPLEMENTATION="$rmw" pixi run python scripts/ci/stress_runtime.py \
               2>&1 | tee "build/scheduled/stress-${rmw}.log"
           done
-      - name: Exercise isolated cold and warm generated caches
+      - name: Exercise isolated cold, warm, and corrupt generated caches
         run: |
           set -euo pipefail
           cache_root="$RUNNER_TEMP/rclcppyy-cold-cache"
@@ -82,6 +82,10 @@ jobs:
               pixi run pytest test/test_phase0_same_handle_publisher.py -q \
               2>&1 | tee "build/scheduled/cache-${state}.log"
           done
+          CPPYY_KIT_CACHE_DIR="$cache_root/corrupt" \
+            pixi run pytest \
+              _deps/cppyy_kit/cppyy_kit/tests/test_cache.py::test_corrupt_cache_recovers \
+              -q 2>&1 | tee build/scheduled/cache-corrupt-recovery.log
       - name: Upload scheduled evidence
         if: always()
         uses: actions/upload-artifact@v4
