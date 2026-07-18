@@ -32,6 +32,7 @@ def test_required_cpp_fails_before_creating_unsupported_entity():
     proc = run_helper("_required_cpp_helper.py")
     details = format_output(proc)
     assert "REQUIRED_PUBLISHER_OK" in proc.stdout, details
+    assert "REQUIRED_CONSTRUCTOR_PUBLISHER_STOCK_OK" in proc.stdout, details
     assert "REQUIRED_PUBLISH_FAIL_CLOSED_OK" in proc.stdout, details
     assert "REQUIRED_FAIL_CLOSED_OK" in proc.stdout, details
     assert "REQUIRED_CONTROL_PLANE_OK" in proc.stdout, details

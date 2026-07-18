@@ -132,8 +132,19 @@
       "backend": "cpp",
       "fallback": "none",
       "default": true,
-      "evidence": ["test/test_monkeypatch.py", "test/test_differential_contract.py"],
-      "notes": "Creation, QoS ownership, graph endpoint, and destruction remain stock; publish uses C++ serialization over the same native handle and completes an ordered round trip. This compatibility and backend certification does not assert a performance benefit."
+      "evidence": ["test/test_monkeypatch.py", "test/test_differential_contract.py", "test/test_policy.py", "test/_required_cpp_helper.py"],
+      "notes": "Explicit post-construction creation, QoS ownership, graph endpoint, and destruction remain stock; publish uses C++ serialization over the same native handle and completes an ordered round trip. Private Node-constructor infrastructure is excluded from route preparation. This compatibility and backend certification does not assert a performance benefit."
+    },
+    {
+      "id": "publisher.node_constructor_infrastructure",
+      "area": "publisher",
+      "api": "Node's private parameter-event publisher construction",
+      "support": "certified",
+      "backend": "python",
+      "fallback": "not_applicable",
+      "default": true,
+      "evidence": ["test/test_policy.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "notes": "Node construction creates its private publisher entirely through stock rclpy under compatible, required-C++, and optimized policies. A deterministic required-C++ probe proves same-handle route preparation is not invoked for this infrastructure and is invoked exactly once for the following explicit publisher."
     },
     {
       "id": "publisher.advanced_options",
@@ -187,8 +198,8 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
-      "notes": "The stock executor remains authoritative and is reported as Python. Timer servicing, Context shutdown, signature preservation, and required_cpp rejection before spinning are covered; signal handling remains open."
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "test/test_optimized_signal_wake.py", "test/_optimized_signal_worker.py", "rclcppyy/monkey.py"],
+      "notes": "The stock executor remains authoritative and is reported as Python. Compatible and required-C++ preserve their existing behavior. The explicit optimized profile bounds each stock wait to 100 ms; fresh-process immediate-SIGTERM tests cover global spin without claiming a performance benefit."
     },
     {
       "id": "executor.spin_once",
@@ -209,8 +220,19 @@
       "backend": "python",
       "fallback": "safe",
       "default": false,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
-      "notes": "A two-thread MultiThreadedExecutor with a reentrant callback group, shutdown, status reporting, and required_cpp rejection is covered. Custom executor subclasses, waitables, and sustained stress remain open."
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "test/test_optimized_signal_wake.py", "test/_optimized_signal_worker.py", "rclcppyy/monkey.py"],
+      "notes": "A two-thread MultiThreadedExecutor with a reentrant callback group, shutdown, status reporting, and required_cpp rejection is covered. Optimized direct single- and multi-threaded spin use bounded stock waits and preserve signatures, membership, and exceptions. Custom executor overrides, waitables, and sustained cross-architecture stress remain open."
+    },
+    {
+      "id": "executor.optimized_signal_wake_mitigation",
+      "area": "executor",
+      "api": "profile=optimized bounded rclpy and stock executor spin waits",
+      "support": "experimental",
+      "backend": "python",
+      "fallback": "not_applicable",
+      "default": false,
+      "evidence": ["test/test_optimized_signal_wake.py", "test/_optimized_signal_worker.py", "rclcppyy/monkey.py", "docs/backend-selection.md"],
+      "notes": "Fifteen fresh x86-64 processes receive SIGTERM immediately from an active callback across global, direct single-threaded, and direct multi-threaded spin; all exit cleanly and prove structured policy, signature, and ownership invariants. The 100 ms bound adds periodic idle wake-ups. ARM64 and sustained middleware-matrix evidence remain required before promotion."
     },
     {
       "id": "executor.future_completion",

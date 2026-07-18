@@ -40,15 +40,29 @@ def _must_reject(operation):
 
 
 def main():
+    borrowed_publish, unavailable_reason = monkey_module._load_borrowed_publish()
+    assert borrowed_publish is not None, unavailable_reason
+    prepare_calls = []
+
+    class TrackingBorrowedPublish:
+        @staticmethod
+        def prepare(msg_type):
+            prepare_calls.append(msg_type)
+            return borrowed_publish.prepare(msg_type)
+
+    monkey_module._load_borrowed_publish = lambda: (TrackingBorrowedPublish, None)
     context = rclpy.context.Context()
     context.init(args=[])
     node = rclpy.create_node("required_cpp", context=context)
     assert type(node) is Node
+    assert prepare_calls == [], prepare_calls
 
     publisher = node.create_publisher(String, "required_cpp", 10)
+    assert prepare_calls == [String], prepare_calls
     assert type(publisher) is Publisher
     assert hasattr(publisher, "_rclcppyy_publish_route")
     print("REQUIRED_PUBLISHER_OK", flush=True)
+    print("REQUIRED_CONSTRUCTOR_PUBLISHER_STOCK_OK", flush=True)
 
     observed = []
     proof_executor = SingleThreadedExecutor(context=context)
@@ -177,12 +191,14 @@ def main():
     infrastructure = [
         record for record in status["entities"]
         if record["backend"] == "python"
-        and record["metadata"].get("entity_type") == "service"
         and "stock_node_infrastructure" in record["policies"]
     ]
     assert infrastructure, status
     assert all(record["metadata"]["profile"] == "required_cpp"
                for record in infrastructure)
+    assert {"publisher", "service"} <= {
+        record["metadata"].get("entity_type") for record in infrastructure
+    }, status
     future_outcomes = {
         record["metadata"].get("outcome")
         for record in status["operations"]

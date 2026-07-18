@@ -160,8 +160,11 @@ backend fact; a benefit requires separate, repeated, architecture-specific evide
   before creating nodes. Existing Node aliases and subclasses retain their class
   identity because the original class is patched rather than replaced.
 - `profile="required_cpp"` currently supports the publisher route and rejects
-  subscriptions and timers. `profile="optimized"` reserves explicit
-  contract-changing choices; it does not silently enable them.
+  subscriptions and timers. `profile="optimized"` opts into 100 ms bounded
+  waits for `rclpy.spin()` and direct stock single- and multi-threaded executor
+  `spin()` calls. This prevents a missed signal guard wake from leaving an
+  invalid Context blocked indefinitely, at the cost of periodic idle wake-ups.
+  It is a reliability mitigation, not a C++ route or performance claim.
 - `rclcppyy.Node` remains the legacy companion-node prototype. It is not the
   transparent compatibility architecture and should not be used for new
   compatibility work.

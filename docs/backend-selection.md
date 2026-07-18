@@ -12,7 +12,7 @@ evidence to decide whether a more specialized lane is worthwhile.
 | Prove that a selected operation cannot fall back | `enable_cpp_acceleration(profile="required_cpp")` | Exact stock contract for supported operations | Rejects an unsupported operation before its side effects |
 | Use a C++-only ROS facility from Python | `rclcppyy.native()` | Explicit native API; not a drop-in `rclpy` replacement | Capability queries and normal exceptions make unsupported facilities visible |
 | Remove Python from a measured hot path | `rclcpp_kit` native callbacks, services, clients, actions, components, lifecycle nodes, or fused pipelines | Explicit opt-in contract for ownership, scheduling, and delivery | Compilation and construction are explicit; generated code and counters are inspectable |
-| Consider contract-changing automatic optimization | `profile="optimized"` | Only changes documented by an individually reviewed optimization | The profile currently reserves permission; it does not silently enable a native lowering |
+| Consider contract-changing automatic optimization | `profile="optimized"` | Only changes documented by an individually reviewed optimization | Stock executor waits are bounded to recover from a missed signal wake; no native lowering is silently enabled |
 
 ## Compatible profile
 
@@ -55,6 +55,29 @@ replacing it would destabilize executor semantics.
 
 Strict mode is an assertion mechanism, not a promise that the whole application is
 C++. Tests must check the operation records they depend on.
+
+## Optimized profile
+
+The optimized profile currently enables one explicit scheduling change:
+
+```python
+import rclcppyy
+
+rclcppyy.enable_cpp_acceleration(profile="optimized")
+```
+
+`rclpy.spin()` and direct `SingleThreadedExecutor.spin()` and
+`MultiThreadedExecutor.spin()` calls retain the stock node, Context, executor,
+callback, exception, and ownership implementation, but wait for work in intervals
+of at most 100 ms. This bounds recovery when signal shutdown invalidates the
+Context after its first guard-condition wake was consumed by a previous wait set.
+Runtime status records the `optimized_bounded_wait` policy, interval, outcome, and
+executor type.
+
+The bound can rebuild an idle wait set up to ten times per second. It is therefore
+an opt-in reliability tradeoff, not a claimed CPU or latency optimization. The
+compatible and required-C++ profiles retain their existing indefinite stock waits;
+direct custom executor overrides remain application-owned.
 
 ## Native lane
 

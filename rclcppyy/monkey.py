@@ -8,7 +8,7 @@ from inspect import signature
 
 import rclpy
 from rclpy.action import ActionClient, ActionServer
-from rclpy.executors import MultiThreadedExecutor
+from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
 from rclpy.lifecycle import LifecycleNode
 from rclpy.node import Node
 from rclpy.publisher import Publisher
@@ -29,6 +29,7 @@ _original_set_parameters_atomically = Node.set_parameters_atomically
 _original_publish = Publisher.publish
 _original_spin = rclpy.spin
 _original_spin_once = rclpy.spin_once
+_original_single_threaded_spin = SingleThreadedExecutor.spin
 _original_multi_threaded_spin = MultiThreadedExecutor.spin
 _original_future_set_result = Future.set_result
 _original_future_set_exception = Future.set_exception
@@ -40,6 +41,7 @@ _original_action_server_init = ActionServer.__init__
 _PATCHED = False
 _POLICY = resolve_policy()
 _WARNED_FALLBACKS = set()
+_OPTIMIZED_SPIN_TIMEOUT_SEC = 0.1
 
 
 def _claim_once(owner, key):
@@ -115,6 +117,7 @@ def _record_python_operation(
     metadata=None,
     *,
     once_key=None,
+    policies=None,
 ):
     if once_key is not None and not _claim_once(node, once_key):
         return
@@ -129,7 +132,7 @@ def _record_python_operation(
         "operations",
         "python",
         reason,
-        policies=("stock_fallback", _POLICY.name),
+        policies=policies or ("stock_fallback", _POLICY.name),
         metadata=values,
     )
 
@@ -143,6 +146,7 @@ def _record_runtime_operation(
     once_key=None,
     warn=False,
     authority="stock_runtime_authority",
+    policies=None,
 ):
     if once_key is not None and not _claim_once(owner, once_key):
         return
@@ -154,7 +158,7 @@ def _record_runtime_operation(
         "operations",
         "python",
         reason,
-        policies=(authority, _POLICY.name),
+        policies=policies or (authority, _POLICY.name),
         metadata=values,
     )
 
@@ -221,6 +225,31 @@ def _create_publisher_wrapper(
     qos_overriding_options=None,
     publisher_class=Publisher,
 ):
+    initializing = not hasattr(self, "_type_description_service")
+    if initializing:
+        publisher = _original_create_publisher(
+            self,
+            msg_type,
+            topic,
+            qos_profile,
+            callback_group=callback_group,
+            event_callbacks=event_callbacks,
+            qos_overriding_options=qos_overriding_options,
+            publisher_class=publisher_class,
+        )
+        _record_python_entity(
+            self,
+            "publisher",
+            "stock Node constructor owns this compatibility entity",
+            metadata={
+                "topic": publisher.topic_name,
+                "requested_operation": "create_publisher",
+            },
+            warn=False,
+            policies=("stock_node_infrastructure", _POLICY.name),
+        )
+        return publisher
+
     borrowed_publish, unavailable_reason = _load_borrowed_publish()
     route = None
     if borrowed_publish is not None:
@@ -490,29 +519,78 @@ def _record_executor_exception(node, source_operation, exception):
     )
 
 
+def _optimized_spin_metadata(outcome, **values):
+    metadata = {
+        "outcome": outcome,
+        "bounded_wait_timeout_sec": _OPTIMIZED_SPIN_TIMEOUT_SEC,
+        "mitigation": "signal_guard_lost_wake",
+    }
+    metadata.update(values)
+    return metadata
+
+
+def _bounded_rclpy_spin(node, executor=None):
+    executor = rclpy.get_global_executor() if executor is None else executor
+    try:
+        executor.add_node(node)
+        while executor.context.ok():
+            executor.spin_once(timeout_sec=_OPTIMIZED_SPIN_TIMEOUT_SEC)
+    finally:
+        executor.remove_node(node)
+
+
+def _bounded_executor_spin(executor):
+    executor._enter_spin()
+    try:
+        while executor._context.ok() and not executor._is_shutdown:
+            executor._spin_once_impl(_OPTIMIZED_SPIN_TIMEOUT_SEC)
+    finally:
+        executor._exit_spin()
+
+
 @wraps(_original_spin)
 def _spin_wrapper(node, executor=None):
-    reason = "rclpy.spin has no certified C++ executor route"
+    optimized = _POLICY.allow_contract_changes
+    reason = (
+        "optimized profile bounds stock executor waits after signal shutdown"
+        if optimized else
+        "rclpy.spin has no certified C++ executor route"
+    )
     if _POLICY.require_cpp:
         _unavailable("spin", reason)
     try:
-        result = _original_spin(node, executor=executor)
+        result = (
+            _bounded_rclpy_spin(node, executor=executor)
+            if optimized else
+            _original_spin(node, executor=executor)
+        )
     except BaseException as exc:
+        metadata = {"outcome": "exception", "exception_type": type(exc).__name__}
+        if optimized:
+            metadata = _optimized_spin_metadata(
+                "exception", exception_type=type(exc).__name__)
         _record_python_operation(
             node,
             "spin",
             reason,
-            metadata={"outcome": "exception", "exception_type": type(exc).__name__},
+            metadata=metadata,
             once_key=("spin", "exception", type(exc).__name__),
+            policies=("stock_executor_authority", "optimized_bounded_wait", "optimized")
+            if optimized else None,
         )
         _record_executor_exception(node, "spin", exc)
         raise
+    metadata = {"outcome": "returned"}
+    if optimized:
+        metadata = _optimized_spin_metadata("returned")
     _record_python_operation(
         node,
         "spin",
         reason,
-        metadata={"outcome": "returned"},
+        metadata=metadata,
         once_key=("spin", "returned"),
+        policies=("stock_executor_authority", "optimized_bounded_wait", "optimized")
+        if optimized else None,
     )
     return result
 
@@ -571,6 +649,42 @@ def _multi_threaded_spin_wrapper(self):
         once_key=("multi_threaded_spin", "returned"),
         warn=True,
         authority="stock_executor_authority",
+    )
+    return result
+
+
+@wraps(_original_single_threaded_spin)
+def _optimized_executor_spin_wrapper(self):
+    operation = (
+        "multi_threaded_spin"
+        if isinstance(self, MultiThreadedExecutor) else
+        "single_threaded_spin"
+    )
+    reason = "optimized profile bounds stock executor waits after signal shutdown"
+    executor_type = type(self).__name__
+    try:
+        result = _bounded_executor_spin(self)
+    except BaseException as exc:
+        _record_runtime_operation(
+            self,
+            operation,
+            reason,
+            metadata=_optimized_spin_metadata(
+                "exception",
+                executor_type=executor_type,
+                exception_type=type(exc).__name__,
+            ),
+            once_key=(operation, "exception", type(exc).__name__),
+            policies=("stock_executor_authority", "optimized_bounded_wait", "optimized"),
+        )
+        raise
+    _record_runtime_operation(
+        self,
+        operation,
+        reason,
+        metadata=_optimized_spin_metadata("returned", executor_type=executor_type),
+        once_key=(operation, "returned"),
+        policies=("stock_executor_authority", "optimized_bounded_wait", "optimized"),
     )
     return result
 
@@ -736,7 +850,11 @@ def patch_ros2(profile="compatible", *, warn_fallback=False):
     Publisher.publish = _publish_wrapper
     rclpy.spin = _spin_wrapper
     rclpy.spin_once = _spin_once_wrapper
-    MultiThreadedExecutor.spin = _multi_threaded_spin_wrapper
+    if requested.allow_contract_changes:
+        SingleThreadedExecutor.spin = _optimized_executor_spin_wrapper
+        MultiThreadedExecutor.spin = _optimized_executor_spin_wrapper
+    else:
+        MultiThreadedExecutor.spin = _multi_threaded_spin_wrapper
     Future.set_result = _future_set_result_wrapper
     Future.set_exception = _future_set_exception_wrapper
     Future.cancel = _future_cancel_wrapper
