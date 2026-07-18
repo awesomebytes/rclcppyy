@@ -48,6 +48,9 @@ jobs:
       - name: Lint
         run: pixi run lint
 
+      - name: Validate compatibility contract
+        run: pixi run contract
+
       - name: Test (pub/sub roundtrip, monkeypatch, serialization parity)
         run: pixi run test
 
@@ -56,4 +59,14 @@ jobs:
       # dev box, so the warmup budget is generous; run_benchmarks.py already
       # exits non-zero if the subscriber never receives a message.
       - name: Bench smoke (assert rclcppyy publishes)
-        run: pixi run bench --variants rclcppyy --rate 1000 --duration 3 --warmup-timeout 300 --json
+        run: >-
+          pixi run bench --variants rclcppyy --rate 1000 --duration 3
+          --warmup-timeout 300 --json --output build/bench-smoke.json
+
+      - name: Upload benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-smoke-x86-64
+          path: build/bench-smoke.json
+          if-no-files-found: ignore
