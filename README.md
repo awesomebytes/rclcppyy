@@ -65,6 +65,10 @@ with rclcppyy.native(["my_program"]) as ros:
     publisher = node.create_publisher(String, "chatter", 10)
     executor = ros.create_executor("multi_threaded", threads=2)
     executor.add_node(node)
+    lifecycle = ros.create_native_lifecycle_node("managed_worker")
+    lifecycle.attach_executor(executor)
+    container = ros.create_native_component_manager(
+        executor, name="managed_container")
     relay = ros.create_fused_pipeline(
         node, String, String, "input", "output",
         'output.data = input.data + ":native";',
@@ -76,6 +80,9 @@ Nodes, options, publishers, callback groups, and executors in this block are the
 real cppyy-backed C++ objects. The session owns a custom `rclcpp::Context`, orders
 shutdown, and exposes `ros.rclcpp` as the unrestricted escape hatch. Loaned-message
 availability is queried per publisher with `rclcppyy.publisher_capabilities()`.
+The same session offers thin factories for typed C++ services, clients, action
+clients, lifecycle nodes, and standard AOT component containers; their original
+C++ objects remain available through explicit raw accessors.
 
 Measure routes on the target workload rather than assuming that crossing into C++
 is automatically faster:

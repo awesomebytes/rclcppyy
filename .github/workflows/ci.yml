@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: dfbb4676e882cc8ba7f4f5746f79a0682c3fb0c7
+          ref: d683e7fc14e51d2fc0f3b67bda719492387e6da4
           path: _deps/cppyy_kit
 
       - name: Checkout pinned upstream rclpy contract source
@@ -173,7 +173,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: dfbb4676e882cc8ba7f4f5746f79a0682c3fb0c7
+          ref: d683e7fc14e51d2fc0f3b67bda719492387e6da4
           path: _deps/cppyy_kit
 
       - name: Checkout pinned upstream rclpy contract source

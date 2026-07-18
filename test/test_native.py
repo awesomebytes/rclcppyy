@@ -19,6 +19,9 @@ def test_native_factory_is_thin_and_status_visible():
     assert record["metadata"]["operation"] == "native"
     assert record["metadata"]["arguments_count"] == 2
     assert record["metadata"]["capabilities"]["managed_context"] is True
+    assert record["metadata"]["capabilities"]["managed_native_action_clients"] is True
+    assert record["metadata"]["capabilities"]["managed_lifecycle_nodes"] is True
+    assert record["metadata"]["capabilities"]["managed_component_containers"] is True
 
 
 def test_native_symbols_are_part_of_the_small_public_surface():

@@ -11,7 +11,7 @@ evidence to decide whether a more specialized lane is worthwhile.
 | Run existing `rclpy` software unchanged | `enable_cpp_acceleration()` | Exact stock Python object identities and behavior | Certified operations use C++; other operations delegate to stock Python and report that decision |
 | Prove that a selected operation cannot fall back | `enable_cpp_acceleration(profile="required_cpp")` | Exact stock contract for supported operations | Rejects an unsupported operation before its side effects |
 | Use a C++-only ROS facility from Python | `rclcppyy.native()` | Explicit native API; not a drop-in `rclpy` replacement | Capability queries and normal exceptions make unsupported facilities visible |
-| Remove Python from a measured hot path | `rclcpp_kit` native callbacks, services, or fused pipelines | Explicit opt-in contract for ownership, scheduling, and delivery | Compilation and construction are explicit; generated code and counters are inspectable |
+| Remove Python from a measured hot path | `rclcpp_kit` native callbacks, services, clients, actions, components, lifecycle nodes, or fused pipelines | Explicit opt-in contract for ownership, scheduling, and delivery | Compilation and construction are explicit; generated code and counters are inspectable |
 | Consider contract-changing automatic optimization | `profile="optimized"` | Only changes documented by an individually reviewed optimization | The profile currently reserves permission; it does not silently enable a native lowering |
 
 ## Compatible profile
@@ -80,6 +80,20 @@ Native callbacks, fused pipelines, editable native services, and domain type
 adapters are lower-level `rclcpp_kit` facilities. They are appropriate only after
 profiling identifies Python boundary crossings, serialization, scheduling, or data
 conversion as the relevant cost.
+
+Typed managed clients and action clients keep futures and asynchronous goal state
+in C++ while exposing tokens and raw typed handles. Managed lifecycle nodes and
+component containers expose the real `rclcpp_lifecycle` and `rclcpp_components`
+objects, retaining only construction, executor membership, and teardown in the
+adapter. Component loading remains the standard composition service protocol and
+accepts registered AOT C++ plugins, not Python classes.
+
+On the current Jazzy/cppyy toolchain, compiling native service glue and then native
+client glue in one interpreter can fail to resolve the C++ standard library's
+thread-local `call_once` symbols. Each facility is independently tested and both
+directions interoperate with standalone AOT peers, but an application that needs
+both should isolate them in separate processes until the coexistence test passes.
+This is a known native-lane limitation, not an allowed compatibility fallback.
 
 ## Backend evidence
 
