@@ -10,6 +10,7 @@ evidence to decide whether a more specialized lane is worthwhile.
 | --- | --- | --- | --- |
 | Run existing `rclpy` software unchanged | `enable_cpp_acceleration()` | Exact stock Python object identities and behavior, including `Publisher.publish` | Operations remain stock Python and report that authority |
 | Try same-handle C++ publishing without changing application code | `enable_cpp_acceleration(profile="publisher_cpp")` | Exact stock publisher object and graph endpoint; explicit publish implementation change | Falls back to stock publishing visibly if preparation or a publish fails |
+| Keep supported messages in C++ storage through publish and take | `enable_cpp_acceleration(profile="message_facade")` before message imports | Exact stock Node, Context, Publisher, Subscription, callback-group, graph, and destruction objects; generated-style `String` and `UInt64` classes own C++ storage | Unsupported layouts/options stay visibly stock; a failed take raises without an unsafe retry |
 | Prove that a selected operation cannot fall back | `enable_cpp_acceleration(profile="required_cpp")` | Exact stock contract for supported operations | Rejects an unsupported operation before its side effects |
 | Use a C++-only ROS facility from Python | `rclcppyy.native()` | Explicit native API; not a drop-in `rclpy` replacement | Capability queries and normal exceptions make unsupported facilities visible |
 | Remove Python from a measured hot path | `rclcpp_kit` native callbacks, services, clients, actions, components, lifecycle nodes, or fused pipelines | Explicit opt-in contract for ownership, scheduling, and delivery | Compilation and construction are explicit; generated code and counters are inspectable |
@@ -95,6 +96,49 @@ profile because executor callback Tasks use these methods on the hot path.
 
 Strict mode is an assertion mechanism, not a promise that the whole application is
 C++. Tests must check the operation records they depend on.
+
+## C++ message-facade profile
+
+Use this explicit profile only on the reviewed ROS 2 Jazzy, `rclpy` 7.1.11, and
+Cyclone DDS stack, and enable it before importing message classes:
+
+```python
+import rclcppyy
+
+rclcppyy.enable_cpp_acceleration(profile="message_facade")
+
+from std_msgs.msg import String, UInt64
+```
+
+The imported classes retain generated-message names, constructors, field access,
+repr, equality, copy/deepcopy, pickle, and reviewed `check_fields` behavior for
+valid field values. Each instance owns a distinct C++ message. Entity creation uses
+the preserved original generated class for type support, then exposes the facade
+class on the exact stock Publisher or Subscription object. Publishing serializes
+that existing C++ message directly through the stock publisher handle. The
+version-gated stock executor hook takes serialized CDR through the exact stock
+subscription handle and deserializes it into a new owning C++ message before the
+Python callback.
+
+The certified whitelist is intentionally limited to `std_msgs/msg/String` and
+`std_msgs/msg/UInt64`. Unsupported layouts and classes imported before activation
+stay stock. Raw subscriptions, subscriptions with event callbacks or content
+filters, and custom publisher classes also stay stock because their complete
+contracts have not been certified on the direct route. Publish-route failure is
+reported before using the stock operation. Subscription-take failure is reported
+and propagated without retry because a serialized take may already have consumed
+the sample.
+
+Because storage remains a valid C++ message at all times, invalid field types or
+ranges can still be rejected by C++ when `check_fields=False`; stock generated
+messages may defer that failure until serialization. This explicit divergence is
+one reason the profile is opt-in.
+
+Activation resolves Cling/template setup before installing the facade classes.
+Correctness and future performance measurements must exclude activation, JIT, DDS
+discovery, and endpoint warmup from the steady-state window. No performance benefit
+is claimed until the dedicated repeated benchmark clears the normal promotion
+gate on both x86_64 and ARM64.
 
 ## Optimized profile
 

@@ -74,13 +74,15 @@ def enable_cpp_acceleration(
     The compatible profile keeps stock rclpy nodes, contexts, executors, message
     classes, entity objects, and ``Publisher.publish`` authoritative. The explicit
     ``publisher_cpp`` profile enables the same-handle C++ publisher route; other
-    unsupported operations remain stock and are visible in :func:`status`.
+    unsupported operations remain stock and are visible in :func:`status`. The
+    Jazzy/Cyclone-only ``message_facade`` profile additionally gives certified
+    scalar/string messages C++ ownership through publish and subscription take.
 
     Args:
         patch_node (bool): Retained for source compatibility. Node identity is no
                           longer replaced in any profile.
-        profile (str): ``compatible``, ``publisher_cpp``, ``required_cpp``, or
-                       ``optimized``.
+        profile (str): ``compatible``, ``publisher_cpp``, ``message_facade``,
+                       ``required_cpp``, or ``optimized``.
         warn_fallback (bool): Warn once for each stock fallback reason.
 
     Returns:

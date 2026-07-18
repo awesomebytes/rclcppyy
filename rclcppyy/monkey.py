@@ -2,16 +2,26 @@
 
 from __future__ import annotations
 
+import importlib.metadata
+import os
 import warnings
 from functools import wraps
 from inspect import signature
 
 import rclpy
 from rclpy.action import ActionClient, ActionServer
-from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
+from rclpy.executors import (
+    Executor,
+    MultiThreadedExecutor,
+    SingleThreadedExecutor,
+    await_or_execute,
+)
 from rclpy.lifecycle import LifecycleNode
 from rclpy.node import Node
 from rclpy.publisher import Publisher
+from rclpy.subscription import Subscription
+from rclpy.utilities import get_rmw_implementation_identifier
+from rclpy._rclpy_pybind11 import InvalidHandle
 
 from rclcppyy._status import record_decision
 from rclcppyy.policy import BackendUnavailableError, resolve_policy
@@ -26,6 +36,7 @@ _original_create_guard_condition = Node.create_guard_condition
 _original_set_parameters = Node.set_parameters
 _original_set_parameters_atomically = Node.set_parameters_atomically
 _original_publish = Publisher.publish
+_original_take_subscription = Executor._take_subscription
 _original_spin = rclpy.spin
 _original_spin_once = rclpy.spin_once
 _original_single_threaded_spin = SingleThreadedExecutor.spin
@@ -38,6 +49,11 @@ _PATCHED = False
 _POLICY = resolve_policy()
 _WARNED_FALLBACKS = set()
 _OPTIMIZED_SPIN_TIMEOUT_SEC = 0.1
+_FACADE_INSTALLATION = None
+_FACADE_BINDINGS = ()
+_FACADE_MODULE = None
+_BORROWED_SUBSCRIPTION_MODULE = None
+_SUPPORTED_RCLPY_VERSION = "7.1.11"
 
 
 def _claim_once(owner, key):
@@ -210,6 +226,71 @@ def _load_borrowed_publish():
     return borrowed_publish, None
 
 
+def _message_facade_binding(message_type):
+    if _FACADE_MODULE is None:
+        return None
+    binding = _FACADE_MODULE.binding_for_type(message_type)
+    if binding is None or message_type is not binding.facade_type:
+        return None
+    return binding
+
+
+def _message_facade_runtime_error():
+    if os.environ.get("ROS_DISTRO") != "jazzy":
+        return "message_facade requires ROS_DISTRO=jazzy"
+    implementation = get_rmw_implementation_identifier()
+    if implementation != "rmw_cyclonedds_cpp":
+        return (
+            "message_facade requires rmw_cyclonedds_cpp, got %s" %
+            implementation)
+    try:
+        version = importlib.metadata.version("rclpy")
+    except importlib.metadata.PackageNotFoundError:
+        return "message_facade could not identify the installed rclpy version"
+    if version != _SUPPORTED_RCLPY_VERSION:
+        return (
+            "message_facade requires the reviewed rclpy 7.1.11 executor ABI, "
+            "got %s" % version)
+    parameters = tuple(signature(_original_take_subscription).parameters)
+    if parameters != ("self", "sub"):
+        return (
+            "message_facade requires Executor._take_subscription(self, sub), "
+            "got %s" % (parameters,))
+    return None
+
+
+def _prepare_message_facades():
+    global _FACADE_BINDINGS, _FACADE_MODULE
+    global _BORROWED_SUBSCRIPTION_MODULE, _FACADE_INSTALLATION
+    reason = _message_facade_runtime_error()
+    if reason is not None:
+        _unavailable("enable_cpp_acceleration", reason)
+    try:
+        from rclcpp_kit import borrowed_publish, borrowed_subscription
+        from rclcpp_kit import message_facade
+        from std_msgs.msg import String, UInt64
+
+        bindings = (
+            message_facade.prepare(UInt64),
+            message_facade.prepare(String),
+        )
+        # Resolve all JIT work before module replacement. Benchmarks measure only
+        # after activation and endpoint warmup, never this setup boundary.
+        for binding in bindings:
+            borrowed_publish.prepare(binding.original_type)
+            borrowed_subscription.prepare(binding)
+        installation = message_facade.install(bindings)
+    except Exception as exc:
+        _unavailable(
+            "enable_cpp_acceleration",
+            "message facade preparation failed before activation: %s" % exc,
+        )
+    _FACADE_BINDINGS = bindings
+    _FACADE_MODULE = message_facade
+    _BORROWED_SUBSCRIPTION_MODULE = borrowed_subscription
+    _FACADE_INSTALLATION = installation
+
+
 def _create_publisher_wrapper(
     self,
     msg_type,
@@ -246,10 +327,22 @@ def _create_publisher_wrapper(
         )
         return publisher
 
-    if not _POLICY.use_cpp_publisher:
+    facade_binding = _message_facade_binding(msg_type)
+    facade_stock_reason = None
+    if _POLICY.use_cpp_message_facade:
+        if facade_binding is None:
+            facade_stock_reason = (
+                "requested message class has no active certified C++ facade")
+        elif publisher_class is not Publisher:
+            facade_stock_reason = (
+                "custom publisher classes remain stock under message_facade")
+
+    if not _POLICY.use_cpp_publisher or facade_stock_reason is not None:
+        original_type = (
+            facade_binding.original_type if facade_binding is not None else msg_type)
         publisher = _original_create_publisher(
             self,
-            msg_type,
+            original_type,
             topic,
             qos_profile,
             callback_group=callback_group,
@@ -257,9 +350,12 @@ def _create_publisher_wrapper(
             qos_overriding_options=qos_overriding_options,
             publisher_class=publisher_class,
         )
+        if facade_binding is not None:
+            publisher.msg_type = facade_binding.facade_type
         _record_python_entity(
             self,
             "publisher",
+            facade_stock_reason or
             "stock rclpy Publisher.publish remains authoritative by policy",
             metadata={
                 "topic": publisher.topic_name,
@@ -279,16 +375,21 @@ def _create_publisher_wrapper(
         try:
             # Resolve/JIT before creating the endpoint. Required-C++ failure must
             # not leave a partially created stock entity behind.
-            route = borrowed_publish.prepare(msg_type)
+            route_type = (
+                facade_binding.original_type
+                if facade_binding is not None else msg_type)
+            route = borrowed_publish.prepare(route_type)
         except Exception as exc:
             unavailable_reason = "same-handle publisher preparation failed: %s" % exc
 
     if route is None and _POLICY.require_cpp:
         _unavailable("create_publisher", unavailable_reason)
 
+    entity_type = (
+        facade_binding.original_type if facade_binding is not None else msg_type)
     publisher = _original_create_publisher(
         self,
-        msg_type,
+        entity_type,
         topic,
         qos_profile,
         callback_group=callback_group,
@@ -296,6 +397,8 @@ def _create_publisher_wrapper(
         qos_overriding_options=qos_overriding_options,
         publisher_class=publisher_class,
     )
+    if facade_binding is not None:
+        publisher.msg_type = facade_binding.facade_type
     node_id = _record_node_once(self)
     if route is None:
         _record_python_entity(
@@ -313,6 +416,7 @@ def _create_publisher_wrapper(
         return publisher
 
     publisher._rclcppyy_publish_route = route
+    publisher._rclcppyy_facade_binding = facade_binding
     publisher._rclcppyy_policy = _POLICY
     publisher._rclcppyy_reported_fallbacks = set()
     publisher._rclcppyy_publish_tainted = False
@@ -324,6 +428,8 @@ def _create_publisher_wrapper(
         policies=(
             "stock_entity_contract",
             "borrowed_rcl_handle",
+            "direct_cpp_message"
+            if facade_binding is not None else
             "python_to_cpp_message_conversion",
             _POLICY.name,
         ),
@@ -370,7 +476,13 @@ def _record_cpp_publish_once(publisher):
         "operations",
         "cpp",
         "same-handle C++ publish completed",
-        policies=("borrowed_rcl_handle", policy.name),
+        policies=(
+            "borrowed_rcl_handle",
+            "direct_cpp_message"
+            if getattr(publisher, "_rclcppyy_facade_binding", None) is not None
+            else "python_to_cpp_message_conversion",
+            policy.name,
+        ),
         metadata={
             "operation": "publish",
             "topic": getattr(publisher, "topic_name", None),
@@ -384,6 +496,15 @@ def _publish_wrapper(self, message):
     if route is None:
         return _original_publish(self, message)
     policy = getattr(self, "_rclcppyy_policy", _POLICY)
+    facade_binding = getattr(self, "_rclcppyy_facade_binding", None)
+    if (facade_binding is not None and
+            type(message) is not facade_binding.facade_type):
+        reason = "message is not the exact C++-owning facade class"
+        _record_publish_fallback_once(self, reason)
+        result = _original_publish(self, message)
+        self._rclcppyy_publish_tainted = True
+        self._rclcppyy_last_publish_backend = "python"
+        return result
     if isinstance(message, (bytes, bytearray, memoryview)):
         reason = "serialized-byte publishing has no certified C++ route"
         if policy.require_cpp:
@@ -421,28 +542,168 @@ def _publish_wrapper(self, message):
     return result
 
 
-def _create_subscription_wrapper(self, *args, **kwargs):
+def _create_subscription_wrapper(
+    self,
+    msg_type,
+    topic,
+    callback,
+    qos_profile,
+    *,
+    callback_group=None,
+    event_callbacks=None,
+    qos_overriding_options=None,
+    raw=False,
+    content_filter_options=None,
+):
     reason = "subscription take/dispatch has no certified same-handle C++ route"
-    topic = args[1] if len(args) > 1 else kwargs.get("topic")
-    callback_group = kwargs.get("callback_group")
-    event_callbacks = kwargs.get("event_callbacks")
-    qos_overriding_options = kwargs.get("qos_overriding_options")
-    content_filter_options = kwargs.get("content_filter_options")
-    return _stock_entity(
-        self,
-        "create_subscription",
-        "subscription",
-        reason,
-        lambda: _original_create_subscription(self, *args, **kwargs),
+
+    def create_stock(requested_type=msg_type):
+        return _original_create_subscription(
+            self,
+            requested_type,
+            topic,
+            callback,
+            qos_profile,
+            callback_group=callback_group,
+            event_callbacks=event_callbacks,
+            qos_overriding_options=qos_overriding_options,
+            raw=raw,
+            content_filter_options=content_filter_options,
+        )
+    metadata = {
+        "topic": topic,
+        "raw_requested": bool(raw),
+        "callback_group_requested": callback_group is not None,
+        "event_callbacks_requested": event_callbacks is not None,
+        "qos_overrides_requested": qos_overriding_options is not None,
+        "content_filter_requested": content_filter_options is not None,
+    }
+    if (not _POLICY.use_cpp_message_facade or
+            not hasattr(self, "_type_description_service")):
+        return _stock_entity(
+            self,
+            "create_subscription",
+            "subscription",
+            reason,
+            create_stock,
+            metadata=metadata,
+        )
+
+    binding = _message_facade_binding(msg_type)
+    option_reason = None
+    if raw:
+        option_reason = "raw subscriptions remain stock under message_facade"
+    elif event_callbacks is not None:
+        option_reason = (
+            "subscriptions with event callbacks remain stock under message_facade")
+    elif content_filter_options is not None:
+        option_reason = (
+            "content-filtered subscriptions remain stock under message_facade")
+    can_route = (
+        _POLICY.use_cpp_message_facade and
+        binding is not None and
+        option_reason is None
+    )
+    route = None
+    if can_route:
+        try:
+            route = _BORROWED_SUBSCRIPTION_MODULE.prepare(binding)
+        except Exception as exc:
+            option_reason = "same-handle subscription preparation failed: %s" % exc
+
+    entity_type = binding.original_type if binding is not None else msg_type
+    subscription = create_stock(entity_type)
+    if binding is not None:
+        subscription.msg_type = binding.facade_type
+    if route is None:
+        _record_python_entity(
+            self,
+            "subscription",
+            option_reason or reason,
+            metadata,
+            warn=option_reason is not None,
+            policies=("stock_subscription_authority", _POLICY.name),
+        )
+        return subscription
+
+    subscription._rclcppyy_take_route = route
+    subscription._rclcppyy_policy = _POLICY
+    subscription._rclcppyy_last_take_backend = None
+    record_decision(
+        "entities",
+        "cpp",
+        "stock subscription endpoint uses same-handle serialized C++ take",
+        policies=(
+            "stock_entity_contract",
+            "borrowed_rcl_handle",
+            "direct_cpp_message",
+            _POLICY.name,
+        ),
         metadata={
-            "topic": topic,
-            "raw_requested": bool(kwargs.get("raw", False)),
-            "callback_group_requested": callback_group is not None,
-            "event_callbacks_requested": event_callbacks is not None,
-            "qos_overrides_requested": qos_overriding_options is not None,
-            "content_filter_requested": content_filter_options is not None,
+            "entity_type": "subscription",
+            "node_id": _record_node_once(self),
+            "message_type": binding.cpp_type_name,
+            "profile": _POLICY.name,
+            **metadata,
         },
     )
+    return subscription
+
+
+def _record_cpp_take_once(subscription):
+    if not _claim_once(subscription, "subscription_take_cpp"):
+        return
+    policy = getattr(subscription, "_rclcppyy_policy", _POLICY)
+    record_decision(
+        "operations",
+        "cpp",
+        "same-handle serialized C++ subscription take completed",
+        policies=("borrowed_rcl_handle", "direct_cpp_message", policy.name),
+        metadata={
+            "operation": "subscription_take",
+            "topic": getattr(subscription, "topic_name", None),
+            "profile": policy.name,
+        },
+    )
+
+
+@wraps(_original_take_subscription)
+def _take_subscription_wrapper(self, sub):
+    route = getattr(sub, "_rclcppyy_take_route", None)
+    if route is None:
+        return _original_take_subscription(self, sub)
+    try:
+        result = route.take(sub)
+    except InvalidHandle:
+        return None
+    except Exception as exc:
+        record_decision(
+            "operations",
+            "unsupported",
+            "same-handle serialized C++ subscription take failed: %s" % exc,
+            policies=("no_unsafe_retry", "message_facade"),
+            metadata={
+                "operation": "subscription_take",
+                "topic": getattr(sub, "topic_name", None),
+                "profile": _POLICY.name,
+            },
+        )
+        raise
+    if result is None:
+        return None
+    message, message_info = result
+    arguments = (
+        (message,)
+        if sub._callback_type is Subscription.CallbackType.MessageOnly
+        else (message, message_info)
+    )
+
+    async def execute():
+        await await_or_execute(sub.callback, *arguments)
+
+    sub._rclcppyy_last_take_backend = "cpp"
+    _record_cpp_take_once(sub)
+    return execute
 
 
 def _create_timer_wrapper(self, *args, **kwargs):
@@ -831,10 +1092,16 @@ def patch_ros2(profile="compatible", *, warn_fallback=False):
         return True
 
     _POLICY = requested
+    if requested.use_cpp_message_facade:
+        _prepare_message_facades()
     for name, wrapper, _original in _NODE_PATCHES:
         setattr(Node, name, wrapper)
     Publisher.publish = (
         _publish_wrapper if requested.use_cpp_publisher else _original_publish)
+    Executor._take_subscription = (
+        _take_subscription_wrapper
+        if requested.use_cpp_message_facade else
+        _original_take_subscription)
     rclpy.spin = _spin_wrapper
     rclpy.spin_once = _spin_once_wrapper
     if requested.allow_contract_changes:
@@ -857,6 +1124,11 @@ def patch_ros2(profile="compatible", *, warn_fallback=False):
             "profile": requested.name,
             "publisher_backend": (
                 "cpp" if requested.use_cpp_publisher else "python"),
+            "subscription_take_backend": (
+                "cpp" if requested.use_cpp_message_facade else "python"),
+            "facade_message_types": (
+                [binding.cpp_type_name for binding in _FACADE_BINDINGS]
+                if requested.use_cpp_message_facade else []),
         },
     )
     return True

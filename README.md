@@ -50,6 +50,23 @@ rclcppyy.enable_cpp_acceleration(profile="publisher_cpp")
 That profile serializes with `rclcpp::Serialization<T>` and publishes through the
 existing native publisher handle. It creates no companion node or endpoint.
 
+On Jazzy with Cyclone DDS, the narrower C++-owning message tier is explicit:
+
+```python
+import rclcppyy
+rclcppyy.enable_cpp_acceleration(profile="message_facade")
+
+from std_msgs.msg import String, UInt64
+```
+
+These two late-imported generated-style classes own `std_msgs::msg::String` or
+`std_msgs::msg::UInt64` C++ storage. Their stock publisher and subscription
+entities borrow the same native handles for C++ serialization and take, so the
+hot path does not perform Python-to-C++ whole-message conversion. All other
+message layouts, pre-activation class aliases, raw subscriptions, subscriptions
+with event callbacks or content filters, and custom publisher classes remain
+stock and are reported as such.
+
 ## What you get
 
 - Existing node, graph, context, remapping, parameter, executor, and teardown
@@ -61,6 +78,8 @@ existing native publisher handle. It creates no companion node or endpoint.
   operation.
 - `profile="publisher_cpp"` explicitly enables the permissive same-handle C++
   publisher route and reports any fallback to stock publishing.
+- `profile="message_facade"` opts `String` and `UInt64` into C++-owning storage
+  and direct same-handle publish/take on the reviewed Jazzy/Cyclone executor ABI.
 - `profile="required_cpp"` fails before creating an entity when no certified C++
   route exists, so tests and benchmarks cannot pass through silent fallback.
 - The separate native lane exposes `rclcpp` and other C++ libraries directly when
