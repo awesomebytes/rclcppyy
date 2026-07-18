@@ -42,6 +42,49 @@ def _call_service(client, request, executor):
     return result
 
 
+def _observe_repeated_contexts(rclpy, Context, SingleThreadedExecutor, String):
+    cycles = []
+    for index in range(3):
+        context = Context()
+        context.init(args=[])
+        node = rclpy.create_node(
+            "diff_context_cycle_%d" % index,
+            context=context,
+            start_parameter_services=False,
+        )
+        executor = SingleThreadedExecutor(context=context)
+        executor.add_node(node)
+        received = []
+        topic = "context_cycle_%d" % index
+        subscription = node.create_subscription(
+            String, topic, lambda message: received.append(message.data), 10)
+        publisher = node.create_publisher(String, topic, 10)
+        cycle = None
+        try:
+            _spin_executor_until(
+                executor,
+                lambda: publisher.get_subscription_count() >= 1,
+            )
+            publisher.publish(String(data="cycle-%d" % index))
+            _spin_executor_until(executor, lambda: bool(received))
+            cycle = {
+                "index": index,
+                "received": received,
+                "node_context_preserved": node.context is context,
+                "default_context_ok": rclpy.get_default_context().ok(),
+            }
+        finally:
+            node.destroy_subscription(subscription)
+            node.destroy_publisher(publisher)
+            executor.remove_node(node)
+            executor.shutdown(timeout_sec=1.0)
+            node.destroy_node()
+            context.try_shutdown()
+        cycle["context_ok_after_shutdown"] = context.ok()
+        cycles.append(cycle)
+    return cycles
+
+
 def _transition_descriptions(items):
     return [
         {
@@ -162,6 +205,8 @@ def _run(mode):
                 node.context is context and factory_node.context is context),
             "default_context_ok": rclpy.get_default_context().ok(),
         }
+        observations["repeated_contexts"] = _observe_repeated_contexts(
+            rclpy, Context, SingleThreadedExecutor, String)
 
         group = MutuallyExclusiveCallbackGroup()
         qos = QoSProfile(

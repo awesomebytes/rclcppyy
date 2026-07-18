@@ -18,6 +18,8 @@ APPLICATION_PARITY = (
                       "Direct and factory nodes retain the requested Context."),
     ParityExpectation("node.default_context", ("node_construction", "default_context_ok"),
                       "Explicit contexts do not initialize the default Context."),
+    ParityExpectation("context.repeated_explicit", ("repeated_contexts",),
+                      "Repeated explicit Context cycles match stock."),
     ParityExpectation("qos.options", ("qos_and_options",),
                       "QoS, event, callback-group, override, and class options match stock."),
     ParityExpectation("entity.destruction", ("entity_destruction",),

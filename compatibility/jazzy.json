@@ -356,15 +356,26 @@
       "notes": "Both the native lane and compatible stock-authority scenario return normally without forced exit, leaked graph identity, or teardown fault."
     },
     {
-      "id": "context.repeated_init_shutdown",
+      "id": "context.repeated_explicit_init_shutdown",
       "area": "context",
-      "api": "Repeated init/shutdown cycles and multiple contexts",
+      "api": "Repeated explicit Context init/shutdown cycles while another Context exists",
+      "support": "certified",
+      "backend": "mixed",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "notes": "Three sequential custom Contexts each create an exact stock node, complete a same-handle C++ publish to a stock subscription, tear down, and leave the default Context untouched while the corpus Context remains live."
+    },
+    {
+      "id": "context.repeated_default_init_shutdown",
+      "area": "context",
+      "api": "Repeated init/shutdown of the default global Context",
       "support": "unsupported",
       "backend": "mixed",
       "fallback": "unsafe",
       "default": false,
       "evidence": ["rclcppyy/bringup_rclcpp.py", "rclcppyy/monkey.py"],
-      "notes": "No differential lifecycle matrix currently proves this behavior."
+      "notes": "The explicit-Context matrix does not prove repeated default-global initialization or interactions with the process-global rclcpp bringup Context."
     },
     {
       "id": "serialization.cdr_parity",
