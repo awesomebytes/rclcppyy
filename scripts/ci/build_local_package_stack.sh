@@ -41,7 +41,8 @@ if [ -n "$(git -C "$repo_root" status --porcelain --untracked-files=all)" ]; the
   echo "rclcppyy checkout must be clean before package evidence is built" >&2
   exit 1
 fi
-RCLCPPYY_SUITE_SRC="$suite_checkout" \
+PYTHONPATH="$suite_checkout/rclcpp_kit:$suite_checkout${PYTHONPATH:+:$PYTHONPATH}" \
+  RCLCPPYY_SUITE_SRC="$suite_checkout" \
   python "$repo_root/scripts/ci/verify_suite_source.py" --suite "$suite_checkout"
 
 snapshot_root="$(mktemp -d)"

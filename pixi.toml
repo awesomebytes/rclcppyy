@@ -146,6 +146,7 @@ demo-topic-hz-startup = "python scripts/heavy_hz_demo/run_topic_hz_cli.py --star
 # perturb the default env's lock.
 [feature.pkg.dependencies]
 rattler-build = ">=0.68,<0.69"
+python = "3.12.*"
 
 [feature.pkg.tasks]
 # Build the suite core and rclcppyy into one local channel, then run each
