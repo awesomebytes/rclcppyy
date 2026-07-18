@@ -41,6 +41,8 @@ if [ -n "$(git -C "$repo_root" status --porcelain --untracked-files=all)" ]; the
   echo "rclcppyy checkout must be clean before package evidence is built" >&2
   exit 1
 fi
+product_commit="$(git -C "$repo_root" rev-parse HEAD)"
+suite_commit="$(git -C "$suite_checkout" rev-parse HEAD)"
 PYTHONPATH="$suite_checkout/rclcpp_kit:$suite_checkout${PYTHONPATH:+:$PYTHONPATH}" \
   RCLCPPYY_SUITE_SRC="$suite_checkout" \
   python "$repo_root/scripts/ci/verify_suite_source.py" --suite "$suite_checkout"
@@ -50,8 +52,10 @@ trap 'rm -rf "$snapshot_root"' EXIT
 suite_snapshot="$snapshot_root/cppyy_kit"
 product_snapshot="$snapshot_root/rclcppyy"
 mkdir -p "$suite_snapshot" "$product_snapshot"
-git -C "$suite_checkout" archive --format=tar HEAD | tar -xf - -C "$suite_snapshot"
-git -C "$repo_root" archive --format=tar HEAD | tar -xf - -C "$product_snapshot"
+git -C "$suite_checkout" archive --format=tar "$suite_commit" | \
+  tar -xf - -C "$suite_snapshot"
+git -C "$repo_root" archive --format=tar "$product_commit" | \
+  tar -xf - -C "$product_snapshot"
 
 bash "$suite_snapshot/recipe/build_rclcpp.sh" "$output_dir"
 
@@ -69,3 +73,9 @@ if [ -z "$artifact" ]; then
   exit 1
 fi
 echo "Built artifact: $artifact"
+
+python "$repo_root/scripts/ci/write_local_package_attestation.py" \
+  --output-dir "$output_dir" \
+  --product-commit "$product_commit" \
+  --suite-commit "$suite_commit" \
+  --attestation "$output_dir/local-package-attestation.json"
