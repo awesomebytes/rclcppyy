@@ -100,12 +100,20 @@ jobs:
     name: dedicated benchmark (${{ matrix.machine }})
     runs-on: [self-hosted, linux, benchmark, '${{ matrix.machine }}']
     timeout-minutes: 240
+    env:
+      PYTHONPATH: ${{ github.workspace }}/_deps/cppyy_kit:${{ github.workspace }}/_deps/cppyy_kit/rclcpp_kit
     strategy:
       fail-fast: false
       matrix:
         machine: [x86_64, aarch64]
     steps:
       - uses: actions/checkout@v5
+      - name: Checkout pinned kit sources
+        uses: actions/checkout@v5
+        with:
+          repository: awesomebytes/cppyy_kit
+          ref: e009fea9ba3d07870638de344a589a5ee56a8b03
+          path: _deps/cppyy_kit
       - uses: prefix-dev/setup-pixi@v0.10.0
         with:
           pixi-version: v0.70.0
