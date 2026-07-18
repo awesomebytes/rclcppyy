@@ -74,8 +74,8 @@ cache, and worker setup time are excluded from samples.
 Run the fixed matrix with:
 
 ```bash
-pixi run python scripts/benchmarks/run_action_client_benchmark.py \
-  --output action-client-evidence.json
+pixi run action-client-bench \
+  --output build/action-client-evidence.json
 ```
 
 The runner exits nonzero if any sample fails. It still records the failed case so

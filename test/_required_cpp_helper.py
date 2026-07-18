@@ -5,8 +5,8 @@ from rclpy.task import Future
 
 STOCK_FUTURE_METHODS = (Future.set_result, Future.set_exception, Future.cancel)
 
-import rclcppyy
-from rclcppyy import BackendUnavailableError
+import rclcppyy  # noqa: E402
+from rclcppyy import BackendUnavailableError  # noqa: E402
 
 rclcppyy.enable_cpp_acceleration(profile="required_cpp")
 

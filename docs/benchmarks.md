@@ -5,6 +5,15 @@ of backends, workloads, target frequencies, and application payload padding.
 Each publisher/subscriber pair runs in fresh child processes and the parent owns
 their startup, measurement, and teardown.
 
+The CPU-first ROS entity protocols are documented separately. Each keeps stock,
+compatible, native C++ representation, and conventional AOT lanes distinct:
+
+- [relay pub/sub](relay-boundary-benchmark.md)
+- [service callback/server](service-callback-benchmark.md)
+- [service client](service-client-benchmark.md)
+- [timer/executor](timer-executor-benchmark.md)
+- [action client](action-client-benchmark.md)
+
 ## Modes
 
 Fast CI validation:

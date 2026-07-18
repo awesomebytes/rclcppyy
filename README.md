@@ -113,6 +113,9 @@ separate `publisher_cpp` lane. The same-handle route is correctness-certified bu
 is not advertised as a performance win. Native-message and fused C++ paths must
 clear workload-specific performance gates before they are advertised. See the
 [benchmark evidence guide](docs/benchmarks.md) for the repeated local gate.
+That guide also indexes the controlled pub/sub, service, client, timer, and action
+CPU protocols, with C++-representation lanes reported separately from conversion
+or activation-only compatibility lanes.
 
 For the full, consolidated and freshly-measured benchmark set — across the whole
 suite, including the freeze/AOT optimization ladder — see the

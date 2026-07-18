@@ -57,7 +57,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: 7329571ac1bf7722fe8f052541ef2a15a66c4b13
+          ref: 3dbd40c8d11a0d1dce17cdbdf7341ac7971aeab2
           path: _deps/cppyy_kit
       - name: Verify architecture
         run: test "$(uname -m)" = "${{ matrix.machine }}"
@@ -187,7 +187,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: 7329571ac1bf7722fe8f052541ef2a15a66c4b13
+          ref: 3dbd40c8d11a0d1dce17cdbdf7341ac7971aeab2
           path: _deps/cppyy_kit
       - uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
         with:
@@ -223,6 +223,21 @@ jobs:
               --payload-bytes 0,4096 --duration 15 \
               --output "build/dedicated-benchmark/run-${repeat}.json"
           done
+      - name: Run controlled Jazzy Cyclone entity matrices
+        env:
+          RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+        run: |
+          set -euo pipefail
+          pixi run relay-boundary-bench \
+            --output build/dedicated-benchmark/relay-boundary.json
+          pixi run service-callback-bench \
+            --output build/dedicated-benchmark/service-callback.json
+          pixi run service-client-bench \
+            --output build/dedicated-benchmark/service-client.json
+          pixi run timer-executor-bench \
+            --output build/dedicated-benchmark/timer-executor.json
+          pixi run action-client-bench \
+            --output build/dedicated-benchmark/action-client.json
       - name: Gate repeated results against reviewed architecture budget
         run: |
           pixi run bench-regression \

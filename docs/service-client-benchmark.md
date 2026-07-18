@@ -70,11 +70,11 @@ Invoke the isolated runner through the project environment:
 
 ```bash
 RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
-  pixi run python scripts/benchmarks/run_service_client_benchmark.py \
+  pixi run service-client-bench \
   --smoke --output build/service-client-smoke.json
 
 RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
-  pixi run python scripts/benchmarks/run_service_client_benchmark.py \
+  pixi run service-client-bench \
   --output build/service-client-measurement.json
 ```
 
