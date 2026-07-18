@@ -108,8 +108,10 @@ def run(variant):
         else:
             import rclcppyy
             status = rclcppyy.status()
-            publisher_records = _matching_status(status, "publisher", INPUT_TOPIC, "cpp")
-            publisher_records += _matching_status(status, "publisher", OUTPUT_TOPIC, "cpp")
+            publisher_records = _matching_status(
+                status, "publisher", INPUT_TOPIC, "python")
+            publisher_records += _matching_status(
+                status, "publisher", OUTPUT_TOPIC, "python")
             subscription_records = _matching_status(
                 status, "subscription", INPUT_TOPIC, "python")
             subscription_records += _matching_status(
@@ -123,8 +125,8 @@ def run(variant):
                     "evidence": "rclcppyy status stock_node_authority records",
                 },
                 "publisher": {
-                    "backend": "cpp",
-                    "evidence": "same-handle C++ publisher status records for both topics",
+                    "backend": "python",
+                    "evidence": "stock publish-authority status records for both topics",
                 },
                 "subscription": {
                     "backend": "python",
@@ -137,7 +139,7 @@ def run(variant):
             }
             coverage = [
                 "unchanged TextRelay source",
-                "compatible profile mixed-route status",
+                "compatible profile stock-authority status",
                 "reliable ordered String relay",
                 "stock-owned teardown",
             ]

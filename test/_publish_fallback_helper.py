@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Compatible publish fallback is visible and retains the stock operation."""
+"""Explicit publisher-C++ fallback is visible and retains the stock operation."""
 
 import rclcppyy
 
-rclcppyy.enable_cpp_acceleration()
+rclcppyy.enable_cpp_acceleration(profile="publisher_cpp")
 
 import rclpy  # noqa: E402
 from rclpy.executors import SingleThreadedExecutor  # noqa: E402
@@ -31,6 +31,7 @@ def main():
         10,
     )
     publisher = node.create_publisher(String, "compatible_publish_fallback", 10)
+    assert hasattr(publisher, "_rclcppyy_publish_route")
     publisher._rclcppyy_publish_route = RejectingRoute()
     publisher.publish(String(data="stock-fallback"))
     for _ in range(20):
@@ -52,7 +53,7 @@ def main():
     executor.shutdown(timeout_sec=1.0)
     node.destroy_node()
     context.shutdown()
-    print("COMPATIBLE_PUBLISH_FALLBACK_VISIBLE_OK")
+    print("PUBLISHER_CPP_FALLBACK_VISIBLE_OK")
 
 
 if __name__ == "__main__":

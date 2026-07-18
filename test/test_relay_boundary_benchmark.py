@@ -132,8 +132,13 @@ def _sample(variant, index=0):
         ready["cache"] = {"state": "not_applicable", "kind": "stock-rclpy"}
     elif variant == "compatible-rclcppyy":
         ready["cache"] = {
+            "state": "not_applicable",
+            "kind": "compatible-stock-publish-authority",
+        }
+    elif variant == "publisher-cpp-rclcppyy":
+        ready["cache"] = {
             "state": "process-warm",
-            "kind": "compatible-borrowed-publish-route",
+            "kind": "publisher-cpp-borrowed-publish-route",
             "prepared_before_measurement": True,
         }
     elif variant == "aot-staged":
@@ -151,14 +156,15 @@ def _sample(variant, index=0):
         if variant == "native-fused":
             ready["cache"]["source_id"] = "1" * 16
         assert name in _cache()["phases"]["warm"]["artifacts"]
-    if variant in ("stock-rclpy", "compatible-rclcppyy"):
+    if variant in (
+            "stock-rclpy", "compatible-rclcppyy", "publisher-cpp-rclcppyy"):
         ready["entity_types"] = {
             "node": "rclpy.node.Node",
             "publisher": "rclpy.publisher.Publisher",
             "subscription": "rclpy.subscription.Subscription",
             "executor": "rclpy.executors.SingleThreadedExecutor",
         }
-        backend = "python" if variant == "stock-rclpy" else "cpp"
+        backend = "cpp" if variant == "publisher-cpp-rclcppyy" else "python"
         evidence = (
             "stock_rclpy_entity" if variant == "stock-rclpy"
             else "rclcppyy_status_entity"
@@ -197,13 +203,14 @@ def _sample(variant, index=0):
         "correct": True,
         "teardown_clean": True,
     }
-    if variant == "stock-rclpy":
+    if variant in ("stock-rclpy", "compatible-rclcppyy"):
         report.update({
             "publish_operation_marker": None,
             "fallback_publish_operations": 0,
             "last_publish_backend": "python",
+            "publish_route_tainted": False,
         })
-    elif variant == "compatible-rclcppyy":
+    elif variant == "publisher-cpp-rclcppyy":
         report.update({
             "publish_operation_marker": _backend_marker(
                 "publisher", "cpp", "rclcppyy_status_operation"),
@@ -337,7 +344,7 @@ def test_transform_percentiles_and_shared_compatibility_relay():
     assert protocol.nearest_rank([4, 1, 3, 2], 50) == 2
     assert protocol.latency_summary([4, 1, 3, 2]) == {
         "p50": 2, "p95": 4, "p99": 4, "max": 4}
-    assert worker._run_python_relay.__code__.co_varnames[:2] == ("args", "activate")
+    assert worker._run_python_relay.__code__.co_varnames[:2] == ("args", "profile")
     worker_source = (
         BENCH_DIR / "relay_boundary_worker.py").read_text(encoding="utf-8")
     relay_source = worker_source[
@@ -403,7 +410,7 @@ while True:
         runner._stop_process(process)
 
 
-def test_all_five_fixture_routes_satisfy_strict_sample_contract():
+def test_all_six_fixture_routes_satisfy_strict_sample_contract():
     parameters = _parameters()
     for index, variant in enumerate(protocol.VARIANTS):
         protocol.validate_sample(
@@ -413,7 +420,7 @@ def test_all_five_fixture_routes_satisfy_strict_sample_contract():
 @pytest.mark.parametrize(
     ("variant", "mutation", "error"),
     [
-        ("compatible-rclcppyy", lambda row: row["relay_report"].update(
+        ("publisher-cpp-rclcppyy", lambda row: row["relay_report"].update(
             fallback_publish_operations=1), "fell back"),
         ("compatible-rclcppyy", lambda row: row["driver_result"]["endpoints"][0].update(
             depth=2), "QoS"),
@@ -427,7 +434,7 @@ def test_all_five_fixture_routes_satisfy_strict_sample_contract():
             within_limit=False), "RSS"),
         ("compatible-rclcppyy", lambda row: row["relay_report"].update(
             cpu_clock="wall"), "CPU timing"),
-        ("compatible-rclcppyy", lambda row: row["relay_report"].update(
+        ("publisher-cpp-rclcppyy", lambda row: row["relay_report"].update(
             publish_route_tainted=True), "tainted"),
     ],
 )
@@ -488,7 +495,7 @@ def test_document_is_descriptive_and_portable_schema_forbids_claims(monkeypatch)
         "performance_claims_allowed"] == {"const": False}
     assert schema["properties"]["comparison"]["properties"][
         "interpretation_allowed"] == {"const": False}
-    assert len(schema["properties"]["results"]["items"]["allOf"]) == 5
+    assert len(schema["properties"]["results"]["items"]["allOf"]) == 6
     assert "relay_armed" in schema["properties"]["results"]["items"]["required"]
 
 
@@ -528,7 +535,7 @@ def test_all_variants_run_with_one_aot_driver_and_exact_parity(tmp_path):
     assert len({
         pid for row in document["results"]
         for pid in (row["relay_pid"], row["driver_pid"])
-    }) == 10
+    }) == 12
     for row in document["results"]:
         report = row["relay_report"]
         assert report["received"] == report["processed"] == report["published"] == 5
@@ -542,6 +549,7 @@ def test_all_variants_run_with_one_aot_driver_and_exact_parity(tmp_path):
     assert callbacks == {
         "stock-rclpy": 5,
         "compatible-rclcppyy": 5,
+        "publisher-cpp-rclcppyy": 5,
         "native-python-callback": 5,
         "native-fused": 0,
         "aot-staged": 0,

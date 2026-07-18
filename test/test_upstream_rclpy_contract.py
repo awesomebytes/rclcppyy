@@ -105,7 +105,7 @@ def test_repository_manifest_has_exact_review_partition():
         entry for entry in manifest["selection"]
         if entry["path"] == "test_publisher.py"
     )
-    assert publisher["requires_cpp_publish"] is True
+    assert publisher["expected_publish_backend"] == "python"
     stock_failure = next(
         group for group in manifest["reviewed_exclusions"]
         if group["id"] == "fails-with-stock-installed-extension"

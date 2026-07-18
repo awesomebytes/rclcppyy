@@ -4,9 +4,9 @@
 
 **Keep the `rclpy` contract; opt into proven C++ paths.** `rclcppyy` is a
 compatibility-first C++ backend for existing ROS 2 Python software. Its default
-profile keeps the exact stock node, context, executor, message classes, and entity
-objects, and routes an operation through C++ only when that route has explicit
-contract and backend evidence. It is powered by
+profile keeps the exact stock node, context, executor, message classes, entity
+objects, and publish operation. Explicit profiles route an operation through C++
+only when that route has contract and backend evidence. It is powered by
 [**cppyy**](https://cppyy.readthedocs.io), which calls C++ from Python directly via
 reflection and just-in-time compilation, and built on
 the [**cppyy_kit suite**](https://github.com/awesomebytes/cppyy_kit) (docs:
@@ -36,9 +36,19 @@ rclpy.spin(node)
 
 `enable_cpp_acceleration()` patches methods on the original `rclpy` classes. The
 publisher above remains a stock `rclpy.Publisher` registered with the stock node;
-its current C++ route serializes the message with `rclcpp::Serialization<T>` and
-publishes the serialized bytes through that same native publisher handle. The
-subscription, timer, executor, context, and message class remain stock Python.
+the default compatible profile also leaves its stock `Publisher.publish` method
+authoritative. The subscription, timer, executor, context, and message class remain
+stock Python, and `rclcppyy.status()` makes those choices explicit.
+
+Select same-handle C++ publishing only after measuring the application:
+
+```python
+import rclcppyy
+rclcppyy.enable_cpp_acceleration(profile="publisher_cpp")
+```
+
+That profile serializes with `rclcpp::Serialization<T>` and publishes through the
+existing native publisher handle. It creates no companion node or endpoint.
 
 ## What you get
 
@@ -46,6 +56,8 @@ subscription, timer, executor, context, and message class remain stock Python.
   behavior stays authoritative in `rclpy`.
 - `rclcppyy.status()` reports the backend selected for each routed entity and
   operation.
+- `profile="publisher_cpp"` explicitly enables the permissive same-handle C++
+  publisher route and reports any fallback to stock publishing.
 - `profile="required_cpp"` fails before creating an entity when no certified C++
   route exists, so tests and benchmarks cannot pass through silent fallback.
 - The separate native lane exposes `rclcpp` and other C++ libraries directly when
@@ -92,10 +104,11 @@ pixi run bench
 ```
 
 The benchmark runner requires machine-readable publisher and subscriber backend
-evidence and decoded wire-value evidence before it records a result. The current
-same-handle serialized route is correctness-certified but is not advertised as a
-performance win. Native-message and fused C++ paths must clear workload-specific
-performance gates before they are advertised. See the
+evidence and decoded wire-value evidence before it records a result. Its default
+compatibility comparison is Python/Python; the controlled relay benchmark has a
+separate `publisher_cpp` lane. The same-handle route is correctness-certified but
+is not advertised as a performance win. Native-message and fused C++ paths must
+clear workload-specific performance gates before they are advertised. See the
 [benchmark evidence guide](docs/benchmarks.md) for the repeated local gate.
 
 For the full, consolidated and freshly-measured benchmark set — across the whole
@@ -133,16 +146,20 @@ project. Installing rclcppyy pulls its runtime deps `ros-jazzy-rclcpp-kit` and
 ## What routes through C++, and what stays rclpy
 
 The default compatible profile keeps the stock contract and records every current
-boundary:
+boundary. It intentionally leaves `Publisher.publish` on stock `rclpy`.
 
-**Current C++ route after `enable_cpp_acceleration()`:**
+**Explicit same-handle C++ route:**
 
-- A stock publisher can serialize through C++ and publish through its existing
-  `rcl_publisher_t`; no companion node or publisher is created.
+- `profile="publisher_cpp"` is permissive and reports fallback.
+- `profile="required_cpp"` fails closed when this route cannot be prepared or
+  completed.
+- Both operate on the existing `rcl_publisher_t`; neither creates a companion node
+  or publisher.
 
 | Transparent path | Backend evidence | Wire evidence | Performance status |
 |---|---|---|---|
-| `Publisher.publish` on the existing stock publisher handle | publisher `cpp`; stock subscriber `python` | flat and nested workloads validate the same decoded value contract | no benefit advertised; repeated results report raw positive, negative, or mixed directions |
+| compatible `Publisher.publish` | publisher `python`; subscriber `python` | flat and nested workloads validate the same decoded value contract | stock authority; activation-overhead characterization only |
+| `publisher_cpp` / `required_cpp` on the existing stock handle | publisher `cpp`; stock subscriber `python` | dedicated round trips validate decoded values and backend completion | no benefit advertised; controlled results remain raw evidence |
 
 No compatible path currently advertises a performance benefit. C++ routing is a
 backend fact; a benefit requires separate, repeated, architecture-specific evidence.
@@ -151,16 +168,17 @@ backend fact; a benefit requires separate, repeated, architecture-specific evide
 
 - Nodes, contexts, graph identity, message classes, subscriptions, timers, spin,
   services, actions, parameters, lifecycle nodes, callback groups, and executors.
-- Publisher creation and destruction, QoS, event callbacks, callback groups, and
-  override options. Only the prepared publish operation is routed.
+- Publisher creation, publishing, and destruction, QoS, event callbacks, callback
+  groups, and override options in compatible and optimized profiles.
 
 **Known walls:**
 
 - Activation patches methods **process-globally and irreversibly**. Call it once
   before creating nodes. Existing Node aliases and subclasses retain their class
   identity because the original class is patched rather than replaced.
-- `profile="required_cpp"` currently supports the publisher route and rejects
-  subscriptions and timers. `profile="optimized"` opts into 100 ms bounded
+- `profile="publisher_cpp"` and `profile="required_cpp"` currently support the
+  publisher route; required mode rejects subscriptions and timers.
+  `profile="optimized"` preserves stock publishing and opts into 100 ms bounded
   waits for `rclpy.spin()` and direct stock single- and multi-threaded executor
   `spin()` calls. This prevents a missed signal guard wake from leaving an
   invalid Context blocked indefinitely, at the cost of periodic idle wake-ups.
@@ -284,7 +302,7 @@ overlay are applied automatically), then, one per shell:
 ros2 run rclcppyy bench_pub_rclpy.py 10000
 ros2 run rclcppyy bench_sub_rclpy.py
 
-# rclcppyy (monkeypatched rclpy → C++ backend)
+# rclcppyy (compatible activation; stock publish authority)
 ros2 run rclcppyy bench_pub_rclcppyy_monkeypatch.py 10000
 ros2 run rclcppyy bench_sub_rclcppyy_monkeypatched.py
 

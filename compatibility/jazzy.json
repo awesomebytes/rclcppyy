@@ -65,22 +65,22 @@
       "area": "activation",
       "api": "rclcppyy.enable_cpp_acceleration() before rclpy/message imports",
       "support": "certified",
-      "backend": "mixed",
+      "backend": "python",
       "fallback": "safe",
       "default": true,
       "evidence": ["test/test_monkeypatch.py", "test/_monkeypatch_helper.py"],
-      "notes": "Preserves stock node, context, executor, message, and entity identity; completes a same-handle C++ serialized publish to a stock subscription and reports both routes."
+      "notes": "The default compatible profile preserves stock node, context, executor, message, entity, and Publisher.publish authority. Explicit publisher_cpp and required_cpp profiles separately expose the certified same-handle C++ publisher route."
     },
     {
       "id": "activation.startup_hook.enabled",
       "area": "activation",
       "api": "RCLCPPYY_ENABLE_HOOK=1 with an installed startup hook",
       "support": "certified",
-      "backend": "mixed",
+      "backend": "python",
       "fallback": "safe",
       "default": false,
       "evidence": ["test/test_hook.py", "rclcppyy/monkey.py"],
-      "notes": "A fresh interpreter proves startup activation and the C++ publisher route. Node identity remains stock, while executor and Future wrappers preserve stock call signatures and report Python authority."
+      "notes": "A fresh interpreter proves default compatible startup activation. Node, Publisher.publish, executor, and Future behavior remains stock-authoritative and reports Python authority."
     },
     {
       "id": "activation.startup_hook.disabled",
@@ -98,7 +98,7 @@
       "area": "activation",
       "api": "enable_cpp_acceleration() after rclpy or message modules are imported",
       "support": "certified",
-      "backend": "mixed",
+      "backend": "python",
       "fallback": "safe",
       "default": true,
       "evidence": ["test/test_hook.py", "test/test_differential_application.py", "test/differential/_application_probe.py", "test/fixtures/custom_interfaces/run_interop.py", "rclcppyy/monkey.py"],
@@ -186,11 +186,11 @@
       "area": "publisher",
       "api": "Node.create_publisher(message_type, topic, depth_or_qos)",
       "support": "certified",
-      "backend": "cpp",
-      "fallback": "none",
+      "backend": "mixed",
+      "fallback": "safe",
       "default": true,
       "evidence": ["test/test_monkeypatch.py", "test/test_differential_contract.py", "test/test_policy.py", "test/_required_cpp_helper.py"],
-      "notes": "Explicit post-construction creation, QoS ownership, graph endpoint, and destruction remain stock; publish uses C++ serialization over the same native handle and completes an ordered round trip. Private Node-constructor infrastructure is excluded from route preparation. This compatibility and backend certification does not assert a performance benefit."
+      "notes": "Creation, QoS ownership, graph endpoint, destruction, and default compatible publishing remain stock-authoritative. publisher_cpp and required_cpp explicitly select C++ serialization over the same native handle and complete ordered round trips. Private Node-constructor infrastructure is excluded from route preparation. No performance benefit is asserted."
     },
     {
       "id": "publisher.node_constructor_infrastructure",
@@ -428,11 +428,11 @@
       "area": "lifecycle",
       "api": "LifecycleNode.create_lifecycle_publisher and activation-gated publish",
       "support": "certified",
-      "backend": "mixed",
+      "backend": "python",
       "fallback": "safe",
       "default": true,
       "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
-      "notes": "The exact stock LifecyclePublisher and managed activation flag remain authoritative. Inactive publishes are suppressed, while active publishes use the existing certified same-handle C++ Publisher.publish route and deliver to a stock subscription; deactivation and destruction match stock."
+      "notes": "The exact stock LifecyclePublisher, managed activation flag, and publish operation remain authoritative in compatible mode. Inactive publishes are suppressed; active delivery, deactivation, and destruction match stock."
     },
     {
       "id": "lifecycle.error_processing",
@@ -461,22 +461,22 @@
       "area": "context",
       "api": "Repeated explicit Context init/shutdown cycles while another Context exists",
       "support": "certified",
-      "backend": "mixed",
+      "backend": "python",
       "fallback": "safe",
       "default": true,
       "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
-      "notes": "Three sequential custom Contexts each create an exact stock node, complete a same-handle C++ publish to a stock subscription, tear down, and leave the default Context untouched while the corpus Context remains live."
+      "notes": "Three sequential custom Contexts each create exact stock entities, complete a stock-authoritative round trip, tear down, and leave the default Context untouched while the corpus Context remains live."
     },
     {
       "id": "context.repeated_default_init_shutdown",
       "area": "context",
       "api": "Repeated init/shutdown of the default global Context",
-      "support": "unsupported",
-      "backend": "none",
-      "fallback": "unsafe",
-      "default": false,
-      "evidence": ["rclcppyy/bringup_rclcpp.py", "rclcppyy/monkey.py"],
-      "notes": "The pinned stock initialization tests run without exercising a C++ publisher in that process. Repeated default-global initialization after the same-handle route has initialized process-global rclcpp state remains unsupported; use explicit Context objects."
+      "support": "certified",
+      "backend": "mixed",
+      "fallback": "safe",
+      "default": true,
+      "evidence": ["test/test_clean_exit.py", "test/_default_context_reinit_helper.py", "rclcppyy/monkey.py"],
+      "notes": "Compatible mode supports repeated default-global init/shutdown with stock authority. An isolated Jazzy/CycloneDDS regression adds the stronger proof of three sequential default-global init, same-handle C++ publish, spin, full entity teardown, and shutdown cycles under the explicit publisher_cpp profile."
     },
     {
       "id": "serialization.cdr_parity",
@@ -509,7 +509,7 @@
       "fallback": "safe",
       "default": true,
       "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
-      "notes": "The selected initialization and Context files pass with activation, including invalid sequences and repeated shutdown. This does not cover repeated default-Context initialization after a C++ publisher route has initialized process-global rclcpp state."
+      "notes": "The selected initialization and Context files pass with compatible activation, including invalid sequences and repeated shutdown. The separate repeated-default entry covers explicit same-handle C++ publishing between default Context cycles."
     },
     {
       "id": "executor.stock_extensions",

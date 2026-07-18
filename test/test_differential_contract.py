@@ -64,7 +64,8 @@ def test_activated_child_proves_declared_routes_from_status(differential_results
     assert activated["backend_expectations"]
     assert activated["backend_status"]["schema_version"] == 1
     assert activated["backend_verified"]
-    assert activated["backend_status"]["counts"]["operations"]["cpp"] >= 1
+    assert activated["backend_status"]["counts"]["operations"]["cpp"] == 0
+    assert activated["backend_status"]["counts"]["operations"]["python"] >= 1
     assert activated["backend_status"]["counts"]["nodes"]["python"] >= 1
 
 

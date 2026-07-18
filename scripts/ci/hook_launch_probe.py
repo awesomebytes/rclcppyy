@@ -58,7 +58,7 @@ def main() -> int:
             if record["metadata"].get("topic") in (
                 "hook_launch_topic", "/rclcppyy_contract/hook_launch_topic")
         }
-        assert routes == {"publisher": "cpp", "subscription": "python"}, status
+        assert routes == {"publisher": "python", "subscription": "python"}, status
         print(json.dumps({
             "node": full_name,
             "routes": routes,

@@ -192,7 +192,7 @@ entity_backends = {
     record["metadata"].get("entity_type"): record["backend"]
     for record in status["entities"]
 }
-assert entity_backends["publisher"] == "cpp", status
+assert entity_backends["publisher"] == "python", status
 assert entity_backends["subscription"] == "python", status
 
 assert node.destroy_publisher(publisher)
@@ -201,11 +201,72 @@ executor.remove_node(node)
 node.destroy_node()
 executor.shutdown(timeout_sec=1.0)
 context.shutdown()
-print("INSTALLED_RCLCPPYY_SAME_HANDLE_SERIALIZED_PUBLISH_OK")
+print("INSTALLED_RCLCPPYY_COMPATIBLE_STOCK_PUBLISH_OK")
+PY
+
+cat >"$workdir/publisher_cpp_smoke.py" <<'PY'
+import os
+import time
+
+import rclcppyy
+
+rclcppyy.enable_cpp_acceleration(profile="publisher_cpp")
+
+import rclpy  # noqa: E402
+from rclpy.context import Context  # noqa: E402
+from rclpy.executors import SingleThreadedExecutor  # noqa: E402
+from std_msgs.msg import String  # noqa: E402
+
+
+context = Context()
+context.init(args=[])
+node = rclpy.create_node(
+    "installed_publisher_cpp_%d" % os.getpid(), context=context)
+executor = SingleThreadedExecutor(context=context)
+executor.add_node(node)
+received = []
+topic = "/rclcppyy_package_proof/publisher_cpp"
+subscription = node.create_subscription(
+    String, topic, lambda message: received.append(message.data), 10)
+publisher = node.create_publisher(String, topic, 10)
+
+deadline = time.monotonic() + 10.0
+while publisher.get_subscription_count() < 1 and time.monotonic() < deadline:
+    executor.spin_once(timeout_sec=0.05)
+assert publisher.get_subscription_count() >= 1
+publisher.publish(String(data="installed-publisher-cpp"))
+while not received and time.monotonic() < deadline:
+    executor.spin_once(timeout_sec=0.05)
+assert received == ["installed-publisher-cpp"], received
+assert publisher._rclcppyy_last_publish_backend == "cpp"
+assert publisher._rclcppyy_publish_tainted is False
+
+status = rclcppyy.status()
+assert any(
+    record["backend"] == "cpp"
+    and record["metadata"].get("entity_type") == "publisher"
+    and record["metadata"].get("topic") == topic
+    for record in status["entities"]
+), status
+assert any(
+    record["backend"] == "cpp"
+    and record["metadata"].get("operation") == "publish"
+    and record["metadata"].get("topic") == topic
+    for record in status["operations"]
+), status
+
+assert node.destroy_publisher(publisher)
+assert node.destroy_subscription(subscription)
+executor.remove_node(node)
+assert executor.shutdown(timeout_sec=1.0)
+node.destroy_node()
+context.shutdown()
+print("INSTALLED_RCLCPPYY_PUBLISHER_CPP_OK")
 PY
 
 (
   cd "$workdir"
   unset PYTHONPATH
   pixi run python smoke.py
+  pixi run python publisher_cpp_smoke.py
 )

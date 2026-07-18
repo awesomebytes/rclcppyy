@@ -12,6 +12,7 @@ rclcppyy.enable_cpp_acceleration()
 import rclpy  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from rclpy.publisher import Publisher  # noqa: E402
+from rclcppyy import monkey as monkey_module  # noqa: E402
 from std_msgs.msg import String  # noqa: E402
 
 
@@ -22,6 +23,11 @@ TOPIC = NAMESPACE + "/roundtrip"
 
 
 def main():
+    def unexpected_borrowed_route():
+        raise AssertionError("compatible profile prepared the opt-in publisher route")
+
+    monkey_module._load_borrowed_publish = unexpected_borrowed_route
+    assert Publisher.publish is monkey_module._original_publish
     assert not hasattr(String, "__smartptr__")
     print("MESSAGE_CONTRACT_OK", flush=True)
 
@@ -41,6 +47,7 @@ def main():
         String, TOPIC, lambda message: received.append(message.data), 10)
     publisher = node.create_publisher(String, TOPIC, 10)
     assert type(publisher) is Publisher
+    assert not hasattr(publisher, "_rclcppyy_publish_route")
 
     deadline = time.monotonic() + SPIN_DEADLINE_S
     while publisher.get_subscription_count() < 1 and time.monotonic() < deadline:
@@ -72,11 +79,19 @@ def main():
         record["metadata"].get("entity_type"): record["backend"]
         for record in status["entities"]
     }
-    assert entity_backends["publisher"] == "cpp", status
+    assert entity_backends["publisher"] == "python", status
     assert entity_backends["subscription"] == "python", status
+    activation = [
+        record for record in status["operations"]
+        if record["metadata"].get("operation") == "enable_cpp_acceleration"
+    ]
+    assert len(activation) == 1
+    assert activation[0]["backend"] == "python"
+    assert activation[0]["metadata"]["publisher_backend"] == "python"
     assert any(
-        record["metadata"].get("operation") == "enable_cpp_acceleration"
-        for record in status["operations"]
+        "stock_publish_authority" in record["policies"]
+        for record in status["entities"]
+        if record["metadata"].get("entity_type") == "publisher"
     )
     print("STATUS_OK", flush=True)
 

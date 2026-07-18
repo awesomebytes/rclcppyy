@@ -26,7 +26,7 @@ import uuid
 SCHEMA = "rclcppyy.runtime-stress/v4"
 SIGNAL_SCHEMA = "rclcppyy.signal-stress/v3"
 REPO_ROOT = Path(__file__).resolve().parents[2]
-PROFILES = ("stock", "compatible", "optimized")
+PROFILES = ("stock", "compatible", "publisher_cpp", "optimized")
 
 
 def _rss_kib() -> int:

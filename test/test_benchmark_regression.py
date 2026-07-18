@@ -29,7 +29,7 @@ def _marker(role, backend):
 
 def _row(backend, p99, rate=1000.0):
     expected = {
-        "publisher": "python" if backend == "rclpy" else "cpp",
+        "publisher": "python",
         "subscriber": "python",
     }
     return {
@@ -223,7 +223,7 @@ def test_rejects_machine_or_case_matrix_drift_between_repetitions():
 
 def test_rejects_unverified_or_contradictory_backend_evidence():
     documents = [_document(index) for index in range(1, 6)]
-    documents[1]["results"][1]["publisher_backend"]["backend"] = "python"
+    documents[1]["results"][1]["publisher_backend"]["backend"] = "cpp"
 
     with pytest.raises(ValueError, match="publisher backend evidence mismatch"):
         regression.compare_documents(documents, _budget())

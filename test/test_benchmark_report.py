@@ -38,7 +38,7 @@ def _document(mode="smoke"):
             "target_rate_hz": 1000,
             "payload_bytes": 0,
             "backend_verified": True,
-            "expected_backends": {"publisher": "cpp", "subscriber": "python"},
+            "expected_backends": {"publisher": "python", "subscriber": "python"},
             "messages": {"received": 100, "dropped": 0, "effective_rate_hz": 999.5},
             "wire_values": {
                 "schema": "rclcppyy.benchmark-wire-values/v1",
@@ -70,7 +70,7 @@ def test_smoke_report_forbids_claims_and_shows_backend_route():
     second = report_module.render(reordered)
     assert first == second
     assert "Smoke artifact. Performance claims are forbidden" in first
-    assert "cpp -> python" in first
+    assert "python -> python" in first
     assert "verified: std_msgs/String:sequence-timestamp-padding/v1" in first
     assert "| 100 | 0 | 999.500 |" in first
 

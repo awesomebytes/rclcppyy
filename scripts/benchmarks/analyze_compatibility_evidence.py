@@ -147,8 +147,7 @@ def _validate_document(document, repetition):
         row_key = (row["backend"],) + key
         _require(row_key not in rows, f"{label} duplicate compatibility case {row_key}")
         _require(row.get("workload") in WORKLOADS, f"{label} unknown workload")
-        expected_publisher = "python" if row["backend"] == REFERENCE_BACKEND else "cpp"
-        _validate_marker(row, "publisher", expected_publisher, label)
+        _validate_marker(row, "publisher", "python", label)
         _validate_marker(row, "subscriber", "python", label)
         _validate_wire_values(row, label)
         for metric in METRICS:
@@ -266,12 +265,12 @@ def analyze_documents(documents, minimum_repetitions=MINIMUM_REPETITIONS):
             "matrix": _normalized_matrix(first[1]),
         },
         "routes": [{
-            "path_id": "compatibility.publisher.same_handle_publish",
+            "path_id": "compatibility.publisher.stock_authority",
             "operation": "rclpy.publisher.Publisher.publish",
             "candidate_backend": CANDIDATE_BACKEND,
             "reference_backend": REFERENCE_BACKEND,
             "transparent": True,
-            "candidate_publisher_backend": "cpp",
+            "candidate_publisher_backend": "python",
             "candidate_subscriber_backend": "python",
             "backend_markers_verified": True,
             "wire_result_parity": True,
@@ -279,8 +278,9 @@ def analyze_documents(documents, minimum_repetitions=MINIMUM_REPETITIONS):
             "advertised_performance_benefit": False,
             "performance_conclusion": "not_established",
             "reason": (
-                "Direction counts are raw repeated observations; no reviewed noise "
-                "threshold or architecture-specific benefit policy was applied."
+                "The default compatibility profile preserves stock publish authority. "
+                "Direction counts characterize activation overhead only; no reviewed "
+                "noise threshold or architecture-specific benefit policy was applied."
             ),
         }],
         "comparisons": comparisons,

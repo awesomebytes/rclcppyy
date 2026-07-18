@@ -80,12 +80,12 @@ jobs:
           mkdir -p build/scheduled
           pixi run env RMW_IMPLEMENTATION="${{ matrix.rmw }}" pytest test/ -v -ra \
             --junitxml="build/scheduled/${{ matrix.rmw }}.xml"
-      - name: Run paced compatible churn and concurrent publisher soak
+      - name: Run paced publisher-C++ churn and concurrent publisher soak
         run: |
           set -euo pipefail
           pixi run env RMW_IMPLEMENTATION="${{ matrix.rmw }}" \
             python scripts/ci/stress_runtime.py \
-            --profile compatible \
+            --profile publisher_cpp \
             --repetitions 3 --signal-repetitions 0 \
             --round-period-seconds 15 \
             --min-duration-seconds 900 --max-rss-growth-kib 262144 \

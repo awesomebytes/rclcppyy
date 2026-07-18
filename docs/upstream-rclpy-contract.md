@@ -48,7 +48,8 @@ selected file, so it uses the installed rclpy package rather than importing Pyth
 modules from the source checkout.
 
 The bootstrap must be active in every child process. The publisher selection also
-requires a completed C++ publish record and rejects any Python publish fallback.
+requires compatible-mode Python publisher decisions carrying the
+`stock_publish_authority` policy and rejects any prepared C++ publisher route.
 JUnit files and `summary.json` are written under
 `build/test-results/upstream-rclpy/`.
 

@@ -8,18 +8,20 @@ from _run_helper import format_output, run_helper
 
 
 @pytest.mark.parametrize(
-    "name,required,contract_changes",
+    "name,required,contract_changes,cpp_publisher",
     [
-        ("compatible", False, False),
-        ("required_cpp", True, False),
-        ("optimized", False, True),
+        ("compatible", False, False, False),
+        ("publisher_cpp", False, False, True),
+        ("required_cpp", True, False, True),
+        ("optimized", False, True, False),
     ],
 )
-def test_profile_semantics(name, required, contract_changes):
+def test_profile_semantics(name, required, contract_changes, cpp_publisher):
     policy = resolve_policy(name, warn_fallback=True)
     assert policy.name == name
     assert policy.require_cpp is required
     assert policy.allow_contract_changes is contract_changes
+    assert policy.use_cpp_publisher is cpp_publisher
     assert policy.warn_fallback is True
 
 
@@ -49,8 +51,8 @@ def test_compatible_control_plane_status_and_warnings_are_bounded():
     assert proc.returncode == 0, details
 
 
-def test_compatible_publish_fallback_is_visible():
+def test_publisher_cpp_publish_fallback_is_visible():
     proc = run_helper("_publish_fallback_helper.py")
     details = format_output(proc)
-    assert "COMPATIBLE_PUBLISH_FALLBACK_VISIBLE_OK" in proc.stdout, details
+    assert "PUBLISHER_CPP_FALLBACK_VISIBLE_OK" in proc.stdout, details
     assert proc.returncode == 0, details

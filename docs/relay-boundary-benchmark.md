@@ -1,6 +1,6 @@
 # Controlled relay-boundary benchmark
 
-This benchmark characterizes one fixed ROS 2 relay across five execution
+This benchmark characterizes one fixed ROS 2 relay across six execution
 boundaries. It is a raw evidence generator, not a release gate or a source of
 performance claims. Jazzy with CycloneDDS is the current validated gate; the
 protocol retains explicit RMW evidence so later backends cannot be conflated
@@ -10,11 +10,14 @@ with that baseline.
 
 1. `stock-rclpy`: the unmodified Python relay.
 2. `compatible-rclcppyy`: the same Python relay function, with compatible
-   activation as the only setup difference.
-3. `native-python-callback`: native rclcpp entities with a Python transform
+   activation as the only setup difference. Stock `rclpy.Publisher.publish`
+   remains authoritative.
+3. `publisher-cpp-rclcppyy`: the same Python relay function, explicitly
+   activated with `profile="publisher_cpp"` for same-handle C++ publishing.
+4. `native-python-callback`: native rclcpp entities with a Python transform
    callback.
-4. `native-fused`: a prebuilt, content-addressed C++ fused pipeline.
-5. `aot-staged`: a conventional Release-mode C++ relay.
+5. `native-fused`: a prebuilt, content-addressed C++ fused pipeline.
+6. `aot-staged`: a conventional Release-mode C++ relay.
 
 Every variant is driven by the same Release-mode AOT executable, transform,
 reliable/volatile `KeepLast(1)` QoS, closed-loop message sequence, warmup, and
@@ -42,12 +45,14 @@ Driver teardown is held until the relay CPU window has stopped. Post-warmup
 peak-RSS growth is only a bounded 64 MiB runaway guard; it is never summarized,
 ranked, or compared.
 
-Compatible publish-operation evidence is captured after warmup, before the CPU
-window starts. The measured window then requires the publisher's permanent
-fallback taint to remain clear and its final backend to remain C++. Teardown
-phases are versioned stderr diagnostics. If a report times out, the parent asks
-the Python relay for an all-thread stack dump before terminating its process
-group and retains that stderr in the failure artifact.
+The explicit `publisher_cpp` publish-operation evidence is captured after
+warmup, before the CPU window starts. The measured window then requires the
+publisher's permanent fallback taint to remain clear and its final backend to
+remain C++. Compatible mode instead proves a Python publisher decision and the
+absence of a C++ publish-operation marker. Teardown phases are versioned stderr
+diagnostics. If a Python relay report times out, the parent asks for an
+all-thread stack dump before terminating its process group and retains that
+stderr in the failure artifact.
 
 ## Running
 

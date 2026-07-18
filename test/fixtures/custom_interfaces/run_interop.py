@@ -474,7 +474,7 @@ def run(mode, peer_executable, evidence_path, reference_path=None):
                 status, prefix + "/accumulate")
             python_action_records = relevant_action_records(
                 status, python_action_name)
-            assert any(record["backend"] == "cpp"
+            assert any(record["backend"] == "python"
                        for record in publisher_records), status
             assert any(record["backend"] == "python"
                        for record in subscription_records), status
@@ -492,7 +492,7 @@ def run(mode, peer_executable, evidence_path, reference_path=None):
                 and "stock_action_authority" in record["policies"]
             }, status
             evidence["backend"].update({
-                "publisher": "cpp",
+                "publisher": "python",
                 "subscription": "python",
                 "action_client": "python",
                 "action_server": "python",

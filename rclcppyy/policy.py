@@ -10,6 +10,7 @@ class AccelerationPolicy:
     name: str
     require_cpp: bool
     allow_contract_changes: bool
+    use_cpp_publisher: bool
     warn_fallback: bool = False
 
 
@@ -18,16 +19,25 @@ _PROFILES = {
         name="compatible",
         require_cpp=False,
         allow_contract_changes=False,
+        use_cpp_publisher=False,
+    ),
+    "publisher_cpp": AccelerationPolicy(
+        name="publisher_cpp",
+        require_cpp=False,
+        allow_contract_changes=False,
+        use_cpp_publisher=True,
     ),
     "required_cpp": AccelerationPolicy(
         name="required_cpp",
         require_cpp=True,
         allow_contract_changes=False,
+        use_cpp_publisher=True,
     ),
     "optimized": AccelerationPolicy(
         name="optimized",
         require_cpp=False,
         allow_contract_changes=True,
+        use_cpp_publisher=False,
     ),
 }
 
@@ -49,6 +59,7 @@ def resolve_policy(profile="compatible", *, warn_fallback=False):
         name=policy.name,
         require_cpp=policy.require_cpp,
         allow_contract_changes=policy.allow_contract_changes,
+        use_cpp_publisher=policy.use_cpp_publisher,
         warn_fallback=bool(warn_fallback),
     )
 

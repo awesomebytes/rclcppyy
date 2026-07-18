@@ -6,8 +6,7 @@ runner exercises the same peer twice:
 
 - stock `rclpy` publishes, subscribes, calls the service, and drives the action;
 - the compatible backend repeats the application and requires its custom-message
-  publisher to report `cpp`, while unsupported subscription/control-plane routes
-  remain stock Python.
+  publisher, subscription, and control-plane routes to remain stock Python;
 - each mode runs the same generated-action Python server/client contract for
   accepted and rejected goals, feedback, results, cancellation, callback groups,
   custom Context ownership, and waitable teardown;

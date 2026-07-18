@@ -26,11 +26,10 @@ def test_jazzy_manifest_is_valid_and_inventory_is_explicit():
     assert summary["ros_distribution"] == "jazzy"
     assert summary["entries"] == 57
     assert summary["support"] == {
-        "certified": 32,
+        "certified": 33,
         "experimental": 5,
         "stock_authoritative": 16,
         "unassessed": 3,
-        "unsupported": 1,
     }
     assert summary["upstream_contract"] == {
         "manifest": "compatibility/upstream-rclpy-contract.json",

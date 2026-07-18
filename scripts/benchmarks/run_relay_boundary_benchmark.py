@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the controlled five-variant ROS relay-boundary benchmark."""
+"""Run the controlled six-variant ROS relay-boundary benchmark."""
 
 from __future__ import annotations
 
@@ -414,7 +414,8 @@ def _run_sample(
         _write_control(relay, "REPORT", "%s relay" % variant)
         report, relay_report_diagnostics = _read_document(
             relay, timeout, "%s relay report" % variant,
-            request_stack_dump=variant == "compatible-rclcppyy")
+            request_stack_dump=variant in (
+                "compatible-rclcppyy", "publisher-cpp-rclcppyy"))
         _write_control(driver, "TEARDOWN", "AOT driver")
         driver_teardown, driver_teardown_diagnostics = _read_document(
             driver, timeout, "AOT driver teardown")

@@ -250,6 +250,33 @@ def _create_publisher_wrapper(
         )
         return publisher
 
+    if not _POLICY.use_cpp_publisher:
+        publisher = _original_create_publisher(
+            self,
+            msg_type,
+            topic,
+            qos_profile,
+            callback_group=callback_group,
+            event_callbacks=event_callbacks,
+            qos_overriding_options=qos_overriding_options,
+            publisher_class=publisher_class,
+        )
+        _record_python_entity(
+            self,
+            "publisher",
+            "stock rclpy Publisher.publish remains authoritative by policy",
+            metadata={
+                "topic": publisher.topic_name,
+                "callback_group_requested": callback_group is not None,
+                "event_callbacks_requested": event_callbacks is not None,
+                "qos_overrides_requested": qos_overriding_options is not None,
+                "custom_publisher_class_requested": publisher_class is not Publisher,
+            },
+            warn=False,
+            policies=("stock_publish_authority", _POLICY.name),
+        )
+        return publisher
+
     borrowed_publish, unavailable_reason = _load_borrowed_publish()
     route = None
     if borrowed_publish is not None:
@@ -847,7 +874,8 @@ def patch_ros2(profile="compatible", *, warn_fallback=False):
     _POLICY = requested
     for name, wrapper, _original in _NODE_PATCHES:
         setattr(Node, name, wrapper)
-    Publisher.publish = _publish_wrapper
+    Publisher.publish = (
+        _publish_wrapper if requested.use_cpp_publisher else _original_publish)
     rclpy.spin = _spin_wrapper
     rclpy.spin_once = _spin_once_wrapper
     if requested.allow_contract_changes:
@@ -862,14 +890,17 @@ def patch_ros2(profile="compatible", *, warn_fallback=False):
     ActionClient.__init__ = _action_client_init_wrapper
     ActionServer.__init__ = _action_server_init_wrapper
     _PATCHED = True
+    activation_backend = "cpp" if requested.use_cpp_publisher else "python"
     record_decision(
         "operations",
-        "cpp",
-        "installed stock-authority compatibility routing",
+        activation_backend,
+        "installed compatibility routing with explicit backend authority",
         policies=("stock_node_authority", requested.name),
         metadata={
             "operation": "enable_cpp_acceleration",
             "profile": requested.name,
+            "publisher_backend": (
+                "cpp" if requested.use_cpp_publisher else "python"),
         },
     )
     return True

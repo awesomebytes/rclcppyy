@@ -33,7 +33,7 @@ def test_scheduled_hardening_is_independent_and_evidence_based():
     assert 'RMW_IMPLEMENTATION="${{ matrix.rmw }}" pixi run' not in commands
     assert "for rmw in" not in commands
     assert "python scripts/ci/stress_runtime.py" in commands
-    assert "--profile compatible" in commands
+    assert "--profile publisher_cpp" in commands
     assert "--round-period-seconds 15" in commands
     assert "--repetitions 3 --signal-repetitions 0" in commands
     assert "--profile stock --cycles 100 --repetitions 50" in commands

@@ -143,10 +143,10 @@ def load_manifest(path):
             isinstance(entry.get("reason"), str) and len(entry["reason"].strip()) >= 20,
             "selection %s needs a substantive reason" % path,
         )
-        if "requires_cpp_publish" in entry:
+        if "expected_publish_backend" in entry:
             _require(
-                isinstance(entry["requires_cpp_publish"], bool),
-                "requires_cpp_publish must be boolean for %s" % path,
+                entry["expected_publish_backend"] in {"python", "cpp"},
+                "expected_publish_backend must be python or cpp for %s" % path,
             )
         selected_paths.append(path)
     _require(
@@ -324,11 +324,34 @@ def _prove_backend(entry):
     monkey = sys.modules.get("rclcppyy.monkey")
     if monkey is None or not getattr(monkey, "_PATCHED", False):
         raise ContractError("rclcppyy acceleration was not active during the upstream test")
-    if not entry.get("requires_cpp_publish", False):
+    expected = entry.get("expected_publish_backend")
+    if expected is None:
         return
     import rclcppyy
 
-    operations = rclcppyy.status()["operations"]
+    status = rclcppyy.status()
+    publisher_entities = [
+        record for record in status["entities"]
+        if record["metadata"].get("entity_type") == "publisher"
+        and record["metadata"].get("requested_operation") is None
+    ]
+    selected = [record for record in publisher_entities if record["backend"] == expected]
+    _require(
+        selected,
+        "selected publisher contract did not prove %s publish authority" % expected,
+    )
+    if expected == "python":
+        _require(
+            all(record["backend"] == "python" for record in publisher_entities),
+            "selected compatible publisher contract prepared a C++ publisher route",
+        )
+        _require(
+            all("stock_publish_authority" in record["policies"] for record in selected),
+            "selected publisher contract did not preserve stock publish authority",
+        )
+        return
+
+    operations = status["operations"]
     cpp_publish = [
         record for record in operations
         if record["backend"] == "cpp"

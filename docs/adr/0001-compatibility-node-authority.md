@@ -34,6 +34,12 @@ is routed independently:
 3. In the required-C++ profile, raise a structured error instead of falling back.
 4. Never accept and silently ignore an option.
 
+The default compatible policy deliberately keeps stock `Publisher.publish`
+authoritative even though a same-handle route is certified. That route is selected
+only by `publisher_cpp` or `required_cpp`; current controlled relay evidence did not
+justify making its implementation change automatic. The optimized profile also
+keeps stock publishing unless a future reviewed promotion changes that contract.
+
 Backend decisions are observable through `rclcppyy.status()`. Required-C++ tests
 and benchmarks must assert the observed backend, not merely that activation was
 requested.

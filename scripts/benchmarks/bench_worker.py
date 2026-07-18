@@ -168,7 +168,7 @@ def _run_python(args):
             publisher.publish(codec.make(sequence, time.monotonic_ns()))
             sequence += 1
             current_backend = getattr(
-                publisher, "_rclcppyy_last_publish_backend", args.backend)
+                publisher, "_rclcppyy_last_publish_backend", "python")
             if current_backend != last_backend:
                 _emit_backend(args.backend, "publisher", publisher)
                 last_backend = current_backend

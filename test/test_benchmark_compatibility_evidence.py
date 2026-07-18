@@ -28,7 +28,7 @@ def _marker(role, backend):
 
 
 def _row(backend, workload, repetition):
-    publisher_backend = "python" if backend == "rclpy" else "cpp"
+    publisher_backend = "python"
     contract = {
         "small-string": "std_msgs/String:sequence-timestamp-padding/v1",
         "nested-header": "std_msgs/Header:stamp-frame-sequence-padding/v1",
@@ -160,7 +160,8 @@ def test_repeated_gate_maps_route_parity_and_negative_observations_deterministic
     assert "domain_id" not in first["evidence"]["environment"]["ros"]
     assert "run_token" not in first["evidence"]["matrix"]
     route = first["routes"][0]
-    assert route["path_id"] == "compatibility.publisher.same_handle_publish"
+    assert route["path_id"] == "compatibility.publisher.stock_authority"
+    assert route["candidate_publisher_backend"] == "python"
     assert route["backend_markers_verified"] is True
     assert route["wire_result_parity"] is True
     assert route["advertised_performance_benefit"] is False
@@ -181,7 +182,7 @@ def test_gate_rejects_wire_violations_backend_drift_and_incomplete_workloads():
         evidence.analyze_documents(documents)
 
     documents = [_document(index) for index in range(1, 6)]
-    documents[2]["results"][3]["publisher_backend"]["backend"] = "python"
+    documents[2]["results"][3]["publisher_backend"]["backend"] = "cpp"
     with pytest.raises(ValueError, match="observed publisher backend mismatch"):
         evidence.analyze_documents(documents)
 

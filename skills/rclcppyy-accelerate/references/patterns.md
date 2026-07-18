@@ -8,8 +8,21 @@ rclcppyy.enable_cpp_acceleration(warn_fallback=True)
 # Existing imports and application code remain unchanged.
 ```
 
-Assert the route with `rclcppyy.status()`. Use `profile="required_cpp"` only in a
-test or deployment that should fail before every unsupported entity operation.
+Compatible mode deliberately keeps `Publisher.publish` stock-authoritative. Assert
+that decision with `rclcppyy.status()`.
+
+## Same-handle C++ publisher
+
+```python
+import rclcppyy
+rclcppyy.enable_cpp_acceleration(profile="publisher_cpp")
+# Existing rclpy imports and application code remain unchanged.
+```
+
+Use this only after a representative relay or publisher benchmark. Assert a C++
+publisher entity decision and completed C++ publish operation, and reject tainted
+or fallback evidence. Use `profile="required_cpp"` in a test or deployment that
+must fail before every unsupported entity operation.
 
 ## Managed native lane
 

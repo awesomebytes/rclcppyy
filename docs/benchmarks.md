@@ -87,8 +87,9 @@ sequence, monotonic timestamp, and exact padding contract.
 
 The output conforms to
 [`compatibility-performance-evidence-v1.schema.json`](../schemas/compatibility-performance-evidence-v1.schema.json).
-It maps the transparent same-handle publisher path to its verified backends and
-workload coverage, preserves the stable source/environment and normalized matrix,
+It maps the default transparent stock-publish path to its verified Python publisher
+and subscriber backends and workload coverage, preserves the stable
+source/environment and normalized matrix,
 then records each repetition's candidate and stock values with direction counts.
 `stock_better_in_all_repetitions` is an explicit negative local observation;
 `candidate_better_in_all_repetitions`, `equal_in_all_repetitions`, and

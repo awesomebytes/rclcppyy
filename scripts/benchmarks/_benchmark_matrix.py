@@ -16,7 +16,7 @@ BACKENDS = {
     "rclcppyy": {
         "label": "rclcppyy compatibility",
         "worker_backend": "compatibility",
-        "expected_backends": {"publisher": "cpp", "subscriber": "python"},
+        "expected_backends": {"publisher": "python", "subscriber": "python"},
         "workloads": ("small-string", "nested-header"),
     },
     "rclcppyy-templated": {

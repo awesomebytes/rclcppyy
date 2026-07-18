@@ -123,8 +123,8 @@
     },
     {
       "path": "test_publisher.py",
-      "reason": "Publisher naming, remapping, acknowledgement, and logging cover the C++-routed same-handle publisher.",
-      "requires_cpp_publish": true
+      "reason": "Publisher naming, remapping, acknowledgement, and logging cover the stock-authoritative compatible publisher.",
+      "expected_publish_backend": "python"
     },
     {
       "path": "test_qos.py",

@@ -57,7 +57,7 @@ def emit_status_backend(role, entity_type):
     if not matching:
         raise RuntimeError(f"no backend decision recorded for {entity_type}")
     decision = matching[-1]
-    if role == "publisher":
+    if role == "publisher" and decision["backend"] == "cpp":
         completed = [
             record
             for record in snapshot["operations"]

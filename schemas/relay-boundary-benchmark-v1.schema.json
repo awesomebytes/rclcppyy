@@ -191,7 +191,11 @@
           },
           {
             "if": {"properties": {"variant": {"const": "compatible-rclcppyy"}}, "required": ["variant"]},
-            "then": {"properties": {"relay_ready": {"properties": {"execution_model": {"const": "same-python-relay-compatible-activation"}}}}}
+            "then": {"properties": {"relay_ready": {"properties": {"execution_model": {"const": "same-python-relay-compatible-stock-publish"}}}}}
+          },
+          {
+            "if": {"properties": {"variant": {"const": "publisher-cpp-rclcppyy"}}, "required": ["variant"]},
+            "then": {"properties": {"relay_ready": {"properties": {"execution_model": {"const": "same-python-relay-explicit-publisher-cpp"}}}}}
           },
           {
             "if": {"properties": {"variant": {"const": "native-python-callback"}}, "required": ["variant"]},
@@ -232,6 +236,7 @@
       "enum": [
         "stock-rclpy",
         "compatible-rclcppyy",
+        "publisher-cpp-rclcppyy",
         "native-python-callback",
         "native-fused",
         "aot-staged"

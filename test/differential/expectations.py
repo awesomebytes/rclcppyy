@@ -98,7 +98,7 @@ CERTIFIED_PARITY = (
     ParityExpectation(
         "publisher.subscription_roundtrip",
         ("entity_routing", "received"),
-        "C++ publishing reaches the stock subscription with the same payload.",
+        "Stock-authoritative publishing reaches the subscription with the same payload.",
     ),
     ParityExpectation(
         "teardown.public_node_removed",

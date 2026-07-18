@@ -55,14 +55,15 @@ def enable_cpp_acceleration(
     Enable C++ acceleration for ROS2 Python code.
 
     The compatible profile keeps stock rclpy nodes, contexts, executors, message
-    classes, and entity objects authoritative. Certified operations use C++ over
-    their existing native handles; unsupported operations remain stock and are
-    visible in :func:`status`.
+    classes, entity objects, and ``Publisher.publish`` authoritative. The explicit
+    ``publisher_cpp`` profile enables the same-handle C++ publisher route; other
+    unsupported operations remain stock and are visible in :func:`status`.
 
     Args:
         patch_node (bool): Retained for source compatibility. Node identity is no
                           longer replaced in any profile.
-        profile (str): ``compatible``, ``required_cpp``, or ``optimized``.
+        profile (str): ``compatible``, ``publisher_cpp``, ``required_cpp``, or
+                       ``optimized``.
         warn_fallback (bool): Warn once for each stock fallback reason.
 
     Returns:

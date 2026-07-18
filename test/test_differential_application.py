@@ -68,7 +68,7 @@ def test_application_backend_evidence_is_self_consistent(application_results):
     activated = application_results["activated"]
     assert activated["backend_verified"]
     status = activated["backend_status"]
-    assert status["counts"]["entities"]["cpp"] >= 1
+    assert status["counts"]["entities"]["cpp"] == 0
     assert status["counts"]["entities"]["python"] >= 1
     assert status["counts"]["nodes"]["python"] >= 1
     raw_subscriptions = [

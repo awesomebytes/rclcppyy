@@ -25,8 +25,13 @@ VARIANTS = {
         "python_crossings": True,
     },
     "compatible-rclcppyy": {
-        "execution_model": "same-python-relay-compatible-activation",
-        "cache_kind": "compatible-borrowed-publish-route",
+        "execution_model": "same-python-relay-compatible-stock-publish",
+        "cache_kind": "compatible-stock-publish-authority",
+        "python_crossings": True,
+    },
+    "publisher-cpp-rclcppyy": {
+        "execution_model": "same-python-relay-explicit-publisher-cpp",
+        "cache_kind": "publisher-cpp-borrowed-publish-route",
         "python_crossings": True,
     },
     "native-python-callback": {
@@ -260,10 +265,15 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
             raise ValueError("stock relay cache evidence is invalid")
     elif variant == "compatible-rclcppyy":
         if artifact != {
+                "state": "not_applicable",
+                "kind": "compatible-stock-publish-authority"}:
+            raise ValueError("compatible relay stock-publish evidence is invalid")
+    elif variant == "publisher-cpp-rclcppyy":
+        if artifact != {
                 "state": "process-warm",
-                "kind": "compatible-borrowed-publish-route",
+                "kind": "publisher-cpp-borrowed-publish-route",
                 "prepared_before_measurement": True}:
-            raise ValueError("compatible relay warm-route evidence is invalid")
+            raise ValueError("publisher_cpp relay warm-route evidence is invalid")
     else:
         if artifact.get("state") != "prebuilt":
             raise ValueError("dynamic native relay cache state is invalid")
@@ -278,7 +288,8 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
                 "phases"]["warm"]["fused_source_id"]:
             raise ValueError("fused relay source id differs from the warm manifest")
     entity_types = ready.get("entity_types")
-    if variant in ("stock-rclpy", "compatible-rclcppyy"):
+    if variant in (
+            "stock-rclpy", "compatible-rclcppyy", "publisher-cpp-rclcppyy"):
         if entity_types != {
                 "node": "rclpy.node.Node",
                 "publisher": "rclpy.publisher.Publisher",
@@ -288,11 +299,11 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
         markers = ready.get("backend_markers")
         if not isinstance(markers, dict) or set(markers) != {"publisher", "subscriber"}:
             raise ValueError("Python relay backend markers are incomplete")
-        expected_backends = (
-            {"publisher": "python", "subscriber": "python"}
-            if variant == "stock-rclpy"
-            else {"publisher": "cpp", "subscriber": "python"}
-        )
+        expected_backends = {
+            "publisher": (
+                "cpp" if variant == "publisher-cpp-rclcppyy" else "python"),
+            "subscriber": "python",
+        }
         for role, marker in markers.items():
             if not isinstance(marker, dict) or marker.get(
                     "schema") != "rclcppyy.benchmark-backend/v1" or marker.get("role") != role:
@@ -336,30 +347,31 @@ def _validate_report(report: dict, sample: dict, warmup: int, messages: int) -> 
             "python_boundary_crossings") != crossings:
         raise ValueError("relay Python-boundary count is invalid")
     if variant in (
-            "stock-rclpy", "compatible-rclcppyy", "native-python-callback", "aot-staged"):
+            "stock-rclpy", "compatible-rclcppyy", "publisher-cpp-rclcppyy",
+            "native-python-callback", "aot-staged"):
         if report.get("checksum") != expected_input_checksum(total) or report.get("last") != total:
             raise ValueError("relay input checksum evidence is invalid")
-    if variant == "stock-rclpy":
+    if variant in ("stock-rclpy", "compatible-rclcppyy"):
         if report.get("publish_operation_marker") is not None or report.get(
                 "fallback_publish_operations") != 0 or report.get(
                 "last_publish_backend") != "python":
-            raise ValueError("stock relay publish-route evidence is invalid")
-    if variant == "compatible-rclcppyy":
+            raise ValueError("stock-authority relay publish-route evidence is invalid")
+    if variant == "publisher-cpp-rclcppyy":
         marker = report.get("publish_operation_marker")
         if not isinstance(marker, dict) or marker.get(
                 "schema") != "rclcppyy.benchmark-backend/v1" or marker.get(
                 "role") != "publisher" or marker.get("backend") != "cpp" or marker.get(
                 "evidence") != "rclcppyy_status_operation":
-            raise ValueError("compatible relay completed-publish marker is invalid")
+            raise ValueError("publisher_cpp relay completed-publish marker is invalid")
         if report.get("fallback_publish_operations") != 0 or report.get(
                 "last_publish_backend") != "cpp" or report.get(
                     "publish_route_tainted") is not False:
-            raise ValueError("compatible relay publish route was tainted or fell back")
+            raise ValueError("publisher_cpp relay publish route was tainted or fell back")
         counts = report.get("status_operation_counts")
         if not isinstance(counts, dict) or not _is_positive_int(counts.get("cpp")):
-            raise ValueError("compatible relay operation aggregates are invalid")
+            raise ValueError("publisher_cpp relay operation aggregates are invalid")
         if not _is_nonnegative_int(report.get("status_dropped_operation_records")):
-            raise ValueError("compatible relay dropped-status evidence is invalid")
+            raise ValueError("publisher_cpp relay dropped-status evidence is invalid")
     if variant == "native-fused" and (
             report.get("compile_cache_hits") != 1 or report.get("compile_cache_misses") != 0):
         raise ValueError("fused relay compile-cache counters are invalid")
@@ -603,9 +615,11 @@ def summarize(results: list[dict], variants: list[str]) -> dict:
         "paired_ratios_to_aot": paired_to("aot-staged"),
         "interpretation_allowed": False,
         "note": (
-            "The direct stock/compatible pair uses one Python relay implementation with activation "
-            "as its only setup difference. All ratios are descriptive: lower is better for CPU and "
-            "latency, higher is better for throughput. No threshold, ranking, or winner is selected."
+            "Stock, compatible, and publisher_cpp use one Python relay implementation. Compatible "
+            "adds default activation while preserving stock publish authority; publisher_cpp changes "
+            "only the activation profile to opt into same-handle C++ publishing. All ratios are "
+            "descriptive: lower is better for CPU and latency, higher is better for throughput. No "
+            "threshold, ranking, or winner is selected."
         ),
     }
 

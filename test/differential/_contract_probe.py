@@ -261,7 +261,7 @@ def _run(mode):
         expectations = [
             {
                 "kind": "operations",
-                "backend": "cpp",
+                "backend": "python",
                 "minimum": 1,
                 "metadata": {"operation": "enable_cpp_acceleration"},
             },
@@ -273,7 +273,7 @@ def _run(mode):
             },
             {
                 "kind": "entities",
-                "backend": "cpp",
+                "backend": "python",
                 "minimum": 1,
                 "metadata": {
                     "entity_type": "publisher",

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compatible activation preserves stock contracts and accelerates publishing."""
+"""Compatible activation preserves stock contracts and publish authority."""
 import unittest
 
 from _run_helper import run_helper, format_output

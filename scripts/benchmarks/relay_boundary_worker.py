@@ -300,13 +300,14 @@ def _subscription_artifact() -> dict:
     }
 
 
-def _run_python_relay(args, *, activate: bool) -> tuple[dict, dict, bool]:
+def _run_python_relay(args, *, profile: str | None) -> tuple[dict, dict, bool]:
     rclcppyy = None
-    if activate:
+    if profile is not None:
         import rclcppyy as active_rclcppyy
 
-        active_rclcppyy.enable_cpp_acceleration()
+        active_rclcppyy.enable_cpp_acceleration(profile=profile)
         rclcppyy = active_rclcppyy
+    use_cpp_publisher = profile == "publisher_cpp"
 
     from rclpy.context import Context
     from rclpy.executors import SingleThreadedExecutor
@@ -350,17 +351,23 @@ def _run_python_relay(args, *, activate: bool) -> tuple[dict, dict, bool]:
     executor.add_node(node)
     executor_thread = threading.Thread(target=executor.spin, daemon=False)
     executor_thread.start()
-    if activate:
+    if profile is not None:
         snapshot = rclcppyy.status()
         markers = {
             "publisher": _status_marker(snapshot, "publisher"),
             "subscriber": _status_marker(snapshot, "subscriber"),
         }
-        cache_evidence = {
-            "state": "process-warm",
-            "kind": "compatible-borrowed-publish-route",
-            "prepared_before_measurement": True,
-        }
+        if use_cpp_publisher:
+            cache_evidence = {
+                "state": "process-warm",
+                "kind": "publisher-cpp-borrowed-publish-route",
+                "prepared_before_measurement": True,
+            }
+        else:
+            cache_evidence = {
+                "state": "not_applicable",
+                "kind": "compatible-stock-publish-authority",
+            }
     else:
         markers = {
             "publisher": _stock_marker("publisher", publisher),
@@ -379,10 +386,11 @@ def _run_python_relay(args, *, activate: bool) -> tuple[dict, dict, bool]:
         "process_group_id": os.getpgrp(),
         "node_name": args.node_name,
         "loaded_rmw": _loaded_rmw(),
-        "execution_model": (
-            "same-python-relay-compatible-activation"
-            if activate else "same-python-relay-stock-rclpy"
-        ),
+        "execution_model": {
+            None: "same-python-relay-stock-rclpy",
+            "compatible": "same-python-relay-compatible-stock-publish",
+            "publisher_cpp": "same-python-relay-explicit-publisher-cpp",
+        }[profile],
         "cache": cache_evidence,
         "entity_types": {
             "node": "%s.%s" % (type(node).__module__, type(node).__qualname__),
@@ -400,7 +408,7 @@ def _run_python_relay(args, *, activate: bool) -> tuple[dict, dict, bool]:
         _emit(ready)
         if sys.stdin.readline().rstrip("\n") != "START":
             raise RuntimeError("relay expected START control")
-        if activate:
+        if use_cpp_publisher:
             _phase(args, "publish-marker-capture-before")
             publish_marker = _status_marker(
                 rclcppyy.status(), "publisher", operation=True,
@@ -419,7 +427,7 @@ def _run_python_relay(args, *, activate: bool) -> tuple[dict, dict, bool]:
         publish_route_tainted = False
         status_operation_counts = None
         status_dropped_operation_records = None
-        if activate:
+        if use_cpp_publisher:
             _phase(args, "status-before")
             final_status = rclcppyy.status()
             status_operation_counts = final_status["counts"]["operations"]
@@ -453,7 +461,7 @@ def _run_python_relay(args, *, activate: bool) -> tuple[dict, dict, bool]:
         "publish_operation_marker": publish_marker,
         "fallback_publish_operations": fallback_publish_operations,
         "last_publish_backend": last_publish_backend,
-        "publish_route_tainted": publish_route_tainted if activate else False,
+        "publish_route_tainted": publish_route_tainted,
         "status_operation_counts": status_operation_counts,
         "status_dropped_operation_records": status_dropped_operation_records,
         "cpu_time_ns": cpu_time_ns,
@@ -635,9 +643,13 @@ def _run_fused(args) -> tuple[dict, dict, bool]:
 
 def _run_relay(args) -> int:
     if args.variant == "stock-rclpy":
-        _ready, counters, teardown_clean = _run_python_relay(args, activate=False)
+        _ready, counters, teardown_clean = _run_python_relay(args, profile=None)
     elif args.variant == "compatible-rclcppyy":
-        _ready, counters, teardown_clean = _run_python_relay(args, activate=True)
+        _ready, counters, teardown_clean = _run_python_relay(
+            args, profile="compatible")
+    elif args.variant == "publisher-cpp-rclcppyy":
+        _ready, counters, teardown_clean = _run_python_relay(
+            args, profile="publisher_cpp")
     elif args.variant == "native-python-callback":
         _ready, counters, teardown_clean = _run_python_callback(args)
     else:
@@ -667,7 +679,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--prewarm", action="store_true")
     parser.add_argument(
         "--variant", choices=(
-            "stock-rclpy", "compatible-rclcppyy",
+            "stock-rclpy", "compatible-rclcppyy", "publisher-cpp-rclcppyy",
             "native-python-callback", "native-fused"))
     parser.add_argument("--input-topic")
     parser.add_argument("--output-topic")

@@ -104,7 +104,7 @@ def test_all_rewrite_projects_emit_paired_bounded_evidence(tmp_path):
 
     transparent = projects["transparent_relay"]["pairs"][0]
     assert transparent["before"]["backend"]["roles"]["publisher"]["backend"] == "python"
-    assert transparent["after"]["backend"]["roles"]["publisher"]["backend"] == "cpp"
+    assert transparent["after"]["backend"]["roles"]["publisher"]["backend"] == "python"
     assert transparent["after"]["contract_delta"] == []
 
     managed = projects["managed_native_worker"]["pairs"][0]

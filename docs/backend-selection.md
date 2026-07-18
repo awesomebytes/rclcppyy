@@ -8,7 +8,8 @@ evidence to decide whether a more specialized lane is worthwhile.
 
 | Requirement | Entry point | Contract | Failure behavior |
 | --- | --- | --- | --- |
-| Run existing `rclpy` software unchanged | `enable_cpp_acceleration()` | Exact stock Python object identities and behavior | Certified operations use C++; other operations delegate to stock Python and report that decision |
+| Run existing `rclpy` software unchanged | `enable_cpp_acceleration()` | Exact stock Python object identities and behavior, including `Publisher.publish` | Operations remain stock Python and report that authority |
+| Try same-handle C++ publishing without changing application code | `enable_cpp_acceleration(profile="publisher_cpp")` | Exact stock publisher object and graph endpoint; explicit publish implementation change | Falls back to stock publishing visibly if preparation or a publish fails |
 | Prove that a selected operation cannot fall back | `enable_cpp_acceleration(profile="required_cpp")` | Exact stock contract for supported operations | Rejects an unsupported operation before its side effects |
 | Use a C++-only ROS facility from Python | `rclcppyy.native()` | Explicit native API; not a drop-in `rclpy` replacement | Capability queries and normal exceptions make unsupported facilities visible |
 | Remove Python from a measured hot path | `rclcpp_kit` native callbacks, services, clients, actions, components, lifecycle nodes, or fused pipelines | Explicit opt-in contract for ownership, scheduling, and delivery | Compilation and construction are explicit; generated code and counters are inspectable |
@@ -27,10 +28,10 @@ rclcppyy.enable_cpp_acceleration(warn_fallback=True)
 import rclpy
 ```
 
-The original `Node`, `Context`, executors, generated messages, and entities remain
-authoritative. A C++ route may operate on an existing native handle only when the
-route is certified for that operation. The complete operation otherwise remains
-stock Python; `rclcppyy` does not create a companion node or split ownership.
+The original `Node`, `Context`, executors, generated messages, entities, and
+`Publisher.publish` remain authoritative. `rclcppyy` does not create a companion
+node or split ownership. This gives unedited software a conservative baseline with
+backend reporting and no implicit publisher implementation change.
 
 The compatibility manifest at `compatibility/jazzy.json` is the source of truth
 for certified, stock-authoritative, experimental, unsupported, and unassessed
@@ -38,6 +39,31 @@ surfaces. Its closed upstream mapping accounts for every selected test and revie
 exclusion in the pinned Jazzy contract. Stock-authoritative means compatible stock
 Python behavior, not a C++ route; activation alone is not evidence that a particular
 operation used C++.
+
+## Publisher-C++ profile
+
+Use the explicit permissive profile when the unchanged Python application should
+try the certified same-handle publisher route:
+
+```python
+import rclcppyy
+
+rclcppyy.enable_cpp_acceleration(profile="publisher_cpp")
+```
+
+The stock publisher object, node, graph endpoint, QoS, and destruction remain
+authoritative. Only `Publisher.publish` converts and serializes through C++ against
+the borrowed native handle. Preparation or runtime failure permanently taints that
+publisher, falls back to the original stock operation, and is visible in status.
+
+This is not the default because the historical controlled Jazzy/CycloneDDS relay
+artifacts `build/relay-boundary-cyclone-117cc2d.json` and
+`build/relay-boundary-cyclone-6396bd3.json` did not meet the promotion bar. Their
+raw paired relay-CPU ratios were above stock in five of five and four of five
+repetitions, respectively. Both artifacts explicitly prohibit interpretation and
+performance claims; the observation is used only to choose the conservative
+product default. They remain ignored local evidence, while the current six-lane
+benchmark independently characterizes compatible and explicit publisher-C++ modes.
 
 ## Required-C++ profile
 
@@ -79,8 +105,8 @@ executor type.
 
 The bound can rebuild an idle wait set up to ten times per second. It is therefore
 an opt-in reliability tradeoff, not a claimed CPU or latency optimization. The
-compatible and required-C++ profiles retain their existing indefinite stock waits;
-direct custom executor overrides remain application-owned.
+compatible, publisher-C++, and required-C++ profiles retain their existing
+indefinite stock waits; direct custom executor overrides remain application-owned.
 
 ## Native lane
 

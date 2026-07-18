@@ -236,7 +236,8 @@ def _validate_bundle(
     for marker in (
         "INSTALLED_PUBLISHED_SUPPORT_BYTES_OK",
         "INSTALLED_NATIVE_SERVICE_OK",
-        "INSTALLED_RCLCPPYY_SAME_HANDLE_SERIALIZED_PUBLISH_OK",
+        "INSTALLED_RCLCPPYY_COMPATIBLE_STOCK_PUBLISH_OK",
+        "INSTALLED_RCLCPPYY_PUBLISHER_CPP_OK",
     ):
         _require(marker in package_proof, "%s package proof lacks %s" % (bundle_dir, marker))
     if architecture == "aarch64":

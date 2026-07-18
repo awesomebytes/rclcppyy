@@ -20,7 +20,8 @@ backend evidence and measurements; never assume that entering C++ is faster.
    blocker before selecting an implementation tier.
 4. Read `references/techniques.md` and select the lowest applicable tier:
    - Tier 0: compatible activation and status only.
-   - Tier 1: semantics-preserving cache/configuration improvements.
+   - Tier 1: explicit same-handle C++ publishing or semantics-preserving
+     cache/configuration improvements.
    - Tier 2: explicit managed `rclcpp` options or native entities.
    - Tier 3: editable native callback or fused pipeline.
    - Tier 4: domain-kit/library-native data path when a callback-level use is
@@ -39,8 +40,9 @@ backend evidence and measurements; never assume that entering C++ is faster.
 
 ## Hard Rules
 
-- Keep the exact stock Node, Context, executor, messages, and entities in the
-  compatible profile unless a reviewed contract explicitly says otherwise.
+- Keep the exact stock Node, Context, executor, messages, entities, and
+  `Publisher.publish` in the compatible profile unless a reviewed promotion
+  explicitly says otherwise.
 - Fail before side effects when required-C++ cannot satisfy an operation.
 - Do not claim an entity is C++ because only setup or serialization uses C++.
 - Do not publish a gain without versioned raw data and independent backend markers.
