@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timezone
 import faulthandler
+import gc
 import importlib.util
 import json
 import os
@@ -22,13 +23,32 @@ import time
 import uuid
 
 
-SCHEMA = "rclcppyy.runtime-stress/v3"
-SIGNAL_SCHEMA = "rclcppyy.signal-stress/v2"
+SCHEMA = "rclcppyy.runtime-stress/v4"
+SIGNAL_SCHEMA = "rclcppyy.signal-stress/v3"
 REPO_ROOT = Path(__file__).resolve().parents[2]
+PROFILES = ("stock", "compatible", "optimized")
 
 
 def _rss_kib() -> int:
     return int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
+
+def _memory_kib() -> dict:
+    values = {}
+    try:
+        with Path("/proc/self/status").open(encoding="ascii") as stream:
+            for line in stream:
+                name, separator, raw_value = line.partition(":")
+                if separator and name in ("VmRSS", "RssAnon", "VmHWM"):
+                    values[name] = int(raw_value.split()[0])
+    except (FileNotFoundError, OSError, ValueError):
+        pass
+    peak = _rss_kib()
+    return {
+        "current_rss_kib": values.get("VmRSS", peak),
+        "anonymous_rss_kib": values.get("RssAnon"),
+        "peak_rss_kib": values.get("VmHWM", peak),
+    }
 
 
 def _git(repo: Path, *arguments: str) -> str | None:
@@ -75,14 +95,12 @@ def _source_metadata() -> dict:
 
 
 def entity_churn(cycles: int, seed: int) -> dict:
-    import rclcppyy
     import rclpy
     from rclpy.context import Context
     from rclpy.parameter import Parameter
     from std_msgs.msg import String
     from std_srvs.srv import SetBool
 
-    rclcppyy.enable_cpp_acceleration()
     start_rss = _rss_kib()
     randomizer = random.Random(seed)
     for cycle in range(cycles):
@@ -128,13 +146,11 @@ def entity_churn(cycles: int, seed: int) -> dict:
 
 
 def concurrent_publish(threads: int, messages_per_thread: int) -> dict:
-    import rclcppyy
     import rclpy
     from rclpy.context import Context
     from rclpy.executors import SingleThreadedExecutor
     from std_msgs.msg import String
 
-    rclcppyy.enable_cpp_acceleration()
     expected = threads * messages_per_thread
     context = Context()
     context.init(args=[])
@@ -195,14 +211,14 @@ def concurrent_publish(threads: int, messages_per_thread: int) -> dict:
     }
 
 
-def signal_worker(accelerated: bool = True) -> None:
+def signal_worker(profile: str = "compatible") -> None:
     import rclpy
     from rclpy._rclpy_pybind11 import RCLError
     from rclpy.executors import ExternalShutdownException
 
-    if accelerated:
+    if profile != "stock":
         import rclcppyy
-        rclcppyy.enable_cpp_acceleration()
+        rclcppyy.enable_cpp_acceleration(profile=profile)
     faulthandler.register(signal.SIGUSR1, all_threads=True)
     rclpy.init(args=[])
     node = rclpy.create_node("stress_signal_%d" % os.getpid())
@@ -231,11 +247,19 @@ def signal_worker(accelerated: bool = True) -> None:
     print("SIGNAL_WORKER_CLEAN", flush=True)
 
 
-def signal_shutdown(timeout: float, accelerated: bool = True) -> dict:
+def signal_shutdown(
+    timeout: float,
+    profile: str = "compatible",
+    settle_seconds: float = 0.0,
+) -> dict:
     started = time.monotonic()
-    worker_flag = "--signal-worker" if accelerated else "--stock-signal-worker"
+    worker_flag = (
+        "--stock-signal-worker" if profile == "stock" else "--signal-worker")
+    command = [sys.executable, str(Path(__file__).resolve()), worker_flag]
+    if profile != "stock":
+        command.extend(("--profile", profile))
     process = subprocess.Popen(
-        [sys.executable, str(Path(__file__).resolve()), worker_flag],
+        command,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         start_new_session=True,
@@ -256,6 +280,8 @@ def signal_shutdown(timeout: float, accelerated: bool = True) -> dict:
                     break
         selector.close()
         assert b"SIGNAL_WORKER_READY" in output, output.decode(errors="replace")
+        if settle_seconds:
+            time.sleep(settle_seconds)
         os.killpg(process.pid, signal.SIGTERM)
         try:
             stdout, stderr = process.communicate(timeout=timeout)
@@ -266,9 +292,9 @@ def signal_shutdown(timeout: float, accelerated: bool = True) -> dict:
             stdout, stderr = process.communicate(timeout=5)
             output.extend(stdout)
             raise AssertionError(
-                "signal worker timed out after %.3fs (accelerated=%s):\n%s\n%s" % (
+                "signal worker timed out after %.3fs (profile=%s):\n%s\n%s" % (
                     timeout,
-                    accelerated,
+                    profile,
                     output.decode(errors="replace"),
                     stderr.decode(errors="replace"),
                 )
@@ -286,7 +312,9 @@ def signal_shutdown(timeout: float, accelerated: bool = True) -> dict:
     print("SIGNAL_SHUTDOWN_OK")
     return {
         "returncode": process.returncode,
-        "accelerated": accelerated,
+        "profile": profile,
+        "accelerated": profile != "stock",
+        "settle_seconds": settle_seconds,
         "clean_marker": True,
         "duration_s": round(time.monotonic() - started, 6),
     }
@@ -313,7 +341,12 @@ def _failure(round_index: int, probe: str, exception: Exception, **fields) -> di
     return value
 
 
-def run_signal_stress(repetitions: int, timeout: float, accelerated: bool) -> dict:
+def run_signal_stress(
+    repetitions: int,
+    timeout: float,
+    profile: str,
+    settle_seconds: float = 0.0,
+) -> dict:
     started_at = datetime.now(timezone.utc).isoformat()
     started = time.monotonic()
     source = _source_metadata()
@@ -321,7 +354,11 @@ def run_signal_stress(repetitions: int, timeout: float, accelerated: bool) -> di
     failures = []
     for attempt in range(repetitions):
         try:
-            results.append(signal_shutdown(timeout, accelerated=accelerated))
+            results.append(signal_shutdown(
+                timeout,
+                profile=profile,
+                settle_seconds=settle_seconds,
+            ))
         except Exception as exception:
             failures.append({
                 "attempt": attempt,
@@ -337,11 +374,12 @@ def run_signal_stress(repetitions: int, timeout: float, accelerated: bool) -> di
         "architecture": platform.machine(),
         "python": platform.python_version(),
         "source": source,
-        "backend": "accelerated" if accelerated else "stock",
+        "profile": profile,
         "parameters": {
             "requested_repetitions": repetitions,
             "timeout_s": timeout,
             "signal": "SIGTERM",
+            "settle_seconds": settle_seconds,
             "fresh_process_per_attempt": True,
         },
         "results": results,
@@ -357,22 +395,73 @@ def run_signal_stress(repetitions: int, timeout: float, accelerated: bool) -> di
     }
 
 
-def run_stress(args, *, enable_acceleration=None, rmw_identifier=None) -> dict:
-    if enable_acceleration is None or rmw_identifier is None:
-        import rclcppyy
+def _memory_summary(rounds: list, baseline: dict) -> dict:
+    measured = [
+        item for item in rounds
+        if item["entity_churn"] is not None and item.get("memory") is not None
+    ]
+    final = measured[-1]["memory"] if measured else baseline
+    values = {
+        "baseline": baseline,
+        "final": final,
+        "current_rss_growth_kib": (
+            final["current_rss_kib"] - baseline["current_rss_kib"]),
+        "anonymous_rss_growth_kib": None,
+        "warmup_rounds_excluded": min(1, len(measured)),
+        "post_warmup_entity_cycles": 0,
+        "post_warmup_current_rss_kib_per_1000_cycles": None,
+        "post_warmup_anonymous_rss_kib_per_1000_cycles": None,
+    }
+    if (
+        baseline["anonymous_rss_kib"] is not None
+        and final["anonymous_rss_kib"] is not None
+    ):
+        values["anonymous_rss_growth_kib"] = (
+            final["anonymous_rss_kib"] - baseline["anonymous_rss_kib"])
+    if len(measured) <= 1:
+        return values
+
+    warmup_memory = measured[0]["memory"]
+    cycles = sum(item["entity_churn"]["cycles"] for item in measured[1:])
+    values["post_warmup_entity_cycles"] = cycles
+    if cycles:
+        values["post_warmup_current_rss_kib_per_1000_cycles"] = round(
+            (final["current_rss_kib"] - warmup_memory["current_rss_kib"])
+            * 1000.0 / cycles,
+            6,
+        )
+        if (
+            warmup_memory["anonymous_rss_kib"] is not None
+            and final["anonymous_rss_kib"] is not None
+        ):
+            values["post_warmup_anonymous_rss_kib_per_1000_cycles"] = round(
+                (final["anonymous_rss_kib"] - warmup_memory["anonymous_rss_kib"])
+                * 1000.0 / cycles,
+                6,
+            )
+    return values
+
+
+def run_stress(args, *, configure_profile=None, rmw_identifier=None) -> dict:
+    if configure_profile is None or rmw_identifier is None:
         from rclpy.utilities import get_rmw_implementation_identifier
 
-        if enable_acceleration is None:
-            enable_acceleration = rclcppyy.enable_cpp_acceleration
+        if configure_profile is None:
+            def configure_profile(profile):
+                if profile != "stock":
+                    import rclcppyy
+                    rclcppyy.enable_cpp_acceleration(profile=profile)
         if rmw_identifier is None:
             rmw_identifier = get_rmw_implementation_identifier
 
     # Exclude one-time interpreter/header setup from the entity-lifetime RSS budget.
-    enable_acceleration()
+    profile = getattr(args, "profile", "compatible")
+    configure_profile(profile)
     started_at = datetime.now(timezone.utc).isoformat()
     started = time.monotonic()
     source = _source_metadata()
     start_rss = _rss_kib()
+    baseline_memory = _memory_kib()
     rounds = []
     failures = []
     signal_probe_enabled = args.signal_repetitions > 0
@@ -389,6 +478,7 @@ def run_stress(args, *, enable_acceleration=None, rmw_identifier=None) -> dict:
             "entity_churn": None,
             "concurrent_publish": None,
             "signal_shutdown": [],
+            "memory": None,
         }
         fatal_failure = False
         try:
@@ -407,14 +497,19 @@ def run_stress(args, *, enable_acceleration=None, rmw_identifier=None) -> dict:
             for repetition in range(args.signal_repetitions):
                 try:
                     round_evidence["signal_shutdown"].append(
-                        signal_shutdown(args.timeout))
+                        signal_shutdown(
+                            args.timeout,
+                            profile=profile,
+                            settle_seconds=getattr(
+                                args, "signal_settle_seconds", 0.0),
+                        ))
                 except Exception as exception:
                     failures.append(_failure(
                         round_index,
                         "signal_shutdown",
                         exception,
                         repetition=repetition,
-                        accelerated=True,
+                        profile=profile,
                     ))
                     # Each signal worker is isolated, so churn/concurrency can keep
                     # soaking. One timeout is enough to fail the gate; disabling
@@ -424,14 +519,42 @@ def run_stress(args, *, enable_acceleration=None, rmw_identifier=None) -> dict:
                     break
         elif not signal_probe_enabled and args.signal_repetitions:
             round_evidence["signal_probe_skipped_after_failure"] = True
-        round_evidence["duration_s"] = round(
+        gc.collect()
+        round_evidence["memory"] = _memory_kib()
+        round_evidence["active_duration_s"] = round(
             time.monotonic() - round_started, 6)
+        round_evidence["sleep_s"] = 0.0
+        round_evidence["duration_s"] = round_evidence["active_duration_s"]
         rounds.append(round_evidence)
         round_index += 1
         if fatal_failure:
             break
 
+        sleep_seconds = 0.0
+        elapsed = time.monotonic() - started
+        needs_more = (
+            round_index < args.repetitions
+            or elapsed < args.min_duration_seconds
+        )
+        period = getattr(args, "round_period_seconds", 0.0)
+        if needs_more and period:
+            sleep_seconds = max(
+                0.0,
+                period - round_evidence["active_duration_s"],
+            )
+            if args.min_duration_seconds:
+                sleep_seconds = min(
+                    sleep_seconds,
+                    max(0.0, args.min_duration_seconds - elapsed),
+                )
+            if sleep_seconds:
+                time.sleep(sleep_seconds)
+        round_evidence["sleep_s"] = round(sleep_seconds, 6)
+        round_evidence["duration_s"] = round(
+            time.monotonic() - round_started, 6)
+
     rss_growth = max(0, _rss_kib() - start_rss)
+    memory = _memory_summary(rounds, baseline_memory)
     evidence = {
         "schema": SCHEMA,
         "started_at": started_at,
@@ -439,6 +562,7 @@ def run_stress(args, *, enable_acceleration=None, rmw_identifier=None) -> dict:
         "architecture": platform.machine(),
         "python": platform.python_version(),
         "source": source,
+        "profile": profile,
         "rmw_implementation": rmw_identifier(),
         "parameters": {
             "cycles": args.cycles,
@@ -448,10 +572,13 @@ def run_stress(args, *, enable_acceleration=None, rmw_identifier=None) -> dict:
             "repetitions": args.repetitions,
             "signal_repetitions": args.signal_repetitions,
             "min_duration_s": args.min_duration_seconds,
+            "round_period_s": getattr(args, "round_period_seconds", 0.0),
+            "signal_settle_s": getattr(args, "signal_settle_seconds", 0.0),
             "seed": args.seed,
             "max_rss_growth_kib": args.max_rss_growth_kib,
         },
         "rounds": rounds,
+        "memory": memory,
         "failures": failures,
         "summary": {
             "result": "fail" if failures else "pass",
@@ -469,7 +596,12 @@ def run_stress(args, *, enable_acceleration=None, rmw_identifier=None) -> dict:
                 len(item["signal_shutdown"]) for item in rounds),
             "failures": len(failures),
             "duration_s": round(time.monotonic() - started, 6),
+            "active_duration_s": round(sum(
+                item["active_duration_s"] for item in rounds), 6),
+            "sleep_s": round(sum(item.get("sleep_s", 0.0) for item in rounds), 6),
             "peak_rss_growth_kib": rss_growth,
+            "current_rss_growth_kib": memory["current_rss_growth_kib"],
+            "anonymous_rss_growth_kib": memory["anonymous_rss_growth_kib"],
         },
         "performance_claims_allowed": False,
     }
@@ -495,22 +627,22 @@ def main(argv=None) -> int:
     parser.add_argument("--repetitions", type=int, default=1)
     parser.add_argument("--signal-repetitions", type=int, default=1)
     parser.add_argument("--min-duration-seconds", type=float, default=0.0)
+    parser.add_argument("--round-period-seconds", type=float, default=0.0)
+    parser.add_argument("--signal-settle-seconds", type=float, default=0.05)
     parser.add_argument("--seed", type=int, default=20260718)
     parser.add_argument("--max-rss-growth-kib", type=int, default=0)
+    parser.add_argument("--profile", choices=PROFILES, default="compatible")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--signal-only", action="store_true")
-    parser.add_argument(
-        "--signal-backend", choices=("accelerated", "stock"),
-        default="accelerated")
     parser.add_argument("--signal-worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument(
         "--stock-signal-worker", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
     if args.signal_worker:
-        signal_worker(accelerated=True)
+        signal_worker(profile=args.profile)
         return 0
     if args.stock_signal_worker:
-        signal_worker(accelerated=False)
+        signal_worker(profile="stock")
         return 0
     if args.signal_only:
         if args.signal_repetitions <= 0:
@@ -520,14 +652,15 @@ def main(argv=None) -> int:
         evidence = run_signal_stress(
             args.signal_repetitions,
             args.timeout,
-            accelerated=args.signal_backend == "accelerated",
+            profile=args.profile,
+            settle_seconds=args.signal_settle_seconds,
         )
         if args.output is not None:
             _write_evidence(args.output, evidence)
         print(
-            "SIGNAL_STRESS_%s backend=%s attempts=%d clean=%d failures=%d" % (
+            "SIGNAL_STRESS_%s profile=%s attempts=%d clean=%d failures=%d" % (
                 "FAILED" if evidence["failures"] else "OK",
-                evidence["backend"],
+                evidence["profile"],
                 evidence["summary"]["attempts"],
                 evidence["summary"]["clean_shutdowns"],
                 evidence["summary"]["failures"],
@@ -545,8 +678,14 @@ def main(argv=None) -> int:
         parser.error("signal repetitions must not be negative")
     if args.timeout <= 0:
         parser.error("timeout must be positive")
-    if min(args.min_duration_seconds, args.max_rss_growth_kib) < 0:
-        parser.error("duration and RSS budget must not be negative")
+    if min(
+        args.min_duration_seconds,
+        args.round_period_seconds,
+        args.signal_settle_seconds,
+        args.max_rss_growth_kib,
+    ) < 0:
+        parser.error(
+            "duration, pacing, signal settle, and RSS budget must not be negative")
     evidence = run_stress(args)
     if args.output is not None:
         _write_evidence(args.output, evidence)

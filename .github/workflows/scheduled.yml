@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   native-safety:
-    name: safety (${{ matrix.platform }})
+    name: safety (${{ matrix.platform }}, ${{ matrix.rmw_label }})
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 240
     strategy:
@@ -29,9 +29,23 @@ jobs:
           - runner: ubuntu-24.04
             platform: linux-64
             machine: x86_64
+            rmw: rmw_cyclonedds_cpp
+            rmw_label: cyclone
+          - runner: ubuntu-24.04
+            platform: linux-64
+            machine: x86_64
+            rmw: rmw_fastrtps_cpp
+            rmw_label: fastdds
           - runner: ubuntu-24.04-arm
             platform: linux-aarch64
             machine: aarch64
+            rmw: rmw_cyclonedds_cpp
+            rmw_label: cyclone
+          - runner: ubuntu-24.04-arm
+            platform: linux-aarch64
+            machine: aarch64
+            rmw: rmw_fastrtps_cpp
+            rmw_label: fastdds
     env:
       MAKE_NPROCS: '2'
       STDCXX: '17'
@@ -43,7 +57,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: bf09ec69f389e47217b1789996eb8ce6f61597b7
+          ref: 2a28e4a63e1426f500953d7d8751db5e36b31278
           path: _deps/cppyy_kit
       - name: Verify architecture
         run: test "$(uname -m)" = "${{ matrix.machine }}"
@@ -52,7 +66,7 @@ jobs:
           pixi-version: v0.70.0
           environments: default
           cache: true
-          cache-key: scheduled-${{ matrix.platform }}-
+          cache-key: scheduled-${{ matrix.platform }}-${{ matrix.rmw_label }}-
           cache-write: false
       - name: Validate source and compatibility manifest
         run: |
@@ -60,26 +74,69 @@ jobs:
           pixi run suite-contract | tee build/scheduled/suite-source.json
           pixi run lint
           pixi run contract
-      - name: Run full contract with both RMWs
+      - name: Run full contract for this RMW
         run: |
           set -euo pipefail
           mkdir -p build/scheduled
-          for rmw in rmw_cyclonedds_cpp rmw_fastrtps_cpp; do
-            pixi run env RMW_IMPLEMENTATION="$rmw" pytest test/ -v -ra \
-              --junitxml="build/scheduled/${rmw}.xml"
-          done
-      - name: Run churn, concurrent publisher, and signal probes
+          pixi run env RMW_IMPLEMENTATION="${{ matrix.rmw }}" pytest test/ -v -ra \
+            --junitxml="build/scheduled/${{ matrix.rmw }}.xml"
+      - name: Run paced churn, concurrent publisher, and signal soak
         run: |
           set -euo pipefail
-          for rmw in rmw_cyclonedds_cpp rmw_fastrtps_cpp; do
-            pixi run env RMW_IMPLEMENTATION="$rmw" \
-              python scripts/ci/stress_runtime.py \
-              --repetitions 3 --signal-repetitions 5 \
-              --min-duration-seconds 900 --max-rss-growth-kib 262144 \
-              --output "build/scheduled/stress-${rmw}.json" \
-              2>&1 | tee "build/scheduled/stress-${rmw}.log"
-          done
+          pixi run env RMW_IMPLEMENTATION="${{ matrix.rmw }}" \
+            python scripts/ci/stress_runtime.py \
+            --profile compatible \
+            --repetitions 3 --signal-repetitions 5 \
+            --signal-settle-seconds 0.05 --round-period-seconds 15 \
+            --min-duration-seconds 900 --max-rss-growth-kib 262144 \
+            --output "build/scheduled/stress-${{ matrix.rmw }}.json" \
+            2>&1 | tee "build/scheduled/stress-${{ matrix.rmw }}.log"
+      - name: Measure equal-work stock memory
+        run: |
+          set -euo pipefail
+          pixi run env RMW_IMPLEMENTATION="${{ matrix.rmw }}" \
+            python scripts/ci/stress_runtime.py \
+            --profile stock --cycles 100 --repetitions 50 \
+            --signal-repetitions 0 --min-duration-seconds 0 \
+            --output build/scheduled/memory-stock.json \
+            2>&1 | tee build/scheduled/memory-stock.log
+      - name: Measure equal-work compatible memory
+        run: |
+          set -euo pipefail
+          pixi run env RMW_IMPLEMENTATION="${{ matrix.rmw }}" \
+            python scripts/ci/stress_runtime.py \
+            --profile compatible --cycles 100 --repetitions 50 \
+            --signal-repetitions 0 --min-duration-seconds 0 \
+            --output build/scheduled/memory-compatible.json \
+            2>&1 | tee build/scheduled/memory-compatible.log
+      - name: Gate compatible memory against equal-work stock
+        run: |
+          pixi run python scripts/ci/compare_stress_memory.py \
+            build/scheduled/memory-stock.json \
+            build/scheduled/memory-compatible.json \
+            --minimum-cycles 4900 \
+            --max-relative-slope 1.75 \
+            --max-absolute-delta-kib-per-1000-cycles 2048 \
+            --output build/scheduled/memory-comparison.json
+      - name: Gate optimized immediate signal boundary
+        run: |
+          pixi run env RMW_IMPLEMENTATION="${{ matrix.rmw }}" \
+            python scripts/ci/stress_runtime.py \
+            --signal-only --profile optimized \
+            --signal-settle-seconds 0 --signal-repetitions 50 \
+            --output build/scheduled/signal-optimized-boundary.json \
+            2>&1 | tee build/scheduled/signal-optimized-boundary.log
+      - name: Record stock immediate signal boundary diagnostic
+        continue-on-error: true
+        run: |
+          pixi run env RMW_IMPLEMENTATION="${{ matrix.rmw }}" \
+            python scripts/ci/stress_runtime.py \
+            --signal-only --profile stock \
+            --signal-settle-seconds 0 --signal-repetitions 50 \
+            --output build/scheduled/signal-stock-boundary.json \
+            2>&1 | tee build/scheduled/signal-stock-boundary.log
       - name: Prove isolated cold, warm, and corrupt generated caches
+        if: ${{ always() && matrix.rmw == 'rmw_cyclonedds_cpp' }}
         run: |
           set -euo pipefail
           cache_root="$RUNNER_TEMP/rclcppyy-cache-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${{ matrix.platform }}"
@@ -96,7 +153,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: scheduled-${{ matrix.platform }}
+          name: scheduled-${{ matrix.platform }}-${{ matrix.rmw_label }}
           path: build/scheduled
           if-no-files-found: error
           retention-days: 30
@@ -121,7 +178,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: bf09ec69f389e47217b1789996eb8ce6f61597b7
+          ref: 2a28e4a63e1426f500953d7d8751db5e36b31278
           path: _deps/cppyy_kit
       - uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
         with:
