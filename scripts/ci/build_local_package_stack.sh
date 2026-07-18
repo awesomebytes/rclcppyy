@@ -34,9 +34,27 @@ mkdir -p "$requested_output"
 output_dir="$(cd "$requested_output" && pwd)"
 test -x "$suite_checkout/recipe/build_rclcpp.sh"
 
-bash "$suite_checkout/recipe/build_rclcpp.sh" "$output_dir"
+# Package evidence is meaningful only when both source checkouts are exact clean
+# commits. Build from git archives so later editor activity cannot alter either
+# local-path source while rattler-build is copying it.
+if [ -n "$(git -C "$repo_root" status --porcelain --untracked-files=all)" ]; then
+  echo "rclcppyy checkout must be clean before package evidence is built" >&2
+  exit 1
+fi
+RCLCPPYY_SUITE_SRC="$suite_checkout" \
+  python "$repo_root/scripts/ci/verify_suite_source.py" --suite "$suite_checkout"
 
-cd "$repo_root"
+snapshot_root="$(mktemp -d)"
+trap 'rm -rf "$snapshot_root"' EXIT
+suite_snapshot="$snapshot_root/cppyy_kit"
+product_snapshot="$snapshot_root/rclcppyy"
+mkdir -p "$suite_snapshot" "$product_snapshot"
+git -C "$suite_checkout" archive --format=tar HEAD | tar -xf - -C "$suite_snapshot"
+git -C "$repo_root" archive --format=tar HEAD | tar -xf - -C "$product_snapshot"
+
+bash "$suite_snapshot/recipe/build_rclcpp.sh" "$output_dir"
+
+cd "$product_snapshot"
 rattler-build build \
   --recipe recipe/recipe.yaml \
   -c "file://$output_dir" \
