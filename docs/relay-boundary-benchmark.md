@@ -1,6 +1,6 @@
 # Controlled relay-boundary benchmark
 
-This benchmark characterizes one fixed ROS 2 relay across six execution
+This benchmark characterizes one fixed ROS 2 relay across seven execution
 boundaries. It is a raw evidence generator, not a release gate or a source of
 performance claims. Jazzy with CycloneDDS is the current validated gate; the
 protocol retains explicit RMW evidence so later backends cannot be conflated
@@ -14,10 +14,12 @@ with that baseline.
    remains authoritative.
 3. `publisher-cpp-rclcppyy`: the same Python relay function, explicitly
    activated with `profile="publisher_cpp"` for same-handle C++ publishing.
-4. `native-python-callback`: native rclcpp entities with a Python transform
+4. `direct-cpp-rclcppyy`: the same Python transform and publish body, activated
+   with `profile="direct_cpp"` so messages and entities are actual C++ objects.
+5. `native-python-callback`: native rclcpp entities with a Python transform
    callback.
-5. `native-fused`: a prebuilt, content-addressed C++ fused pipeline.
-6. `aot-staged`: a conventional Release-mode C++ relay.
+6. `native-fused`: a prebuilt, content-addressed C++ fused pipeline.
+7. `aot-staged`: a conventional Release-mode C++ relay.
 
 Every variant is driven by the same Release-mode AOT executable, transform,
 reliable/volatile `KeepLast(1)` QoS, closed-loop message sequence, warmup, and
@@ -54,10 +56,20 @@ diagnostics. If a Python relay report times out, the parent asks for an
 all-thread stack dump before terminating its process group and retains that
 stderr in the failure artifact.
 
+The direct-C++ lane proves that `UInt64`, the native node, publisher,
+subscription, and executor are cppyy C++ objects owned by one `NativeSession`.
+The kit counter at the copy-construction point must equal the callback count,
+proving exactly one owning native C++ copy per callback. Converter and
+serialization entry points are replaced with fail-closed guards; the report must
+contain zero guard calls, zero Python-message conversions, and zero serialization
+operations. The direct lane uses integer-depth QoS and a `rclpy.spin_once` thread,
+which is the bounded direct profile's supported control plane and is recorded as
+a distinct execution model.
+
 ## Running
 
 ```bash
-pixi run relay-boundary-bench --smoke --output build/relay-boundary-smoke.json
+pixi run relay-boundary-smoke --output build/relay-boundary-smoke.json
 pixi run relay-boundary-bench --output build/relay-boundary-measurement.json
 ```
 

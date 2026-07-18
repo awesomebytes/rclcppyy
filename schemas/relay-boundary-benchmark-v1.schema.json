@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/awesomebytes/rclcppyy/schemas/relay-boundary-benchmark-v1.schema.json",
-  "title": "rclcppyy controlled relay boundary benchmark v1",
+  "title": "rclcppyy controlled seven-lane relay boundary benchmark v1",
   "type": "object",
   "required": [
     "schema",
@@ -198,6 +198,67 @@
             "then": {"properties": {"relay_ready": {"properties": {"execution_model": {"const": "same-python-relay-explicit-publisher-cpp"}}}}}
           },
           {
+            "if": {"properties": {"variant": {"const": "direct-cpp-rclcppyy"}}, "required": ["variant"]},
+            "then": {
+              "properties": {
+                "relay_ready": {
+                  "required": ["direct_cpp_proof"],
+                  "properties": {
+                    "execution_model": {"const": "same-python-relay-direct-rclcpp"},
+                    "direct_cpp_proof": {
+                      "type": "object",
+                      "required": [
+                        "actual_cpp_message_class",
+                        "message_cpp_name",
+                        "single_native_node_authority",
+                        "session_node_count",
+                        "callback_handoff",
+                        "subscription_creation_route",
+                        "python_message_conversion_guarded",
+                        "serialization_guarded"
+                      ],
+                      "properties": {
+                        "actual_cpp_message_class": {"const": true},
+                        "message_cpp_name": {"const": "std_msgs::msg::UInt64_<std::allocator<void>>"},
+                        "single_native_node_authority": {"const": true},
+                        "session_node_count": {"const": 1},
+                        "callback_handoff": {"const": "one_native_cpp_copy"},
+                        "subscription_creation_route": {"const": "prebuilt_subscription_trampoline"},
+                        "python_message_conversion_guarded": {"const": true},
+                        "serialization_guarded": {"const": true}
+                      }
+                    }
+                  }
+                },
+                "relay_report": {
+                  "required": [
+                    "owning_cpp_callback_copies",
+                    "cpp_callback_messages",
+                    "non_cpp_callback_messages",
+                    "python_message_conversions",
+                    "serialization_operations",
+                    "boundary_guard_calls"
+                  ],
+                  "properties": {
+                    "owning_cpp_callback_copies": {"type": "integer", "minimum": 1},
+                    "cpp_callback_messages": {"type": "integer", "minimum": 1},
+                    "non_cpp_callback_messages": {"const": 0},
+                    "python_message_conversions": {"const": 0},
+                    "serialization_operations": {"const": 0},
+                    "boundary_guard_calls": {
+                      "type": "object",
+                      "required": ["python_message_conversion", "serialization"],
+                      "properties": {
+                        "python_message_conversion": {"const": 0},
+                        "serialization": {"const": 0}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
             "if": {"properties": {"variant": {"const": "native-python-callback"}}, "required": ["variant"]},
             "then": {"properties": {"relay_ready": {"properties": {"execution_model": {"const": "native-rclcpp-python-transform-callback"}}}}}
           },
@@ -237,6 +298,7 @@
         "stock-rclpy",
         "compatible-rclcppyy",
         "publisher-cpp-rclcppyy",
+        "direct-cpp-rclcppyy",
         "native-python-callback",
         "native-fused",
         "aot-staged"

@@ -221,8 +221,9 @@ backend fact; a benefit requires separate, repeated, architecture-specific evide
 - `profile="direct_cpp"` currently covers only `std_msgs/String` and `UInt64`,
   positive integer depth, the common node/publisher/subscription call pattern,
   and `rclpy.spin_once`. It is not yet a general `rclpy` replacement. Its one
-  native C++ callback copy must be measured in a dedicated direct-profile
-  benchmark, separately from borrowed-handle and native-only results.
+  native C++ callback copy is measured only by the dedicated
+  `direct-cpp-rclcppyy` controlled relay lane, separately from borrowed-handle
+  and native-only results.
 - `rclcppyy.Node` remains the legacy companion-node prototype. It is not the
   transparent compatibility architecture and should not be used for new
   compatibility work.

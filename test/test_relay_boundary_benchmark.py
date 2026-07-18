@@ -98,13 +98,13 @@ def _rss_guard():
     }
 
 
-def _backend_marker(role, backend, evidence):
+def _backend_marker(role, backend, evidence, metadata=None):
     return {
         "schema": "rclcppyy.benchmark-backend/v1",
         "role": role,
         "backend": backend,
         "evidence": evidence,
-        "metadata": {"fixture": True},
+        "metadata": metadata if metadata is not None else {"fixture": True},
     }
 
 
@@ -141,6 +141,15 @@ def _sample(variant, index=0):
             "kind": "publisher-cpp-borrowed-publish-route",
             "prepared_before_measurement": True,
         }
+    elif variant == "direct-cpp-rclcppyy":
+        ready["cache"] = {
+            "state": "prebuilt",
+            "kind": "direct-cpp-subscription-trampoline",
+            "path": "/fixture/cache/artifact.so",
+            "sha256": DIGEST,
+            "size_bytes": 4096,
+            "hit": True,
+        }
     elif variant == "aot-staged":
         ready["cache"] = {"state": "prebuilt", "kind": "aot-binary"}
     else:
@@ -156,7 +165,42 @@ def _sample(variant, index=0):
         if variant == "native-fused":
             ready["cache"]["source_id"] = "1" * 16
         assert name in _cache()["phases"]["warm"]["artifacts"]
-    if variant in (
+    if variant == "direct-cpp-rclcppyy":
+        ready["entity_types"] = {
+            "node": "rclcpp::Node",
+            "publisher": "rclcpp::Publisher<std_msgs::msg::UInt64>",
+            "subscription": "rclcpp::Subscription<std_msgs::msg::UInt64>",
+            "executor": "rclcpp::executors::SingleThreadedExecutor",
+        }
+        ready["direct_cpp_proof"] = {
+            "actual_cpp_message_class": True,
+            "message_cpp_name": "std_msgs::msg::UInt64_<std::allocator<void>>",
+            "single_native_node_authority": True,
+            "session_node_count": 1,
+            "callback_handoff": "one_native_cpp_copy",
+            "subscription_creation_route": "prebuilt_subscription_trampoline",
+            "python_message_conversion_guarded": True,
+            "serialization_guarded": True,
+        }
+        ready["backend_markers"] = {
+            "publisher": _backend_marker(
+                "publisher", "cpp", "rclcppyy_status_entity",
+                metadata={
+                    "policies": ["direct_cpp", "no_conversion"],
+                },
+            ),
+            "subscriber": _backend_marker(
+                "subscriber", "cpp", "rclcppyy_status_entity",
+                metadata={
+                    "policies": [
+                        "direct_cpp", "no_conversion",
+                        "owning_cpp_callback_copy",
+                    ],
+                    "callback_handoff": "one_native_cpp_copy",
+                },
+            ),
+        }
+    elif variant in (
             "stock-rclpy", "compatible-rclcppyy", "publisher-cpp-rclcppyy"):
         ready["entity_types"] = {
             "node": "rclpy.node.Node",
@@ -220,6 +264,22 @@ def _sample(variant, index=0):
             "status_operation_counts": {
                 "cpp": 2, "python": 0, "unsupported": 0},
             "status_dropped_operation_records": 0,
+        })
+    elif variant == "direct-cpp-rclcppyy":
+        report.update({
+            "publish_operation_marker": None,
+            "fallback_publish_operations": 0,
+            "last_publish_backend": "cpp",
+            "publish_route_tainted": False,
+            "owning_cpp_callback_copies": total,
+            "cpp_callback_messages": total,
+            "non_cpp_callback_messages": 0,
+            "python_message_conversions": 0,
+            "serialization_operations": 0,
+            "boundary_guard_calls": {
+                "python_message_conversion": 0,
+                "serialization": 0,
+            },
         })
     elif variant == "native-fused":
         report.update({
@@ -353,7 +413,11 @@ def test_transform_percentiles_and_shared_compatibility_relay():
     ]
     assert relay_source.index("publish-marker-capture-before") < relay_source.index(
         "cpu_start = time.process_time_ns()")
-    assert "finally:\n        teardown_clean = _cleanup_python_relay" in relay_source
+    assert "finally:\n        if use_direct_cpp:" in relay_source
+    assert "teardown_clean = _cleanup_direct_cpp_relay" in relay_source
+    assert "teardown_clean = _cleanup_python_relay" in relay_source
+    assert 'profile="direct_cpp"' in worker_source
+    assert "owning_cpp_callback_copies" in relay_source
     aot_source = (
         BENCH_DIR / "relay_boundary_aot" / "relay_boundary_aot.cpp"
     ).read_text(encoding="utf-8")
@@ -410,7 +474,7 @@ while True:
         runner._stop_process(process)
 
 
-def test_all_six_fixture_routes_satisfy_strict_sample_contract():
+def test_all_seven_fixture_routes_satisfy_strict_sample_contract():
     parameters = _parameters()
     for index, variant in enumerate(protocol.VARIANTS):
         protocol.validate_sample(
@@ -436,6 +500,13 @@ def test_all_six_fixture_routes_satisfy_strict_sample_contract():
             cpu_clock="wall"), "CPU timing"),
         ("publisher-cpp-rclcppyy", lambda row: row["relay_report"].update(
             publish_route_tainted=True), "tainted"),
+        ("direct-cpp-rclcppyy", lambda row: row["relay_report"].update(
+            owning_cpp_callback_copies=0), r"callback C\+\+ copy"),
+        ("direct-cpp-rclcppyy", lambda row: row["relay_report"].update(
+            python_message_conversions=1), "conversion or serialization"),
+        ("direct-cpp-rclcppyy", lambda row: row["relay_ready"][
+            "direct_cpp_proof"].update(actual_cpp_message_class=False),
+         "representation or authority"),
     ],
 )
 def test_routes_reject_tainted_evidence(variant, mutation, error):
@@ -495,7 +566,7 @@ def test_document_is_descriptive_and_portable_schema_forbids_claims(monkeypatch)
         "performance_claims_allowed"] == {"const": False}
     assert schema["properties"]["comparison"]["properties"][
         "interpretation_allowed"] == {"const": False}
-    assert len(schema["properties"]["results"]["items"]["allOf"]) == 6
+    assert len(schema["properties"]["results"]["items"]["allOf"]) == 7
     assert "relay_armed" in schema["properties"]["results"]["items"]["required"]
 
 
@@ -535,7 +606,7 @@ def test_all_variants_run_with_one_aot_driver_and_exact_parity(tmp_path):
     assert len({
         pid for row in document["results"]
         for pid in (row["relay_pid"], row["driver_pid"])
-    }) == 12
+    }) == 14
     for row in document["results"]:
         report = row["relay_report"]
         assert report["received"] == report["processed"] == report["published"] == 5
@@ -550,7 +621,28 @@ def test_all_variants_run_with_one_aot_driver_and_exact_parity(tmp_path):
         "stock-rclpy": 5,
         "compatible-rclcppyy": 5,
         "publisher-cpp-rclcppyy": 5,
+        "direct-cpp-rclcppyy": 5,
         "native-python-callback": 5,
         "native-fused": 0,
         "aot-staged": 0,
+    }
+    direct = next(
+        row for row in document["results"]
+        if row["variant"] == "direct-cpp-rclcppyy"
+    )
+    assert direct["relay_ready"]["direct_cpp_proof"] == {
+        "actual_cpp_message_class": True,
+        "message_cpp_name": "std_msgs::msg::UInt64_<std::allocator<void>>",
+        "single_native_node_authority": True,
+        "session_node_count": 1,
+        "callback_handoff": "one_native_cpp_copy",
+        "subscription_creation_route": "prebuilt_subscription_trampoline",
+        "python_message_conversion_guarded": True,
+        "serialization_guarded": True,
+    }
+    assert direct["relay_report"]["owning_cpp_callback_copies"] == 5
+    assert direct["relay_report"]["cpp_callback_messages"] == 5
+    assert direct["relay_report"]["boundary_guard_calls"] == {
+        "python_message_conversion": 0,
+        "serialization": 0,
     }

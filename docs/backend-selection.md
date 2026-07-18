@@ -75,7 +75,7 @@ artifacts `build/relay-boundary-cyclone-117cc2d.json` and
 raw paired relay-CPU ratios were above stock in five of five and four of five
 repetitions, respectively. Both artifacts explicitly prohibit interpretation and
 performance claims; the observation is used only to choose the conservative
-product default. They remain ignored local evidence, while the current six-lane
+product default. They remain ignored local evidence, while the current seven-lane
 benchmark independently characterizes compatible and explicit publisher-C++ modes.
 
 ## Required-C++ profile
@@ -176,9 +176,10 @@ cppyy's callback argument is borrowed for the duration of the shared-pointer
 call. To preserve the `rclpy` expectation that a callback may retain its message,
 the first slice hands the callback one owning native C++ copy. This is still a
 C++ message with no Python representation conversion or serialization, but it is
-a measured compatibility cost. Direct-profile results therefore require their
-own benchmark lane and must not be inferred from borrowed-handle or native-only
-benchmarks. No performance benefit is claimed by this correctness slice.
+a measured compatibility cost. The controlled relay benchmark provides a
+separate `direct-cpp-rclcppyy` lane; its results must not be inferred from
+borrowed-handle or native-only benchmarks. No performance benefit is claimed by
+this correctness slice.
 
 ## Optimized profile
 
