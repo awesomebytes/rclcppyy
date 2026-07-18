@@ -499,6 +499,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/console_bridge-1.0.2-hdd96247_1.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/coverage-7.15.2-py312hd077ced_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cppcheck-2.21.0-py312h5677ec4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cppyy-backend-1.15.3-py312hf18b547_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cppyy-cling-6.32.8-py312hca09ef0_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cpycppyy-1.13.0-py312hf18b547_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cryptography-49.0.0-py312h96535df_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cxx-compiler-1.11.0-h7b35c40_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/dbus-1.16.2-h70963c4_1.conda
@@ -936,9 +939,6 @@ environments:
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-aarch64/ros-jazzy-zstd-vendor-0.26.10-np2py312h61f2ce4_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-aarch64/ros2-distro-mutex-0.15.0-jazzy_18.conda
       - pypi: https://files.pythonhosted.org/packages/17/9d/cddfb8112428bd1b4b8a240c25131111bc6c249c3fb0856f2b1db2adad81/cppyy-3.5.0.tar.gz
-      - pypi: https://files.pythonhosted.org/packages/28/a1/d755a23f0dd97f27ae9aa7f00706d3a94ab1f7b4bdd40ff6058d93218783/CPyCppyy-1.13.0.tar.gz
-      - pypi: https://files.pythonhosted.org/packages/c7/e4/2a42fc115548637f2a256254c4daaa71fc21dd6ea610e1d63a48907ad5a9/cppyy-backend-1.15.3.tar.gz
-      - pypi: https://files.pythonhosted.org/packages/e2/cc/c91b72850ffc471630552e1cb57a6388abf765cadc58dbacc18052b9d9d9/cppyy_cling-6.32.8.tar.gz
   demos:
     channels:
     - url: https://repo.prefix.dev/awesomebytes/
@@ -1621,6 +1621,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/contourpy-1.3.3-py312hf18b547_4.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/coverage-7.15.2-py312hd077ced_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cppcheck-2.21.0-py312h5677ec4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cppyy-backend-1.15.3-py312hf18b547_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cppyy-cling-6.32.8-py312hca09ef0_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cpycppyy-1.13.0-py312hf18b547_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cryptography-49.0.0-py312h96535df_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cxx-compiler-1.11.0-h7b35c40_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cyrus-sasl-2.1.28-h6598af7_1.conda
@@ -2217,9 +2220,6 @@ environments:
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-aarch64/ros-jazzy-zstd-vendor-0.26.10-np2py312h61f2ce4_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-aarch64/ros2-distro-mutex-0.15.0-jazzy_18.conda
       - pypi: https://files.pythonhosted.org/packages/17/9d/cddfb8112428bd1b4b8a240c25131111bc6c249c3fb0856f2b1db2adad81/cppyy-3.5.0.tar.gz
-      - pypi: https://files.pythonhosted.org/packages/28/a1/d755a23f0dd97f27ae9aa7f00706d3a94ab1f7b4bdd40ff6058d93218783/CPyCppyy-1.13.0.tar.gz
-      - pypi: https://files.pythonhosted.org/packages/c7/e4/2a42fc115548637f2a256254c4daaa71fc21dd6ea610e1d63a48907ad5a9/cppyy-backend-1.15.3.tar.gz
-      - pypi: https://files.pythonhosted.org/packages/e2/cc/c91b72850ffc471630552e1cb57a6388abf765cadc58dbacc18052b9d9d9/cppyy_cling-6.32.8.tar.gz
   heavydemo:
     channels:
     - url: https://repo.prefix.dev/awesomebytes/
@@ -2715,6 +2715,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/console_bridge-1.0.2-hdd96247_1.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/coverage-7.15.2-py312hd077ced_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cppcheck-2.21.0-py312h5677ec4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cppyy-backend-1.15.3-py312hf18b547_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cppyy-cling-6.32.8-py312hca09ef0_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cpycppyy-1.13.0-py312hf18b547_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cryptography-49.0.0-py312h96535df_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cxx-compiler-1.11.0-h7b35c40_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/dbus-1.16.2-h70963c4_1.conda
@@ -3151,9 +3154,6 @@ environments:
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-aarch64/ros-jazzy-zstd-vendor-0.26.10-np2py312h61f2ce4_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-aarch64/ros2-distro-mutex-0.15.0-jazzy_18.conda
       - pypi: https://files.pythonhosted.org/packages/17/9d/cddfb8112428bd1b4b8a240c25131111bc6c249c3fb0856f2b1db2adad81/cppyy-3.5.0.tar.gz
-      - pypi: https://files.pythonhosted.org/packages/28/a1/d755a23f0dd97f27ae9aa7f00706d3a94ab1f7b4bdd40ff6058d93218783/CPyCppyy-1.13.0.tar.gz
-      - pypi: https://files.pythonhosted.org/packages/c7/e4/2a42fc115548637f2a256254c4daaa71fc21dd6ea610e1d63a48907ad5a9/cppyy-backend-1.15.3.tar.gz
-      - pypi: https://files.pythonhosted.org/packages/e2/cc/c91b72850ffc471630552e1cb57a6388abf765cadc58dbacc18052b9d9d9/cppyy_cling-6.32.8.tar.gz
   pkg:
     channels:
     - url: https://repo.prefix.dev/awesomebytes/
@@ -3711,6 +3711,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/console_bridge-1.0.2-hdd96247_1.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/coverage-7.15.2-py312hd077ced_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cppcheck-2.21.0-py312h5677ec4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cppyy-backend-1.15.3-py312hf18b547_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cppyy-cling-6.32.8-py312hca09ef0_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cpycppyy-1.13.0-py312hf18b547_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cryptography-49.0.0-py312h96535df_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cxx-compiler-1.11.0-h7b35c40_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/dbus-1.16.2-h70963c4_1.conda
@@ -4148,9 +4151,6 @@ environments:
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-aarch64/ros-jazzy-zstd-vendor-0.26.10-np2py312h61f2ce4_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-aarch64/ros2-distro-mutex-0.15.0-jazzy_18.conda
       - pypi: https://files.pythonhosted.org/packages/17/9d/cddfb8112428bd1b4b8a240c25131111bc6c249c3fb0856f2b1db2adad81/cppyy-3.5.0.tar.gz
-      - pypi: https://files.pythonhosted.org/packages/28/a1/d755a23f0dd97f27ae9aa7f00706d3a94ab1f7b4bdd40ff6058d93218783/CPyCppyy-1.13.0.tar.gz
-      - pypi: https://files.pythonhosted.org/packages/c7/e4/2a42fc115548637f2a256254c4daaa71fc21dd6ea610e1d63a48907ad5a9/cppyy-backend-1.15.3.tar.gz
-      - pypi: https://files.pythonhosted.org/packages/e2/cc/c91b72850ffc471630552e1cb57a6388abf765cadc58dbacc18052b9d9d9/cppyy_cling-6.32.8.tar.gz
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
   build_number: 20
@@ -10365,6 +10365,59 @@ packages:
   run_exports: {}
   size: 2968252
   timestamp: 1780645795913
+- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cppyy-backend-1.15.3-py312hf18b547_0.conda
+  sha256: 5b03988007c5efbfb0b5070005dfc9faf310be4dce5b265c9bb20d76e6062962
+  md5: 6a920c3b8f4c844fa87ea27e686a8deb
+  depends:
+  - python
+  - cppyy-cling ==6.32.8
+  - python 3.12.* *_cpython
+  - libstdcxx >=14
+  - libgcc >=14
+  - python_abi 3.12.* *_cp312
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/cppyy-backend?source=hash-mapping
+  run_exports: {}
+  size: 128064
+  timestamp: 1765409441675
+- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cppyy-cling-6.32.8-py312hca09ef0_0.conda
+  sha256: 45229a4b1d972140e48c142578f5373526f7ddfb0c84cdde2c873d62ab5cbdbc
+  md5: e91c3de2125a777ae3499adec0b75781
+  depends:
+  - cxx-compiler
+  - python
+  - libstdcxx >=14
+  - libgcc >=14
+  - python 3.12.* *_cpython
+  - libzlib >=1.3.1,<2.0a0
+  - python_abi 3.12.* *_cp312
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/cppyy-cling?source=hash-mapping
+  run_exports: {}
+  size: 54475641
+  timestamp: 1765369296647
+- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cpycppyy-1.13.0-py312hf18b547_0.conda
+  sha256: 4306fbb565748c864c60fcc5a5323373b94714b023d27059adfb16a666b388f8
+  md5: afe7dbda8280c6e39c8c2cd8b3058d6a
+  depends:
+  - python
+  - cppyy-backend ==1.15.3
+  - cppyy-cling ==6.32.8
+  - libstdcxx >=14
+  - libgcc >=14
+  - python 3.12.* *_cpython
+  - python_abi 3.12.* *_cp312
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/cpycppyy?source=hash-mapping
+  run_exports: {}
+  size: 402444
+  timestamp: 1765412772954
 - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cryptography-49.0.0-py312h96535df_0.conda
   sha256: 6220d057368612e916d265c9eb7cffe65276143bff699aa4120bc14a7ed90ff6
   md5: 8f48b1cbdb64a64e42ee382bed75601a
@@ -25025,20 +25078,3 @@ packages:
   - cpycppyy==1.13.0
   - cppyy-backend==1.15.3
   - cppyy-cling==6.32.8
-- pypi: https://files.pythonhosted.org/packages/28/a1/d755a23f0dd97f27ae9aa7f00706d3a94ab1f7b4bdd40ff6058d93218783/CPyCppyy-1.13.0.tar.gz
-  name: cpycppyy
-  version: 1.13.0
-  sha256: 783b2a8e6addbfb21fd4f49c3b61cca887e692d0a59073ab6c0130f365ca3b9c
-  requires_dist:
-  - cppyy-cling==6.32.8
-  - cppyy-backend==1.15.3
-- pypi: https://files.pythonhosted.org/packages/c7/e4/2a42fc115548637f2a256254c4daaa71fc21dd6ea610e1d63a48907ad5a9/cppyy-backend-1.15.3.tar.gz
-  name: cppyy-backend
-  version: 1.15.3
-  sha256: 4578216c16667f858a3f05bb30baa12d3d8cb8ee365bddd904e25fc2d3488d65
-  requires_dist:
-  - cppyy-cling==6.32.8
-- pypi: https://files.pythonhosted.org/packages/e2/cc/c91b72850ffc471630552e1cb57a6388abf765cadc58dbacc18052b9d9d9/cppyy_cling-6.32.8.tar.gz
-  name: cppyy-cling
-  version: 6.32.8
-  sha256: f51ea2e9bd1418c27d1fca3ba97e322ad660a5e18180aad2d17fb55db43a0b49

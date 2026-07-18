@@ -1,8 +1,8 @@
 name: Release
 
-# On a version tag (v*): build the ros-jazzy-rclcppyy conda package, prove the
-# artifact installs and runs from a channel with no repo checkout, then upload
-# it to the prefix.dev channel.
+# On a version tag (v*): build native x86_64 and ARM64 ros-jazzy-rclcppyy conda
+# packages, prove each installs and runs from a channel with no repo checkout,
+# then attest and upload both to the prefix.dev channel.
 #
 # Authentication: OIDC trusted publishing (no API token stored anywhere).
 # prefix.dev → channel `awesomebytes` → Repository Access authorizes
@@ -109,9 +109,20 @@ jobs:
           retention-days: 90
 
   release:
-    name: build, prove artifact, upload
+    name: build, prove, attest, upload (${{ matrix.platform }})
     needs: preflight
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            platform: linux-64
+            machine: x86_64
+          - runner: ubuntu-24.04-arm
+            platform: linux-aarch64
+            machine: aarch64
     env:
       RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
     steps:
@@ -126,7 +137,9 @@ jobs:
           path: _deps/cppyy_kit
 
       - name: Verify tag matches all release metadata
-        run: python3 scripts/ci/verify_release_version.py "${GITHUB_REF_NAME}"
+        run: |
+          test "$(uname -m)" = "${{ matrix.machine }}"
+          python3 scripts/ci/verify_release_version.py "${GITHUB_REF_NAME}"
 
       - name: Set up pixi
         uses: prefix-dev/setup-pixi@v0.10.0
@@ -155,6 +168,10 @@ jobs:
           printf 'path=%s\n' "${artifacts[0]}" >> "$GITHUB_OUTPUT"
           sha256sum "${artifacts[0]}" | tee build/release/SHA256SUMS
           cp output/local-package-attestation.json build/release/
+          if [ -f output/cppyy-arm-package-proof.json ]; then
+            cp output/cppyy-arm-package-proof.json \
+              output/cppyy-arm-runtime-proof.log build/release/
+          fi
 
       # The point of releasing: a user with no clone gets a working install from
       # the channel alone, including the same-handle serialized publisher route.
@@ -196,7 +213,7 @@ jobs:
       - name: Upload release gate evidence
         uses: actions/upload-artifact@v4
         with:
-          name: release-evidence-${{ github.ref_name }}
+          name: release-evidence-${{ matrix.platform }}-${{ github.ref_name }}
           path: |
             build/release
             compatibility/jazzy.json

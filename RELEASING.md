@@ -26,7 +26,8 @@ suite 0.2.0 API. Development, CI, and release therefore use two explicit lanes:
   and active Python roots. CI checks out the same full commit.
 - **Installed lane:** the package job builds suite 0.2.0 and rclcppyy 0.3.0 into one
   isolated local channel, then proves imports and real ROS behavior without source
-  paths. The final release consumes published suite 0.2.0 from `awesomebytes`.
+  paths on x86_64 and ARM64. The ARM64 stack includes the suite's source-locked
+  `cppyy` 3.5.0 bridge over conda-forge's compiled components.
 
 The default lock still contains published suite 0.1.0 only as bootstrap dependency
 metadata. It is not accepted as source-test evidence, cannot satisfy
@@ -37,8 +38,9 @@ metadata. It is not accepted as source-test evidence, cannot satisfy
 **Do not tag rclcppyy until step 1 is done.**
 
 1. **Tag and publish suite `v0.2.0`** from its locked commit after its release job
-   builds, freshly installs, checksums, and attests all 11 artifacts. Prefix.dev
-   OIDC authorization for that repository must already be enabled.
+   builds, freshly installs, checksums, and attests the 11 suite artifacts plus
+   the native ARM64 `cppyy` bridge. Prefix.dev OIDC authorization for that
+   repository must already be enabled.
 
 2. **Confirm the published dependency set.** Build rclcppyy from a clean checkout
    against `cppyy-kit ==0.2.0` and `ros-jazzy-rclcpp-kit ==0.2.0` on
@@ -46,16 +48,17 @@ metadata. It is not accepted as source-test evidence, cannot satisfy
 
 3. **Verify** source and installed lanes: `pixi run suite-contract`, `pixi run build`,
    `pixi run lint`, `pixi run test`, the backend-required benchmark smoke, and the
-   local package-stack proof. Push; all required x86-64 and ARM64 source jobs must
-   be green. ARM64 package publication remains blocked until its cppyy dependency
-   exists.
+   local package-stack proof. Push; all required x86-64 and ARM64 source and
+   installed-package jobs must be green. The ARM proof must contain the clean
+   suite commit, exact upstream source and patch hashes, local bridge artifact
+   hash, and native import/`cppdef` runtime-log hash.
 
 4. **Tag `v0.3.0`.** The release workflow first rejects any tag that differs from
    `pixi.toml`, `package.xml`, or `recipe/recipe.yaml`. It then builds the
-   `ros-jazzy-rclcppyy` conda package (recipe run-deps resolve from `awesomebytes`),
-   proves it installs + runs a pub/sub roundtrip in a throwaway workspace whose
-   channels include `awesomebytes`, records checksums/provenance/SBOM evidence, and
-   uploads via OIDC.
+   x86_64 and ARM64 `ros-jazzy-rclcppyy` conda packages from immutable local stack
+   snapshots, proves each installs and runs same-handle pub/sub plus a native
+   service in a throwaway workspace, records architecture-specific checksums,
+   provenance, SBOM, and raw gate evidence, and uploads both via OIDC.
 
 ## Deprecation timeline
 

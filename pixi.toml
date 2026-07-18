@@ -31,18 +31,19 @@ psutil = ">=7.2.2,<8"
 # source checkout until 0.2.0 is published. See RELEASING.md.
 
 # cppyy 3.5 and the published kit artifacts are available together on x86-64.
-# The kit artifacts retain their strict conda `cppyy >=3.5` runtime dependency,
-# which deliberately prevents a misleading ARM64 package solve while conda-forge
-# lacks that runtime for Jazzy's Python 3.12 stack.
 [target.linux-64.dependencies]
 cppyy = ">=3.5,<4"
 ros-jazzy-rclcpp-kit = "==0.1.0"
 cppyy-kit = "==0.1.0"
 
-# On ARM64, build the same upstream cppyy release from its source distribution.
-# CI supplies the pure-Python kit sources at the pinned compatible revision.
-# This is a source-test environment only; recipe/recipe.yaml intentionally keeps
-# its conda runtime dependency and therefore does not claim ARM package support.
+# ARM64 source tests retain the exact small upstream Python shim while every
+# compiled component comes from conda-forge. The package lane separately builds
+# and installs the top-level ARM64 conda bridge from the pinned suite source.
+[target.linux-aarch64.dependencies]
+cpycppyy = "==1.13.0"
+cppyy-backend = "==1.15.3"
+cppyy-cling = "==6.32.8"
+
 [target.linux-aarch64.pypi-dependencies]
 cppyy = "==3.5.0"
 

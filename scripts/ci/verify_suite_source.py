@@ -37,6 +37,10 @@ def load_lock(path: Path) -> dict:
 def recipe_versions(suite: Path) -> set[str]:
     versions = set()
     for recipe in sorted((suite / "recipe").glob("*/recipe.yaml")):
+        if recipe.parent.name == "cppyy":
+            # Architecture support package, versioned with upstream cppyy rather
+            # than the lockstep kit suite.
+            continue
         match = re.search(
             r"^  version: \"([^\"]+)\"$",
             recipe.read_text(encoding="utf-8"),

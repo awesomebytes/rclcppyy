@@ -6,11 +6,7 @@
 set -euo pipefail
 
 case "$(uname -m)" in
-  x86_64) ;;
-  aarch64|arm64)
-    echo "ARM64 conda build unavailable: cppyy >=3.5 has no Python 3.12 conda package." >&2
-    exit 2
-    ;;
+  x86_64|aarch64|arm64) ;;
   *)
     echo "Unsupported package-build architecture: $(uname -m)" >&2
     exit 2
@@ -35,8 +31,9 @@ output_dir="$(cd "$requested_output" && pwd)"
 test -x "$suite_checkout/recipe/build_rclcpp.sh"
 
 # Package evidence is meaningful only when both source checkouts are exact clean
-# commits. Build from git archives so later editor activity cannot alter either
-# local-path source while rattler-build is copying it.
+# commits. Build the suite from a detached clone and the product from a Git
+# archive so later editor activity cannot alter either local-path source while
+# rattler-build is copying it.
 if [ -n "$(git -C "$repo_root" status --porcelain --untracked-files=all)" ]; then
   echo "rclcppyy checkout must be clean before package evidence is built" >&2
   exit 1
@@ -51,9 +48,10 @@ snapshot_root="$(mktemp -d)"
 trap 'rm -rf "$snapshot_root"' EXIT
 suite_snapshot="$snapshot_root/cppyy_kit"
 product_snapshot="$snapshot_root/rclcppyy"
-mkdir -p "$suite_snapshot" "$product_snapshot"
-git -C "$suite_checkout" archive --format=tar "$suite_commit" | \
-  tar -xf - -C "$suite_snapshot"
+mkdir -p "$product_snapshot"
+git clone --quiet --no-hardlinks --no-checkout \
+  "$suite_checkout" "$suite_snapshot"
+git -C "$suite_snapshot" checkout --quiet --detach "$suite_commit"
 git -C "$repo_root" archive --format=tar "$product_commit" | \
   tar -xf - -C "$product_snapshot"
 

@@ -150,7 +150,8 @@ jobs:
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 180
     env:
-      # cppyy is compiled from its upstream source distribution on ARM64.
+      # ARM64 builds only the small top-level cppyy shim from its exact source;
+      # CPyCppyy, backend, and Cling are pinned conda-forge packages.
       MAKE_NPROCS: "2"
       STDCXX: "17"
       RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
@@ -169,7 +170,7 @@ jobs:
           - runner: ubuntu-24.04-arm
             platform: linux-aarch64
             machine: aarch64
-            package_proof: false
+            package_proof: true
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -270,17 +271,13 @@ jobs:
             | sort | tee build/test-results/package-artifacts.txt
           scripts/ci/prove_rclcppyy_package.sh build/package-channel 2>&1 \
             | tee build/test-results/package-proof.txt
-
-      - name: Record ARM64 package support boundary
-        if: ${{ always() && !matrix.package_proof }}
-        run: |
-          mkdir -p build/test-results
-          cat > build/test-results/package-proof.txt <<'EOF'
-          NOT RUN: the source suite uses the upstream cppyy 3.5.0 source distribution.
-          The conda recipe correctly requires cppyy >=3.5, for which no Python 3.12
-          linux-aarch64 conda package currently exists. Source-test success does not
-          claim that the conda artifact can be installed on ARM64.
-          EOF
+          cp build/package-channel/local-package-attestation.json \
+            build/test-results/
+          if [ -f build/package-channel/cppyy-arm-package-proof.json ]; then
+            cp build/package-channel/cppyy-arm-package-proof.json \
+              build/package-channel/cppyy-arm-runtime-proof.log \
+              build/test-results/
+          fi
 
       - name: Record native job outcomes
         if: always()

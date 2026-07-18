@@ -7,10 +7,7 @@ set -euo pipefail
 
 case "$(uname -m)" in
   x86_64) platform="linux-64" ;;
-  aarch64|arm64)
-    echo "ARM64 conda proof unavailable: cppyy >=3.5 has no Python 3.12 conda package." >&2
-    exit 2
-    ;;
+  aarch64|arm64) platform="linux-aarch64" ;;
   *)
     echo "Unsupported package-proof architecture: $(uname -m)" >&2
     exit 2
@@ -47,6 +44,7 @@ import importlib
 import json
 import os
 from pathlib import Path
+import platform
 import sys
 import time
 
@@ -67,6 +65,7 @@ def assert_conda_version(package, expected):
     assert len(records) == 1, (package, records)
     record = json.loads(records[0].read_text())
     assert (record["name"], record["version"]) == (package, expected), record
+    return record
 
 
 native_module = importlib.import_module("rclcpp_kit.native")
@@ -76,6 +75,12 @@ type_adapter_module = importlib.import_module("rclcpp_kit.type_adapter")
 for package_name in ("cppyy-kit", "ros-jazzy-rclcpp-kit"):
     assert_conda_version(package_name, "0.2.0")
 assert_conda_version("ros-jazzy-rclcppyy", "0.3.0")
+cppyy_record = assert_conda_version("cppyy", "3.5.0")
+if sys.platform == "linux" and platform.machine() in ("aarch64", "arm64"):
+    assert cppyy_record["subdir"] == "linux-aarch64", cppyy_record
+    assert cppyy_record["build"].startswith("py312"), cppyy_record
+    assert cppyy_record["url"].startswith("file://"), cppyy_record
+    print("INSTALLED_LOCAL_CPPYY_ARM_BRIDGE_OK")
 print("rclcppyy:", rclcppyy.__file__)
 print("borrowed_publish:", borrowed_publish.__file__)
 print("native:", native_module.__file__)
