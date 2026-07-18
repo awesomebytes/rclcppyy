@@ -1,6 +1,5 @@
 import inspect
 import re
-import uuid
 from typing import Union, Optional, Callable, Any, List
 import rclpy
 from rclpy.callback_groups import CallbackGroup
@@ -80,32 +79,6 @@ class RclcppyyNode(Node):
         self._rclcppyy_reported_operations = set()
         self._cpp_publishers = {}
         
-        # Define the C++ callback wrapper template for timers
-        # cppyy.cppdef("""
-        #     #include <Python.h>
-        #     #include <functional>
-            
-        #     static std::function<void()> create_node_timer_callback_PLACEHOLDER_UUID(PyObject* self) {
-        #         return [self]() {
-        #             if (self && PyObject_HasAttrString(self, "_node_timer_callback_PLACEHOLDER_UUID")) {
-        #                 PyObject_CallMethod(self, "_node_timer_callback_PLACEHOLDER_UUID", nullptr);
-        #             }
-        #         };
-        #     }
-        # """)
-
-        self._timer_cpp_template = """
-            #include <Python.h>
-            #include <functional>
-            
-            static std::function<void()> create_node_timer_callback_PLACEHOLDER_UUID(PyObject* self) {
-                return [self]() {
-                    if (self && PyObject_HasAttrString(self, "_node_timer_callback_PLACEHOLDER_UUID")) {
-                        PyObject_CallMethod(self, "_node_timer_callback_PLACEHOLDER_UUID", nullptr);
-                    }
-                };
-            }
-        """
         self._cpp_timers = {}
 
         self._cpp_subscriptions = {}
@@ -298,28 +271,24 @@ class RclcppyyNode(Node):
         """
         # Convert period to nanoseconds for rclcpp  
         period_ns = int(period * 1e9)
-        # Generate a unique UUID for the timer
-        uuid_str = str(uuid.uuid4()).replace("-", "_")
-        # Replace the PLACEHOLDER_UUID in the C++ template with the actual UUID
-        cpp_timer_template = self._timer_cpp_template.replace("PLACEHOLDER_UUID", uuid_str)
-        # Compile the C++ callback wrapper
-        cppyy.cppdef(cpp_timer_template)
-        # Add dynamically a method to the node that will call the callback
-        setattr(self, f"_node_timer_callback_{uuid_str}", callback)
-
-        # Create the C++ callback wrapper
-        cpp_callback = getattr(cppyy.gbl, f"create_node_timer_callback_{uuid_str}")(self)
+        # cppyy's reusable std::function bridge owns the Python callable. This
+        # avoids compiling one unique C++ function for every timer instance.
+        cpp_callback = cppyy.gbl.std.function["void()"](callback)
         
         # Create the timer using the rclcpp node's create_wall_timer
         wall_timer = self._rclcpp_node.create_wall_timer(
             cppyy.gbl.std.chrono.nanoseconds(period_ns),
             cpp_callback
         )
+        self._cpp_timers[wall_timer] = {
+            "callback": callback,
+            "cpp_callback": cpp_callback,
+        }
         
         # TODO: Handle oneshot and callback_group parameters if needed
         # For now, we ignore these parameters as the provided implementation doesn't handle them
 
-        policies = ["python_callback", "per_timer_jit_callback"]
+        policies = ["python_callback", "reusable_cppyy_std_function"]
         if oneshot:
             policies.append("oneshot_ignored")
         if callback_group is not None:
