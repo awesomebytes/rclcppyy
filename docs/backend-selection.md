@@ -39,6 +39,11 @@ Those dependencies load on demand through the existing public exports. Future
 completion methods also retain exact stock identity because every executor callback
 Task completes through that hot path.
 
+Stock authority includes Jazzy's custom action endpoint QoS, explicit goal UUIDs,
+`ActionClient.send_goal()`, and `ClientGoalHandle.cancel_goal()` and `get_result()`
+methods. Lifecycle `ERROR`/`on_error` processing, invalid-transition exceptions,
+and shutdown from inactive or active states likewise remain exact stock behavior.
+
 The compatibility manifest at `compatibility/jazzy.json` is the source of truth
 for certified, stock-authoritative, experimental, unsupported, and unassessed
 surfaces. Its closed upstream mapping accounts for every selected test and reviewed

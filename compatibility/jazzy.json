@@ -371,13 +371,13 @@
     {
       "id": "action.custom_qos_uuid_sync",
       "area": "action",
-      "api": "Custom action QoS, explicit goal UUIDs, and synchronous ActionClient calls",
-      "support": "experimental",
+      "api": "Custom action QoS, explicit goal UUIDs, and synchronous action client and goal-handle calls",
+      "support": "certified",
       "backend": "python",
       "fallback": "safe",
-      "default": false,
-      "evidence": ["test/fixtures/custom_interfaces/run_interop.py", "compatibility/upstream-rclpy-contract.json", "rclcppyy/monkey.py"],
-      "notes": "The passing action corpus does not exercise custom action QoS profiles, explicit goal UUID injection, or the synchronous ActionClient APIs. Those narrower paths remain experimental."
+      "default": true,
+      "evidence": ["test/fixtures/custom_interfaces/run_interop.py", "scripts/ci/prove_custom_interfaces.sh", "rclcppyy/monkey.py"],
+      "notes": "The generated-action differential constructs an ActionClient with custom goal, result, and cancel service QoS plus custom feedback and status subscription QoS; injects and observes a fixed goal UUID; and exercises Jazzy's public synchronous ActionClient.send_goal(), ClientGoalHandle.cancel_goal(), and ClientGoalHandle.get_result() methods under a servicing executor. Results, cancellation, teardown, and the complete recorded contract match stock on local x86-64. Jazzy has no public ActionClient-level synchronous cancel or result method, so none is claimed. The same source proof is wired into native ARM64 CI but is not certified there until a remote run succeeds."
     },
     {
       "id": "parameter.local",
@@ -438,12 +438,12 @@
       "id": "lifecycle.error_processing",
       "area": "lifecycle",
       "api": "LifecycleNode ERROR callback processing, invalid transitions, and shutdown from active or inactive states",
-      "support": "experimental",
+      "support": "certified",
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/differential/_application_probe.py", "rclcppyy/monkey.py"],
-      "notes": "Configure FAILURE and recovery to an unconfigured shutdown are covered, but ERROR/on_error behavior, invalid transition exceptions, and every shutdown origin do not yet have differential evidence."
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/differential/application_expectations.py", "rclcppyy/monkey.py"],
+      "notes": "The isolated CycloneDDS differential covers explicit ERROR returns and raised configure exceptions, on_error callback order and recovery to unconfigured, RCLError type and stable message parity for invalid activate, deactivate, cleanup, and finalized shutdown transitions, and successful shutdown callbacks from inactive and active states. The exact stock LifecycleNode remains authoritative and the complete observations match stock."
     },
     {
       "id": "context.clean_exit",

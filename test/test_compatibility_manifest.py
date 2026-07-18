@@ -26,8 +26,8 @@ def test_jazzy_manifest_is_valid_and_inventory_is_explicit():
     assert summary["ros_distribution"] == "jazzy"
     assert summary["entries"] == 57
     assert summary["support"] == {
-        "certified": 33,
-        "experimental": 5,
+        "certified": 35,
+        "experimental": 3,
         "stock_authoritative": 16,
         "unassessed": 3,
     }

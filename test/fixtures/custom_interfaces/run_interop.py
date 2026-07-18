@@ -102,12 +102,15 @@ def run_python_action_contract(context, action_type, prefix):
     from rclpy.callback_groups import ReentrantCallbackGroup
     from rclpy.executors import MultiThreadedExecutor
     from rclpy.node import Node
+    from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
+    from unique_identifier_msgs.msg import UUID
 
     action_name = prefix + "/python_accumulate"
     server_node = None
     client_node = None
     action_server = None
     action_client = None
+    executor_thread = None
     executor = MultiThreadedExecutor(num_threads=3, context=context)
     callbacks = {"goals": [], "cancels": 0, "executions": []}
     success_feedback_complete = threading.Event()
@@ -180,11 +183,34 @@ def run_python_action_contract(context, action_type, prefix):
             cancel_callback=cancel_callback,
             result_timeout=5,
         )
+        service_qos = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST,
+            depth=7,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.VOLATILE,
+        )
+        feedback_qos = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST,
+            depth=6,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.VOLATILE,
+        )
+        status_qos = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST,
+            depth=5,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+        )
         action_client = ActionClient(
             client_node,
             action_type,
             action_name,
             callback_group=client_group,
+            goal_service_qos_profile=service_qos,
+            result_service_qos_profile=service_qos,
+            cancel_service_qos_profile=service_qos,
+            feedback_sub_qos_profile=feedback_qos,
+            status_sub_qos_profile=status_qos,
         )
         executor.add_node(server_node)
         executor.add_node(client_node)
@@ -274,6 +300,66 @@ def run_python_action_contract(context, action_type, prefix):
         assert cancel_result.result.total == 1
         assert cancel_result.result.summary.label == "python-canceled"
 
+        explicit_uuid_bytes = [
+            0x10, 0x21, 0x32, 0x43, 0x54, 0x65, 0x76, 0x87,
+            0x98, 0xA9, 0xBA, 0xCB, 0xDC, 0xED, 0xFE, 0x0F,
+        ]
+        explicit_uuid = UUID(uuid=explicit_uuid_bytes)
+        explicit_goal = action_type.Goal()
+        explicit_goal.target = 2
+        explicit_goal_future = action_client.send_goal_async(
+            explicit_goal,
+            goal_uuid=explicit_uuid,
+        )
+        spin_until(
+            executor, explicit_goal_future.done, "Python explicit-UUID goal acceptance")
+        explicit_handle = explicit_goal_future.result()
+        assert explicit_handle.accepted
+        accepted_uuid = [int(value) for value in explicit_handle.goal_id.uuid]
+        assert accepted_uuid == explicit_uuid_bytes
+        explicit_result_future = explicit_handle.get_result_async()
+        spin_until(
+            executor, explicit_result_future.done, "Python explicit-UUID result")
+        explicit_result = explicit_result_future.result()
+        assert explicit_result.status == GoalStatus.STATUS_SUCCEEDED
+        assert explicit_result.result.total == 3
+
+        def wait_for_future(future, description):
+            deadline = time.monotonic() + OPERATION_TIMEOUT_S
+            while not future.done() and time.monotonic() < deadline:
+                time.sleep(0.005)
+            if not future.done():
+                raise TimeoutError("timed out waiting for %s" % description)
+            return future.result()
+
+        # The synchronous convenience methods need another thread to service the
+        # executor, just as they do in a normal application outside callbacks.
+        executor_thread = threading.Thread(
+            target=executor.spin,
+            name="custom-action-sync-executor",
+            daemon=True,
+        )
+        executor_thread.start()
+
+        synchronous_goal = action_type.Goal()
+        synchronous_goal.target = 3
+        synchronous_result = action_client.send_goal(synchronous_goal)
+        assert synchronous_result.status == GoalStatus.STATUS_SUCCEEDED
+        assert synchronous_result.result.total == 6
+
+        synchronous_cancel_goal = action_type.Goal()
+        synchronous_cancel_goal.target = 100
+        synchronous_cancel_handle = wait_for_future(
+            action_client.send_goal_async(synchronous_cancel_goal),
+            "Python synchronous goal-handle acceptance",
+        )
+        assert synchronous_cancel_handle.accepted
+        synchronous_cancel_response = synchronous_cancel_handle.cancel_goal()
+        assert len(synchronous_cancel_response.goals_canceling) == 1
+        synchronous_cancel_result = synchronous_cancel_handle.get_result()
+        assert synchronous_cancel_result.status == GoalStatus.STATUS_CANCELED
+        assert synchronous_cancel_result.result.total == 1
+
         contract = {
             "action_name_suffix": "/python_accumulate",
             "identity": {
@@ -300,9 +386,52 @@ def run_python_action_contract(context, action_type, prefix):
                 "total": cancel_result.result.total,
                 "summary": cancel_result.result.summary.label,
             },
+            "custom_qos": {
+                "services": {
+                    "history": service_qos.history.name,
+                    "depth": service_qos.depth,
+                    "reliability": service_qos.reliability.name,
+                    "durability": service_qos.durability.name,
+                },
+                "feedback": {
+                    "history": feedback_qos.history.name,
+                    "depth": feedback_qos.depth,
+                    "reliability": feedback_qos.reliability.name,
+                    "durability": feedback_qos.durability.name,
+                },
+                "status": {
+                    "history": status_qos.history.name,
+                    "depth": status_qos.depth,
+                    "reliability": status_qos.reliability.name,
+                    "durability": status_qos.durability.name,
+                },
+            },
+            "explicit_uuid": {
+                "requested": explicit_uuid_bytes,
+                "accepted": accepted_uuid,
+                "status": explicit_result.status,
+                "total": explicit_result.result.total,
+            },
+            "synchronous": {
+                "send_goal": {
+                    "status": synchronous_result.status,
+                    "total": synchronous_result.result.total,
+                },
+                "cancel_goal": {
+                    "goals_canceling": len(
+                        synchronous_cancel_response.goals_canceling),
+                },
+                "get_result": {
+                    "status": synchronous_cancel_result.status,
+                    "total": synchronous_cancel_result.result.total,
+                },
+            },
             "callbacks": callbacks,
         }
     finally:
+        if executor_thread is not None:
+            executor.shutdown(timeout_sec=2.0)
+            executor_thread.join(timeout=2.0)
         if action_client is not None:
             action_client.destroy()
         if action_server is not None:
@@ -311,11 +440,14 @@ def run_python_action_contract(context, action_type, prefix):
             executor.remove_node(client_node)
         if server_node is not None:
             executor.remove_node(server_node)
-        executor.shutdown(timeout_sec=2.0)
+        if executor_thread is None:
+            executor.shutdown(timeout_sec=2.0)
         if contract is not None:
             contract["teardown"] = {
                 "client_waitable_removed": action_client not in client_node.waitables,
                 "server_waitable_removed": action_server not in server_node.waitables,
+                "executor_thread_stopped": (
+                    executor_thread is None or not executor_thread.is_alive()),
             }
         if client_node is not None:
             client_node.destroy_node()

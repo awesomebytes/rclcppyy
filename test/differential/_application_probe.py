@@ -53,6 +53,17 @@ def _call_service(client, request, executor):
     return result
 
 
+def _observe_exception(callback):
+    try:
+        callback()
+    except Exception as exc:
+        return {
+            "type": _qualified_type(exc),
+            "message": str(exc).partition(", at ")[0],
+        }
+    raise AssertionError("operation did not raise an exception")
+
+
 def _observe_repeated_contexts(rclpy, Context, SingleThreadedExecutor, String):
     cycles = []
     for index in range(3):
@@ -185,6 +196,28 @@ def _run(mode):
         def on_configure(self, state):
             self.configure_previous_state = [state.state_id, state.label]
             return TransitionCallbackReturn.FAILURE
+
+    class ErrorLifecycleNode(LifecycleNode):
+        def __init__(self, *args, raise_from_configure=False, **kwargs):
+            self.raise_from_configure = raise_from_configure
+            self.transition_callbacks = []
+            super().__init__(*args, **kwargs)
+
+        def _record_transition(self, name, state):
+            self.transition_callbacks.append({
+                "callback": name,
+                "previous": [state.state_id, state.label],
+            })
+
+        def on_configure(self, state):
+            self._record_transition("configure", state)
+            if self.raise_from_configure:
+                raise RuntimeError("lifecycle-configure-contract")
+            return TransitionCallbackReturn.ERROR
+
+        def on_error(self, state):
+            self._record_transition("error", state)
+            return TransitionCallbackReturn.SUCCESS
 
     backend_module = None
     if mode == "activated":
@@ -644,6 +677,10 @@ def _run(mode):
 
         lifecycle_node = None
         failing_lifecycle_node = None
+        error_lifecycle_node = None
+        exception_lifecycle_node = None
+        inactive_shutdown_node = None
+        active_shutdown_node = None
         lifecycle_publisher = None
         lifecycle_subscription = None
         lifecycle_clients = {}
@@ -656,6 +693,31 @@ def _run(mode):
             )
             failing_lifecycle_node = FailingLifecycleNode(
                 "diff_application_lifecycle_failure",
+                context=context,
+                enable_communication_interface=False,
+                start_parameter_services=False,
+            )
+            error_lifecycle_node = ErrorLifecycleNode(
+                "diff_application_lifecycle_error",
+                context=context,
+                enable_communication_interface=False,
+                start_parameter_services=False,
+            )
+            exception_lifecycle_node = ErrorLifecycleNode(
+                "diff_application_lifecycle_exception",
+                context=context,
+                enable_communication_interface=False,
+                start_parameter_services=False,
+                raise_from_configure=True,
+            )
+            inactive_shutdown_node = CorpusLifecycleNode(
+                "diff_application_lifecycle_inactive_shutdown",
+                context=context,
+                enable_communication_interface=False,
+                start_parameter_services=False,
+            )
+            active_shutdown_node = CorpusLifecycleNode(
+                "diff_application_lifecycle_active_shutdown",
                 context=context,
                 enable_communication_interface=False,
                 start_parameter_services=False,
@@ -755,6 +817,35 @@ def _run(mode):
             failure_result = failing_lifecycle_node.trigger_configure()
             failure_shutdown_result = failing_lifecycle_node.trigger_shutdown()
 
+            error_result = error_lifecycle_node.trigger_configure()
+            error_recovery_state = list(
+                error_lifecycle_node._state_machine.current_state)
+            exception_result = exception_lifecycle_node.trigger_configure()
+            exception_recovery_state = list(
+                exception_lifecycle_node._state_machine.current_state)
+
+            invalid_transitions = {
+                "activate_from_unconfigured": _observe_exception(
+                    error_lifecycle_node.trigger_activate),
+                "deactivate_from_unconfigured": _observe_exception(
+                    error_lifecycle_node.trigger_deactivate),
+                "cleanup_from_unconfigured": _observe_exception(
+                    error_lifecycle_node.trigger_cleanup),
+            }
+
+            inactive_configure_result = inactive_shutdown_node.trigger_configure()
+            inactive_shutdown_result = inactive_shutdown_node.trigger_shutdown()
+            inactive_shutdown_state = list(
+                inactive_shutdown_node._state_machine.current_state)
+
+            active_configure_result = active_shutdown_node.trigger_configure()
+            active_activate_result = active_shutdown_node.trigger_activate()
+            active_shutdown_result = active_shutdown_node.trigger_shutdown()
+            active_shutdown_state = list(
+                active_shutdown_node._state_machine.current_state)
+            invalid_transitions["shutdown_from_finalized"] = _observe_exception(
+                active_shutdown_node.trigger_shutdown)
+
             expected_callbacks = [
                 ("configure", "unconfigured"),
                 ("activate", "inactive"),
@@ -791,6 +882,21 @@ def _run(mode):
                 and failure_result == TransitionCallbackReturn.FAILURE
                 and failing_lifecycle_node.configure_previous_state[1] == "unconfigured"
                 and failure_shutdown_result == TransitionCallbackReturn.SUCCESS
+                and error_result == TransitionCallbackReturn.ERROR
+                and error_recovery_state[1] == "unconfigured"
+                and exception_result == TransitionCallbackReturn.ERROR
+                and exception_recovery_state[1] == "unconfigured"
+                and inactive_configure_result == TransitionCallbackReturn.SUCCESS
+                and inactive_shutdown_result == TransitionCallbackReturn.SUCCESS
+                and inactive_shutdown_state[1] == "finalized"
+                and active_configure_result == TransitionCallbackReturn.SUCCESS
+                and active_activate_result == TransitionCallbackReturn.SUCCESS
+                and active_shutdown_result == TransitionCallbackReturn.SUCCESS
+                and active_shutdown_state[1] == "finalized"
+                and all(
+                    item["type"] == "rclpy._rclpy_pybind11.RCLError"
+                    for item in invalid_transitions.values()
+                )
             )
             if not lifecycle_invariants:
                 raise AssertionError("lifecycle contract invariants were not satisfied")
@@ -859,6 +965,34 @@ def _run(mode):
                 "previous_state": failing_lifecycle_node.configure_previous_state,
                 "shutdown": failure_shutdown_result.to_label(),
             }
+            observations["lifecycle_error_processing"] = {
+                "explicit_error": {
+                    "configure": error_result.to_label(),
+                    "recovery_state": error_recovery_state,
+                    "callbacks": error_lifecycle_node.transition_callbacks,
+                },
+                "raised_exception": {
+                    "configure": exception_result.to_label(),
+                    "recovery_state": exception_recovery_state,
+                    "callbacks": exception_lifecycle_node.transition_callbacks,
+                },
+            }
+            observations["lifecycle_invalid_transitions"] = invalid_transitions
+            observations["lifecycle_shutdown_origins"] = {
+                "inactive": {
+                    "configure": inactive_configure_result.to_label(),
+                    "shutdown": inactive_shutdown_result.to_label(),
+                    "state": inactive_shutdown_state,
+                    "callbacks": inactive_shutdown_node.transition_callbacks,
+                },
+                "active": {
+                    "configure": active_configure_result.to_label(),
+                    "activate": active_activate_result.to_label(),
+                    "shutdown": active_shutdown_result.to_label(),
+                    "state": active_shutdown_state,
+                    "callbacks": active_shutdown_node.transition_callbacks,
+                },
+            }
 
             lifecycle_destroyed = lifecycle_node.destroy_lifecycle_publisher(
                 lifecycle_publisher)
@@ -895,6 +1029,14 @@ def _run(mode):
                 lifecycle_node.destroy_node()
             if failing_lifecycle_node is not None:
                 failing_lifecycle_node.destroy_node()
+            if error_lifecycle_node is not None:
+                error_lifecycle_node.destroy_node()
+            if exception_lifecycle_node is not None:
+                exception_lifecycle_node.destroy_node()
+            if inactive_shutdown_node is not None:
+                inactive_shutdown_node.destroy_node()
+            if active_shutdown_node is not None:
+                active_shutdown_node.destroy_node()
 
         class CorpusTimerCallbackError(RuntimeError):
             pass
