@@ -21,6 +21,15 @@ install(DIRECTORY scripts/
   FILES_MATCHING PATTERN "*.py"
 )
 
+install(PROGRAMS scripts/ci/hook_launch_probe.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME hook_launch_probe
+)
+
+install(DIRECTORY launch/
+  DESTINATION share/${PROJECT_NAME}/launch
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights

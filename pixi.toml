@@ -66,8 +66,9 @@ clean = "rm -rf build install log"
 test = "pytest test/"
 test-ci = "pytest test/ -v -ra --junitxml=build/test-results/pytest.xml"
 custom-interfaces = "bash scripts/ci/prove_custom_interfaces.sh"
+launch-contract = "bash scripts/ci/prove_launch_cli.sh"
 scan-acceleration = "python skills/rclcppyy-accelerate/scripts/scan_project.py"
-lint = "flake8 rclcppyy test scripts/check_compatibility_manifest.py scripts/ci/stress_runtime.py skills/rclcppyy-accelerate/scripts/scan_project.py scripts/benchmarks/_result_schema.py scripts/benchmarks/_backend_marker.py scripts/benchmarks/_benchmark_matrix.py scripts/benchmarks/_benchmark_protocol.py scripts/benchmarks/bench_worker.py scripts/benchmarks/run_benchmarks.py scripts/benchmarks/render_report.py scripts/benchmarks/bench_pub_rclpy.py scripts/benchmarks/bench_sub_rclpy.py scripts/benchmarks/bench_pub_rclcppyy_monkeypatch.py scripts/benchmarks/bench_sub_rclcppyy_monkeypatched.py scripts/benchmarks/bench_pub_rclcppyy.py scripts/benchmarks/bench_sub_rclcppyy.py"
+lint = "flake8 rclcppyy test launch/hook_probe.launch.py scripts/check_compatibility_manifest.py scripts/ci/hook_launch_probe.py scripts/ci/stress_runtime.py skills/rclcppyy-accelerate/scripts/scan_project.py test/fixtures/custom_interfaces/run_interop.py scripts/benchmarks/_result_schema.py scripts/benchmarks/_backend_marker.py scripts/benchmarks/_benchmark_matrix.py scripts/benchmarks/_benchmark_protocol.py scripts/benchmarks/bench_worker.py scripts/benchmarks/run_benchmarks.py scripts/benchmarks/render_report.py scripts/benchmarks/bench_pub_rclpy.py scripts/benchmarks/bench_sub_rclpy.py scripts/benchmarks/bench_pub_rclcppyy_monkeypatch.py scripts/benchmarks/bench_sub_rclcppyy_monkeypatched.py scripts/benchmarks/bench_pub_rclcppyy.py scripts/benchmarks/bench_sub_rclcppyy.py"
 contract = "python scripts/check_compatibility_manifest.py compatibility/jazzy.json"
 # rclpy-vs-rclcppyy CPU comparison in one command (default: 1 kHz + 10 kHz).
 # Extra flags pass straight through, e.g. `pixi run bench --rate 5000 --duration 10`.

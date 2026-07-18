@@ -157,6 +157,9 @@ jobs:
       - name: Build source
         run: pixi run build
 
+      - name: Prove startup hook through ROS launch and CLI
+        run: pixi run launch-contract
+
       - name: Prove custom-interface AOT interoperability
         run: pixi run custom-interfaces
 
