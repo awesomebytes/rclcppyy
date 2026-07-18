@@ -36,3 +36,20 @@ The raw JSON always sets `performance_claims_allowed` to `false`. Promotion stay
 blocked until native ARM64 correctness passes and repeated controlled-host runs
 show reproducible CPU wins without unacceptable p50, p99, throughput, or RSS-guard
 regressions. Hosted CI smoke timing is correctness evidence only.
+
+## Current local observation
+
+A five-pair x86-64 run on 2026-07-18 with 500 warmup and 5,000 measured
+ping-pongs per sample produced these median facade/stock ratios:
+
+| Message | CPU ns/message | p50 | p99 | Throughput |
+| --- | ---: | ---: | ---: | ---: |
+| `UInt64` | 1.099x | 1.085x | 1.075x | 0.898x |
+| `String` | 1.098x | 1.093x | 1.106x | 0.910x |
+
+Lower is better for CPU and latency; higher is better for throughput. This is a
+clear negative characterization for the serialized-take design, not portable
+performance evidence. The raw ignored artifact is
+`build/message-facade-characterization.json`, with claims disabled. This route is
+therefore not promotable as an efficiency optimization; its value is the opt-in
+C++-ownership capability and the correctness boundary it establishes.
