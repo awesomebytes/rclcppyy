@@ -250,7 +250,13 @@ def _create_publisher_wrapper(
             self,
             "publisher",
             unavailable_reason,
-            metadata={"topic": publisher.topic_name},
+            metadata={
+                "topic": publisher.topic_name,
+                "callback_group_requested": callback_group is not None,
+                "event_callbacks_requested": event_callbacks is not None,
+                "qos_overrides_requested": qos_overriding_options is not None,
+                "custom_publisher_class_requested": publisher_class is not Publisher,
+            },
         )
         return publisher
 
@@ -275,6 +281,10 @@ def _create_publisher_wrapper(
             "topic": publisher.topic_name,
             "message_type": route.cpp_type_name,
             "profile": _POLICY.name,
+            "callback_group_requested": callback_group is not None,
+            "event_callbacks_requested": event_callbacks is not None,
+            "qos_overrides_requested": qos_overriding_options is not None,
+            "custom_publisher_class_requested": publisher_class is not Publisher,
         },
     )
     return publisher
@@ -362,13 +372,24 @@ def _publish_wrapper(self, message):
 def _create_subscription_wrapper(self, *args, **kwargs):
     reason = "subscription take/dispatch has no certified same-handle C++ route"
     topic = args[1] if len(args) > 1 else kwargs.get("topic")
+    callback_group = kwargs.get("callback_group")
+    event_callbacks = kwargs.get("event_callbacks")
+    qos_overriding_options = kwargs.get("qos_overriding_options")
+    content_filter_options = kwargs.get("content_filter_options")
     return _stock_entity(
         self,
         "create_subscription",
         "subscription",
         reason,
         lambda: _original_create_subscription(self, *args, **kwargs),
-        metadata={"topic": topic},
+        metadata={
+            "topic": topic,
+            "raw_requested": bool(kwargs.get("raw", False)),
+            "callback_group_requested": callback_group is not None,
+            "event_callbacks_requested": event_callbacks is not None,
+            "qos_overrides_requested": qos_overriding_options is not None,
+            "content_filter_requested": content_filter_options is not None,
+        },
     )
 
 

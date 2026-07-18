@@ -71,6 +71,7 @@ def _run(mode):
     from rclpy.publisher import Publisher
     from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
     from rclpy.qos_overriding_options import QoSOverridingOptions
+    from rclpy.serialization import deserialize_message
     from rclpy.task import Future
     from rosgraph_msgs.msg import Clock
     from std_msgs.msg import String
@@ -206,6 +207,64 @@ def _run(mode):
             "publisher_second": node.destroy_publisher(pub),
             "subscription_first": node.destroy_subscription(sub),
             "subscription_second": node.destroy_subscription(sub),
+        }
+
+        raw_messages = []
+        raw_pub = node.create_publisher(String, "raw_topic", 10)
+        raw_sub = node.create_subscription(
+            String,
+            "raw_topic",
+            lambda serialized: raw_messages.append({
+                "type": _qualified_type(serialized),
+                "value": deserialize_message(serialized, String).data,
+            }),
+            10,
+            raw=True,
+        )
+        _spin_until(
+            node,
+            lambda: raw_pub.get_subscription_count() >= 1,
+            executor,
+        )
+        raw_pub.publish(String(data="raw-contract"))
+        _spin_until(node, lambda: bool(raw_messages), executor)
+        observations["raw_subscription"] = {
+            "messages": raw_messages,
+            "destroy_publisher": node.destroy_publisher(raw_pub),
+            "destroy_subscription": node.destroy_subscription(raw_sub),
+        }
+
+        qos_events = {"publisher": [], "subscription": []}
+        event_pub = node.create_publisher(
+            String,
+            "incompatible_qos_topic",
+            QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT),
+            event_callbacks=PublisherEventCallbacks(
+                incompatible_qos=lambda _event: qos_events["publisher"].append(
+                    "incompatible"),
+                use_default_callbacks=False,
+            ),
+        )
+        event_sub = node.create_subscription(
+            String,
+            "incompatible_qos_topic",
+            lambda _message: None,
+            QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE),
+            event_callbacks=SubscriptionEventCallbacks(
+                incompatible_qos=lambda _event: qos_events["subscription"].append(
+                    "incompatible"),
+                use_default_callbacks=False,
+            ),
+        )
+        _spin_until(
+            node,
+            lambda: all(qos_events.values()),
+            executor,
+        )
+        observations["qos_events"] = {
+            "callbacks": qos_events,
+            "destroy_publisher": node.destroy_publisher(event_pub),
+            "destroy_subscription": node.destroy_subscription(event_sub),
         }
 
         timer_calls = []

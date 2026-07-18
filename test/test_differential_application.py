@@ -71,6 +71,20 @@ def test_application_backend_evidence_is_self_consistent(application_results):
     assert status["counts"]["entities"]["cpp"] >= 1
     assert status["counts"]["entities"]["python"] >= 1
     assert status["counts"]["nodes"]["python"] >= 1
+    raw_subscriptions = [
+        record for record in status["entities"]
+        if record["metadata"].get("entity_type") == "subscription"
+        and record["metadata"].get("raw_requested")
+    ]
+    assert len(raw_subscriptions) == 1
+    assert raw_subscriptions[0]["metadata"]["topic"] == "raw_topic"
+    event_publishers = [
+        record for record in status["entities"]
+        if record["metadata"].get("entity_type") == "publisher"
+        and record["metadata"].get("topic") == "/incompatible_qos_topic"
+    ]
+    assert len(event_publishers) == 1
+    assert event_publishers[0]["metadata"]["event_callbacks_requested"] is True
 
 
 def test_reviewed_limitations_are_well_formed():

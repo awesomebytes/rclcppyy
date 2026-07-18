@@ -144,7 +144,7 @@
       "fallback": "safe",
       "default": false,
       "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
-      "notes": "The application corpus covers a custom publisher class, callback group, explicit QoS, empty event callbacks, and an empty QoS override set. Non-empty event and override behavior remains open."
+      "notes": "The application corpus covers a custom publisher class, callback group, explicit QoS, an empty QoS override set, and a live incompatible-QoS event callback. Other event kinds and non-empty overrides remain open."
     },
     {
       "id": "subscription.basic",
@@ -166,7 +166,7 @@
       "fallback": "safe",
       "default": false,
       "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
-      "notes": "The application corpus covers callback groups, explicit QoS, empty event callbacks and overrides, raw=false, and no content filter. Raw delivery, active filters, and non-empty event/override behavior remain open."
+      "notes": "The application corpus covers callback groups, explicit QoS, empty overrides, serialized raw delivery with deserialization parity, and a live incompatible-QoS event callback. Active filters, other event kinds, and non-empty overrides remain open."
     },
     {
       "id": "timer.wall",
