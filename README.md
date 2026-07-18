@@ -50,6 +50,8 @@ subscription, timer, executor, context, and message class remain stock Python.
   route exists, so tests and benchmarks cannot pass through silent fallback.
 - The separate native lane exposes `rclcpp` and other C++ libraries directly when
   compatibility is not the primary constraint.
+- The [backend selection and promotion guide](docs/backend-selection.md) defines
+  when to use compatible, strict, managed native, and fused C++ execution lanes.
 
 The native lane adds lifecycle management but does not replace the C++ API:
 
