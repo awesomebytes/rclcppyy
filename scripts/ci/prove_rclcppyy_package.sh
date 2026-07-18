@@ -39,6 +39,7 @@ CPPYY_KIT_NO_AUTOPCH = "1"
 [dependencies]
 ros-jazzy-rclcppyy = "*"
 ros-jazzy-rmw-cyclonedds-cpp = "*"
+ros-jazzy-std-srvs = "*"
 EOF
 
 cat >"$workdir/smoke.py" <<'PY'
@@ -57,6 +58,7 @@ from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
 from rclpy.publisher import Publisher
 from rclcpp_kit import borrowed_publish
+from std_srvs.srv import SetBool
 
 def assert_conda_version(package, expected):
     records = list(
@@ -69,6 +71,7 @@ def assert_conda_version(package, expected):
 
 native_module = importlib.import_module("rclcpp_kit.native")
 native_pipeline_module = importlib.import_module("rclcpp_kit.native_pipeline")
+native_service_module = importlib.import_module("rclcpp_kit.native_service")
 type_adapter_module = importlib.import_module("rclcpp_kit.type_adapter")
 for package_name in (
         "cppyy-kit", "ros-jazzy-rclcpp-kit", "ros-jazzy-rclcppyy"):
@@ -77,6 +80,7 @@ print("rclcppyy:", rclcppyy.__file__)
 print("borrowed_publish:", borrowed_publish.__file__)
 print("native:", native_module.__file__)
 print("native_pipeline:", native_pipeline_module.__file__)
+print("native_service:", native_service_module.__file__)
 print("type_adapter:", type_adapter_module.__file__)
 rclcppyy.enable_cpp_acceleration()
 
@@ -116,6 +120,43 @@ identity = (node.get_name(), node.get_namespace())
 assert node.get_node_names_and_namespaces().count(identity) == 1
 assert [(item.node_name, item.node_namespace)
         for item in node.get_publishers_info_by_topic(topic)] == [identity]
+
+service_name = "/rclcppyy_package_proof/native_set_bool"
+with native_module.native(["rclcppyy-package-native-service"]) as native_ros:
+    service_node = native_ros.create_node("installed_native_service")
+    service_executor = native_ros.create_executor()
+    service_executor.add_node(service_node)
+    native_service = native_ros.create_native_service(
+        service_node,
+        SetBool,
+        service_name,
+        'response->success = request->data; '
+        'response->message = request->data ? "enabled" : "disabled";',
+    )
+    client = node.create_client(SetBool, service_name)
+    deadline = time.monotonic() + 10.0
+    while not client.service_is_ready() and time.monotonic() < deadline:
+        service_executor.spin_some()
+        executor.spin_once(timeout_sec=0.02)
+    assert client.service_is_ready()
+
+    future = client.call_async(SetBool.Request(data=True))
+    deadline = time.monotonic() + 10.0
+    while not future.done() and time.monotonic() < deadline:
+        service_executor.spin_some()
+        executor.spin_once(timeout_sec=0.02)
+    assert future.done()
+    response = future.result()
+    assert response.success is True
+    assert response.message == "enabled"
+    service_stats = native_service.stats()
+    assert service_stats.requests == 1
+    assert service_stats.exceptions == 0
+    assert service_stats.python_boundary_crossings == 0
+    print("INSTALLED_NATIVE_SERVICE_OK")
+
+assert native_service.closed
+assert node.destroy_client(client)
 
 status = rclcppyy.status()
 entity_backends = {
