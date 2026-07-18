@@ -4,11 +4,13 @@
 from __future__ import annotations
 
 import argparse
+import faulthandler
 import hashlib
 import json
 import os
 from pathlib import Path
 import resource
+import signal
 import sys
 import time
 
@@ -19,6 +21,7 @@ HEADER = "std_msgs/msg/u_int64.hpp"
 PREWARM_SCHEMA = "rclcppyy.relay-boundary-prewarm/v1"
 RELAY_SCHEMA = "rclcppyy.relay-boundary-relay-event/v1"
 BACKEND_SCHEMA = "rclcppyy.benchmark-backend/v1"
+DIAGNOSTIC_SCHEMA = "rclcppyy.relay-boundary-diagnostic/v1"
 PROTOCOL_PREFIX = "@@RCLCPPYY_RELAY_BOUNDARY_V1@@"
 RSS_GUARD_LIMIT_BYTES = 64 * 1024 * 1024
 
@@ -36,6 +39,41 @@ def _emit(document: dict) -> None:
         PROTOCOL_PREFIX + json.dumps(document, sort_keys=True, allow_nan=False),
         flush=True,
     )
+
+
+def _configure_fault_diagnostics() -> None:
+    faulthandler.enable(file=sys.stderr, all_threads=True)
+    faulthandler.register(signal.SIGUSR1, file=sys.stderr, all_threads=True)
+
+
+def _phase(args, phase: str, metadata: dict | None = None) -> None:
+    document = {
+        "schema": DIAGNOSTIC_SCHEMA,
+        "event": "phase",
+        "phase": phase,
+        "variant": args.variant,
+        "run_token": args.run_token,
+        "pid": os.getpid(),
+    }
+    if metadata:
+        document["metadata"] = metadata
+    print(
+        PROTOCOL_PREFIX + json.dumps(document, sort_keys=True, allow_nan=False),
+        file=sys.stderr,
+        flush=True,
+    )
+
+
+def _emit_armed(args) -> None:
+    _emit({
+        "schema": RELAY_SCHEMA,
+        "event": "armed",
+        "variant": args.variant,
+        "run_token": args.run_token,
+        "pid": os.getpid(),
+        "process_group_id": os.getpgrp(),
+        "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
+    })
 
 
 def _cpp_name(value) -> str:
@@ -59,11 +97,14 @@ def _stock_marker(role: str, entity) -> dict:
     }
 
 
-def _status_marker(snapshot: dict, role: str, *, operation: bool = False) -> dict:
+def _status_marker(
+        snapshot: dict, role: str, *, operation: bool = False,
+        topic: str | None = None) -> dict:
     if operation:
         records = [
             record for record in snapshot["operations"]
             if record["metadata"].get("operation") == "publish"
+            and (topic is None or record["metadata"].get("topic") == topic)
         ]
     else:
         entity_type = "publisher" if role == "publisher" else "subscription"
@@ -86,6 +127,59 @@ def _status_marker(snapshot: dict, role: str, *, operation: bool = False) -> dic
             "entity_type": "publisher" if role == "publisher" else "subscription",
         },
     }
+
+
+def _cleanup_python_relay(
+        args, executor, executor_thread, node, subscription, publisher,
+        context) -> bool:
+    errors = []
+
+    def cleanup_step(name, action, *, require_true=False):
+        _phase(args, name + "-before")
+        try:
+            result = action()
+            if require_true and result is not True:
+                raise RuntimeError("cleanup step returned %r" % (result,))
+        except BaseException as exc:
+            errors.append((name, type(exc).__name__, str(exc)))
+            _phase(args, name + "-error", {
+                "exception_type": type(exc).__name__,
+                "message": str(exc),
+            })
+            return
+        _phase(args, name + "-after")
+
+    cleanup_step("executor-remove-node", lambda: executor.remove_node(node))
+    cleanup_step(
+        "executor-shutdown",
+        lambda: executor.shutdown(timeout_sec=2.0),
+        require_true=True,
+    )
+    _phase(args, "executor-thread-join-before")
+    executor_thread.join(timeout=2.0)
+    _phase(args, "executor-thread-join-after", {
+        "thread_alive": executor_thread.is_alive(),
+    })
+    cleanup_step(
+        "subscription-destroy",
+        lambda: node.destroy_subscription(subscription),
+        require_true=True,
+    )
+    cleanup_step(
+        "publisher-destroy",
+        lambda: node.destroy_publisher(publisher),
+        require_true=True,
+    )
+    cleanup_step("node-destroy", node.destroy_node)
+    if context.ok():
+        cleanup_step("context-shutdown", context.shutdown)
+    if executor_thread.is_alive():
+        _phase(args, "executor-thread-final-join-before")
+        executor_thread.join(timeout=2.0)
+        _phase(args, "executor-thread-final-join-after", {
+            "thread_alive": executor_thread.is_alive(),
+        })
+    return not errors and not executor_thread.is_alive() and not context.ok()
 
 
 def _loaded_rmw() -> str:
@@ -230,6 +324,7 @@ def _run_python_relay(args, *, activate: bool) -> tuple[dict, dict, bool]:
     published = 0
     checksum = 0
     last = 0
+    publish_marker = None
     context = Context()
     context.init(args=[])
     node = Node(args.node_name, context=context)
@@ -300,36 +395,51 @@ def _run_python_relay(args, *, activate: bool) -> tuple[dict, dict, bool]:
         },
         "backend_markers": markers,
     }
-    _emit(ready)
-    if sys.stdin.readline().rstrip("\n") != "START":
-        raise RuntimeError("relay expected START control")
-    rss_baseline = _peak_rss_bytes()
-    cpu_start = time.process_time_ns()
-    if sys.stdin.readline().rstrip("\n") != "REPORT":
-        raise RuntimeError("relay expected REPORT control")
-    cpu_time_ns = time.process_time_ns() - cpu_start
-    rss_final = _peak_rss_bytes()
-    publish_marker = None
-    fallback_publish_operations = 0
-    last_publish_backend = "python"
-    if activate:
-        final_status = rclcppyy.status()
-        publish_marker = _status_marker(final_status, "publisher", operation=True)
-        fallback_publish_operations = len([
-            record for record in final_status["operations"]
-            if record["metadata"].get("operation") == "publish"
-            and record["backend"] == "python"
-        ])
-        last_publish_backend = getattr(
-            publisher, "_rclcppyy_last_publish_backend", None)
-    executor.remove_node(node)
-    executor.shutdown(timeout_sec=2.0)
-    executor_thread.join(timeout=2.0)
-    thread_clean = not executor_thread.is_alive()
-    node.destroy_subscription(subscription)
-    node.destroy_publisher(publisher)
-    node.destroy_node()
-    context.shutdown()
+    teardown_clean = False
+    try:
+        _emit(ready)
+        if sys.stdin.readline().rstrip("\n") != "START":
+            raise RuntimeError("relay expected START control")
+        if activate:
+            _phase(args, "publish-marker-capture-before")
+            publish_marker = _status_marker(
+                rclcppyy.status(), "publisher", operation=True,
+                topic=args.output_topic)
+            _phase(args, "publish-marker-capture-after")
+        rss_baseline = _peak_rss_bytes()
+        cpu_start = time.process_time_ns()
+        _emit_armed(args)
+        if sys.stdin.readline().rstrip("\n") != "REPORT":
+            raise RuntimeError("relay expected REPORT control")
+        cpu_time_ns = time.process_time_ns() - cpu_start
+        rss_final = _peak_rss_bytes()
+        _phase(args, "report-received")
+        fallback_publish_operations = 0
+        last_publish_backend = "python"
+        publish_route_tainted = False
+        status_operation_counts = None
+        status_dropped_operation_records = None
+        if activate:
+            _phase(args, "status-before")
+            final_status = rclcppyy.status()
+            status_operation_counts = final_status["counts"]["operations"]
+            status_dropped_operation_records = final_status[
+                "dropped_records"]["operations"]
+            _phase(args, "status-after", {
+                "operation_counts": status_operation_counts,
+                "dropped_operation_records": status_dropped_operation_records,
+            })
+            if publish_marker is None:
+                raise RuntimeError("activated relay captured no completed publish marker")
+            publish_route_tainted = bool(getattr(
+                publisher, "_rclcppyy_publish_tainted", True))
+            fallback_publish_operations = int(publish_route_tainted)
+            last_publish_backend = getattr(
+                publisher, "_rclcppyy_last_publish_backend", None)
+    finally:
+        teardown_clean = _cleanup_python_relay(
+            args, executor, executor_thread, node, subscription, publisher,
+            context)
     counters = {
         "received": received,
         "processed": received,
@@ -343,11 +453,14 @@ def _run_python_relay(args, *, activate: bool) -> tuple[dict, dict, bool]:
         "publish_operation_marker": publish_marker,
         "fallback_publish_operations": fallback_publish_operations,
         "last_publish_backend": last_publish_backend,
+        "publish_route_tainted": publish_route_tainted if activate else False,
+        "status_operation_counts": status_operation_counts,
+        "status_dropped_operation_records": status_dropped_operation_records,
         "cpu_time_ns": cpu_time_ns,
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
         "rss_guard": _rss_guard(rss_baseline, rss_final),
     }
-    return ready, counters, bool(thread_clean and not context.ok())
+    return ready, counters, teardown_clean
 
 
 def _run_python_callback(args) -> tuple[dict, dict, bool]:
@@ -412,6 +525,7 @@ def _run_python_callback(args) -> tuple[dict, dict, bool]:
             raise RuntimeError("relay expected START control")
         rss_baseline = _peak_rss_bytes()
         cpu_start = time.process_time_ns()
+        _emit_armed(args)
         if sys.stdin.readline().rstrip("\n") != "REPORT":
             raise RuntimeError("relay expected REPORT control")
         cpu_time_ns = time.process_time_ns() - cpu_start
@@ -491,6 +605,7 @@ def _run_fused(args) -> tuple[dict, dict, bool]:
             raise RuntimeError("relay expected START control")
         rss_baseline = _peak_rss_bytes()
         cpu_start = time.process_time_ns()
+        _emit_armed(args)
         if sys.stdin.readline().rstrip("\n") != "REPORT":
             raise RuntimeError("relay expected REPORT control")
         cpu_time_ns = time.process_time_ns() - cpu_start
@@ -564,6 +679,7 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
+    _configure_fault_diagnostics()
     parser = _parser()
     args = parser.parse_args()
     if args.prewarm:
@@ -575,8 +691,8 @@ def main() -> int:
     missing = [name for name in required if getattr(args, name) is None]
     if missing:
         parser.error("relay mode requires: " + ", ".join(missing))
-    if args.warmup_messages < 0 or args.messages <= 0:
-        parser.error("message counts must be non-negative with messages positive")
+    if args.warmup_messages <= 0 or args.messages <= 0:
+        parser.error("warmup and measured message counts must be positive")
     return _run_relay(args)
 
 

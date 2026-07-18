@@ -2,7 +2,9 @@
 
 This benchmark characterizes one fixed ROS 2 relay across five execution
 boundaries. It is a raw evidence generator, not a release gate or a source of
-performance claims.
+performance claims. Jazzy with CycloneDDS is the current validated gate; the
+protocol retains explicit RMW evidence so later backends cannot be conflated
+with that baseline.
 
 ## Variants
 
@@ -34,9 +36,18 @@ captured initialization diagnostics.
 
 Primary observations are relay and driver process CPU time, every raw
 round-trip latency, p50/p95/p99/max latency, and closed-loop throughput. Relay
-and driver clocks stop immediately at measured completion. Driver teardown is
-held until the relay CPU window has stopped. Post-warmup peak-RSS growth is only
-a bounded 64 MiB runaway guard; it is never summarized, ranked, or compared.
+emits an `armed` record after its CPU clock starts, and only then may the driver
+enter its measured loop. Both clocks stop immediately at measured completion.
+Driver teardown is held until the relay CPU window has stopped. Post-warmup
+peak-RSS growth is only a bounded 64 MiB runaway guard; it is never summarized,
+ranked, or compared.
+
+Compatible publish-operation evidence is captured after warmup, before the CPU
+window starts. The measured window then requires the publisher's permanent
+fallback taint to remain clear and its final backend to remain C++. Teardown
+phases are versioned stderr diagnostics. If a report times out, the parent asks
+the Python relay for an all-thread stack dump before terminating its process
+group and retains that stderr in the failure artifact.
 
 ## Running
 

@@ -29,6 +29,12 @@ using Message = std_msgs::msg::UInt64;
 constexpr std::uint64_t kRssGuardLimitBytes = 64ULL * 1024ULL * 1024ULL;
 constexpr const char * kProtocolPrefix = "@@RCLCPPYY_RELAY_BOUNDARY_V1@@";
 
+class GraphIncomplete final : public std::runtime_error {
+public:
+  GraphIncomplete()
+  : std::runtime_error("relay graph endpoint-info records are not complete") {}
+};
+
 std::uint64_t parse_uint64(const char * value, const char * name)
 {
   if (value == nullptr || value[0] == '-') {
@@ -141,10 +147,15 @@ std::vector<std::string> graph_evidence(
   const auto input_subscriptions = node->get_subscriptions_info_by_topic(input_topic);
   const auto output_publishers = node->get_publishers_info_by_topic(output_topic);
   const auto output_subscriptions = node->get_subscriptions_info_by_topic(output_topic);
-  if (input_publishers.size() != 1 || input_subscriptions.size() != 1 ||
-    output_publishers.size() != 1 || output_subscriptions.size() != 1)
+  if (input_publishers.size() > 1 || input_subscriptions.size() > 1 ||
+    output_publishers.size() > 1 || output_subscriptions.size() > 1)
   {
     throw std::runtime_error("relay graph does not contain exactly four endpoints");
+  }
+  if (input_publishers.empty() || input_subscriptions.empty() ||
+    output_publishers.empty() || output_subscriptions.empty())
+  {
+    throw GraphIncomplete();
   }
   if (input_publishers[0].node_name() != driver_name ||
     output_subscriptions[0].node_name() != driver_name)
@@ -261,6 +272,12 @@ int run_relay(int argc, char ** argv)
   }
   const auto rss_baseline = peak_rss_bytes();
   const auto cpu_start = process_cpu_ns();
+  std::cout << kProtocolPrefix
+            << "{\"schema\":\"rclcppyy.relay-boundary-relay-event/v1\","
+            << "\"event\":\"armed\",\"variant\":\"aot-staged\","
+            << "\"run_token\":" << quote(token) << ",\"pid\":" << getpid() << ","
+            << "\"process_group_id\":" << getpgrp() << ","
+            << "\"cpu_clock\":\"CLOCK_PROCESS_CPUTIME_ID\"}" << std::endl;
   if (!std::getline(std::cin, command) || command != "REPORT") {
     executor.cancel();
     executor_thread.join();
@@ -350,8 +367,20 @@ int run_driver(int argc, char ** argv)
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
   }
-  const auto endpoints = graph_evidence(
-    node, input_topic, output_topic, driver_name, relay_name);
+  std::vector<std::string> endpoints;
+  while (endpoints.empty()) {
+    try {
+      endpoints = graph_evidence(
+        node, input_topic, output_topic, driver_name, relay_name);
+    } catch (const GraphIncomplete &) {
+      if (std::chrono::steady_clock::now() >= discovery_deadline) {
+        throw std::runtime_error(
+                "driver timed out waiting for all four endpoint-info records");
+      }
+      executor.spin_some();
+      std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    }
+  }
 
   for (std::uint64_t sequence = 1; sequence <= warmup; ++sequence) {
     Message input{};

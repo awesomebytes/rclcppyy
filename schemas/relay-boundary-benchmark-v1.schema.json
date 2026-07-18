@@ -55,7 +55,7 @@
               "items": {"$ref": "#/$defs/variant"}
             },
             "messages": {"type": "integer", "minimum": 1, "maximum": 100000},
-            "warmup_messages": {"type": "integer", "minimum": 0, "maximum": 100000},
+            "warmup_messages": {"type": "integer", "minimum": 1, "maximum": 100000},
             "repetitions": {"type": "integer", "minimum": 1, "maximum": 30},
             "requested_rmw": {"type": "string", "minLength": 1},
             "qos": {"$ref": "#/$defs/qos"},
@@ -105,6 +105,7 @@
           "driver_pid",
           "topology",
           "relay_ready",
+          "relay_armed",
           "relay_report",
           "driver_result",
           "driver_teardown",
@@ -145,6 +146,16 @@
               "cpu_time_ns": {"type": "integer", "minimum": 0},
               "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
               "rss_guard": {"$ref": "#/$defs/rss_guard"}
+            }
+          },
+          "relay_armed": {
+            "type": "object",
+            "required": ["schema", "event", "variant", "run_token", "pid", "process_group_id", "cpu_clock"],
+            "properties": {
+              "schema": {"const": "rclcppyy.relay-boundary-relay-event/v1"},
+              "event": {"const": "armed"},
+              "variant": {"$ref": "#/$defs/variant"},
+              "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"}
             }
           },
           "driver_result": {

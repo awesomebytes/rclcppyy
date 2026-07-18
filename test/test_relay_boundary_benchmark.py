@@ -26,6 +26,7 @@ def _load(name):
 
 protocol = _load("_relay_boundary_protocol")
 worker = _load("relay_boundary_worker")
+runner = _load("run_relay_boundary_benchmark")
 DIGEST = "a" * 64
 RMW = "rmw_cyclonedds_cpp"
 MESSAGES = 4
@@ -208,6 +209,10 @@ def _sample(variant, index=0):
                 "publisher", "cpp", "rclcppyy_status_operation"),
             "fallback_publish_operations": 0,
             "last_publish_backend": "cpp",
+            "publish_route_tainted": False,
+            "status_operation_counts": {
+                "cpp": 2, "python": 0, "unsupported": 0},
+            "status_dropped_operation_records": 0,
         })
     elif variant == "native-fused":
         report.update({
@@ -280,6 +285,15 @@ def _sample(variant, index=0):
             "output_topic": output_topic,
         },
         "relay_ready": ready,
+        "relay_armed": {
+            "schema": protocol.RELAY_SCHEMA,
+            "event": "armed",
+            "variant": variant,
+            "run_token": token,
+            "pid": relay_pid,
+            "process_group_id": relay_pid,
+            "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
+        },
         "relay_report": report,
         "driver_result": driver,
         "driver_teardown": {
@@ -324,6 +338,69 @@ def test_transform_percentiles_and_shared_compatibility_relay():
     assert protocol.latency_summary([4, 1, 3, 2]) == {
         "p50": 2, "p95": 4, "p99": 4, "max": 4}
     assert worker._run_python_relay.__code__.co_varnames[:2] == ("args", "activate")
+    worker_source = (
+        BENCH_DIR / "relay_boundary_worker.py").read_text(encoding="utf-8")
+    relay_source = worker_source[
+        worker_source.index("def _run_python_relay"):
+        worker_source.index("def _run_python_callback")
+    ]
+    assert relay_source.index("publish-marker-capture-before") < relay_source.index(
+        "cpu_start = time.process_time_ns()")
+    assert "finally:\n        teardown_clean = _cleanup_python_relay" in relay_source
+    aot_source = (
+        BENCH_DIR / "relay_boundary_aot" / "relay_boundary_aot.cpp"
+    ).read_text(encoding="utf-8")
+    assert "while (endpoints.empty())" in aot_source
+    assert "catch (const GraphIncomplete &)" in aot_source
+    assert "input_publishers.size() > 1" in aot_source
+
+
+def test_armed_handshake_and_timeout_stack_dump_are_fail_closed():
+    token = "run_" + "1" * 32
+    armed = {
+        "schema": protocol.RELAY_SCHEMA,
+        "event": "armed",
+        "variant": "compatible-rclcppyy",
+        "run_token": token,
+        "pid": 123,
+        "process_group_id": 123,
+        "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
+    }
+    runner._validate_armed_before_measurement(
+        armed, variant="compatible-rclcppyy", token=token, relay_pid=123)
+    invalid = dict(armed, process_group_id=124)
+    with pytest.raises(RuntimeError, match="invalid armed evidence"):
+        runner._validate_armed_before_measurement(
+            invalid, variant="compatible-rclcppyy", token=token, relay_pid=123)
+
+    code = """
+import faulthandler
+import signal
+import sys
+import time
+faulthandler.enable(file=sys.stderr, all_threads=True)
+faulthandler.register(signal.SIGUSR1, file=sys.stderr, all_threads=True)
+print('fixture-phase-before-block', file=sys.stderr, flush=True)
+while True:
+    time.sleep(1)
+"""
+    process = subprocess.Popen(
+        [sys.executable, "-c", code],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        start_new_session=True,
+    )
+    try:
+        with pytest.raises(runner.ProtocolTimeout) as captured:
+            runner._read_document(
+                process, 0.5, "fixture worker", request_stack_dump=True)
+        assert captured.value.stderr is not None
+        assert "fixture-phase-before-block" in captured.value.stderr
+        assert "Current thread" in captured.value.stderr
+    finally:
+        runner._stop_process(process)
 
 
 def test_all_five_fixture_routes_satisfy_strict_sample_contract():
@@ -350,6 +427,8 @@ def test_all_five_fixture_routes_satisfy_strict_sample_contract():
             within_limit=False), "RSS"),
         ("compatible-rclcppyy", lambda row: row["relay_report"].update(
             cpu_clock="wall"), "CPU timing"),
+        ("compatible-rclcppyy", lambda row: row["relay_report"].update(
+            publish_route_tainted=True), "tainted"),
     ],
 )
 def test_routes_reject_tainted_evidence(variant, mutation, error):
@@ -410,10 +489,13 @@ def test_document_is_descriptive_and_portable_schema_forbids_claims(monkeypatch)
     assert schema["properties"]["comparison"]["properties"][
         "interpretation_allowed"] == {"const": False}
     assert len(schema["properties"]["results"]["items"]["allOf"]) == 5
+    assert "relay_armed" in schema["properties"]["results"]["items"]["required"]
 
 
 def test_all_variants_run_with_one_aot_driver_and_exact_parity(tmp_path):
     output = tmp_path / "relay-boundary-smoke.json"
+    environment = os.environ.copy()
+    environment["RMW_IMPLEMENTATION"] = "rmw_cyclonedds_cpp"
     process = subprocess.run(
         [
             sys.executable,
@@ -426,7 +508,7 @@ def test_all_variants_run_with_one_aot_driver_and_exact_parity(tmp_path):
             "--json",
         ],
         cwd=REPO_ROOT,
-        env=os.environ.copy(),
+        env=environment,
         capture_output=True,
         text=True,
         timeout=300,
@@ -437,6 +519,8 @@ def test_all_variants_run_with_one_aot_driver_and_exact_parity(tmp_path):
     assert document == json.loads(output.read_text(encoding="utf-8"))
     assert document["failures"] == []
     assert document["benchmark"]["mode"] == "smoke"
+    assert document["benchmark"]["parameters"][
+        "requested_rmw"] == "rmw_cyclonedds_cpp"
     assert document["benchmark"]["performance_claims_allowed"] is False
     assert document["comparison"]["interpretation_allowed"] is False
     assert {row["variant"] for row in document["results"]} == set(

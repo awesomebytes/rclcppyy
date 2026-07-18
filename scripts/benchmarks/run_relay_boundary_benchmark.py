@@ -48,6 +48,12 @@ MAX_REPETITIONS = 30
 PROTOCOL_PREFIX = "@@RCLCPPYY_RELAY_BOUNDARY_V1@@"
 
 
+class ProtocolTimeout(RuntimeError):
+    def __init__(self, message: str, *, stderr: str | None = None):
+        super().__init__(message)
+        self.stderr = stderr
+
+
 def _sha256(path: str | Path) -> str:
     digest = hashlib.sha256()
     with Path(path).open("rb") as stream:
@@ -203,17 +209,56 @@ def _prewarm(cache_root: Path, env: dict, timeout: float) -> dict:
     }
 
 
+def _drain_stderr_after_stack_request(process: subprocess.Popen) -> str | None:
+    if process.poll() is None:
+        try:
+            os.kill(process.pid, signal.SIGUSR1)
+        except ProcessLookupError:
+            pass
+    time.sleep(0.5)
+    descriptor = process.stderr.fileno()
+    chunks = []
+    os.set_blocking(descriptor, False)
+    try:
+        while True:
+            try:
+                chunk = os.read(descriptor, 65536)
+            except BlockingIOError:
+                break
+            if not chunk:
+                break
+            chunks.append(chunk)
+    finally:
+        os.set_blocking(descriptor, True)
+    value = b"".join(chunks).decode("utf-8", errors="replace").strip()
+    return value or None
+
+
+def _protocol_timeout(
+        process: subprocess.Popen, timeout: float, label: str,
+        *, request_stack_dump: bool) -> ProtocolTimeout:
+    stderr = (
+        _drain_stderr_after_stack_request(process)
+        if request_stack_dump else None
+    )
+    return ProtocolTimeout(
+        "%s timed out after %.1fs" % (label, timeout), stderr=stderr)
+
+
 def _read_document(
-        process: subprocess.Popen, timeout: float, label: str) -> tuple[dict, list[str]]:
+        process: subprocess.Popen, timeout: float, label: str,
+        *, request_stack_dump: bool = False) -> tuple[dict, list[str]]:
     deadline = time.monotonic() + timeout
     diagnostics = []
     while True:
         remaining = deadline - time.monotonic()
         if remaining <= 0:
-            raise RuntimeError("%s timed out after %.1fs" % (label, timeout))
+            raise _protocol_timeout(
+                process, timeout, label, request_stack_dump=request_stack_dump)
         ready, _, _ = select.select([process.stdout], [], [], remaining)
         if not ready:
-            raise RuntimeError("%s timed out after %.1fs" % (label, timeout))
+            raise _protocol_timeout(
+                process, timeout, label, request_stack_dump=request_stack_dump)
         line = process.stdout.readline()
         if not line:
             stderr = process.stderr.read()
@@ -259,6 +304,21 @@ def _write_control(process: subprocess.Popen, command: str, label: str) -> None:
         process.stdin.flush()
     except (BrokenPipeError, OSError) as exc:
         raise RuntimeError("%s control pipe failed" % label) from exc
+
+
+def _validate_armed_before_measurement(
+        armed: dict, *, variant: str, token: str, relay_pid: int) -> None:
+    expected = {
+        "schema": "rclcppyy.relay-boundary-relay-event/v1",
+        "event": "armed",
+        "variant": variant,
+        "run_token": token,
+        "pid": relay_pid,
+        "process_group_id": relay_pid,
+        "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
+    }
+    if armed != expected:
+        raise RuntimeError("relay emitted invalid armed evidence")
 
 
 def _relay_argv(
@@ -344,12 +404,17 @@ def _run_sample(
         if relay_process.children(recursive=True) or driver_process.children(recursive=True):
             raise RuntimeError("benchmark processes retained setup children before measurement")
         _write_control(relay, "START", "%s relay" % variant)
+        armed, relay_armed_diagnostics = _read_document(
+            relay, timeout, "%s relay armed" % variant)
+        _validate_armed_before_measurement(
+            armed, variant=variant, token=token, relay_pid=relay.pid)
         _write_control(driver, "START", "AOT driver")
         driver_result, driver_result_diagnostics = _read_document(
             driver, timeout, "AOT driver measured result")
         _write_control(relay, "REPORT", "%s relay" % variant)
         report, relay_report_diagnostics = _read_document(
-            relay, timeout, "%s relay report" % variant)
+            relay, timeout, "%s relay report" % variant,
+            request_stack_dump=variant == "compatible-rclcppyy")
         _write_control(driver, "TEARDOWN", "AOT driver")
         driver_teardown, driver_teardown_diagnostics = _read_document(
             driver, timeout, "AOT driver teardown")
@@ -389,6 +454,7 @@ def _run_sample(
                 "output_topic": output_topic,
             },
             "relay_ready": ready,
+            "relay_armed": armed,
             "relay_report": report,
             "driver_result": driver_result,
             "driver_teardown": driver_teardown,
@@ -398,7 +464,8 @@ def _run_sample(
             "teardown_verified": True,
             "diagnostics": {
                 "relay_stdout": (
-                    relay_ready_diagnostics + relay_report_diagnostics +
+                    relay_ready_diagnostics + relay_armed_diagnostics +
+                    relay_report_diagnostics +
                     relay_finish["stdout"]),
                 "driver_stdout": (
                     driver_warm_diagnostics + driver_result_diagnostics +
@@ -479,8 +546,8 @@ def main() -> int:
         1 if args.smoke else 5)
     if not 1 <= messages <= MAX_MESSAGES:
         parser.error("--messages must be between 1 and %d" % MAX_MESSAGES)
-    if not 0 <= warmup <= MAX_MESSAGES:
-        parser.error("--warmup-messages must be between 0 and %d" % MAX_MESSAGES)
+    if not 1 <= warmup <= MAX_MESSAGES:
+        parser.error("--warmup-messages must be between 1 and %d" % MAX_MESSAGES)
     if not 1 <= repetitions <= MAX_REPETITIONS:
         parser.error("--repetitions must be between 1 and %d" % MAX_REPETITIONS)
     if args.timeout <= 0:
@@ -528,12 +595,15 @@ def main() -> int:
                             timeout=args.timeout,
                         ))
                     except (OSError, psutil.Error, RuntimeError, ValueError) as exc:
-                        failures.append({
+                        failure = {
                             "case_id": "%s__rep_%d" % (variant, repetition),
                             "variant": variant,
                             "repetition": repetition,
                             "error": str(exc),
-                        })
+                        }
+                        if isinstance(exc, ProtocolTimeout) and exc.stderr:
+                            failure["diagnostics"] = {"stderr": exc.stderr}
+                        failures.append(failure)
             parameters = {
                 "variants": variants,
                 "messages": messages,

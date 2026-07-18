@@ -352,11 +352,31 @@ def _validate_report(report: dict, sample: dict, warmup: int, messages: int) -> 
                 "evidence") != "rclcppyy_status_operation":
             raise ValueError("compatible relay completed-publish marker is invalid")
         if report.get("fallback_publish_operations") != 0 or report.get(
-                "last_publish_backend") != "cpp":
+                "last_publish_backend") != "cpp" or report.get(
+                    "publish_route_tainted") is not False:
             raise ValueError("compatible relay publish route was tainted or fell back")
+        counts = report.get("status_operation_counts")
+        if not isinstance(counts, dict) or not _is_positive_int(counts.get("cpp")):
+            raise ValueError("compatible relay operation aggregates are invalid")
+        if not _is_nonnegative_int(report.get("status_dropped_operation_records")):
+            raise ValueError("compatible relay dropped-status evidence is invalid")
     if variant == "native-fused" and (
             report.get("compile_cache_hits") != 1 or report.get("compile_cache_misses") != 0):
         raise ValueError("fused relay compile-cache counters are invalid")
+
+
+def _validate_armed(armed: dict, sample: dict) -> None:
+    if not isinstance(armed, dict) or armed.get("schema") != RELAY_SCHEMA or armed.get(
+            "event") != "armed":
+        raise ValueError("relay armed evidence is invalid")
+    if armed.get("variant") != sample["variant"] or armed.get(
+            "run_token") != sample["run_token"]:
+        raise ValueError("relay armed identity is invalid")
+    if armed.get("pid") != sample["relay_pid"] or armed.get(
+            "process_group_id") != sample["relay_pid"]:
+        raise ValueError("relay armed process-group evidence is invalid")
+    if armed.get("cpu_clock") != "CLOCK_PROCESS_CPUTIME_ID":
+        raise ValueError("relay armed CPU clock is invalid")
 
 
 def _validate_driver(driver: dict, sample: dict, requested_rmw: str, warmup: int, messages: int) -> None:
@@ -497,6 +517,7 @@ def validate_sample(sample: dict, parameters: dict, build: dict, cache: dict) ->
     report = sample.get("relay_report")
     driver = sample.get("driver_result")
     _validate_ready(ready, sample, requested_rmw, build, cache)
+    _validate_armed(sample.get("relay_armed"), sample)
     _validate_report(
         report, sample, parameters["warmup_messages"], parameters["messages"])
     _validate_driver(
@@ -652,7 +673,7 @@ def validate_document(document: dict) -> None:
     if not isinstance(variants, list) or not variants or any(
             variant not in VARIANTS for variant in variants) or len(set(variants)) != len(variants):
         raise ValueError("relay-boundary variant matrix is invalid")
-    if not _is_positive_int(parameters.get("messages")) or not _is_nonnegative_int(
+    if not _is_positive_int(parameters.get("messages")) or not _is_positive_int(
             parameters.get("warmup_messages")) or not _is_positive_int(
             parameters.get("repetitions")):
         raise ValueError("relay-boundary message/repetition counts are invalid")
