@@ -36,6 +36,13 @@ def test_release_requires_dual_arch_source_preflight_and_exact_suite_build():
     jobs = workflow["jobs"]
     preflight = jobs["preflight"]
     release = jobs["release"]
+    assert workflow["permissions"] == {"contents": "read"}
+    assert "permissions" not in preflight
+    assert release["permissions"] == {
+        "contents": "read",
+        "id-token": "write",
+        "attestations": "write",
+    }
     matrix = preflight["strategy"]["matrix"]["include"]
     assert {(item["platform"], item["machine"]) for item in matrix} == {
         ("linux-64", "x86_64"),

@@ -17,8 +17,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
-  attestations: write
 
 concurrency:
   group: release-${{ github.ref }}
@@ -111,6 +109,10 @@ jobs:
   release:
     name: build, prove, attest, upload (${{ matrix.platform }})
     needs: preflight
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
     strategy:

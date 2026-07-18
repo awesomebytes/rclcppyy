@@ -79,16 +79,15 @@ jobs:
               --output "build/scheduled/stress-${rmw}.json" \
               2>&1 | tee "build/scheduled/stress-${rmw}.log"
           done
-      - name: Exercise isolated cold, warm, and corrupt generated caches
+      - name: Prove isolated cold, warm, and corrupt generated caches
         run: |
           set -euo pipefail
-          cache_root="$RUNNER_TEMP/rclcppyy-cold-cache"
-          rm -rf "$cache_root"
-          for state in cold warm; do
-            XDG_CACHE_HOME="$cache_root" CPPYY_KIT_NO_AUTOPCH=1 \
-              pixi run pytest test/test_phase0_same_handle_publisher.py -q \
-              2>&1 | tee "build/scheduled/cache-${state}.log"
-          done
+          cache_root="$RUNNER_TEMP/rclcppyy-cache-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${{ matrix.platform }}"
+          test ! -e "$cache_root"
+          pixi run python scripts/ci/prove_generated_cache.py \
+            --cache-root "$cache_root" \
+            --output build/scheduled/generated-cache.json \
+            2>&1 | tee build/scheduled/generated-cache.log
           CPPYY_KIT_CACHE_DIR="$cache_root/corrupt" \
             pixi run pytest \
               _deps/cppyy_kit/cppyy_kit/tests/test_cache.py::test_corrupt_cache_recovers \
@@ -110,6 +109,8 @@ jobs:
     env:
       RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
       PYTHONPATH: ${{ github.workspace }}/_deps/cppyy_kit:${{ github.workspace }}/_deps/cppyy_kit/rclcpp_kit
+      CPPYY_KIT_NO_AUTOPCH: '1'
+      XDG_CACHE_HOME: ${{ runner.temp }}/rclcppyy-benchmark-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.machine }}
     strategy:
       fail-fast: false
       matrix:
@@ -139,6 +140,14 @@ jobs:
           lscpu | tee -a build/dedicated-benchmark/machine.txt
           cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor \
             | tee -a build/dedicated-benchmark/machine.txt || true
+      - name: Establish deterministic generated-cache state
+        run: |
+          set -euo pipefail
+          test ! -e "$XDG_CACHE_HOME"
+          pixi run python scripts/ci/prove_generated_cache.py \
+            --cache-root "$XDG_CACHE_HOME" \
+            --output build/dedicated-benchmark/generated-cache.json \
+            2>&1 | tee build/dedicated-benchmark/generated-cache.log
       - name: Run repeated raw matrices
         run: |
           set -euo pipefail
