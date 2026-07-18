@@ -133,3 +133,35 @@ def test_runtime_stress_retains_partial_evidence_after_signal_failure(monkeypatc
     }]
     assert evidence["rounds"][0]["signal_probe_disabled_after_failure"] is True
     assert evidence["rounds"][1]["signal_probe_skipped_after_failure"] is True
+
+
+def test_signal_only_stress_retains_backend_specific_failure(monkeypatch):
+    attempts = []
+
+    def signal_probe(_timeout, accelerated):
+        attempts.append(accelerated)
+        if len(attempts) == 3:
+            raise AssertionError("executor remained blocked")
+        return {
+            "returncode": 0,
+            "accelerated": accelerated,
+            "clean_marker": True,
+            "duration_s": 0.1,
+        }
+
+    monkeypatch.setattr(stress_runtime, "signal_shutdown", signal_probe)
+    evidence = stress_runtime.run_signal_stress(
+        repetitions=20, timeout=30.0, accelerated=False)
+
+    assert evidence["schema"] == "rclcppyy.signal-stress/v1"
+    assert evidence["backend"] == "stock"
+    assert evidence["summary"]["result"] == "fail"
+    assert evidence["summary"]["attempts"] == 3
+    assert evidence["summary"]["clean_shutdowns"] == 2
+    assert evidence["failures"] == [{
+        "attempt": 2,
+        "probe": "signal_shutdown",
+        "exception_type": "AssertionError",
+        "error": "executor remained blocked",
+    }]
+    assert attempts == [False, False, False]

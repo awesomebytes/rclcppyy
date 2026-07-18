@@ -22,6 +22,7 @@ import uuid
 
 
 SCHEMA = "rclcppyy.runtime-stress/v2"
+SIGNAL_SCHEMA = "rclcppyy.signal-stress/v1"
 
 
 def _rss_kib() -> int:
@@ -267,6 +268,46 @@ def _failure(round_index: int, probe: str, exception: Exception, **fields) -> di
     return value
 
 
+def run_signal_stress(repetitions: int, timeout: float, accelerated: bool) -> dict:
+    started_at = datetime.now(timezone.utc).isoformat()
+    started = time.monotonic()
+    results = []
+    failures = []
+    for attempt in range(repetitions):
+        try:
+            results.append(signal_shutdown(timeout, accelerated=accelerated))
+        except Exception as exception:
+            failures.append({
+                "attempt": attempt,
+                "probe": "signal_shutdown",
+                "exception_type": type(exception).__name__,
+                "error": str(exception),
+            })
+            break
+    return {
+        "schema": SIGNAL_SCHEMA,
+        "started_at": started_at,
+        "architecture": platform.machine(),
+        "python": platform.python_version(),
+        "backend": "accelerated" if accelerated else "stock",
+        "parameters": {
+            "requested_repetitions": repetitions,
+            "timeout_s": timeout,
+            "signal": "SIGTERM",
+            "fresh_process_per_attempt": True,
+        },
+        "results": results,
+        "failures": failures,
+        "summary": {
+            "result": "fail" if failures else "pass",
+            "attempts": len(results) + len(failures),
+            "clean_shutdowns": len(results),
+            "failures": len(failures),
+            "duration_s": round(time.monotonic() - started, 6),
+        },
+    }
+
+
 def run_stress(args, *, enable_acceleration=None, rmw_identifier=None) -> dict:
     if enable_acceleration is None or rmw_identifier is None:
         import rclcppyy
@@ -404,6 +445,10 @@ def main(argv=None) -> int:
     parser.add_argument("--seed", type=int, default=20260718)
     parser.add_argument("--max-rss-growth-kib", type=int, default=0)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--signal-only", action="store_true")
+    parser.add_argument(
+        "--signal-backend", choices=("accelerated", "stock"),
+        default="accelerated")
     parser.add_argument("--signal-worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument(
         "--stock-signal-worker", action="store_true", help=argparse.SUPPRESS)
@@ -414,6 +459,28 @@ def main(argv=None) -> int:
     if args.stock_signal_worker:
         signal_worker(accelerated=False)
         return 0
+    if args.signal_only:
+        if args.signal_repetitions <= 0:
+            parser.error("signal-only repetitions must be positive")
+        if args.timeout <= 0:
+            parser.error("timeout must be positive")
+        evidence = run_signal_stress(
+            args.signal_repetitions,
+            args.timeout,
+            accelerated=args.signal_backend == "accelerated",
+        )
+        if args.output is not None:
+            _write_evidence(args.output, evidence)
+        print(
+            "SIGNAL_STRESS_%s backend=%s attempts=%d clean=%d failures=%d" % (
+                "FAILED" if evidence["failures"] else "OK",
+                evidence["backend"],
+                evidence["summary"]["attempts"],
+                evidence["summary"]["clean_shutdowns"],
+                evidence["summary"]["failures"],
+            )
+        )
+        return 1 if evidence["failures"] else 0
     if min(
         args.cycles,
         args.threads,
