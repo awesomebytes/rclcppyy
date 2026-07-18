@@ -63,6 +63,11 @@ with rclcppyy.native(["my_program"]) as ros:
     publisher = node.create_publisher(String, "chatter", 10)
     executor = ros.create_executor("multi_threaded", threads=2)
     executor.add_node(node)
+    relay = ros.create_fused_pipeline(
+        node, String, String, "input", "output",
+        'output.data = input.data + ":native";',
+        delivery="latest",
+    )
 ```
 
 Nodes, options, publishers, callback groups, and executors in this block are the
@@ -268,18 +273,18 @@ Without entering a shell, any command can be run through pixi directly, e.g.
 `pixi run ros2 run rclcppyy bench_sub_rclcppyy_monkeypatched.py`.
 </details>
 
-### Accelerate the *real* `ros2 topic hz` with `RCLCPPYY_ENABLE_HOOK`
+### Activate unedited software with `RCLCPPYY_ENABLE_HOOK`
 
 `enable_cpp_acceleration()` normally has to be called from inside your process. To
-accelerate a process you cannot edit — notably the stock **`ros2` CLI** — rclcppyy
-ships an **opt-in startup hook**. Install it once, then set `RCLCPPYY_ENABLE_HOOK=1` and
-the stock `ros2 topic hz` (and other rclpy-based verbs) runs on the C++ backend with
-**zero code changes**:
+activate a process you cannot edit, including stock **`ros2` CLI** commands, rclcppyy
+ships an **opt-in startup hook**. Install it once, then set
+`RCLCPPYY_ENABLE_HOOK=1` to enable the current certified routes with **zero code
+changes**:
 
 ```bash
 python -m rclcppyy.hook install          # once per environment (uninstall/status too)
 
-RCLCPPYY_ENABLE_HOOK=1 ros2 topic hz /some_topic  # runs on the rclcpp backend
+RCLCPPYY_ENABLE_HOOK=1 ros2 topic hz /some_topic  # activated; inspect status for routes
 ros2 topic hz /some_topic                   # env var unset -> ordinary rclpy, untouched
 ```
 
@@ -296,47 +301,11 @@ before the tool builds its node. The current compatibility architecture leaves
 provides zero-edit activation and backend reporting, but it must not be described as
 a C++ subscription/executor route until that route has current contract evidence.
 
-**Measured** (stock `ros2 topic hz` vs the same binary under
-`RCLCPPYY_ENABLE_HOOK=1`, against a C++ publisher of a `sensor_msgs/Image`,
-BEST_EFFORT, `--window 100`, with `net.core.rmem_max` raised (see below);
-`pixi run -e heavydemo demo-topic-hz-cli`; numbers vary by machine and run):
-
-| payload | target Hz | rclpy Hz | rclcppyy Hz | rclpy CPU % | rclcppyy CPU % |
-|---|---|---|---|---|---|
-| 3.0 MB  | 100  | 99.0   | 97.0   | 48.7  | 18.8 |
-| 3.0 MB  | 200  | 195.1  | 197.0  | 92.2  | 34.5 |
-| 3.0 MB  | 300  | 291.4  | 296.7  | 102.7 | 42.6 |
-| 0.05 MB | 1000 | 998.2  | 999.7  | 19.3  | 7.3  |
-| 0.05 MB | 3000 | 2967.6 | 2985.0 | 46.6  | 17.2 |
-
-Both backends deliver essentially the publisher's rate wherever the publisher can
-sustain it; the difference is CPU — the accelerated backend uses about a third to a
-half as much. `ros2 topic hz` (without `--filter`) subscribes with `raw=True`, so
-stock rclpy does not deserialise the payload; the saving is the C++ executor and
-message handling replacing the Python executor, not avoiding a per-message copy.
-Delivered rates stay close because the raw stock reader is cheap enough to keep up
-where the publisher can feed it — but note where the CPU lands: on the 3 MB stream
-stock rclpy crosses one full core near 200–250 Hz (92–107 %), while the accelerated
-backend stays around a third of a core, so on a busier machine or at a higher rate
-the stock reader saturates first.
-
-**Startup: a one-time cost.** Time to first hz line
-(`pixi run -e heavydemo demo-topic-hz-startup`):
-
-| `ros2 topic hz` first hz line | time |
-|---|---|
-| stock (no acceleration) | ~1.7 s |
-| `RCLCPPYY_ENABLE_HOOK=1`, cold cache | ~8.3 s |
-| `RCLCPPYY_ENABLE_HOOK=1`, warm cache | ~4.1 s |
-
-Two caches cut the warm start: the suite's Cling PCH removes the `rclcpp` header
-parse, and a per-message-type subscription cache removes the ~2.8 s one-time JIT of
-`create_subscription<MsgT>` (both built on the first run and loaded on later ones,
-cold → warm above). The warm figure is still above stock because the rest of the
-rclcpp bring-up — cppyy symbol discovery and the rclpy-compatibility adapters — is
-not yet cached. Acceleration therefore remains a one-time startup cost that pays off
-over a long-running `hz` session rather than a single short call. (Needs the newer
-suite; see the dev-bridge note below.)
+Older measurements for this hook used a companion-node C++ subscription/executor
+prototype. They do not describe the current stock-authority architecture and have
+therefore been removed. Current startup-hook claims are limited to activation,
+object/behavior compatibility, backend reporting, and whichever individual routes
+are certified in the compatibility manifest.
 
 ### Large messages under BEST_EFFORT QoS
 
