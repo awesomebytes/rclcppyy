@@ -1,0 +1,97 @@
+{
+  "schema": "rclcppyy.differential-limitations/v1",
+  "reviewed_at": "2026-07-18",
+  "entries": [
+    {
+      "id": "subscription.same_handle_cpp",
+      "coverage": "probed",
+      "check": "status_record",
+      "expected": {"kind": "entities", "backend": "cpp", "metadata": {"entity_type": "subscription"}},
+      "reason": "Subscription take and dispatch remain an explicit stock fallback."
+    },
+    {
+      "id": "timer.same_handle_cpp",
+      "coverage": "probed",
+      "check": "status_record",
+      "expected": {"kind": "entities", "backend": "cpp", "metadata": {"entity_type": "timer"}},
+      "reason": "Timer scheduling remains an explicit stock fallback."
+    },
+    {
+      "id": "service.backend_evidence",
+      "coverage": "probed",
+      "check": "status_record",
+      "expected": {"kind": "entities", "backend": "python", "metadata": {"entity_type": "service"}},
+      "reason": "Service behavior is stock-compatible but is not yet represented in runtime status."
+    },
+    {
+      "id": "client.backend_evidence",
+      "coverage": "probed",
+      "check": "status_record",
+      "expected": {"kind": "entities", "backend": "python", "metadata": {"entity_type": "client"}},
+      "reason": "Client behavior is stock-compatible but is not yet represented in runtime status."
+    },
+    {
+      "id": "parameters.backend_evidence",
+      "coverage": "probed",
+      "check": "status_record",
+      "expected": {"kind": "operations", "backend": "python", "metadata": {"operation": "set_parameters"}},
+      "reason": "Parameter mutation is stock-compatible but is not yet represented in runtime status."
+    },
+    {
+      "id": "guard.backend_evidence",
+      "coverage": "probed",
+      "check": "status_record",
+      "expected": {"kind": "entities", "backend": "python", "metadata": {"entity_type": "guard_condition"}},
+      "reason": "Guard conditions are stock-compatible but are not yet represented in runtime status."
+    },
+    {
+      "id": "future.backend_evidence",
+      "coverage": "probed",
+      "check": "status_record",
+      "expected": {"kind": "operations", "backend": "python", "metadata": {"operation": "future"}},
+      "reason": "Future completion is stock-compatible but is not yet represented in runtime status."
+    },
+    {
+      "id": "spin.backend_evidence",
+      "coverage": "probed",
+      "check": "status_record",
+      "expected": {"kind": "operations", "backend": "python", "metadata": {"operation": "spin"}},
+      "reason": "Executor spin behavior is stock-compatible but is not yet represented in runtime status."
+    },
+    {
+      "id": "spin_once.backend_evidence",
+      "coverage": "probed",
+      "check": "status_record",
+      "expected": {"kind": "operations", "backend": "python", "metadata": {"operation": "spin_once"}},
+      "reason": "Executor spin_once behavior is stock-compatible but is not yet represented in runtime status."
+    },
+    {
+      "id": "callback_exception.backend_evidence",
+      "coverage": "probed",
+      "check": "status_record",
+      "expected": {"kind": "operations", "backend": "python", "metadata": {"operation": "callback_exception"}},
+      "reason": "Callback exception parity is tested, but the route is not represented in runtime status."
+    },
+    {
+      "id": "actions.application_corpus",
+      "coverage": "excluded",
+      "check": "none",
+      "expected": null,
+      "reason": "Action client/server behavior requires a separate multi-node lifecycle corpus."
+    },
+    {
+      "id": "lifecycle.application_corpus",
+      "coverage": "excluded",
+      "check": "none",
+      "expected": null,
+      "reason": "Managed lifecycle transitions require a dedicated transition and service corpus."
+    },
+    {
+      "id": "multi_threaded.application_corpus",
+      "coverage": "excluded",
+      "check": "none",
+      "expected": null,
+      "reason": "This bounded increment uses a SingleThreadedExecutor only."
+    }
+  ]
+}

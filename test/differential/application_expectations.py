@@ -1,0 +1,41 @@
+"""Reviewed behavioral parity paths for the application corpus."""
+
+from differential.expectations import ParityExpectation
+
+
+APPLICATION_PARITY = (
+    ParityExpectation("node.subclass_type", ("node_construction", "subclass_type"),
+                      "Pre-activation Node subclasses retain exact identity."),
+    ParityExpectation("node.subclass_exact", ("node_construction", "subclass_exact"),
+                      "Constructing a subclass returns that exact subclass."),
+    ParityExpectation("node.subclass_base", ("node_construction", "subclass_base_preserved"),
+                      "Activation does not rewrite a subclass base."),
+    ParityExpectation("node.factory_type", ("node_construction", "factory_type"),
+                      "rclpy.create_node retains the stock Node type."),
+    ParityExpectation("node.factory_exact", ("node_construction", "factory_exact_stock"),
+                      "rclpy.create_node returns an exact stock Node."),
+    ParityExpectation("node.context", ("node_construction", "requested_context_preserved"),
+                      "Direct and factory nodes retain the requested Context."),
+    ParityExpectation("node.default_context", ("node_construction", "default_context_ok"),
+                      "Explicit contexts do not initialize the default Context."),
+    ParityExpectation("qos.options", ("qos_and_options",),
+                      "QoS, event, callback-group, override, and class options match stock."),
+    ParityExpectation("entity.destruction", ("entity_destruction",),
+                      "Explicit entity destruction return values match stock."),
+    ParityExpectation("timer.behavior", ("timer",),
+                      "Timer reset, callback, cancel, group, and destruction match stock."),
+    ParityExpectation("guard.behavior", ("guard_condition",),
+                      "Guard trigger, callback group, and destruction match stock."),
+    ParityExpectation("future.behavior", ("future",),
+                      "Future completion and done callbacks match stock."),
+    ParityExpectation("service.client", ("service_client",),
+                      "Local service/client futures and teardown match stock."),
+    ParityExpectation("parameters.behavior", ("parameters",),
+                      "Parameter declaration, callbacks, mutation, and listing match stock."),
+    ParityExpectation("callback.exception", ("callback_exception",),
+                      "Executor callback exceptions preserve their Python type."),
+    ParityExpectation("sim_time.behavior", ("sim_time",),
+                      "Simulated time activation and /clock delivery match stock."),
+    ParityExpectation("executor.spin", ("spin",),
+                      "rclpy.spin services a timer and observes Context shutdown."),
+)
