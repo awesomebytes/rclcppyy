@@ -49,9 +49,10 @@ Render any v2 result as a deterministic review report:
 pixi run bench-report build/benchmark.json --output build/benchmark.md
 ```
 
-The renderer preserves the artifact's claim policy. Smoke reports state that
-performance claims are forbidden, and measurement reports do not select a winner;
-comparative conclusions still require controlled repeated runs and review.
+The raw runner always writes `performance_claims_allowed: false`, including in
+measurement mode. Smoke reports identify validation-only evidence; measurement
+reports identify characterization inputs and do not select a winner. A separate
+reviewed analysis must combine repeated controlled runs before making a claim.
 
 ## Evidence And Statistics
 
@@ -72,6 +73,10 @@ The runtime envelope is `rclcppyy.benchmark/v2`; its portable JSON Schema is
 artifact records source revision/dirty state, architecture, CPU, Python and
 package versions, ROS/RMW settings, cache environment, selected matrix, raw CPU
 samples, failures, and child backend evidence.
+
+Each matrix acquires an advisory lease for a unique `ROS_DOMAIN_ID` and uses a
+random run token in every topic. Concurrent matrices on one host therefore cannot
+share endpoints accidentally; the leased domain and token are recorded in JSON.
 
 ## Current Limits
 

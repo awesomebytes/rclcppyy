@@ -50,6 +50,7 @@ from _benchmark_protocol import (
     validate_event,
     validate_window_result,
 )
+from _domain_lease import acquire_domain
 from _result_schema import build_document, dumps, write
 
 
@@ -469,15 +470,12 @@ def _parser():
     return parser
 
 
-def main():
-    parser = _parser()
-    args = parser.parse_args()
-    if args.sample_hz <= 0:
-        parser.error("--sample-hz must be positive")
-    mode, backends, workloads, rates, payloads, duration = _selectors(args, parser)
-    cases = build_cases(backends, workloads, rates, payloads)
+def _execute(args, mode, backends, workloads, rates, payloads, duration, lease):
+    run_token = "run_" + uuid.uuid4().hex
+    cases = build_cases(
+        backends, workloads, rates, payloads, run_token=run_token)
     if not cases:
-        parser.error("selected matrix has no supported cases")
+        raise ValueError("selected matrix has no supported cases")
 
     if args.list_matrix:
         print(json.dumps(cases, indent=2, sort_keys=True))
@@ -510,6 +508,8 @@ def main():
             })
 
     matrix = {
+        "run_token": run_token,
+        "ros_domain_id": lease.domain_id,
         "backends": backends,
         "workloads": workloads,
         "target_rates_hz": rates,
@@ -538,6 +538,25 @@ def main():
         else:
             log("All cases completed with verified backend evidence.")
     return 1 if failures else 0
+
+
+def main():
+    parser = _parser()
+    args = parser.parse_args()
+    if args.sample_hz <= 0:
+        parser.error("--sample-hz must be positive")
+    mode, backends, workloads, rates, payloads, duration = _selectors(args, parser)
+    previous_domain = os.environ.get("ROS_DOMAIN_ID")
+    with acquire_domain() as lease:
+        os.environ["ROS_DOMAIN_ID"] = str(lease.domain_id)
+        try:
+            return _execute(
+                args, mode, backends, workloads, rates, payloads, duration, lease)
+        finally:
+            if previous_domain is None:
+                os.environ.pop("ROS_DOMAIN_ID", None)
+            else:
+                os.environ["ROS_DOMAIN_ID"] = previous_domain
 
 
 if __name__ == "__main__":

@@ -147,7 +147,9 @@ def build_document(
         "benchmark": {
             "name": benchmark_name,
             "mode": mode,
-            "performance_claims_allowed": mode == "measurement",
+            # Raw executions are characterization inputs. A separate reviewed
+            # repeated-run analysis may make claims; this artifact never does.
+            "performance_claims_allowed": False,
             "matrix": matrix,
             "statistics": {
                 "window": "subscriber acknowledged explicit start/stop control messages",
@@ -182,6 +184,8 @@ def validate_document(document: dict) -> None:
         raise ValueError("benchmark statistics definitions are required")
     if benchmark["mode"] == "smoke" and benchmark.get("performance_claims_allowed") is not False:
         raise ValueError("smoke results cannot allow performance claims")
+    if benchmark.get("performance_claims_allowed") is not False:
+        raise ValueError("raw benchmark results cannot allow performance claims")
     if not isinstance(document.get("results"), list):
         raise ValueError("results must be a list")
     if not isinstance(document.get("failures"), list):

@@ -24,6 +24,7 @@ def _load(name):
 
 matrix = _load("_benchmark_matrix")
 protocol = _load("_benchmark_protocol")
+domains = _load("_domain_lease")
 
 
 def test_declarative_matrix_crosses_frequency_and_payload_variants():
@@ -40,6 +41,30 @@ def test_declarative_matrix_crosses_frequency_and_payload_variants():
     assert {case["target_rate_hz"] for case in cases} == {100, 1000}
     assert {case["payload_bytes"] for case in cases} == {0, 4096}
     assert all(case["expected_backends"] for case in cases)
+
+
+def test_run_token_namespaces_topics_without_changing_case_identity():
+    plain = matrix.build_cases(["rclpy"], ["small-string"], [100], [0])[0]
+    scoped = matrix.build_cases(
+        ["rclpy"], ["small-string"], [100], [0], run_token="run123")[0]
+
+    assert scoped["case_id"] == plain["case_id"]
+    assert scoped["topic"] == "/rclcppyy_bench/run123/" + plain["case_id"]
+
+
+def test_domain_leases_are_distinct_and_reusable(tmp_path, monkeypatch):
+    monkeypatch.setenv("RCLCPPYY_BENCH_DOMAIN_MIN", "220")
+    monkeypatch.setenv("RCLCPPYY_BENCH_DOMAIN_MAX", "221")
+    first = domains.acquire_domain(tmp_path)
+    second = domains.acquire_domain(tmp_path)
+    assert {first.domain_id, second.domain_id} == {220, 221}
+    first_id = first.domain_id
+    first.release()
+    second.release()
+    replacement = domains.acquire_domain(tmp_path)
+    assert replacement.domain_id in {220, 221}
+    replacement.release()
+    assert first_id in {220, 221}
 
 
 def test_measurement_window_uses_actual_counts_drops_and_nearest_rank():
@@ -117,6 +142,10 @@ def test_smoke_matrix_runs_flat_and_nested_in_isolated_processes():
     assert document["schema"] == "rclcppyy.benchmark/v2"
     assert document["benchmark"]["mode"] == "smoke"
     assert document["benchmark"]["performance_claims_allowed"] is False
+    assert document["environment"]["ros"]["domain_id"] is not None
+    assert document["benchmark"]["matrix"]["ros_domain_id"] == int(
+        document["environment"]["ros"]["domain_id"])
+    assert document["benchmark"]["matrix"]["run_token"]
     assert document["failures"] == []
     assert {row["workload"] for row in document["results"]} == {
         "small-string", "nested-header"}

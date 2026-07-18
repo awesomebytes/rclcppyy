@@ -23,7 +23,7 @@
       "properties": {
         "name": {"type": "string", "minLength": 1},
         "mode": {"enum": ["measurement", "smoke"]},
-        "performance_claims_allowed": {"type": "boolean"},
+        "performance_claims_allowed": {"const": false},
         "matrix": {"type": "object"},
         "statistics": {"type": "object"}
       }

@@ -62,6 +62,7 @@ def test_document_records_structured_failures():
 
     assert document["results"] == []
     assert document["failures"] == failures
+    assert document["benchmark"]["performance_claims_allowed"] is False
 
 
 def test_write_is_atomic_and_round_trips(tmp_path):
@@ -98,4 +99,13 @@ def test_smoke_document_forbids_performance_claims():
 
     document["benchmark"]["performance_claims_allowed"] = True
     with pytest.raises(ValueError, match="smoke results cannot"):
+        schema.validate_document(document)
+
+
+def test_raw_measurement_document_forbids_performance_claims():
+    document = _document(mode="measurement")
+
+    assert document["benchmark"]["performance_claims_allowed"] is False
+    document["benchmark"]["performance_claims_allowed"] = True
+    with pytest.raises(ValueError, match="raw benchmark results cannot"):
         schema.validate_document(document)

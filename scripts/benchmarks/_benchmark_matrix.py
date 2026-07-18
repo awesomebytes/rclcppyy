@@ -95,7 +95,7 @@ def _case_id(backend, workload, rate_hz, payload_bytes):
     return re.sub(r"[^a-zA-Z0-9_]", "_", raw)
 
 
-def build_cases(backends, workloads, rates_hz, payload_bytes_values):
+def build_cases(backends, workloads, rates_hz, payload_bytes_values, *, run_token=None):
     """Return the supported deterministic matrix cross-product."""
     cases = []
     for backend, workload, rate_hz, payload_bytes in itertools.product(
@@ -115,6 +115,7 @@ def build_cases(backends, workloads, rates_hz, payload_bytes_values):
             "message_type": WORKLOADS[workload]["message_type"],
             "target_rate_hz": rate_hz,
             "payload_bytes": payload_bytes,
-            "topic": f"/rclcppyy_bench/{case_id}",
+            "topic": "/rclcppyy_bench/%s%s" % (
+                (str(run_token) + "/") if run_token else "", case_id),
         })
     return cases

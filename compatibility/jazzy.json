@@ -265,7 +265,7 @@
       "fallback": "safe",
       "default": true,
       "evidence": ["test/fixtures/custom_interfaces/run_interop.py", "test/fixtures/custom_interfaces/rclcppyy_test_peer/src/interop_peer.cpp", "scripts/ci/prove_custom_interfaces.sh", "rclcppyy/monkey.py"],
-      "notes": "A generated nested action proves discovery, goal acceptance, feedback, successful result, and teardown against a separately compiled C++ server on x86-64 and ARM64 CI. The Python client remains explicitly reported as Python-owned."
+      "notes": "A generated nested action proves discovery, goal acceptance, feedback, successful result, and teardown against a separately compiled C++ server on local x86-64. The same source proof is wired into native ARM64 CI but is not certified there until a remote run succeeds. The Python client remains explicitly reported as Python-owned."
     },
     {
       "id": "action.advanced_and_error_paths",

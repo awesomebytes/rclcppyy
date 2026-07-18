@@ -49,17 +49,23 @@ def render(document: dict) -> str:
     ros = environment.get("ros", {})
     source = environment.get("source", {})
     claims_allowed = benchmark["performance_claims_allowed"]
+    if claims_allowed:
+        banner = (
+            "Measurement artifact. Performance claims require repeated controlled "
+            "runs and explicit review.")
+    elif benchmark["mode"] == "smoke":
+        banner = (
+            "Smoke artifact. Performance claims are forbidden; these timings only "
+            "validate execution and evidence collection.")
+    else:
+        banner = (
+            "Characterization artifact. Performance claims are forbidden; use this "
+            "raw run only as input to reviewed repeated-run analysis.")
 
     lines = [
         "# Benchmark report",
         "",
-        "> %s" % (
-            "Measurement artifact. Performance claims require repeated controlled "
-            "runs and explicit review."
-            if claims_allowed else
-            "Smoke artifact. Performance claims are forbidden; these timings only "
-            "validate execution and evidence collection."
-        ),
+        "> %s" % banner,
         "",
         "## Run",
         "",

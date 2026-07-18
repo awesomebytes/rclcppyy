@@ -27,7 +27,7 @@ def _document(mode="smoke"):
         "benchmark": {
             "name": "fixture",
             "mode": mode,
-            "performance_claims_allowed": mode == "measurement",
+            "performance_claims_allowed": False,
             "matrix": {},
             "statistics": {"latency": "nearest-rank", "cpu": "sample mean"},
         },
@@ -73,7 +73,7 @@ def test_reproduction_command_is_shell_quoted():
 
 def test_measurement_report_does_not_declare_a_winner():
     report = report_module.render(_document(mode="measurement"))
-    assert "explicit review" in report
+    assert "Characterization artifact. Performance claims are forbidden" in report
     assert "winner" not in report.lower()
 
 
