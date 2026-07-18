@@ -188,6 +188,7 @@ def validate(manifest: dict, repo_root: Path) -> dict:
     _require(isinstance(entries, list) and entries, "entries must be a non-empty list")
     seen = set()
     counts = collections.Counter()
+    backend_counts = collections.Counter()
     area_counts = collections.defaultdict(collections.Counter)
 
     for index, entry in enumerate(entries):
@@ -238,6 +239,7 @@ def validate(manifest: dict, repo_root: Path) -> dict:
             _require(isinstance(relative_path, str) and relative_path, f"{entry_id}: invalid evidence path")
             _require((repo_root / relative_path).exists(), f"{entry_id}: missing evidence {relative_path}")
         counts[entry["support"]] += 1
+        backend_counts[entry["backend"]] += 1
         area_counts[entry["area"]][entry["support"]] += 1
 
     entries_by_id = {entry["id"]: entry for entry in entries}
@@ -249,6 +251,7 @@ def validate(manifest: dict, repo_root: Path) -> dict:
         "reviewed_at": manifest["reviewed_at"],
         "entries": len(entries),
         "support": dict(sorted(counts.items())),
+        "backend": dict(sorted(backend_counts.items())),
         "areas": {area: dict(sorted(values.items())) for area, values in sorted(area_counts.items())},
         "upstream_contract": upstream_summary,
     }
@@ -274,7 +277,11 @@ def main(argv=None):
         print(json.dumps(summary, indent=2, sort_keys=True))
     else:
         support = ", ".join(f"{key}={value}" for key, value in summary["support"].items())
-        print(f"{args.manifest}: {summary['entries']} entries ({support})")
+        backend = ", ".join(f"{key}={value}" for key, value in summary["backend"].items())
+        print(
+            f"{args.manifest}: {summary['entries']} entries "
+            f"(support: {support}; backend: {backend})"
+        )
     return 0
 
 

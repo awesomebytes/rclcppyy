@@ -31,6 +31,12 @@ def test_jazzy_manifest_is_valid_and_inventory_is_explicit():
         "stock_authoritative": 16,
         "unassessed": 3,
     }
+    assert summary["backend"] == {
+        "cpp": 1,
+        "mixed": 7,
+        "none": 3,
+        "python": 46,
+    }
     assert summary["upstream_contract"] == {
         "manifest": "compatibility/upstream-rclpy-contract.json",
         "selected": 49,
