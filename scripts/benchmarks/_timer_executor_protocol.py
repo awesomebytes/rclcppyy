@@ -28,6 +28,7 @@ RECURRENCE_INCREMENT = 1_442_695_040_888_963_407
 RECURRENCE_SEED = 0xC0DEC0FFEE123456
 SHA256_PATTERN = re.compile(r"^[a-f0-9]{64}$")
 COMMIT_PATTERN = re.compile(r"^[a-f0-9]{40}$")
+ENTITY_DECISION_PATTERN = re.compile(r"^entity-[0-9]{8}$")
 
 VARIANTS = {
     "stock-rclpy": {
@@ -278,8 +279,15 @@ def _validate_ready(ready: dict, sample: dict, cache: dict) -> None:
         }
         if artifact != {"state": "process_warm", "kind": "direct-rclcpp-runtime"}:
             raise ValueError("direct timer runtime cache marker is invalid")
-        if activation != expected_activation or not _positive_int(
-                activation.get("timer_decision_id")):
+        decision_id = (
+            activation.get("timer_decision_id")
+            if isinstance(activation, dict) else None
+        )
+        if (
+            activation != expected_activation
+            or not isinstance(decision_id, str)
+            or ENTITY_DECISION_PATTERN.fullmatch(decision_id) is None
+        ):
             raise ValueError("direct timer did not prove its source-compatible route")
         if not ready["timer_marker"]["implementation"].startswith(
                 "rclcpp::WallTimer<"):

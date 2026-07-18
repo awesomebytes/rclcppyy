@@ -235,6 +235,40 @@
         "threads": {"const": 1}
       }
     },
+    "direct_activation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "timer_status_backend",
+        "timer_decision_id",
+        "timer_creation_route",
+        "callback_handoff",
+        "executor_session_owned",
+        "native_timer_type",
+        "native_executor_type"
+      ],
+      "properties": {
+        "profile": {"const": "direct_cpp"},
+        "timer_status_backend": {"const": "cpp"},
+        "timer_decision_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^entity-[0-9]{8}$"
+        },
+        "timer_creation_route": {"const": "rclcpp_wall_timer"},
+        "callback_handoff": {"const": "direct_std_function"},
+        "executor_session_owned": {"const": true},
+        "native_timer_type": {
+          "type": "string",
+          "pattern": "^rclcpp::WallTimer<"
+        },
+        "native_executor_type": {
+          "type": "string",
+          "pattern": "^rclcpp::executors::SingleThreadedExecutor"
+        }
+      }
+    },
     "identity": {
       "type": "object",
       "required": ["schema", "event", "variant", "run_token", "pid", "process_group_id"],
@@ -452,6 +486,24 @@
         }
       },
       "allOf": [
+        {
+          "if": {
+            "properties": {
+              "variant": {"const": "direct-cpp-rclcppyy"}
+            },
+            "required": ["variant"]
+          },
+          "then": {
+            "properties": {
+              "worker_ready": {
+                "required": ["activation"],
+                "properties": {
+                  "activation": {"$ref": "#/$defs/direct_activation"}
+                }
+              }
+            }
+          }
+        },
         {
           "if": {
             "properties": {

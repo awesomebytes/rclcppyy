@@ -114,7 +114,7 @@ def _sample(variant, repetition=1, index=0):
         activation = {
             "profile": "direct_cpp",
             "timer_status_backend": "cpp",
-            "timer_decision_id": 8,
+            "timer_decision_id": "entity-00000003",
             "timer_creation_route": "rclcpp_wall_timer",
             "callback_handoff": "direct_std_function",
             "executor_session_owned": True,
@@ -361,6 +361,17 @@ def test_sample_contract_rejects_tainted_evidence(variant, path, value):
         protocol.validate_sample(sample, _cache(), _build())
 
 
+@pytest.mark.parametrize(
+    "decision_id",
+    (8, "", "entity-3", "operation-00000003", "entity-000000003"),
+)
+def test_direct_timer_requires_real_entity_status_id(decision_id):
+    sample = _sample("direct-cpp-rclcppyy")
+    sample["worker_ready"]["activation"]["timer_decision_id"] = decision_id
+    with pytest.raises(ValueError, match="source-compatible route"):
+        protocol.validate_sample(sample, _cache(), _build())
+
+
 def test_aot_sample_rejects_non_release_build():
     build = _build()
     build["compile_command"] = "c++ -O2 timer_executor_aot.cpp"
@@ -443,6 +454,12 @@ def test_schema_encodes_the_same_negative_contracts():
         protocol.RMW)
     assert properties["parameters"]["properties"]["variants"]["const"] == list(
         protocol.VARIANTS)
+    assert schema["$defs"]["direct_activation"]["properties"][
+        "timer_decision_id"] == {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^entity-[0-9]{8}$",
+        }
     report = schema["$defs"]["report"]["allOf"][1]["properties"]
     assert report["cpu_clock"]["const"] == "CLOCK_PROCESS_CPUTIME_ID"
     assert report["post_cancel_firings"]["const"] == 0
@@ -461,6 +478,23 @@ def test_json_schema_accepts_fixture_and_rejects_claims_when_available():
     invalid["claims"]["enabled"] = True
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate(invalid, schema)
+
+
+@pytest.mark.parametrize(
+    "decision_id",
+    (8, "", "entity-3", "operation-00000003", "entity-000000003"),
+)
+def test_json_schema_rejects_invalid_direct_status_id_when_available(decision_id):
+    jsonschema = pytest.importorskip("jsonschema")
+    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    document = _document()
+    sample = next(
+        row for row in document["results"]
+        if row["variant"] == "direct-cpp-rclcppyy"
+    )
+    sample["worker_ready"]["activation"]["timer_decision_id"] = decision_id
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(document, schema)
 
 
 @pytest.mark.skipif(shutil.which("cmake") is None, reason="cmake is unavailable")
