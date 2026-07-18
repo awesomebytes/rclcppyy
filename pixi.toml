@@ -2,13 +2,12 @@
 authors = ["Sam Pfeiffer <sammypfeiffer@gmail.com>"]
 name = "rclcppyy_ws"
 channels = ["https://repo.prefix.dev/awesomebytes", "robostack-jazzy", "conda-forge"]
-platforms = ["linux-64"]
+platforms = ["linux-64", "linux-aarch64"]
 version = "0.2.0"
 
 [dependencies]
 ros-jazzy-ros-base = ">=0.11"
 ros-jazzy-rmw-cyclonedds-cpp = "*"
-cppyy = ">=3.5,<4"
 colcon-common-extensions = "*"
 cmake = "*"
 ninja = "*"
@@ -27,8 +26,22 @@ psutil = ">=7.2.2,<8"
 # must be IMPORTABLE at runtime. The suite is now published to prefix.dev
 # (awesomebytes channel, added above), so these are real conda deps pinned to the
 # published version -- matching recipe/recipe.yaml's run-deps. See RELEASING.md.
+
+# cppyy 3.5 and the published kit artifacts are available together on x86-64.
+# The kit artifacts retain their strict conda `cppyy >=3.5` runtime dependency,
+# which deliberately prevents a misleading ARM64 package solve while conda-forge
+# lacks that runtime for Jazzy's Python 3.12 stack.
+[target.linux-64.dependencies]
+cppyy = ">=3.5,<4"
 ros-jazzy-rclcpp-kit = "==0.1.0"
 cppyy-kit = "==0.1.0"
+
+# On ARM64, build the same upstream cppyy release from its source distribution.
+# CI supplies the pure-Python kit sources at the pinned compatible revision.
+# This is a source-test environment only; recipe/recipe.yaml intentionally keeps
+# its conda runtime dependency and therefore does not claim ARM package support.
+[target.linux-aarch64.pypi-dependencies]
+cppyy = "==3.5.0"
 
 [activation]
 scripts = ["workspace_activation.sh"]
@@ -48,6 +61,7 @@ LD_LIBRARY_PATH = "$CONDA_PREFIX/lib"
 build = "colcon build --packages-select rclcppyy"
 clean = "rm -rf build install log"
 test = "pytest test/"
+test-ci = "pytest test/ -v -ra --junitxml=build/test-results/pytest.xml"
 lint = "flake8 rclcppyy test scripts/check_compatibility_manifest.py scripts/benchmarks/_result_schema.py scripts/benchmarks/_backend_marker.py scripts/benchmarks/run_benchmarks.py scripts/benchmarks/bench_pub_rclpy.py scripts/benchmarks/bench_sub_rclpy.py scripts/benchmarks/bench_pub_rclcppyy_monkeypatch.py scripts/benchmarks/bench_sub_rclcppyy_monkeypatched.py scripts/benchmarks/bench_pub_rclcppyy.py scripts/benchmarks/bench_sub_rclcppyy.py"
 contract = "python scripts/check_compatibility_manifest.py compatibility/jazzy.json"
 # rclpy-vs-rclcppyy CPU comparison in one command (default: 1 kHz + 10 kHz).
