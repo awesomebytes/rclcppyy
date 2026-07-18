@@ -34,6 +34,7 @@ jobs:
           # write the cache from main so PR runs restore it without racing to
           # overwrite the shared entry.
           cache: true
+          cache-key: rclcppyy-linux-64-
           cache-write: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
       # The pixi environment's activation provides RMW_IMPLEMENTATION,
@@ -70,3 +71,122 @@ jobs:
           name: benchmark-smoke-x86-64
           path: build/bench-smoke.json
           if-no-files-found: ignore
+
+  native-architecture:
+    name: native source + package (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 180
+    env:
+      # cppyy is compiled from its upstream source distribution on ARM64.
+      MAKE_NPROCS: "2"
+      STDCXX: "17"
+      # The pinned dependency checkout only exists on ARM64. Missing entries are
+      # harmless on x86-64, where the published conda packages remain authoritative.
+      PYTHONPATH: ${{ github.workspace }}/_deps/cppyy_kit:${{ github.workspace }}/_deps/cppyy_kit/rclcpp_kit
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            platform: linux-64
+            machine: x86_64
+            package_proof: true
+          - runner: ubuntu-24.04-arm
+            platform: linux-aarch64
+            machine: aarch64
+            package_proof: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Checkout pinned kit sources for ARM64
+        if: matrix.platform == 'linux-aarch64'
+        uses: actions/checkout@v5
+        with:
+          repository: awesomebytes/cppyy_kit
+          ref: 67fe4f8ba26ff7fa9f6cfaf8cf8e58c6cc601e98
+          path: _deps/cppyy_kit
+
+      - name: Verify native runner architecture
+        run: test "$(uname -m)" = "${{ matrix.machine }}"
+
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          pixi-version: v0.70.0
+          environments: default
+          cache: true
+          cache-key: rclcppyy-${{ matrix.platform }}-
+          cache-write: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
+      - name: Restore generated C++ caches
+        id: generated-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/cppyy_kit
+          key: generated-cppyy-kit-${{ matrix.platform }}-${{ hashFiles('pixi.lock') }}
+
+      - name: Record runtime and dependency evidence
+        run: |
+          set -euo pipefail
+          mkdir -p build/test-results
+          uname -a | tee build/test-results/runtime.txt
+          pixi run python -c \
+            'import cppyy, platform, sys; print(f"machine={platform.machine()} python={sys.version} cppyy={cppyy.__version__}")' \
+            | tee -a build/test-results/runtime.txt
+          pixi run python -c \
+            'import cppyy_kit, rclcpp_kit; print(f"cppyy_kit={cppyy_kit.__file__}\nrclcpp_kit={rclcpp_kit.__file__}")' \
+            | tee -a build/test-results/runtime.txt
+          pixi list > build/test-results/packages.txt
+
+      - name: Build source
+        run: pixi run build
+
+      - name: Lint source
+        run: pixi run lint
+
+      - name: Validate compatibility contract
+        run: pixi run contract
+
+      - name: Test source
+        run: pixi run test-ci
+
+      - name: Build and prove conda package
+        if: ${{ always() && matrix.package_proof }}
+        run: |
+          set -euo pipefail
+          mkdir -p build/test-results
+          pixi run -e pkg pkg-build 2>&1 | tee build/test-results/package-build.log
+          find output -name '*.conda' -print | tee build/test-results/package-artifacts.txt
+          scripts/ci/prove_rclcppyy_package.sh output 2>&1 \
+            | tee build/test-results/package-proof.txt
+
+      - name: Record ARM64 package support boundary
+        if: ${{ always() && !matrix.package_proof }}
+        run: |
+          mkdir -p build/test-results
+          cat > build/test-results/package-proof.txt <<'EOF'
+          NOT RUN: the source suite uses the upstream cppyy 3.5.0 source distribution.
+          The conda recipe correctly requires cppyy >=3.5, for which no Python 3.12
+          linux-aarch64 conda package currently exists. Source-test success does not
+          claim that the conda artifact can be installed on ARM64.
+          EOF
+
+      - name: Upload native test and package evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rclcppyy-${{ matrix.platform }}-test-evidence
+          path: build/test-results
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Save generated C++ caches
+        if: >-
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/main' &&
+          steps.generated-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/cppyy_kit
+          key: generated-cppyy-kit-${{ matrix.platform }}-${{ hashFiles('pixi.lock') }}
