@@ -43,8 +43,10 @@ EOF
 
 cat >"$workdir/smoke.py" <<'PY'
 import importlib
-from importlib.metadata import version
+import json
 import os
+from pathlib import Path
+import sys
 import time
 
 import rclcppyy
@@ -56,15 +58,26 @@ from rclpy.node import Node
 from rclpy.publisher import Publisher
 from rclcpp_kit import borrowed_publish
 
+def assert_conda_version(package, expected):
+    records = list(
+        (Path(sys.prefix) / "conda-meta").glob(
+            "%s-%s-*.json" % (package, expected)))
+    assert len(records) == 1, (package, records)
+    record = json.loads(records[0].read_text())
+    assert (record["name"], record["version"]) == (package, expected), record
+
+
 native_module = importlib.import_module("rclcpp_kit.native")
 native_pipeline_module = importlib.import_module("rclcpp_kit.native_pipeline")
-assert version("cppyy-kit") == "0.2.0"
-assert version("ros-jazzy-rclcpp-kit") == "0.2.0"
-assert version("ros-jazzy-rclcppyy") == "0.2.0"
+type_adapter_module = importlib.import_module("rclcpp_kit.type_adapter")
+for package_name in (
+        "cppyy-kit", "ros-jazzy-rclcpp-kit", "ros-jazzy-rclcppyy"):
+    assert_conda_version(package_name, "0.2.0")
 print("rclcppyy:", rclcppyy.__file__)
 print("borrowed_publish:", borrowed_publish.__file__)
 print("native:", native_module.__file__)
 print("native_pipeline:", native_pipeline_module.__file__)
+print("type_adapter:", type_adapter_module.__file__)
 rclcppyy.enable_cpp_acceleration()
 
 context = Context()
