@@ -42,6 +42,13 @@ def test_release_requires_dual_arch_source_preflight_and_exact_suite_build():
         ("linux-aarch64", "aarch64"),
     }
     assert release["needs"] == "preflight"
+    assert {
+        (item["platform"], item["machine"])
+        for item in release["strategy"]["matrix"]["include"]
+    } == {
+        ("linux-64", "x86_64"),
+        ("linux-aarch64", "aarch64"),
+    }
 
     suite_commit = json.loads(
         (ROOT / "suite-source.lock.json").read_text())["commit"]
@@ -58,3 +65,22 @@ def test_release_requires_dual_arch_source_preflight_and_exact_suite_build():
     assert "build_local_package_stack.sh" in release_commands
     assert "_deps/cppyy_kit output" in release_commands
     assert "local-package-attestation.json" in release_commands
+
+
+def test_ci_requires_installed_package_proof_on_both_architectures():
+    workflow = yaml.safe_load(
+        (ROOT / ".github" / "workflows" / "ci.yml").read_text())
+    native = workflow["jobs"]["native-architecture"]
+    matrix = native["strategy"]["matrix"]["include"]
+
+    assert {
+        (item["platform"], item["machine"], item["package_proof"])
+        for item in matrix
+    } == {
+        ("linux-64", "x86_64", True),
+        ("linux-aarch64", "aarch64", True),
+    }
+    commands = "\n".join(step.get("run", "") for step in native["steps"])
+    assert "build_local_package_stack.sh" in commands
+    assert "prove_rclcppyy_package.sh" in commands
+    assert "local-package-attestation.json" in commands
