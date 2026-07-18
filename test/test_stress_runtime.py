@@ -23,9 +23,7 @@ def test_scheduled_hardening_is_independent_and_evidence_based():
         for item in matrix
     } == {
         ("linux-64", "x86_64", "rmw_cyclonedds_cpp"),
-        ("linux-64", "x86_64", "rmw_fastrtps_cpp"),
         ("linux-aarch64", "aarch64", "rmw_cyclonedds_cpp"),
-        ("linux-aarch64", "aarch64", "rmw_fastrtps_cpp"),
     }
     steps = job["steps"]
     commands = "\n".join(step.get("run", "") for step in steps)
