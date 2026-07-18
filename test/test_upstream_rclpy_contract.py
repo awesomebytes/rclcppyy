@@ -233,6 +233,27 @@ def test_validate_runtime_version_fails_closed(monkeypatch):
         contract.validate_runtime_version(manifest)
 
 
+def test_select_entries_preserves_reviewed_order_and_rejects_unknown():
+    manifest = {
+        "selection": [
+            {"path": "test_alpha.py"},
+            {"path": "test_beta.py"},
+            {"path": "test_gamma.py"},
+        ],
+    }
+
+    assert contract._select_entries(
+        manifest, ["test_gamma.py", "test_alpha.py"]
+    ) == [
+        {"path": "test_alpha.py"},
+        {"path": "test_gamma.py"},
+    ]
+    with pytest.raises(contract.ContractError, match="not selected"):
+        contract._select_entries(manifest, ["test_unknown.py"])
+    with pytest.raises(contract.ContractError, match="unique"):
+        contract._select_entries(manifest, ["test_alpha.py", "test_alpha.py"])
+
+
 def test_junit_counts_rejects_empty_evidence(tmp_path):
     evidence = tmp_path / "results.xml"
     evidence.write_text(
@@ -254,3 +275,12 @@ def test_junit_counts_rejects_empty_evidence(tmp_path):
     )
     with pytest.raises(contract.ContractError, match="no tests"):
         contract._junit_counts(evidence)
+
+
+def test_no_skip_evidence_requirement_fails_closed():
+    counts = {"tests": 21, "failures": 0, "errors": 0, "skipped": 6}
+
+    contract._validate_junit_counts("test_subscription.py", counts)
+    with pytest.raises(contract.ContractError, match="contains skips"):
+        contract._validate_junit_counts(
+            "test_subscription.py", counts, require_no_skips=True)

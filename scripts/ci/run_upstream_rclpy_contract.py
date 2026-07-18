@@ -290,6 +290,25 @@ def validate_runtime_version(manifest):
     return actual
 
 
+def _select_entries(manifest, only_paths):
+    selection = manifest["selection"]
+    if not only_paths:
+        return selection
+    requested = set(only_paths)
+    _require(
+        len(requested) == len(only_paths),
+        "--only-path entries must be unique",
+    )
+    available = {entry["path"] for entry in selection}
+    unknown = sorted(requested - available)
+    _require(
+        not unknown,
+        "--only-path is not selected by the reviewed manifest: %s"
+        % ", ".join(unknown),
+    )
+    return [entry for entry in selection if entry["path"] in requested]
+
+
 def _activate_bootstrap():
     os.environ["RCLCPPYY_ENABLE_HOOK"] = "1"
     boot_path = _REPO_ROOT / "rclcppyy" / "_hook_boot.py"
@@ -378,13 +397,30 @@ def _junit_counts(path):
     return counts
 
 
+def _validate_junit_counts(relative, counts, *, require_no_skips=False):
+    _require(
+        counts["tests"] > counts["skipped"],
+        "all selected tests were skipped: %s" % relative,
+    )
+    _require(
+        counts["failures"] == 0 and counts["errors"] == 0,
+        "passing child returned failing JUnit evidence: %s" % relative,
+    )
+    if require_no_skips:
+        _require(
+            counts["skipped"] == 0,
+            "selected evidence contains skips: %s" % relative,
+        )
+
+
 def run_contract(args, manifest, source_report):
     evidence_dir = args.evidence_dir.resolve()
     evidence_dir.mkdir(parents=True, exist_ok=True)
     test_root = Path(source_report["test_root"])
     results = []
+    selection = _select_entries(manifest, args.only_path)
 
-    for entry in manifest["selection"]:
+    for entry in selection:
         relative = entry["path"]
         started = time.monotonic()
         with tempfile.TemporaryDirectory(prefix="rclcppyy-upstream-contract-") as stage:
@@ -414,6 +450,8 @@ def run_contract(args, manifest, source_report):
             ]
             environment = os.environ.copy()
             environment["RCLCPPYY_ENABLE_HOOK"] = "1"
+            if args.rmw_implementation is not None:
+                environment["RMW_IMPLEMENTATION"] = args.rmw_implementation
             try:
                 completed = subprocess.run(
                     command,
@@ -436,13 +474,10 @@ def run_contract(args, manifest, source_report):
         try:
             counts = _junit_counts(junit_xml)
             if return_code == 0:
-                _require(
-                    counts["tests"] > counts["skipped"],
-                    "all selected tests were skipped: %s" % relative,
-                )
-                _require(
-                    counts["failures"] == 0 and counts["errors"] == 0,
-                    "passing child returned failing JUnit evidence: %s" % relative,
+                _validate_junit_counts(
+                    relative,
+                    counts,
+                    require_no_skips=args.require_no_skips,
                 )
         except ContractError as exc:
             if return_code == 0:
@@ -473,9 +508,13 @@ def run_contract(args, manifest, source_report):
         "source": source_report,
         "installed_rclpy_version": validate_runtime_version(manifest),
         "acceleration_profile": "compatible",
+        "rmw_implementation": (
+            args.rmw_implementation or os.environ.get("RMW_IMPLEMENTATION")),
         "execution": {
             "isolation": "one_process_per_selected_file",
-            "selected_files": len(manifest["selection"]),
+            "selected_files": len(selection),
+            "selected_paths": [entry["path"] for entry in selection],
+            "require_no_skips": args.require_no_skips,
             "executed_files": len(results),
             "passed_files": passed,
             "failed_files": len(results) - passed,
@@ -485,7 +524,7 @@ def run_contract(args, manifest, source_report):
     }
     _write_json(evidence_dir / "summary.json", summary)
     print(json.dumps(summary, indent=2, sort_keys=True))
-    return 0 if passed == len(manifest["selection"]) else 1
+    return 0 if passed == len(selection) else 1
 
 
 def parse_args(argv=None):
@@ -499,6 +538,22 @@ def parse_args(argv=None):
     parser.add_argument("--source", type=Path, default=default_source)
     parser.add_argument("--manifest", type=Path, default=_DEFAULT_MANIFEST)
     parser.add_argument("--validate-only", action="store_true")
+    parser.add_argument(
+        "--only-path",
+        action="append",
+        default=[],
+        help="Run one reviewed selected test path; repeat to select more than one.",
+    )
+    parser.add_argument(
+        "--rmw-implementation",
+        choices=("rmw_cyclonedds_cpp", "rmw_fastrtps_cpp"),
+        help="Override RMW_IMPLEMENTATION in each isolated contract process.",
+    )
+    parser.add_argument(
+        "--require-no-skips",
+        action="store_true",
+        help="Reject selected JUnit evidence containing any skipped tests.",
+    )
     parser.add_argument(
         "--evidence-dir",
         type=Path,
@@ -524,6 +579,7 @@ def main(argv=None):
         manifest = load_manifest(args.manifest.resolve())
         source_report = validate_source(manifest, args.source)
         runtime_version = validate_runtime_version(manifest)
+        selection = _select_entries(manifest, args.only_path)
         if args.validate_only:
             report = {
                 "schema_version": 1,
@@ -532,7 +588,7 @@ def main(argv=None):
                 "installed_rclpy_version": runtime_version,
                 "selected": [
                     entry["path"]
-                    for entry in manifest["selection"]
+                    for entry in selection
                 ],
                 "reviewed_exclusions": [
                     {

@@ -87,6 +87,10 @@ jobs:
         id: upstream_contract
         run: pixi run -e upstream-contract upstream-contract
 
+      - name: Prove Fast DDS subscription content filters without skips
+        id: upstream_content_filter
+        run: pixi run -e upstream-contract upstream-content-filter-contract
+
       # End-to-end proof that rclcppyy actually publishes over the C++ backend.
       # Cold cppyy JIT of rclcpp on a 2-core hosted runner is far slower than a
       # dev box, so the warmup budget is generous; run_benchmarks.py already
@@ -112,6 +116,7 @@ jobs:
           CONTRACT_OUTCOME: ${{ steps.contract.outcome }}
           TEST_OUTCOME: ${{ steps.test.outcome }}
           UPSTREAM_CONTRACT_OUTCOME: ${{ steps.upstream_contract.outcome }}
+          UPSTREAM_CONTENT_FILTER_OUTCOME: ${{ steps.upstream_content_filter.outcome }}
           BENCHMARK_OUTCOME: ${{ steps.benchmark.outcome }}
           REPORT_OUTCOME: ${{ steps.report.outcome }}
         run: |
@@ -122,7 +127,7 @@ jobs:
           from pathlib import Path
           names = (
               "suite", "build", "lint", "contract", "test", "upstream_contract",
-              "benchmark", "report")
+              "upstream_content_filter", "benchmark", "report")
           outcomes = {name: os.environ[name.upper() + "_OUTCOME"] for name in names}
           Path("build/test-results/job-outcomes.json").write_text(
               json.dumps(outcomes, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -249,6 +254,10 @@ jobs:
         id: upstream_contract
         run: pixi run -e upstream-contract upstream-contract
 
+      - name: Prove Fast DDS subscription content filters without skips
+        id: upstream_content_filter
+        run: pixi run -e upstream-contract upstream-content-filter-contract
+
       - name: Build and prove conda package
         if: ${{ always() && matrix.package_proof }}
         run: |
@@ -284,6 +293,7 @@ jobs:
           CONTRACT_OUTCOME: ${{ steps.contract.outcome }}
           TEST_OUTCOME: ${{ steps.test.outcome }}
           UPSTREAM_CONTRACT_OUTCOME: ${{ steps.upstream_contract.outcome }}
+          UPSTREAM_CONTENT_FILTER_OUTCOME: ${{ steps.upstream_content_filter.outcome }}
         run: |
           mkdir -p build/test-results
           python3 - <<'PY'
@@ -292,7 +302,7 @@ jobs:
           from pathlib import Path
           names = (
               "suite", "build", "launch", "custom_interfaces", "lint", "contract",
-              "test", "upstream_contract")
+              "test", "upstream_contract", "upstream_content_filter")
           outcomes = {name: os.environ[name.upper() + "_OUTCOME"] for name in names}
           Path("build/test-results/job-outcomes.json").write_text(
               json.dumps(outcomes, indent=2, sort_keys=True) + "\n", encoding="utf-8")

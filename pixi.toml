@@ -162,6 +162,7 @@ ros-jazzy-test-msgs = "*"
 [feature.upstream-contract.tasks]
 upstream-contract = "python scripts/ci/run_upstream_rclpy_contract.py"
 upstream-contract-validate = "python scripts/ci/run_upstream_rclpy_contract.py --validate-only"
+upstream-content-filter-contract = "python scripts/ci/run_upstream_rclpy_contract.py --only-path test_subscription.py --rmw-implementation rmw_fastrtps_cpp --require-no-skips --evidence-dir build/test-results/upstream-rclpy-fastrtps"
 
 [environments]
 # solve-group = "default" pins the shared ROS/cppyy stack to the default env's

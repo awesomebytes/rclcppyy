@@ -30,6 +30,7 @@ git -C _deps/rclpy-contract checkout --detach \
 
 pixi run -e upstream-contract upstream-contract-validate
 pixi run -e upstream-contract upstream-contract
+pixi run -e upstream-contract upstream-content-filter-contract
 ```
 
 After the checkout and Pixi environment have been acquired, both commands run
@@ -50,6 +51,13 @@ The bootstrap must be active in every child process. The publisher selection als
 requires a completed C++ publish record and rejects any Python publish fallback.
 JUnit files and `summary.json` are written under
 `build/test-results/upstream-rclpy/`.
+
+The content-filter task reruns only the reviewed subscription file with Fast DDS,
+records that middleware choice in `build/test-results/upstream-rclpy-fastrtps/`,
+and rejects any skip. The full contract remains on the workspace's Cyclone DDS
+default, where the six content-filter tests are correctly skipped because that
+middleware does not implement the feature. CI requires both results, preserving
+the broad default-middleware gate while making content-filter behavior executable.
 
 ## Scope and updates
 

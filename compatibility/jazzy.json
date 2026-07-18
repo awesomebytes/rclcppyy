@@ -139,12 +139,12 @@
       "id": "publisher.advanced_options",
       "area": "publisher",
       "api": "Publisher callback_group, event_callbacks, qos_overriding_options, and publisher_class",
-      "support": "experimental",
+      "support": "certified",
       "backend": "mixed",
       "fallback": "safe",
       "default": false,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
-      "notes": "The application corpus covers a custom publisher class, callback group, explicit QoS, an empty QoS override set, and a live incompatible-QoS event callback. Other event kinds and non-empty overrides remain open."
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "compatibility/upstream-rclpy-contract.json", "rclcppyy/monkey.py"],
+      "notes": "Exact stock construction preserves a custom publisher class, callback-group membership, complete endpoint QoS, and non-empty depth/reliability overrides. Live incompatible-QoS and matched user callbacks match stock; the reviewed upstream event contract also covers deadline/liveliness callback construction and event-handle lifetime. Middleware- and type-specific event generation outside that matrix is not implied."
     },
     {
       "id": "subscription.basic",
@@ -161,12 +161,12 @@
       "id": "subscription.advanced_options",
       "area": "subscription",
       "api": "Subscription callback_group, event_callbacks, qos_overriding_options, raw mode, and content filters",
-      "support": "experimental",
+      "support": "certified",
       "backend": "python",
       "fallback": "safe",
       "default": false,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
-      "notes": "The application corpus covers callback groups, explicit QoS, empty overrides, serialized raw delivery with deserialization parity, and a live incompatible-QoS event callback. Active filters, other event kinds, and non-empty overrides remain open."
+      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", ".github/workflows/ci.yml", "rclcppyy/monkey.py"],
+      "notes": "Exact stock construction preserves callback groups, complete endpoint QoS, non-empty depth/reliability overrides, serialized raw delivery, and live incompatible-QoS and matched callbacks. The no-skip Fast DDS gate certifies all 21 reviewed subscription tests, including content-filter create/set/get/reset/effect; the same six tests remain legitimate skips on Cyclone DDS, which does not provide that feature. Message-lost and type-incompatibility triggers outside the reviewed event matrix are not implied."
     },
     {
       "id": "timer.wall",
@@ -199,7 +199,7 @@
       "fallback": "safe",
       "default": true,
       "evidence": ["test/test_hook.py", "test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
-      "notes": "The wrapper delegates to stock execution and reports Python authority. Timer, guard, service, simulated-time, custom executor, callback-exception, signature, and required_cpp fail-before-spin behavior are covered."
+      "notes": "The wrapper delegates to stock execution and reports Python authority. Timer, guard, service, simulated-time, custom executor, signature, and required_cpp fail-before-spin behavior are covered. Timer, subscription, service, and guard callback exceptions preserve their exact user-defined Python types."
     },
     {
       "id": "executor.custom_and_multi_threaded",

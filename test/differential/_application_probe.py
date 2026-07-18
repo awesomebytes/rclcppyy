@@ -33,6 +33,17 @@ def _spin_executor_until(executor, predicate, timeout=TIMEOUT_S):
         raise AssertionError("executor condition did not become true before timeout")
 
 
+def _spin_until_exception(node, executor, exception_type, timeout=TIMEOUT_S):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            import rclpy
+            rclpy.spin_once(node, executor=executor, timeout_sec=0.05)
+        except exception_type as exc:
+            return type(exc).__name__
+    raise AssertionError("callback exception was not propagated before timeout")
+
+
 def _call_service(client, request, executor):
     future = client.call_async(request)
     _spin_executor_until(executor, future.done)
@@ -106,6 +117,7 @@ def _run(mode):
     from rcl_interfaces.msg import SetParametersResult
     from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
     from rclpy.context import Context
+    from rclpy.duration import Duration
     from rclpy.event_handler import PublisherEventCallbacks, SubscriptionEventCallbacks
     from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
     from rclpy.lifecycle import LifecycleNode, LifecyclePublisher, TransitionCallbackReturn
@@ -114,7 +126,13 @@ def _run(mode):
     from rclpy.parameter import parameter_value_to_python
     from rclpy.parameter_client import AsyncParameterClient
     from rclpy.publisher import Publisher
-    from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
+    from rclpy.qos import (
+        DurabilityPolicy,
+        HistoryPolicy,
+        LivelinessPolicy,
+        QoSProfile,
+        ReliabilityPolicy,
+    )
     from rclpy.qos_overriding_options import QoSOverridingOptions
     from rclpy.serialization import deserialize_message
     from rclpy.task import Future
@@ -191,6 +209,20 @@ def _run(mode):
             "diff_application_subclass",
             context=context,
             start_parameter_services=True,
+            parameter_overrides=[
+                Parameter(
+                    "qos_overrides./resolved_qos_topic.publisher.depth", value=3),
+                Parameter(
+                    "qos_overrides./resolved_qos_topic.publisher.reliability",
+                    value="best_effort",
+                ),
+                Parameter(
+                    "qos_overrides./resolved_qos_topic.subscription.depth", value=4),
+                Parameter(
+                    "qos_overrides./resolved_qos_topic.subscription.reliability",
+                    value="best_effort",
+                ),
+            ],
         )
         factory_node = rclpy.create_node(
             "diff_application_factory",
@@ -256,6 +288,95 @@ def _run(mode):
             "subscription_second": node.destroy_subscription(sub),
         }
 
+        def make_complete_qos():
+            return QoSProfile(
+                history=HistoryPolicy.KEEP_LAST,
+                depth=9,
+                reliability=ReliabilityPolicy.RELIABLE,
+                durability=DurabilityPolicy.VOLATILE,
+                deadline=Duration(seconds=2, nanoseconds=123),
+                lifespan=Duration(seconds=3, nanoseconds=456),
+                liveliness=LivelinessPolicy.AUTOMATIC,
+                liveliness_lease_duration=Duration(seconds=4, nanoseconds=789),
+            )
+
+        override_options = QoSOverridingOptions.with_default_policies()
+        resolved_pub = node.create_publisher(
+            String,
+            "resolved_qos_topic",
+            make_complete_qos(),
+            qos_overriding_options=override_options,
+        )
+        resolved_sub = node.create_subscription(
+            String,
+            "resolved_qos_topic",
+            lambda _message: None,
+            make_complete_qos(),
+            qos_overriding_options=override_options,
+        )
+        observations["resolved_qos"] = {
+            "publisher": {
+                "history": resolved_pub.qos_profile.history.name,
+                "depth": resolved_pub.qos_profile.depth,
+                "reliability": resolved_pub.qos_profile.reliability.name,
+                "durability": resolved_pub.qos_profile.durability.name,
+                "deadline_ns": resolved_pub.qos_profile.deadline.nanoseconds,
+                "lifespan_ns": resolved_pub.qos_profile.lifespan.nanoseconds,
+                "liveliness": resolved_pub.qos_profile.liveliness.name,
+                "lease_ns": (
+                    resolved_pub.qos_profile.liveliness_lease_duration.nanoseconds),
+            },
+            "subscription": {
+                "history": resolved_sub.qos_profile.history.name,
+                "depth": resolved_sub.qos_profile.depth,
+                "reliability": resolved_sub.qos_profile.reliability.name,
+                "durability": resolved_sub.qos_profile.durability.name,
+                "deadline_ns": resolved_sub.qos_profile.deadline.nanoseconds,
+                "liveliness": resolved_sub.qos_profile.liveliness.name,
+                "lease_ns": (
+                    resolved_sub.qos_profile.liveliness_lease_duration.nanoseconds),
+            },
+            "override_parameters": {
+                "publisher_depth": node.get_parameter(
+                    "qos_overrides./resolved_qos_topic.publisher.depth").value,
+                "publisher_reliability": node.get_parameter(
+                    "qos_overrides./resolved_qos_topic.publisher.reliability").value,
+                "subscription_depth": node.get_parameter(
+                    "qos_overrides./resolved_qos_topic.subscription.depth").value,
+                "subscription_reliability": node.get_parameter(
+                    "qos_overrides./resolved_qos_topic.subscription.reliability").value,
+            },
+            "destroy_publisher": node.destroy_publisher(resolved_pub),
+            "destroy_subscription": node.destroy_subscription(resolved_sub),
+        }
+        expected_resolved_qos = {
+            "history": "KEEP_LAST",
+            "reliability": "BEST_EFFORT",
+            "durability": "VOLATILE",
+            "deadline_ns": 2_000_000_123,
+            "liveliness": "AUTOMATIC",
+            "lease_ns": 4_000_000_789,
+        }
+        for endpoint in ("publisher", "subscription"):
+            if not all(
+                observations["resolved_qos"][endpoint][key] == value
+                for key, value in expected_resolved_qos.items()
+            ):
+                raise AssertionError("complete endpoint QoS was not preserved")
+        if observations["resolved_qos"]["publisher"]["depth"] != 3:
+            raise AssertionError("publisher QoS depth override was not applied")
+        if observations["resolved_qos"]["subscription"]["depth"] != 4:
+            raise AssertionError("subscription QoS depth override was not applied")
+        if observations["resolved_qos"]["publisher"]["lifespan_ns"] != 3_000_000_456:
+            raise AssertionError("publisher QoS lifespan was not preserved")
+        if observations["resolved_qos"]["override_parameters"] != {
+            "publisher_depth": 3,
+            "publisher_reliability": "best_effort",
+            "subscription_depth": 4,
+            "subscription_reliability": "best_effort",
+        }:
+            raise AssertionError("non-empty QoS override parameters were not retained")
+
         raw_messages = []
         raw_pub = node.create_publisher(String, "raw_topic", 10)
         raw_sub = node.create_subscription(
@@ -313,6 +434,52 @@ def _run(mode):
             "destroy_publisher": node.destroy_publisher(event_pub),
             "destroy_subscription": node.destroy_subscription(event_sub),
         }
+
+        matched_events = {"publisher": [], "subscription": []}
+
+        def record_matched(owner, event):
+            matched_events[owner].append({
+                "total": event.total_count,
+                "total_change": event.total_count_change,
+                "current": event.current_count,
+                "current_change": event.current_count_change,
+            })
+
+        matched_pub = node.create_publisher(
+            String,
+            "matched_qos_topic",
+            10,
+            event_callbacks=PublisherEventCallbacks(
+                matched=lambda event: record_matched("publisher", event),
+                use_default_callbacks=False,
+            ),
+        )
+        matched_sub = node.create_subscription(
+            String,
+            "matched_qos_topic",
+            lambda _message: None,
+            10,
+            event_callbacks=SubscriptionEventCallbacks(
+                matched=lambda event: record_matched("subscription", event),
+                use_default_callbacks=False,
+            ),
+        )
+        _spin_until(node, lambda: all(matched_events.values()), executor)
+        observations["qos_matched_events"] = {
+            "callbacks": {
+                owner: list(events) for owner, events in matched_events.items()
+            },
+            "destroy_publisher": node.destroy_publisher(matched_pub),
+            "destroy_subscription": node.destroy_subscription(matched_sub),
+        }
+        expected_match = [{
+            "total": 1,
+            "total_change": 1,
+            "current": 1,
+            "current_change": 1,
+        }]
+        if not all(events == expected_match for events in matched_events.values()):
+            raise AssertionError("matched event callbacks did not report one live endpoint")
 
         timer_calls = []
 
@@ -729,28 +896,81 @@ def _run(mode):
             if failing_lifecycle_node is not None:
                 failing_lifecycle_node.destroy_node()
 
-        exception_name = None
-
-        class CorpusCallbackError(RuntimeError):
+        class CorpusTimerCallbackError(RuntimeError):
             pass
 
         def raise_from_callback():
-            raise CorpusCallbackError("callback-contract")
+            raise CorpusTimerCallbackError("timer-callback-contract")
 
         exception_timer = node.create_timer(0.01, raise_from_callback)
         try:
-            deadline = time.monotonic() + TIMEOUT_S
-            while exception_name is None and time.monotonic() < deadline:
-                try:
-                    rclpy.spin_once(node, executor=executor, timeout_sec=0.1)
-                except CorpusCallbackError as exc:
-                    exception_name = type(exc).__name__
-            if exception_name is None:
-                raise AssertionError("timer callback exception was not propagated")
+            timer_exception = _spin_until_exception(
+                node, executor, CorpusTimerCallbackError)
         finally:
             node.destroy_timer(exception_timer)
+
+        class CorpusSubscriptionCallbackError(RuntimeError):
+            pass
+
+        def raise_from_subscription(_message):
+            raise CorpusSubscriptionCallbackError("subscription-callback-contract")
+
+        exception_sub = node.create_subscription(
+            String, "callback_exception_subscription", raise_from_subscription, 10)
+        exception_pub = node.create_publisher(
+            String, "callback_exception_subscription", 10)
+        try:
+            _spin_until(
+                node,
+                lambda: exception_pub.get_subscription_count() >= 1,
+                executor,
+            )
+            exception_pub.publish(String(data="raise"))
+            subscription_exception = _spin_until_exception(
+                node, executor, CorpusSubscriptionCallbackError)
+        finally:
+            node.destroy_publisher(exception_pub)
+            node.destroy_subscription(exception_sub)
+
+        class CorpusServiceCallbackError(RuntimeError):
+            pass
+
+        def raise_from_service(_request, _response):
+            raise CorpusServiceCallbackError("service-callback-contract")
+
+        exception_service = node.create_service(
+            SetBool, "callback_exception_service", raise_from_service)
+        exception_client = node.create_client(
+            SetBool, "callback_exception_service")
+        try:
+            if not exception_client.wait_for_service(timeout_sec=TIMEOUT_S):
+                raise AssertionError("exception service was not discovered")
+            exception_client.call_async(SetBool.Request(data=True))
+            service_exception = _spin_until_exception(
+                node, executor, CorpusServiceCallbackError)
+        finally:
+            node.destroy_client(exception_client)
+            node.destroy_service(exception_service)
+
+        class CorpusGuardCallbackError(RuntimeError):
+            pass
+
+        def raise_from_guard():
+            raise CorpusGuardCallbackError("guard-callback-contract")
+
+        exception_guard = node.create_guard_condition(raise_from_guard)
+        try:
+            exception_guard.trigger()
+            guard_exception = _spin_until_exception(
+                node, executor, CorpusGuardCallbackError)
+        finally:
+            node.destroy_guard_condition(exception_guard)
+
         observations["callback_exception"] = {
-            "propagated_type": exception_name,
+            "timer": timer_exception,
+            "subscription": subscription_exception,
+            "service": service_exception,
+            "guard": guard_exception,
         }
 
         mte_node = rclpy.create_node(
