@@ -18,6 +18,7 @@ on:
 permissions:
   contents: read
   id-token: write
+  attestations: write
 
 concurrency:
   group: release-${{ github.ref }}
@@ -50,13 +51,58 @@ jobs:
             -c https://repo.prefix.dev/awesomebytes -c robostack-jazzy -c conda-forge \
             --output-dir output
 
+      - name: Identify the release artifact
+        id: artifact
+        run: |
+          set -euo pipefail
+          mkdir -p build/release
+          mapfile -t artifacts < <(find output -type f -name '*.conda' | sort)
+          test "${#artifacts[@]}" -eq 1
+          printf 'path=%s\n' "${artifacts[0]}" >> "$GITHUB_OUTPUT"
+          sha256sum "${artifacts[0]}" | tee build/release/SHA256SUMS
+
       # The point of releasing: a user with no clone gets a working install from
       # the channel alone, including the same-handle serialized publisher route.
       - name: Prove the artifact installs and runs from a channel
-        run: scripts/ci/prove_rclcppyy_package.sh output
+        run: |
+          set -o pipefail
+          scripts/ci/prove_rclcppyy_package.sh output 2>&1 \
+            | tee build/release/package-proof.log
+
+      - name: Generate SPDX SBOM from the release artifact
+        uses: anchore/sbom-action@v0.24.0
+        with:
+          file: ${{ steps.artifact.outputs.path }}
+          format: spdx-json
+          output-file: build/release/rclcppyy.spdx.json
+          upload-artifact: false
+          upload-release-assets: false
+
+      - name: Attest build provenance
+        uses: actions/attest@v4
+        with:
+          subject-path: ${{ steps.artifact.outputs.path }}
+
+      - name: Attest release SBOM
+        uses: actions/attest@v4
+        with:
+          subject-path: ${{ steps.artifact.outputs.path }}
+          sbom-path: build/release/rclcppyy.spdx.json
+
+      - name: Upload release gate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-evidence-${{ github.ref_name }}
+          path: |
+            build/release
+            compatibility/jazzy.json
+            compatibility/manifest.schema.json
+            schemas/benchmark-v2.schema.json
+          if-no-files-found: error
+          retention-days: 90
 
       - name: Upload to the prefix.dev channel `awesomebytes` (OIDC)
         run: |
           set -euxo pipefail
           pixi run -e pkg rattler-build upload prefix --channel awesomebytes \
-            $(find output -name '*.conda')
+            "${{ steps.artifact.outputs.path }}"
