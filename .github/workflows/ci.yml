@@ -61,7 +61,7 @@ jobs:
       # exits non-zero if the subscriber never receives a message.
       - name: Bench smoke (assert rclcppyy publishes)
         run: >-
-          pixi run bench --variants rclcppyy --rate 1000 --duration 3
+          pixi run bench --smoke --backends rclcppyy --rate 1000 --duration 3
           --warmup-timeout 300 --json --output build/bench-smoke.json
 
       - name: Upload benchmark evidence

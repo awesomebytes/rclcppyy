@@ -19,10 +19,17 @@ def _document(**overrides):
     values = {
         "repo_root": REPO_ROOT,
         "benchmark_name": "unit_test",
-        "parameters": {"duration_s": 1.0},
-        "results_by_rate": {
-            1000: [{"variant": "example", "avg_latency_us": math.nan}],
-        },
+        "mode": "measurement",
+        "matrix": {"duration_s": 1.0},
+        "results": [{
+            "case_id": "example_case",
+            "backend": "example",
+            "workload": "small-string",
+            "target_rate_hz": 1000,
+            "payload_bytes": 0,
+            "backend_verified": True,
+            "avg_latency_us": math.nan,
+        }],
         "failures": [],
         "command": ["benchmark", "--json"],
     }
@@ -33,12 +40,16 @@ def _document(**overrides):
 def test_document_is_versioned_flat_and_strict_json():
     document = _document()
 
-    assert document["schema"] == "rclcppyy.benchmark/v1"
+    assert document["schema"] == "rclcppyy.benchmark/v2"
     assert document["benchmark"]["name"] == "unit_test"
     assert document["results"] == [{
-        "variant": "example",
-        "avg_latency_us": None,
+        "case_id": "example_case",
+        "backend": "example",
+        "workload": "small-string",
         "target_rate_hz": 1000,
+        "payload_bytes": 0,
+        "backend_verified": True,
+        "avg_latency_us": None,
     }]
     assert document["environment"]["host"]["architecture"]
     assert document["environment"]["source"]["commit"]
@@ -47,7 +58,7 @@ def test_document_is_versioned_flat_and_strict_json():
 
 def test_document_records_structured_failures():
     failures = [{"variant": "example", "target_rate_hz": 10, "error": "failed"}]
-    document = _document(results_by_rate={}, failures=failures)
+    document = _document(results=[], failures=failures)
 
     assert document["results"] == []
     assert document["failures"] == failures
@@ -76,4 +87,15 @@ def test_validate_rejects_invalid_document(field, value):
     document[field] = value
 
     with pytest.raises(ValueError):
+        schema.validate_document(document)
+
+
+def test_smoke_document_forbids_performance_claims():
+    document = _document(mode="smoke")
+
+    assert document["benchmark"]["mode"] == "smoke"
+    assert document["benchmark"]["performance_claims_allowed"] is False
+
+    document["benchmark"]["performance_claims_allowed"] = True
+    with pytest.raises(ValueError, match="smoke results cannot"):
         schema.validate_document(document)

@@ -13,7 +13,8 @@ import sys
 from pathlib import Path
 
 
-SCHEMA_ID = "rclcppyy.benchmark/v1"
+SCHEMA_ID = "rclcppyy.benchmark/v2"
+MODES = ("measurement", "smoke")
 PACKAGE_NAMES = (
     "rclcppyy",
     "ros-jazzy-rclcppyy",
@@ -131,19 +132,13 @@ def build_document(
     *,
     repo_root: Path,
     benchmark_name: str,
-    parameters: dict,
-    results_by_rate: dict,
+    mode: str,
+    matrix: dict,
+    results: list,
     failures: list,
     command: list[str] | None = None,
 ) -> dict:
     """Build and validate one versioned benchmark result document."""
-    rows = []
-    for rate, results in results_by_rate.items():
-        for result in results:
-            row = dict(result)
-            row.setdefault("target_rate_hz", int(rate))
-            rows.append(row)
-
     document = {
         "schema": SCHEMA_ID,
         "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
@@ -151,9 +146,16 @@ def build_document(
         "environment": environment_metadata(repo_root),
         "benchmark": {
             "name": benchmark_name,
-            "parameters": parameters,
+            "mode": mode,
+            "performance_claims_allowed": mode == "measurement",
+            "matrix": matrix,
+            "statistics": {
+                "window": "subscriber acknowledged explicit start/stop control messages",
+                "latency_percentile": "nearest-rank over every received message in the window",
+                "cpu": "per-process psutil cpu_percent samples; children included recursively",
+            },
         },
-        "results": rows,
+        "results": list(results),
         "failures": failures,
     }
     document = _strict_json_value(document)
@@ -172,12 +174,26 @@ def validate_document(document: dict) -> None:
     benchmark = document.get("benchmark")
     if not isinstance(benchmark, dict) or not benchmark.get("name"):
         raise ValueError("benchmark name is required")
-    if not isinstance(benchmark.get("parameters"), dict):
-        raise ValueError("benchmark parameters must be an object")
+    if benchmark.get("mode") not in MODES:
+        raise ValueError("benchmark mode must be measurement or smoke")
+    if not isinstance(benchmark.get("matrix"), dict):
+        raise ValueError("benchmark matrix must be an object")
+    if not isinstance(benchmark.get("statistics"), dict):
+        raise ValueError("benchmark statistics definitions are required")
+    if benchmark["mode"] == "smoke" and benchmark.get("performance_claims_allowed") is not False:
+        raise ValueError("smoke results cannot allow performance claims")
     if not isinstance(document.get("results"), list):
         raise ValueError("results must be a list")
     if not isinstance(document.get("failures"), list):
         raise ValueError("failures must be a list")
+    for row in document["results"]:
+        if not isinstance(row, dict):
+            raise ValueError("benchmark result rows must be objects")
+        for field in ("case_id", "backend", "workload", "target_rate_hz", "payload_bytes"):
+            if field not in row:
+                raise ValueError(f"benchmark result missing {field}")
+        if row.get("backend_verified") is not True:
+            raise ValueError("successful benchmark results require verified backends")
 
 
 def dumps(document: dict) -> str:

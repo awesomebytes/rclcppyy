@@ -1,192 +1,67 @@
 #!/usr/bin/env python3
-"""Benchmark runner: rclpy vs rclcppyy CPU comparison in one command.
+"""Bounded declarative backend/workload benchmark matrix.
 
-Spawns a publisher+subscriber pair (as separate child processes) for each
-variant and rate, warms up until the subscriber is receiving, then samples
-per-process CPU with psutil while parsing the subscriber's stat lines for
-throughput / drops / latency. Prints a comparison table per rate.
+Every case runs a publisher and subscriber in isolated child processes.  The
+parent verifies machine-readable backend evidence, explicitly starts/stops the
+subscriber measurement window, samples process CPU, and owns child teardown.
 
-This replaces the old "four shells plus top" workflow. It owns the lifecycle
-of every child it spawns (terminate -> grace -> kill) and never treats a
-teardown signal as a benchmark failure: the underlying bench scripts have a
-pre-existing crash on SIGINT teardown after the last message, which is why we
-kill them with SIGTERM once measurement is done rather than asking them to
-shut down cleanly.
-
-Usage:
-    python run_benchmarks.py                       # rclpy vs rclcppyy at 1k+10k Hz
-    python run_benchmarks.py --rate 5000 --duration 10
-    python run_benchmarks.py --variants rclpy,rclcppyy,rclcppyy-templated
-    python run_benchmarks.py --json                # machine-readable (for CI)
-    python run_benchmarks.py --demo                # live pub/sub demo, no table
+``--smoke`` is a fast functional gate.  Its JSON and table output explicitly
+forbid performance claims; use normal measurement mode for intentional runs.
 """
 
+from __future__ import annotations
+
 import argparse
+from collections import deque
 import json
 import os
-import re
+from pathlib import Path
 import signal
 import statistics
 import subprocess
 import sys
 import threading
 import time
-from collections import deque
-from pathlib import Path
+import uuid
 
 import psutil
 
-from _result_schema import build_document, dumps, write
 from _backend_marker import PREFIX as BACKEND_PREFIX, SCHEMA as BACKEND_SCHEMA
+from _benchmark_matrix import (
+    BACKENDS,
+    DEFAULT_BACKENDS,
+    DEFAULT_PAYLOAD_BYTES,
+    DEFAULT_RATES_HZ,
+    DEFAULT_WORKLOADS,
+    SMOKE_BACKENDS,
+    SMOKE_PAYLOAD_BYTES,
+    SMOKE_RATES_HZ,
+    SMOKE_WORKLOADS,
+    WORKLOADS,
+    build_cases,
+    parse_int_values,
+    parse_keys,
+)
+from _benchmark_protocol import (
+    READY_PREFIX,
+    RESULT_PREFIX,
+    STARTED_PREFIX,
+    control_document,
+    validate_event,
+    validate_window_result,
+)
+from _result_schema import build_document, dumps, write
+
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent
-
-# Each variant is a publisher/subscriber script pair. The subscribers print a
-# periodic stat line every 1000 received messages; the publishers take a target
-# rate (Hz) as their first CLI argument. The pairs use distinct topic names, so
-# even variants running back to back never cross-talk.
-VARIANTS = {
-    "rclpy": {
-        "label": "rclpy",
-        "pub": "bench_pub_rclpy.py",
-        "sub": "bench_sub_rclpy.py",
-        "expected_backends": {"publisher": "python", "subscriber": "python"},
-    },
-    "rclcppyy": {
-        "label": "rclcppyy (monkeypatched)",
-        "pub": "bench_pub_rclcppyy_monkeypatch.py",
-        "sub": "bench_sub_rclcppyy_monkeypatched.py",
-        "expected_backends": {"publisher": "cpp", "subscriber": "python"},
-    },
-    "rclcppyy-templated": {
-        "label": "rclcppyy (pure cppyy)",
-        "pub": "bench_pub_rclcppyy.py",
-        "sub": "bench_sub_rclcppyy.py",
-        "expected_backends": {"publisher": "cpp", "subscriber": "cpp"},
-    },
-}
-DEFAULT_VARIANTS = ["rclpy", "rclcppyy"]
-DEFAULT_RATES = [1000, 10000]
-
-# Subscribers print, e.g.:
-#   (rclpy) Messages: 1000, Rate: 01000.4 msgs/sec, Latency (us) - Avg: 210.3, P99: 512.0, Dropped: 0
-# The unicode micro-sign in "(us)" is avoided in the pattern so encoding quirks
-# never break parsing. Each such line == 1000 more messages received.
-STAT_RE = re.compile(
-    r"Rate:\s*([\d.]+)\s*msgs/sec.*?Avg:\s*([\d.]+),\s*P99:\s*([\d.]+),\s*Dropped:\s*(\d+)"
-)
-MESSAGES_PER_STAT_LINE = 1000
+WORKER = HERE / "bench_worker.py"
+DEFAULT_SAMPLE_HZ = 4.0
 
 
-def log(msg):
-    """Progress goes to stderr so stdout stays clean for --json."""
-    print(msg, file=sys.stderr, flush=True)
-
-
-class ChildProcess:
-    """A spawned bench script whose stdout+stderr is streamed on a thread.
-
-    Sub processes: every stat line is parsed and timestamped so the runner can
-    detect warmup, window received/dropped counts, and latency. A bounded tail
-    of raw output is kept for error reporting.
-    """
-
-    def __init__(self, name, argv, parse_stats=False, echo=False):
-        self.name = name
-        self.parse_stats = parse_stats
-        self.echo = echo
-        self.samples = []  # list of (monotonic_time, rate, avg_lat, p99_lat, dropped_cumulative)
-        self.backend_markers = []
-        self.backend_marker_errors = []
-        self.tail = deque(maxlen=60)
-        self._lock = threading.Lock()
-        # start_new_session so the child (and anything it spawns) is its own
-        # process group; teardown signals the whole group -> no orphans.
-        # -u forces unbuffered stdout so stat lines arrive promptly through the
-        # pipe instead of being block-buffered until the child exits.
-        self.proc = psutil.Popen(
-            argv,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-            start_new_session=True,
-        )
-        self._reader = threading.Thread(target=self._read_loop, daemon=True)
-        self._reader.start()
-
-    def _read_loop(self):
-        for line in self.proc.stdout:
-            line = line.rstrip("\n")
-            self.tail.append(line)
-            if self.echo:
-                print(f"  [{self.name}] {line}", file=sys.stderr, flush=True)
-            if line.startswith(BACKEND_PREFIX):
-                try:
-                    marker = json.loads(line[len(BACKEND_PREFIX):])
-                    validate_backend_marker(marker)
-                except (json.JSONDecodeError, ValueError) as exc:
-                    with self._lock:
-                        self.backend_marker_errors.append(str(exc))
-                else:
-                    with self._lock:
-                        self.backend_markers.append(marker)
-            if self.parse_stats:
-                m = STAT_RE.search(line)
-                if m:
-                    with self._lock:
-                        self.samples.append((
-                            time.monotonic(),
-                            float(m.group(1)),
-                            float(m.group(2)),
-                            float(m.group(3)),
-                            int(m.group(4)),
-                        ))
-
-    def stat_count(self):
-        with self._lock:
-            return len(self.samples)
-
-    def samples_snapshot(self):
-        with self._lock:
-            return list(self.samples)
-
-    def backend_snapshot(self):
-        with self._lock:
-            return list(self.backend_markers), list(self.backend_marker_errors)
-
-    def alive(self):
-        return self.proc.poll() is None
-
-    def tail_text(self):
-        return "\n".join(self.tail)
-
-    def stop(self, grace=3.0):
-        """Terminate the whole process group, escalating to KILL after grace."""
-        if self.proc.poll() is not None:
-            return
-        try:
-            os.killpg(os.getpgid(self.proc.pid), signal.SIGTERM)
-        except (ProcessLookupError, PermissionError):
-            try:
-                self.proc.terminate()
-            except psutil.Error:
-                pass
-        try:
-            self.proc.wait(timeout=grace)
-        except Exception:
-            try:
-                os.killpg(os.getpgid(self.proc.pid), signal.SIGKILL)
-            except (ProcessLookupError, PermissionError):
-                try:
-                    self.proc.kill()
-                except psutil.Error:
-                    pass
-            try:
-                self.proc.wait(timeout=grace)
-            except Exception:
-                pass
+def log(message):
+    """Progress goes to stderr so stdout remains strict JSON when requested."""
+    print(message, file=sys.stderr, flush=True)
 
 
 def validate_backend_marker(marker):
@@ -215,337 +90,455 @@ def require_backend_marker(child, role, expected_backend):
     if marker["backend"] != expected_backend:
         raise RuntimeError(
             f"{role} backend mismatch: expected {expected_backend}, "
-            f"observed {marker['backend']} ({marker['evidence']})"
-        )
+            f"observed {marker['backend']} ({marker['evidence']})")
     return marker
 
 
-def _avg_cpu(proc, samples):
-    """Sum the process's own CPU% (all threads) since the last cpu_percent call.
+class ChildProcess:
+    """One isolated benchmark worker with parsed evidence and control events."""
 
-    We spawn `python <script>` directly (no ros2run wrapper), so the spawned PID
-    is the real worker and psutil.Process.cpu_percent covers all its threads.
-    Any children are summed too, defensively, in case a variant ever forks.
-    """
+    def __init__(self, name, argv, echo=False):
+        self.name = name
+        self.echo = echo
+        self.backend_markers = []
+        self.backend_marker_errors = []
+        self.ready_events = []
+        self.started_events = []
+        self.window_results = []
+        self.protocol_errors = []
+        self.tail = deque(maxlen=80)
+        self._lock = threading.Lock()
+        self.proc = psutil.Popen(
+            argv,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            start_new_session=True,
+        )
+        self._reader = threading.Thread(target=self._read_loop, daemon=True)
+        self._reader.start()
+
+    def _parse_document(self, line, prefix, validator, destination):
+        try:
+            document = json.loads(line[len(prefix):])
+            validator(document)
+        except (json.JSONDecodeError, ValueError) as exc:
+            with self._lock:
+                self.protocol_errors.append(str(exc))
+        else:
+            with self._lock:
+                destination.append(document)
+
+    def _read_loop(self):
+        for line in self.proc.stdout:
+            line = line.rstrip("\n")
+            self.tail.append(line)
+            if self.echo:
+                print(f"  [{self.name}] {line}", file=sys.stderr, flush=True)
+            if line.startswith(BACKEND_PREFIX):
+                try:
+                    marker = json.loads(line[len(BACKEND_PREFIX):])
+                    validate_backend_marker(marker)
+                except (json.JSONDecodeError, ValueError) as exc:
+                    with self._lock:
+                        self.backend_marker_errors.append(str(exc))
+                else:
+                    with self._lock:
+                        self.backend_markers.append(marker)
+            elif line.startswith(READY_PREFIX):
+                self._parse_document(
+                    line, READY_PREFIX,
+                    lambda document: validate_event(document, "ready"), self.ready_events)
+            elif line.startswith(STARTED_PREFIX):
+                self._parse_document(
+                    line, STARTED_PREFIX,
+                    lambda document: validate_event(document, "started"), self.started_events)
+            elif line.startswith(RESULT_PREFIX):
+                self._parse_document(
+                    line, RESULT_PREFIX, validate_window_result, self.window_results)
+
+    def backend_snapshot(self):
+        with self._lock:
+            return list(self.backend_markers), list(self.backend_marker_errors)
+
+    def snapshot(self):
+        with self._lock:
+            return {
+                "ready": list(self.ready_events),
+                "started": list(self.started_events),
+                "results": list(self.window_results),
+                "errors": list(self.protocol_errors),
+            }
+
+    def send_control(self, command, run_id):
+        document = control_document(command, run_id)
+        try:
+            self.proc.stdin.write(json.dumps(document, sort_keys=True) + "\n")
+            self.proc.stdin.flush()
+        except (BrokenPipeError, OSError) as exc:
+            raise RuntimeError(f"{self.name} control pipe failed: {exc}") from exc
+
+    def alive(self):
+        return self.proc.poll() is None
+
+    def tail_text(self):
+        return "\n".join(self.tail)
+
+    def stop(self, grace=3.0):
+        if self.proc.poll() is not None:
+            return
+        try:
+            os.killpg(os.getpgid(self.proc.pid), signal.SIGTERM)
+        except (ProcessLookupError, PermissionError):
+            try:
+                self.proc.terminate()
+            except psutil.Error:
+                pass
+        try:
+            self.proc.wait(timeout=grace)
+        except Exception:
+            try:
+                os.killpg(os.getpgid(self.proc.pid), signal.SIGKILL)
+            except (ProcessLookupError, PermissionError):
+                try:
+                    self.proc.kill()
+                except psutil.Error:
+                    pass
+            try:
+                self.proc.wait(timeout=grace)
+            except Exception:
+                pass
+
+
+def _wait_for(predicate, children, timeout, description):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if predicate():
+            return
+        for child in children:
+            snapshot = child.snapshot()
+            _markers, marker_errors = child.backend_snapshot()
+            if snapshot["errors"]:
+                raise RuntimeError(f"{child.name} protocol error: {snapshot['errors'][-1]}")
+            if marker_errors:
+                raise RuntimeError(f"{child.name} backend marker error: {marker_errors[-1]}")
+            if not child.alive():
+                raise RuntimeError(
+                    f"{child.name} exited while waiting for {description} "
+                    f"(code {child.proc.returncode})\n--- output tail ---\n{child.tail_text()}")
+        time.sleep(0.02)
+    tails = "\n".join(
+        f"--- {child.name} output tail ---\n{child.tail_text()}" for child in children)
+    raise RuntimeError(f"timed out waiting for {description} after {timeout:.1f}s\n{tails}")
+
+
+def _sample_cpu(process, samples):
     total = 0.0
     try:
-        total += proc.cpu_percent(None)
-        for child in proc.children(recursive=True):
+        total += process.cpu_percent(None)
+        for child in process.children(recursive=True):
             try:
                 total += child.cpu_percent(None)
             except psutil.Error:
                 pass
     except psutil.Error:
-        return None
+        return
     samples.append(total)
-    return total
 
 
-def run_pair(variant_key, rate, duration, warmup_timeout, sample_hz=2.0, echo=False):
-    """Run one publisher+subscriber pair; measure CPU and parse sub stats.
+def cpu_summary(samples):
+    """Keep raw CPU observations and reproducible summaries."""
+    if not samples:
+        return {
+            "samples": [], "count": 0, "mean": None, "median": None,
+            "stdev": None, "min": None, "max": None,
+        }
+    return {
+        "samples": [round(value, 3) for value in samples],
+        "count": len(samples),
+        "mean": statistics.fmean(samples),
+        "median": statistics.median(samples),
+        "stdev": statistics.stdev(samples) if len(samples) > 1 else 0.0,
+        "min": min(samples),
+        "max": max(samples),
+    }
 
-    Returns a result dict on success, or raises RuntimeError with a message
-    (and the child's output tail) on a real failure.
-    """
-    spec = VARIANTS[variant_key]
-    pub_script = str(HERE / spec["pub"])
-    sub_script = str(HERE / spec["sub"])
-    py = [sys.executable, "-u"]
 
-    log(f"  starting subscriber ({spec['sub']}) ...")
-    sub = ChildProcess("sub", py + [sub_script], parse_stats=True, echo=echo)
-    # Small stagger so the subscriber node exists before the publisher floods;
-    # cyclonedds LOCALHOST tolerates the reverse too, and the sub baselines its
-    # dropped-count on the first message it actually receives.
-    time.sleep(0.5)
-    log(f"  starting publisher ({spec['pub']} {rate}) ...")
-    pub = ChildProcess("pub", py + [pub_script, str(rate)], echo=echo)
+def _worker_argv(case, role):
+    return [
+        sys.executable,
+        "-u",
+        str(WORKER),
+        "--backend", case["worker_backend"],
+        "--role", role,
+        "--workload", case["workload"],
+        "--topic", case["topic"],
+        "--node-name", f"bench_{case['case_id']}_{role}",
+        "--rate-hz", str(case["target_rate_hz"]),
+        "--payload-bytes", str(case["payload_bytes"]),
+    ]
 
-    children = [sub, pub]
+
+def _has_role_marker(child, role):
+    markers, errors = child.backend_snapshot()
+    return not errors and any(marker["role"] == role for marker in markers)
+
+
+def run_case(case, duration, warmup_timeout, sample_hz=DEFAULT_SAMPLE_HZ, echo=False):
+    """Run one bounded case and return its structured, backend-verified result."""
+    subscriber = ChildProcess("subscriber", _worker_argv(case, "subscriber"), echo=echo)
+    time.sleep(0.25)
+    publisher = ChildProcess("publisher", _worker_argv(case, "publisher"), echo=echo)
+    children = (subscriber, publisher)
+
     try:
-        # --- warmup: wait until the subscriber reports its first stat line ---
-        # (rclcppyy variants JIT-compile rclcpp on bringup, ~2 s, excluded here.)
-        deadline = time.monotonic() + warmup_timeout
-        while time.monotonic() < deadline:
-            if sub.stat_count() >= 1:
-                break
-            if not pub.alive():
-                raise RuntimeError(
-                    f"publisher exited during warmup (code {pub.proc.returncode})\n"
-                    f"--- pub output tail ---\n{pub.tail_text()}"
-                )
-            if not sub.alive():
-                raise RuntimeError(
-                    f"subscriber exited during warmup (code {sub.proc.returncode})\n"
-                    f"--- sub output tail ---\n{sub.tail_text()}"
-                )
-            time.sleep(0.1)
-        else:
-            raise RuntimeError(
-                f"no messages received within {warmup_timeout:.0f}s warmup\n"
-                f"--- sub output tail ---\n{sub.tail_text()}"
-            )
+        _wait_for(
+            lambda: (
+                bool(subscriber.snapshot()["ready"]) and
+                _has_role_marker(subscriber, "subscriber") and
+                _has_role_marker(publisher, "publisher")
+            ),
+            children,
+            warmup_timeout,
+            "subscriber readiness and backend evidence",
+        )
 
-        expected_backends = spec["expected_backends"]
-        pub_backend = require_backend_marker(
-            pub, "publisher", expected_backends["publisher"])
-        sub_backend = require_backend_marker(
-            sub, "subscriber", expected_backends["subscriber"])
+        expected = case["expected_backends"]
+        pub_backend = require_backend_marker(publisher, "publisher", expected["publisher"])
+        sub_backend = require_backend_marker(subscriber, "subscriber", expected["subscriber"])
 
-        log(f"  warmed up; measuring for {duration:.0f}s ...")
+        pub_process = psutil.Process(publisher.proc.pid)
+        sub_process = psutil.Process(subscriber.proc.pid)
+        pub_process.cpu_percent(None)
+        sub_process.cpu_percent(None)
+        for process in (pub_process, sub_process):
+            for child in process.children(recursive=True):
+                child.cpu_percent(None)
 
-        # --- measurement window ---
-        pub_ps = psutil.Process(pub.proc.pid)
-        sub_ps = psutil.Process(sub.proc.pid)
-        pub_ps.cpu_percent(None)  # prime: first call always returns 0.0
-        sub_ps.cpu_percent(None)
-        for c in pub_ps.children(recursive=True):
-            c.cpu_percent(None)
-        for c in sub_ps.children(recursive=True):
-            c.cpu_percent(None)
+        run_id = uuid.uuid4().hex
+        subscriber.send_control("start", run_id)
+        _wait_for(
+            lambda: any(
+                event.get("run_id") == run_id for event in subscriber.snapshot()["started"]),
+            children,
+            min(5.0, warmup_timeout),
+            "measurement start acknowledgement",
+        )
 
-        pub_cpu, sub_cpu = [], []
-        dropped_at_start = sub.samples_snapshot()[-1][4]
-        t_start = time.monotonic()
+        pub_cpu = []
+        sub_cpu = []
         interval = 1.0 / sample_hz
-        while time.monotonic() - t_start < duration:
-            time.sleep(interval)
-            if not pub.alive():
-                raise RuntimeError(
-                    f"publisher crashed during measurement (code {pub.proc.returncode})\n"
-                    f"--- pub output tail ---\n{pub.tail_text()}"
-                )
-            if not sub.alive():
-                raise RuntimeError(
-                    f"subscriber crashed during measurement (code {sub.proc.returncode})\n"
-                    f"--- sub output tail ---\n{sub.tail_text()}"
-                )
-            _avg_cpu(pub_ps, pub_cpu)
-            _avg_cpu(sub_ps, sub_cpu)
-        t_end = time.monotonic()
+        deadline = time.monotonic() + duration
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            time.sleep(min(interval, remaining))
+            for child in children:
+                if not child.alive():
+                    raise RuntimeError(
+                        f"{child.name} exited during measurement (code {child.proc.returncode})\n"
+                        f"--- output tail ---\n{child.tail_text()}")
+            _sample_cpu(pub_process, pub_cpu)
+            _sample_cpu(sub_process, sub_cpu)
 
-        # --- derive stats from stat lines that landed inside the window ---
-        window = [s for s in sub.samples_snapshot() if t_start <= s[0] <= t_end]
-        elapsed = t_end - t_start
-        received = len(window) * MESSAGES_PER_STAT_LINE
-        dropped = (window[-1][4] - dropped_at_start) if window else 0
-        avg_latency = statistics.mean(s[2] for s in window) if window else float("nan")
-        p99_latency = max((s[3] for s in window), default=float("nan"))
-        eff_rate = received / elapsed if elapsed > 0 else 0.0
-
-        # Stop echoing before teardown: the bench scripts print a (harmless,
-        # pre-existing) double-shutdown traceback when signalled, because
-        # rclcpp installs its own SIGINT/SIGTERM handler. Measurement is done,
-        # so that noise is not interesting.
-        for c in children:
-            c.echo = False
+        subscriber.send_control("stop", run_id)
+        _wait_for(
+            lambda: any(
+                result.get("run_id") == run_id for result in subscriber.snapshot()["results"]),
+            children,
+            min(5.0, warmup_timeout),
+            "measurement result",
+        )
+        snapshot = subscriber.snapshot()
+        if snapshot["errors"]:
+            raise RuntimeError(f"subscriber protocol error: {snapshot['errors'][-1]}")
+        window = next(result for result in snapshot["results"] if result["run_id"] == run_id)
+        if window["messages"]["received"] <= 0:
+            raise RuntimeError("measurement window received no messages")
 
         return {
-            "variant": variant_key,
-            "label": spec["label"],
-            "expected_backends": expected_backends,
+            "case_id": case["case_id"],
+            "backend": case["backend"],
+            "backend_label": case["backend_label"],
+            "workload": case["workload"],
+            "workload_label": case["workload_label"],
+            "message_type": case["message_type"],
+            "target_rate_hz": case["target_rate_hz"],
+            "payload_bytes": case["payload_bytes"],
+            "requested_duration_s": duration,
             "backend_verified": True,
+            "expected_backends": expected,
             "publisher_backend": pub_backend,
             "subscriber_backend": sub_backend,
-            "target_rate_hz": rate,
-            "duration_s": round(elapsed, 2),
-            "pub_cpu_pct": round(statistics.mean(pub_cpu), 1) if pub_cpu else float("nan"),
-            "sub_cpu_pct": round(statistics.mean(sub_cpu), 1) if sub_cpu else float("nan"),
-            "msgs_received": received,
-            "effective_rate_hz": round(eff_rate, 1),
-            "dropped": dropped,
-            "avg_latency_us": round(avg_latency, 1),
-            "p99_latency_us": round(p99_latency, 1),
+            "observed_window": window["window"],
+            "messages": window["messages"],
+            "latency_us": window["latency_us"],
+            "cpu_pct": {
+                "publisher": cpu_summary(pub_cpu),
+                "subscriber": cpu_summary(sub_cpu),
+            },
         }
     finally:
-        for c in children:
-            c.stop()
+        for child in children:
+            child.echo = False
+            child.stop()
 
 
-def fmt(x, nan="-"):
-    if isinstance(x, float) and x != x:  # NaN
-        return nan
-    return x
+def _fmt(value, digits=1):
+    return "-" if value is None else f"{value:.{digits}f}"
 
 
-def print_table(rate, results):
-    cols = ["variant", "pub CPU%", "sub CPU%", "msgs recv", "eff Hz", "dropped", "avg lat us"]
-    widths = [26, 10, 10, 11, 10, 9, 11]
-    total = sum(widths)
-    print()
-    print(f"  Benchmark @ {rate} Hz target")
-    print("  " + "=" * total)
-    print("  " + "".join(f"{c:<{w}}" for c, w in zip(cols, widths)))
-    print("  " + "-" * total)
-    for r in results:
-        cells = [
-            r["label"],
-            fmt(r["pub_cpu_pct"]),
-            fmt(r["sub_cpu_pct"]),
-            fmt(r["msgs_received"]),
-            fmt(r["effective_rate_hz"]),
-            fmt(r["dropped"]),
-            fmt(r["avg_latency_us"]),
-        ]
-        print("  " + "".join(f"{str(c):<{w}}" for c, w in zip(cells, widths)))
-    sys.stdout.flush()
-
-
-def parse_rates(rate_args):
-    if not rate_args:
-        return list(DEFAULT_RATES)
-    rates = []
-    for chunk in rate_args:
-        for part in str(chunk).split(","):
-            part = part.strip()
-            if part:
-                rates.append(int(part))
-    return rates
-
-
-def parse_variants(variants_arg):
-    if not variants_arg:
-        return list(DEFAULT_VARIANTS)
-    out = []
-    for part in variants_arg.split(","):
-        part = part.strip()
-        if not part:
-            continue
-        if part not in VARIANTS:
-            raise SystemExit(
-                f"unknown variant '{part}'. choose from: {', '.join(VARIANTS)}"
-            )
-        out.append(part)
-    return out
-
-
-def run_demo(args):
-    """Light one-command pub/sub demo: run one variant live, no comparison."""
-    variant = args.demo_variant
-    rate = parse_rates(args.rate)[0] if args.rate else 1000
-    duration = args.duration if args.duration is not None else 10.0
-    log(f"Demo: {VARIANTS[variant]['label']} publisher + subscriber at {rate} Hz "
-        f"for ~{duration:.0f}s (Ctrl-C to stop early).")
-    log("Live subscriber stats follow (rate / latency / dropped):")
-    try:
-        result = run_pair(
-            variant, rate, duration,
-            warmup_timeout=args.warmup_timeout, echo=True,
+def print_table(results, mode):
+    if mode == "smoke":
+        print("\nSmoke validation only: metrics below are not performance claims.")
+    else:
+        print("\nBounded benchmark matrix")
+    headings = ("backend", "workload", "Hz", "bytes", "recv", "eff Hz", "pub CPU", "sub CPU", "p99 us")
+    widths = (23, 17, 8, 8, 9, 10, 10, 10, 10)
+    print("  " + "".join(f"{heading:<{width}}" for heading, width in zip(headings, widths)))
+    print("  " + "-" * sum(widths))
+    for result in results:
+        cells = (
+            result["backend"],
+            result["workload"],
+            result["target_rate_hz"],
+            result["payload_bytes"],
+            result["messages"]["received"],
+            _fmt(result["messages"]["effective_rate_hz"]),
+            _fmt(result["cpu_pct"]["publisher"]["mean"]),
+            _fmt(result["cpu_pct"]["subscriber"]["mean"]),
+            _fmt(result["latency_us"]["p99"]),
         )
-    except RuntimeError as exc:
-        log(f"DEMO FAILED: {exc}")
-        return 1
-    log("")
-    log(f"Demo summary: received {result['msgs_received']} msgs "
-        f"(~{result['effective_rate_hz']:.0f} Hz), {result['dropped']} dropped, "
-        f"pub {result['pub_cpu_pct']}% CPU, sub {result['sub_cpu_pct']}% CPU, "
-        f"avg latency {result['avg_latency_us']} us.")
-    return 0
+        print("  " + "".join(f"{str(cell):<{width}}" for cell, width in zip(cells, widths)))
 
 
-def main():
+def _selectors(args, parser):
+    is_smoke = args.smoke or args.demo
+    mode = "smoke" if is_smoke else "measurement"
+    try:
+        backends = parse_keys(
+            args.backends, BACKENDS,
+            SMOKE_BACKENDS if is_smoke else DEFAULT_BACKENDS, "backend")
+        workloads = parse_keys(
+            args.workloads, WORKLOADS,
+            SMOKE_WORKLOADS if is_smoke else DEFAULT_WORKLOADS, "workload")
+        rates = parse_int_values(
+            args.rate, SMOKE_RATES_HZ if is_smoke else DEFAULT_RATES_HZ,
+            "rate", minimum=1)
+        payloads = parse_int_values(
+            args.payload_bytes,
+            SMOKE_PAYLOAD_BYTES if is_smoke else DEFAULT_PAYLOAD_BYTES,
+            "payload bytes", minimum=0)
+    except (TypeError, ValueError) as exc:
+        parser.error(str(exc))
+    duration = args.duration if args.duration is not None else (2.0 if is_smoke else 15.0)
+    if duration <= 0:
+        parser.error("--duration must be positive")
+    return mode, backends, workloads, rates, payloads, duration
+
+
+def _parser():
     parser = argparse.ArgumentParser(
-        description="rclpy vs rclcppyy pub/sub CPU benchmark (one command).",
+        description="Run the isolated rclcppyy backend/workload matrix.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
-        "--rate", action="append",
-        help="target publish rate in Hz; repeatable or comma-separated "
-             "(default: 1000,10000)",
-    )
+        "--backends", "--variants", dest="backends",
+        help=f"comma-separated backends; available: {', '.join(BACKENDS)}")
     parser.add_argument(
-        "--duration", type=float, default=None,
-        help="measurement window per run in seconds (default: 15; demo: 10)",
-    )
+        "--workloads", help=f"comma-separated workloads; available: {', '.join(WORKLOADS)}")
+    parser.add_argument("--rate", action="append", help="repeatable/comma-separated target Hz")
     parser.add_argument(
-        "--variants", default=None,
-        help=f"comma-separated variants to run (default: {','.join(DEFAULT_VARIANTS)}). "
-             f"available: {', '.join(VARIANTS)}",
-    )
-    parser.add_argument(
-        "--json", action="store_true",
-        help="emit a versioned machine-readable JSON document instead of a table",
-    )
-    parser.add_argument(
-        "--output", type=Path, default=None,
-        help="also write the versioned JSON document atomically to this path",
-    )
-    parser.add_argument(
-        "--warmup-timeout", type=float, default=60.0,
-        help="max seconds to wait for the subscriber to start receiving",
-    )
-    parser.add_argument(
-        "--demo", action="store_true",
-        help="light mode: run one variant's pub/sub live, no comparison table",
-    )
-    parser.add_argument(
-        "--demo-variant", default="rclcppyy", choices=list(VARIANTS),
-        help="variant used by --demo",
-    )
+        "--payload-bytes", action="append",
+        help="repeatable/comma-separated application padding bytes")
+    parser.add_argument("--duration", type=float, help="measurement seconds per case")
+    parser.add_argument("--warmup-timeout", type=float, default=60.0)
+    parser.add_argument("--sample-hz", type=float, default=DEFAULT_SAMPLE_HZ)
+    parser.add_argument("--smoke", action="store_true", help="fast validation; forbids performance claims")
+    parser.add_argument("--json", action="store_true", help="emit only versioned JSON on stdout")
+    parser.add_argument("--output", type=Path, help="atomically write the versioned JSON document")
+    parser.add_argument("--demo", action="store_true", help="echo child output for the first selected case")
+    parser.add_argument("--list-matrix", action="store_true", help="print selected cases as JSON and exit")
+    return parser
+
+
+def main():
+    parser = _parser()
     args = parser.parse_args()
+    if args.sample_hz <= 0:
+        parser.error("--sample-hz must be positive")
+    mode, backends, workloads, rates, payloads, duration = _selectors(args, parser)
+    cases = build_cases(backends, workloads, rates, payloads)
+    if not cases:
+        parser.error("selected matrix has no supported cases")
 
-    if args.demo:
-        sys.exit(run_demo(args))
+    if args.list_matrix:
+        print(json.dumps(cases, indent=2, sort_keys=True))
+        return 0
 
-    duration = args.duration if args.duration is not None else 15.0
-    rates = parse_rates(args.rate)
-    variants = parse_variants(args.variants)
-
-    log(f"Running variants {variants} at rates {rates}, {duration:.0f}s each.")
-    all_results = {}
+    log(
+        f"Running {len(cases)} {mode} case(s): backends={backends}, workloads={workloads}, "
+        f"rates={rates}, payload_bytes={payloads}, duration={duration:.2f}s")
+    results = []
     failures = []
-    for rate in rates:
-        results = []
-        for v in variants:
-            log(f"[{VARIANTS[v]['label']} @ {rate} Hz]")
-            try:
-                results.append(run_pair(
-                    v, rate, duration, warmup_timeout=args.warmup_timeout,
-                ))
-            except RuntimeError as exc:
-                log(f"  FAILED: {exc}")
-                failures.append({
-                    "variant": v,
-                    "target_rate_hz": rate,
-                    "error": str(exc).splitlines()[0],
-                })
-        all_results[rate] = results
-        if not args.json:
-            print_table(rate, results)
+    for index, case in enumerate(cases, 1):
+        log(f"[{index}/{len(cases)}] {case['case_id']}")
+        try:
+            results.append(run_case(
+                case,
+                duration,
+                warmup_timeout=args.warmup_timeout,
+                sample_hz=args.sample_hz,
+                echo=args.demo and index == 1,
+            ))
+        except RuntimeError as exc:
+            log(f"  FAILED: {exc}")
+            failures.append({
+                "case_id": case["case_id"],
+                "backend": case["backend"],
+                "workload": case["workload"],
+                "target_rate_hz": case["target_rate_hz"],
+                "payload_bytes": case["payload_bytes"],
+                "error": str(exc).splitlines()[0],
+            })
 
+    matrix = {
+        "backends": backends,
+        "workloads": workloads,
+        "target_rates_hz": rates,
+        "payload_bytes": payloads,
+        "duration_s": duration,
+        "sample_hz": args.sample_hz,
+        "warmup_timeout_s": args.warmup_timeout,
+        "case_count": len(cases),
+    }
     document = build_document(
         repo_root=REPO_ROOT,
-        benchmark_name="pubsub_cpu_latency",
-        parameters={
-            "variants": variants,
-            "target_rates_hz": rates,
-            "duration_s": duration,
-            "warmup_timeout_s": args.warmup_timeout,
-        },
-        results_by_rate=all_results,
+        benchmark_name="pubsub_backend_workload_matrix",
+        mode=mode,
+        matrix=matrix,
+        results=results,
         failures=failures,
     )
     if args.output is not None:
         write(document, args.output)
-
     if args.json:
         print(dumps(document), end="")
     else:
-        print()
+        print_table(results, mode)
         if failures:
-            log(f"{len(failures)} run(s) failed:")
-            for failure in failures:
-                log(f"  - {failure['variant']} @ {failure['target_rate_hz']} Hz: "
-                    f"{failure['error']}")
+            log(f"{len(failures)} case(s) failed")
         else:
-            log("All runs completed.")
-
-    sys.exit(1 if failures else 0)
+            log("All cases completed with verified backend evidence.")
+    return 1 if failures else 0
 
 
 if __name__ == "__main__":
     try:
-        main()
+        raise SystemExit(main())
     except KeyboardInterrupt:
-        log("\nInterrupted; children are cleaned up on the way out.")
-        sys.exit(130)
+        log("Interrupted; active child groups are being cleaned up.")
+        raise SystemExit(130)
