@@ -37,7 +37,7 @@ def test_runtime_stress_emits_repeated_structured_evidence(tmp_path):
             "--threads", "4",
             "--messages-per-thread", "250",
             "--repetitions", "2",
-            "--signal-repetitions", "2",
+            "--signal-repetitions", "5",
             "--seed", "314159",
             "--output", str(output),
         ],
@@ -60,7 +60,7 @@ def test_runtime_stress_emits_repeated_structured_evidence(tmp_path):
     assert evidence["summary"]["entity_cycles"] == 4
     assert evidence["summary"]["messages_expected"] == 2000
     assert evidence["summary"]["messages_received"] == 2000
-    assert evidence["summary"]["clean_signal_shutdowns"] == 4
+    assert evidence["summary"]["clean_signal_shutdowns"] == 10
     assert all(
         item["concurrent_publish"]["qos_depth"] == 1000
         for item in evidence["rounds"])

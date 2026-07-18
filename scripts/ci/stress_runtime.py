@@ -157,8 +157,16 @@ def signal_worker() -> None:
     rclcppyy.enable_cpp_acceleration()
     rclpy.init(args=[])
     node = rclpy.create_node("stress_signal_%d" % os.getpid())
-    node.create_timer(60.0, lambda: None)
-    print("SIGNAL_WORKER_READY", flush=True)
+    ready_timer = None
+
+    def mark_spinning():
+        ready_timer.cancel()
+        print("SIGNAL_WORKER_READY", flush=True)
+
+    # Announce readiness from inside an executor callback. Printing before
+    # rclpy.spin() enters its executor leaves a race where SIGTERM can shut the
+    # context down before the global executor has been created.
+    ready_timer = node.create_timer(0.01, mark_spinning)
     try:
         try:
             rclpy.spin(node)
