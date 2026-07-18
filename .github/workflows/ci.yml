@@ -64,12 +64,19 @@ jobs:
           pixi run bench --smoke --backends rclcppyy --rate 1000 --duration 3
           --warmup-timeout 300 --json --output build/bench-smoke.json
 
+      - name: Render benchmark evidence
+        run: >-
+          pixi run bench-report build/bench-smoke.json
+          --output build/bench-smoke.md
+
       - name: Upload benchmark evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: benchmark-smoke-x86-64
-          path: build/bench-smoke.json
+          path: |
+            build/bench-smoke.json
+            build/bench-smoke.md
           if-no-files-found: ignore
 
   native-architecture:

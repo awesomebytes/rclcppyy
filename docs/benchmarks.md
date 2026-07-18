@@ -43,6 +43,16 @@ pixi run bench \
 Use `--list-matrix` to inspect the exact cases without starting ROS processes.
 The legacy `--variants` spelling remains an alias for `--backends`.
 
+Render any v2 result as a deterministic review report:
+
+```bash
+pixi run bench-report build/benchmark.json --output build/benchmark.md
+```
+
+The renderer preserves the artifact's claim policy. Smoke reports state that
+performance claims are forbidden, and measurement reports do not select a winner;
+comparative conclusions still require controlled repeated runs and review.
+
 ## Evidence And Statistics
 
 Every successful row includes separate publisher/subscriber backend markers.
