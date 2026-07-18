@@ -25,27 +25,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Keep the active phase on Jazzy/Cyclone. Other RMWs return only after
+        # compatibility, native optimization, and benchmark gates are complete.
         include:
           - runner: ubuntu-24.04
             platform: linux-64
             machine: x86_64
             rmw: rmw_cyclonedds_cpp
             rmw_label: cyclone
-          - runner: ubuntu-24.04
-            platform: linux-64
-            machine: x86_64
-            rmw: rmw_fastrtps_cpp
-            rmw_label: fastdds
           - runner: ubuntu-24.04-arm
             platform: linux-aarch64
             machine: aarch64
             rmw: rmw_cyclonedds_cpp
             rmw_label: cyclone
-          - runner: ubuntu-24.04-arm
-            platform: linux-aarch64
-            machine: aarch64
-            rmw: rmw_fastrtps_cpp
-            rmw_label: fastdds
     env:
       MAKE_NPROCS: '2'
       STDCXX: '17'
