@@ -19,6 +19,10 @@ def test_native_factory_is_thin_and_status_visible():
     assert record["metadata"]["operation"] == "native"
     assert record["metadata"]["arguments_count"] == 2
     assert record["metadata"]["capabilities"]["managed_context"] is True
+    assert record["metadata"]["capabilities"]["managed_native_services"] is True
+    assert record["metadata"]["capabilities"][
+        "native_service_client_coexistence"
+    ] == "runtime_compiler_or_warm_cache"
     assert record["metadata"]["capabilities"]["managed_native_action_clients"] is True
     assert record["metadata"]["capabilities"]["managed_lifecycle_nodes"] is True
     assert record["metadata"]["capabilities"]["managed_component_containers"] is True

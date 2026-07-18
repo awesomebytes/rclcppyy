@@ -88,12 +88,13 @@ objects, retaining only construction, executor membership, and teardown in the
 adapter. Component loading remains the standard composition service protocol and
 accepts registered AOT C++ plugins, not Python classes.
 
-On the current Jazzy/cppyy toolchain, compiling native service glue and then native
-client glue in one interpreter can fail to resolve the C++ standard library's
-thread-local `call_once` symbols. Each facility is independently tested and both
-directions interoperate with standalone AOT peers, but an application that needs
-both should isolate them in separate processes until the coexistence test passes.
-This is a known native-lane limitation, not an allowed compatibility fallback.
+Cold native service and client glue is compiled to a content-addressed DSO before
+its declarations are loaded into Cling. This permits both facilities to coexist in
+one interpreter without conflicting C++ standard-library thread-local `call_once`
+state. If no runtime compiler is available, an individual adapter retains the
+original Cling fallback, but multiple cold glue facilities are not a guaranteed
+combination. Query `session.capabilities.native_service_client_coexistence`; a
+runtime compiler or prebuilt warm artifact is required for guaranteed coexistence.
 
 ## Backend evidence
 
