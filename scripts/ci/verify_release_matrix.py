@@ -16,6 +16,7 @@ from typing import Callable
 SCHEMA = "rclcppyy.release-matrix-proof/v1"
 PRODUCT_NAME = "ros-jazzy-rclcppyy"
 SUPPORT_NAMES = ("cppyy-kit", "ros-jazzy-rclcpp-kit")
+ARM_SUPPORT_NAME = "cppyy"
 ARCHITECTURES = {
     "x86_64": "linux-64",
     "aarch64": "linux-aarch64",
@@ -87,26 +88,33 @@ def _only(paths, label: str) -> Path:
     return values[0]
 
 
-def _support_identity(proof: dict) -> list[dict]:
-    _require(proof.get("schema") == "rclcppyy.published-support-proof/v1",
+def _support_identity(proof: dict, architecture: str) -> list[dict]:
+    _require(proof.get("schema") == "rclcppyy.published-support-proof/v2",
              "bundle has unsupported published-support proof")
+    _require(proof.get("architecture") == architecture,
+             "published-support proof architecture differs")
     validated = proof.get("validated", {})
     for field in (
-        "available_before_product_publication",
+        "available_before_product_build",
+        "exact_package_identities",
         "github_provenance",
+        "isolated_local_channel",
         "published_bytes_match_repodata",
-        "same_suite_source_and_build_identity",
+        "retained_bytes_match_published",
         "suite_source_identity",
     ):
         _require(validated.get(field) is True, "published-support proof lacks %s" % field)
+    expected_names = list(SUPPORT_NAMES)
+    if architecture == "aarch64":
+        expected_names.append(ARM_SUPPORT_NAME)
     rows = proof.get("packages")
-    _require(isinstance(rows, list) and len(rows) == len(SUPPORT_NAMES),
+    _require(isinstance(rows, list) and len(rows) == len(expected_names),
              "published-support proof has the wrong package count")
     by_name = {row.get("name"): row for row in rows if isinstance(row, dict)}
-    _require(set(by_name) == set(SUPPORT_NAMES),
+    _require(set(by_name) == set(expected_names),
              "published-support proof has the wrong package set")
     identities = []
-    for name in SUPPORT_NAMES:
+    for name in expected_names:
         row = by_name[name]
         provenance = row.get("provenance", {})
         _require(provenance.get("verified_attestations", 0) > 0,
@@ -114,6 +122,13 @@ def _support_identity(proof: dict) -> list[dict]:
         published = row.get("published_artifact", {})
         _require(re.fullmatch(r"[0-9a-f]{64}", str(published.get("sha256"))) is not None,
                  "%s published digest is invalid" % name)
+        retained = row.get("retained_artifact", {})
+        _require((retained.get("sha256"), retained.get("size_bytes")) ==
+                 (published.get("sha256"), published.get("size_bytes")),
+                 "%s retained bytes differ from published bytes" % name)
+        _require(retained.get("path") == "%s/%s" % (
+            row.get("subdir"), row.get("filename")),
+            "%s retained artifact path differs" % name)
         identities.append({
             "name": name,
             "version": row.get("version"),
@@ -121,6 +136,7 @@ def _support_identity(proof: dict) -> list[dict]:
             "subdir": row.get("subdir"),
             "filename": row.get("filename"),
             "published_artifact": published,
+            "retained_artifact": retained,
             "suite_repository": provenance.get("repository"),
             "suite_source_commit": provenance.get("source_commit"),
             "suite_source_ref": provenance.get("source_ref"),
@@ -169,12 +185,17 @@ def _validate_bundle(
     _require(inventory.get("suite", {}).get("package_version") == suite_lock["package_version"],
              "%s inventory has the wrong suite version" % bundle_dir)
     for field in (
-        "artifact_hashes", "conda_identities", "exact_support_dependencies", "source_commits",
+        "artifact_hashes", "conda_identities", "exact_support_dependencies",
+        "published_dependency_bytes", "source_commits",
     ):
         _require(inventory.get("validated", {}).get(field) is True,
                  "%s inventory lacks validation %s" % (bundle_dir, field))
 
     artifact_sha = _sha256(product_artifact)
+    inventory_by_name = {
+        row.get("name"): row for row in inventory.get("packages", [])
+        if isinstance(row, dict)
+    }
     product_rows = [row for row in inventory.get("packages", [])
                     if row.get("name") == PRODUCT_NAME]
     _require(len(product_rows) == 1, "%s inventory has no unique product" % bundle_dir)
@@ -190,6 +211,9 @@ def _validate_bundle(
              "%s has unsupported local attestation" % bundle_dir)
     _require(local_attestation.get("architecture") == architecture,
              "%s local attestation architecture differs" % bundle_dir)
+    _require(local_attestation.get("published_dependencies", {}).get(
+        "exact_retained_bytes") is True,
+        "%s local attestation lacks exact published dependency bytes" % bundle_dir)
     snapshots = local_attestation.get("source_snapshots", {})
     _require(snapshots.get("rclcppyy", {}).get("commit") == product_commit,
              "%s local attestation product commit differs" % bundle_dir)
@@ -210,13 +234,46 @@ def _validate_bundle(
              "%s SPDX product checksum differs" % bundle_dir)
 
     for marker in (
+        "INSTALLED_PUBLISHED_SUPPORT_BYTES_OK",
         "INSTALLED_NATIVE_SERVICE_OK",
         "INSTALLED_RCLCPPYY_SAME_HANDLE_SERIALIZED_PUBLISH_OK",
     ):
         _require(marker in package_proof, "%s package proof lacks %s" % (bundle_dir, marker))
     if architecture == "aarch64":
-        _require("INSTALLED_LOCAL_CPPYY_ARM_BRIDGE_OK" in package_proof,
-                 "%s package proof lacks native ARM bridge marker" % bundle_dir)
+        _require("INSTALLED_PUBLISHED_CPPYY_ARM_BRIDGE_OK" in package_proof,
+                 "%s package proof lacks published ARM bridge marker" % bundle_dir)
+
+    support_packages = _support_identity(support_proof, architecture)
+    _require(support_proof.get("suite", {}).get("commit") == suite_lock["commit"],
+             "%s published support suite commit differs" % bundle_dir)
+    _require(support_proof.get("suite", {}).get("package_version") ==
+             suite_lock["package_version"],
+             "%s published support suite version differs" % bundle_dir)
+    for support in support_packages:
+        _require(support.get("suite_source_commit") == suite_lock["commit"],
+                 "%s %s provenance commit differs" % (bundle_dir, support["name"]))
+        _require(support.get("suite_source_ref") ==
+                 "refs/tags/v%s" % suite_lock["package_version"],
+                 "%s %s provenance ref differs" % (bundle_dir, support["name"]))
+    attested_by_path = {
+        row.get("path"): row for row in local_attestation.get("artifacts", [])
+        if isinstance(row, dict)
+    }
+    for support in support_packages:
+        name = support["name"]
+        package = inventory_by_name.get(name, {})
+        artifact = package.get("artifact", {})
+        published = support["published_artifact"]
+        retained = support["retained_artifact"]
+        _require((artifact.get("path"), artifact.get("sha256"),
+                  artifact.get("size_bytes")) == (
+            retained.get("path"), published.get("sha256"),
+            published.get("size_bytes")),
+            "%s %s inventory is not bound to published bytes" % (bundle_dir, name))
+        attested = attested_by_path.get(retained.get("path"), {})
+        _require((attested.get("sha256"), attested.get("size_bytes")) == (
+            published.get("sha256"), published.get("size_bytes")),
+            "%s %s attestation is not bound to published bytes" % (bundle_dir, name))
 
     verified_attestations = {
         name: verifier(
@@ -239,7 +296,7 @@ def _validate_bundle(
             "sha256": artifact_sha,
             "size_bytes": product_artifact.stat().st_size,
         },
-        "support_packages": _support_identity(support_proof),
+        "support_packages": support_packages,
         "attestations": verified_attestations,
         "evidence": {
             "inventory_sha256": _sha256(evidence / "release-package-inventory.json"),
@@ -284,8 +341,11 @@ def verify_release_matrix(
     by_architecture = {bundle["architecture"]: bundle for bundle in bundles}
     _require(set(by_architecture) == set(ARCHITECTURES),
              "release matrix lacks one native architecture")
-    support_sets = [bundle["support_packages"] for bundle in bundles]
-    _require(support_sets[0] == support_sets[1],
+    common_support_sets = [
+        [row for row in bundle["support_packages"] if row["name"] in SUPPORT_NAMES]
+        for bundle in bundles
+    ]
+    _require(common_support_sets[0] == common_support_sets[1],
              "architecture bundles disagree on published support identities")
     return {
         "schema": SCHEMA,
@@ -298,7 +358,7 @@ def verify_release_matrix(
             "package_version": suite_lock.get("package_version"),
         },
         "architectures": [by_architecture[name] for name in sorted(by_architecture)],
-        "published_support_packages": support_sets[0],
+        "published_support_packages": by_architecture["aarch64"]["support_packages"],
         "ready_to_publish": True,
         "publication_scope": [PRODUCT_NAME],
     }

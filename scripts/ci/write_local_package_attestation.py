@@ -10,6 +10,11 @@ import os
 from pathlib import Path
 import platform
 
+try:
+    from .verify_published_support import validate_retained_support
+except ImportError:
+    from verify_published_support import validate_retained_support
+
 
 SCHEMA = "rclcppyy.local-package-attestation/v2"
 COMMON_ARTIFACT_PATTERNS = (
@@ -122,6 +127,7 @@ def build_attestation(
     product_commit: str,
     suite_commit: str,
     architecture: str,
+    published_support_proof: dict | None = None,
 ) -> dict[str, object]:
     for name, value in (
         ("product_commit", product_commit),
@@ -130,8 +136,56 @@ def build_attestation(
         if len(value) != 40 or any(character not in "0123456789abcdef" for character in value):
             raise ValueError("%s must be a full lowercase Git commit" % name)
     artifacts = collect_artifacts(output_dir, architecture)
+    source_method = "detached-git-checkout"
+    published_dependencies = None
     arm_bridge = None
-    if ARCHITECTURES.get(architecture, (None, False))[1]:
+    if published_support_proof is not None:
+        suite = published_support_proof.get("suite", {})
+        retained = validate_retained_support(
+            published_support_proof,
+            output_dir,
+            suite_lock={
+                "commit": suite_commit,
+                "package_version": suite.get("package_version"),
+                "repository": suite.get("repository"),
+            },
+            architecture=architecture,
+        )
+        artifact_by_path = {item["path"]: item for item in artifacts}
+        for name, row in retained.items():
+            path = row["retained_artifact"]["path"]
+            artifact = artifact_by_path.get(path)
+            if (artifact is None or
+                    (artifact["sha256"], artifact["size_bytes"]) !=
+                    (row["published_artifact"]["sha256"],
+                     row["published_artifact"]["size_bytes"])):
+                raise ValueError(
+                    "%s retained published bytes are absent from package stack" % name)
+        source_method = "published-release-provenance"
+        published_dependencies = {
+            "schema": published_support_proof["schema"],
+            "exact_retained_bytes": True,
+            "packages": [
+                {
+                    "name": row["name"],
+                    "version": row["version"],
+                    "build": row["build"],
+                    "subdir": row["subdir"],
+                    "path": row["retained_artifact"]["path"],
+                    "sha256": row["published_artifact"]["sha256"],
+                    "size_bytes": row["published_artifact"]["size_bytes"],
+                }
+                for row in published_support_proof["packages"]
+            ],
+        }
+        if ARCHITECTURES.get(architecture, (None, False))[1]:
+            row = retained["cppyy"]
+            arm_bridge = {
+                "artifact_sha256": row["published_artifact"]["sha256"],
+                "published": True,
+                "provenance": row["provenance"],
+            }
+    elif ARCHITECTURES.get(architecture, (None, False))[1]:
         arm_bridge = collect_cppyy_arm_proof(
             output_dir, artifacts=artifacts, suite_commit=suite_commit)
     return {
@@ -144,10 +198,11 @@ def build_attestation(
             },
             "cppyy_kit": {
                 "commit": suite_commit,
-                "method": "detached-git-checkout",
+                "method": source_method,
             },
         },
         "artifacts": artifacts,
+        "published_dependencies": published_dependencies,
         "cppyy_arm_bridge": arm_bridge,
         "signed": False,
         "performance_claims_allowed": False,
@@ -169,6 +224,7 @@ def main() -> int:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--product-commit", required=True)
     parser.add_argument("--suite-commit", required=True)
+    parser.add_argument("--published-support-proof", type=Path)
     parser.add_argument("--attestation", type=Path, required=True)
     arguments = parser.parse_args()
 
@@ -177,6 +233,10 @@ def main() -> int:
         product_commit=arguments.product_commit,
         suite_commit=arguments.suite_commit,
         architecture=platform.machine(),
+        published_support_proof=(
+            json.loads(arguments.published_support_proof.read_text(encoding="utf-8"))
+            if arguments.published_support_proof is not None else None
+        ),
     )
     _write_atomic(arguments.attestation, value)
     print("LOCAL_PACKAGE_ATTESTATION_OK %s" % arguments.attestation)

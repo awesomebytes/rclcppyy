@@ -37,6 +37,7 @@ def _bundle(root, architecture, platform, *, support_suffix=""):
             "sha256": digest,
             "size_bytes": artifact.stat().st_size,
         }],
+        "published_dependencies": {"exact_retained_bytes": True},
     }
     inventory = {
         "schema": "rclcppyy.release-package-inventory/v1",
@@ -47,6 +48,7 @@ def _bundle(root, architecture, platform, *, support_suffix=""):
             "artifact_hashes": True,
             "conda_identities": True,
             "exact_support_dependencies": True,
+            "published_dependency_bytes": True,
             "source_commits": True,
         },
         "packages": [{
@@ -63,17 +65,30 @@ def _bundle(root, architecture, platform, *, support_suffix=""):
             "checksums": [{"algorithm": "SHA256", "checksumValue": digest}],
         }],
     }
+    support_definitions = [
+        (name, "0.2.0", "pyh4616a5c_0", "noarch")
+        for name in matrix.SUPPORT_NAMES
+    ]
+    if architecture == "aarch64":
+        support_definitions.append(
+            (matrix.ARM_SUPPORT_NAME, "3.5.0", "py312hf18b547_0", platform))
     support_packages = []
-    for name in matrix.SUPPORT_NAMES:
-        filename = "%s-0.2.0-py_fixture_0.conda" % name
+    for name, version, build, subdir in support_definitions:
+        filename = "%s-%s-%s.conda" % (name, version, build)
         published_sha = hashlib.sha256((name + support_suffix).encode()).hexdigest()
+        relative = "%s/%s" % (subdir, filename)
         support_packages.append({
             "name": name,
-            "version": "0.2.0",
-            "build": "py_fixture_0",
-            "subdir": "noarch",
+            "version": version,
+            "build": build,
+            "subdir": subdir,
             "filename": filename,
             "published_artifact": {"sha256": published_sha, "size_bytes": 123},
+            "retained_artifact": {
+                "path": relative,
+                "sha256": published_sha,
+                "size_bytes": 123,
+            },
             "provenance": {
                 "verified_attestations": 1,
                 "repository": "awesomebytes/cppyy_kit",
@@ -82,13 +97,32 @@ def _bundle(root, architecture, platform, *, support_suffix=""):
                 "signer_workflow": "awesomebytes/cppyy_kit/.github/workflows/release.yml",
             },
         })
+        inventory["packages"].append({
+            "name": name,
+            "version": version,
+            "subdir": subdir,
+            "artifact": {
+                "path": relative,
+                "sha256": published_sha,
+                "size_bytes": 123,
+            },
+        })
+        attestation["artifacts"].append({
+            "path": relative,
+            "sha256": published_sha,
+            "size_bytes": 123,
+        })
     support = {
-        "schema": "rclcppyy.published-support-proof/v1",
+        "schema": "rclcppyy.published-support-proof/v2",
+        "architecture": architecture,
+        "suite": {"commit": SUITE_COMMIT, "package_version": "0.2.0"},
         "validated": {
-            "available_before_product_publication": True,
+            "available_before_product_build": True,
+            "exact_package_identities": True,
             "github_provenance": True,
+            "isolated_local_channel": True,
             "published_bytes_match_repodata": True,
-            "same_suite_source_and_build_identity": True,
+            "retained_bytes_match_published": True,
             "suite_source_identity": True,
         },
         "packages": support_packages,
@@ -100,11 +134,12 @@ def _bundle(root, architecture, platform, *, support_suffix=""):
     _write_json(evidence / "provenance.sigstore.json", {"bundle": "provenance"})
     _write_json(evidence / "sbom.sigstore.json", {"bundle": "sbom"})
     markers = [
+        "INSTALLED_PUBLISHED_SUPPORT_BYTES_OK",
         "INSTALLED_NATIVE_SERVICE_OK",
         "INSTALLED_RCLCPPYY_SAME_HANDLE_SERIALIZED_PUBLISH_OK",
     ]
     if architecture == "aarch64":
-        markers.append("INSTALLED_LOCAL_CPPYY_ARM_BRIDGE_OK")
+        markers.append("INSTALLED_PUBLISHED_CPPYY_ARM_BRIDGE_OK")
     (evidence / "package-proof.log").write_text("\n".join(markers), encoding="utf-8")
     return bundle
 
@@ -142,6 +177,8 @@ def test_matrix_requires_and_reverifies_both_complete_architectures(tmp_path):
     assert proof["publication_scope"] == [matrix.PRODUCT_NAME]
     assert {row["platform"] for row in proof["architectures"]} == {
         "linux-64", "linux-aarch64"}
+    assert {row["name"] for row in proof["published_support_packages"]} == {
+        "cppyy", "cppyy-kit", "ros-jazzy-rclcpp-kit"}
     assert len(calls) == 4
     assert {call[2] for call in calls} == set(matrix.PREDICATES.values())
     assert all(call[3:] == (PRODUCT_COMMIT, "refs/tags/v0.3.0") for call in calls)
@@ -168,6 +205,22 @@ def test_matrix_rejects_architecture_support_identity_disagreement(tmp_path):
     _bundle(tmp_path, "aarch64", "linux-aarch64", support_suffix="different")
 
     with pytest.raises(ValueError, match="disagree on published support identities"):
+        matrix.verify_release_matrix(
+            tmp_path, product_commit=PRODUCT_COMMIT, tag=TAG,
+            suite_lock=_suite_lock(), verifier=_verifier([]))
+
+
+def test_matrix_rejects_inventory_not_bound_to_published_dependency_bytes(tmp_path):
+    x86 = _bundle(tmp_path, "x86_64", "linux-64")
+    _bundle(tmp_path, "aarch64", "linux-aarch64")
+    inventory_path = x86 / "evidence" / "release-package-inventory.json"
+    inventory = json.loads(inventory_path.read_text())
+    support_row = next(row for row in inventory["packages"]
+                       if row["name"] == "cppyy-kit")
+    support_row["artifact"]["sha256"] = "0" * 64
+    inventory_path.write_text(json.dumps(inventory), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="inventory is not bound to published bytes"):
         matrix.verify_release_matrix(
             tmp_path, product_commit=PRODUCT_COMMIT, tag=TAG,
             suite_lock=_suite_lock(), verifier=_verifier([]))

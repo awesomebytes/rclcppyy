@@ -16,6 +16,11 @@ esac
 
 output_dir="${1:-output}"
 output_dir="$(realpath "$output_dir")"
+published_support_proof="${2:-}"
+if [ -n "$published_support_proof" ]; then
+  published_support_proof="$(realpath "$published_support_proof")"
+  export RCLCPPYY_PUBLISHED_SUPPORT_PROOF="$published_support_proof"
+fi
 workdir="$(mktemp -d)"
 trap 'rm -rf "$workdir"' EXIT
 
@@ -72,15 +77,34 @@ native_module = importlib.import_module("rclcpp_kit.native")
 native_pipeline_module = importlib.import_module("rclcpp_kit.native_pipeline")
 native_service_module = importlib.import_module("rclcpp_kit.native_service")
 type_adapter_module = importlib.import_module("rclcpp_kit.type_adapter")
+installed_records = {}
 for package_name in ("cppyy-kit", "ros-jazzy-rclcpp-kit"):
-    assert_conda_version(package_name, "0.2.0")
+    installed_records[package_name] = assert_conda_version(package_name, "0.2.0")
 assert_conda_version("ros-jazzy-rclcppyy", "0.3.0")
 cppyy_record = assert_conda_version("cppyy", "3.5.0")
+installed_records["cppyy"] = cppyy_record
+published_proof_path = os.environ.get("RCLCPPYY_PUBLISHED_SUPPORT_PROOF")
+if published_proof_path:
+    published_proof = json.loads(Path(published_proof_path).read_text())
+    assert published_proof["schema"] == "rclcppyy.published-support-proof/v2"
+    for package in published_proof["packages"]:
+        record = installed_records[package["name"]]
+        published = package["published_artifact"]
+        assert record["version"] == package["version"], (record, package)
+        assert record["build"] == package["build"], (record, package)
+        assert record["subdir"] == package["subdir"], (record, package)
+        assert record["sha256"] == published["sha256"], (record, package)
+        assert record["url"].startswith("file://"), record
+        assert record["url"].endswith("/" + package["filename"]), record
+    print("INSTALLED_PUBLISHED_SUPPORT_BYTES_OK")
 if sys.platform == "linux" and platform.machine() in ("aarch64", "arm64"):
     assert cppyy_record["subdir"] == "linux-aarch64", cppyy_record
     assert cppyy_record["build"].startswith("py312"), cppyy_record
     assert cppyy_record["url"].startswith("file://"), cppyy_record
-    print("INSTALLED_LOCAL_CPPYY_ARM_BRIDGE_OK")
+    if published_proof_path:
+        print("INSTALLED_PUBLISHED_CPPYY_ARM_BRIDGE_OK")
+    else:
+        print("INSTALLED_LOCAL_CPPYY_ARM_BRIDGE_OK")
 print("rclcppyy:", rclcppyy.__file__)
 print("borrowed_publish:", borrowed_publish.__file__)
 print("native:", native_module.__file__)

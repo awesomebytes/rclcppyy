@@ -12,55 +12,52 @@ SUITE_VERSION = "0.2.0"
 CHANNEL = "https://packages.example.invalid/channel"
 
 
-def _fixture():
-    local_files = {
-        "cppyy-kit-0.2.0-py_fixture_0.conda": b"cppyy-kit-package",
-        "ros-jazzy-rclcpp-kit-0.2.0-py_fixture_0.conda": b"rclcpp-kit-package",
+def _verified_provenance(*_args):
+    return {
+        "verified_attestations": 1,
+        "repository": "awesomebytes/cppyy_kit",
+        "source_commit": SUITE_COMMIT,
+        "source_ref": "refs/tags/v0.2.0",
     }
-    published_files = {
-        name: b"published-build:" + content for name, content in local_files.items()
-    }
-    artifacts = []
-    records = {}
-    for filename, content in local_files.items():
-        name = filename.removesuffix("-0.2.0-py_fixture_0.conda")
-        artifacts.append({
-            "path": "noarch/" + filename,
-            "sha256": hashlib.sha256(content).hexdigest(),
-            "size_bytes": len(content),
-        })
-        published = published_files[filename]
+
+
+def _fixture(architecture="x86_64"):
+    packages = support.expected_packages(architecture, SUITE_VERSION)
+    files = {}
+    repodata = {}
+    for package in packages:
+        filename = "%s-%s-%s.conda" % (
+            package["name"], package["version"], package["build"])
+        content = ("published:" + filename).encode()
+        files[(package["subdir"], filename)] = content
+        records = repodata.setdefault(package["subdir"], {})
         records[filename] = {
-            "name": name,
-            "version": SUITE_VERSION,
-            "build": "py_fixture_0",
-            "subdir": "noarch",
-            "sha256": hashlib.sha256(published).hexdigest(),
-            "size": len(published),
+            **package,
+            "sha256": hashlib.sha256(content).hexdigest(),
+            "size": len(content),
         }
-    attestation = {
-        "schema": support.ATTESTATION_SCHEMA,
-        "source_snapshots": {"cppyy_kit": {"commit": SUITE_COMMIT}},
-        "artifacts": artifacts,
-    }
     suite_lock = {
         "schema": support.SUITE_LOCK_SCHEMA,
         "repository": "awesomebytes/cppyy_kit",
         "commit": SUITE_COMMIT,
         "package_version": SUITE_VERSION,
     }
-    repodata = {"info": {"subdir": "noarch"}, "packages.conda": records}
 
     def fetch(url):
         if url.endswith("repodata.json"):
-            return json.dumps(repodata).encode()
-        return published_files[Path(url).name]
+            subdir = Path(url).parent.name
+            return json.dumps({
+                "info": {"subdir": subdir},
+                "packages.conda": repodata[subdir],
+            }).encode()
+        subdir = Path(url).parent.name
+        return files[(subdir, Path(url).name)]
 
-    return attestation, suite_lock, repodata, published_files, fetch
+    return suite_lock, repodata, files, fetch
 
 
-def test_published_support_requires_exact_bytes_and_locked_provenance(tmp_path):
-    attestation, suite_lock, _repodata, files, fetch = _fixture()
+def test_published_support_retains_exact_x86_bytes_and_locked_provenance(tmp_path):
+    suite_lock, _repodata, files, fetch = _fixture()
     calls = []
 
     def verify(path, repository, source_commit, source_ref):
@@ -73,8 +70,8 @@ def test_published_support_requires_exact_bytes_and_locked_provenance(tmp_path):
         }
 
     proof = support.verify_published_support(
-        attestation=attestation,
         suite_lock=suite_lock,
+        architecture="x86_64",
         channel_url=CHANNEL + "/",
         download_dir=tmp_path,
         fetcher=fetch,
@@ -82,59 +79,87 @@ def test_published_support_requires_exact_bytes_and_locked_provenance(tmp_path):
     )
 
     assert proof["validated"] == {
-        "available_before_product_publication": True,
+        "available_before_product_build": True,
+        "exact_package_identities": True,
         "github_provenance": True,
+        "isolated_local_channel": True,
         "published_bytes_match_repodata": True,
-        "same_suite_source_and_build_identity": True,
+        "retained_bytes_match_published": True,
         "suite_source_identity": True,
     }
-    assert [item["name"] for item in proof["packages"]] == list(support.SUPPORT_NAMES)
-    assert {path.name: path.read_bytes() for path in tmp_path.iterdir()} == files
+    assert [item["name"] for item in proof["packages"]] == [
+        "cppyy-kit", "ros-jazzy-rclcpp-kit"]
+    retained = {
+        (path.parent.name, path.name): path.read_bytes()
+        for path in tmp_path.glob("*/*.conda")
+    }
+    assert retained == files
+    for subdir in {item[0] for item in files}:
+        repodata = json.loads((tmp_path / subdir / "repodata.json").read_text())
+        assert set(repodata["packages.conda"]) == {
+            filename for package_subdir, filename in files if package_subdir == subdir}
     assert all(
-        item["local_proof_artifact"]["sha256"]
-        != item["published_artifact"]["sha256"]
+        item["retained_artifact"]["sha256"]
+        == item["published_artifact"]["sha256"]
         for item in proof["packages"])
-    assert calls == [
-        ("cppyy-kit-0.2.0-py_fixture_0.conda", "awesomebytes/cppyy_kit",
-         SUITE_COMMIT, "refs/tags/v0.2.0"),
-        ("ros-jazzy-rclcpp-kit-0.2.0-py_fixture_0.conda", "awesomebytes/cppyy_kit",
-         SUITE_COMMIT, "refs/tags/v0.2.0"),
-    ]
+    assert len(calls) == 2
+    assert all(call[1:] == (
+        "awesomebytes/cppyy_kit", SUITE_COMMIT, "refs/tags/v0.2.0")
+        for call in calls)
+
+
+def test_published_support_includes_exact_native_arm_bridge(tmp_path):
+    suite_lock, _repodata, _files, fetch = _fixture("aarch64")
+
+    proof = support.verify_published_support(
+        suite_lock=suite_lock,
+        architecture="aarch64",
+        channel_url=CHANNEL,
+        download_dir=tmp_path,
+        fetcher=fetch,
+        provenance_verifier=_verified_provenance,
+    )
+
+    arm = next(item for item in proof["packages"] if item["name"] == "cppyy")
+    assert (arm["version"], arm["build"], arm["subdir"]) == (
+        "3.5.0", "py312hf18b547_0", "linux-aarch64")
+    assert (tmp_path / arm["retained_artifact"]["path"]).is_file()
 
 
 def test_published_support_rejects_download_that_differs_from_repodata(tmp_path):
-    attestation, suite_lock, repodata, _files, fetch = _fixture()
-    filename = "cppyy-kit-0.2.0-py_fixture_0.conda"
-    repodata["packages.conda"][filename]["sha256"] = "0" * 64
+    suite_lock, repodata, _files, fetch = _fixture()
+    filename = "cppyy-kit-0.2.0-pyh4616a5c_0.conda"
+    repodata["noarch"][filename]["sha256"] = "0" * 64
 
     with pytest.raises(ValueError, match="downloaded bytes differ from repodata"):
         support.verify_published_support(
-            attestation=attestation,
             suite_lock=suite_lock,
+            architecture="x86_64",
             channel_url=CHANNEL,
             download_dir=tmp_path,
             fetcher=fetch,
-            provenance_verifier=lambda *_args: {"verified_attestations": 1},
+            provenance_verifier=_verified_provenance,
         )
 
 
-def test_published_support_rejects_unverified_or_wrong_source(tmp_path):
-    attestation, suite_lock, _repodata, _files, fetch = _fixture()
-    wrong_lock = dict(suite_lock, commit="b" * 40)
-    with pytest.raises(ValueError, match="not bound to the locked suite commit"):
+def test_published_support_rejects_missing_identity_or_provenance(tmp_path):
+    suite_lock, repodata, _files, fetch = _fixture()
+    repodata["noarch"].pop("cppyy-kit-0.2.0-pyh4616a5c_0.conda")
+    with pytest.raises(ValueError, match="lacks exact artifact"):
         support.verify_published_support(
-            attestation=attestation,
-            suite_lock=wrong_lock,
+            suite_lock=suite_lock,
+            architecture="x86_64",
             channel_url=CHANNEL,
             download_dir=tmp_path,
             fetcher=fetch,
-            provenance_verifier=lambda *_args: {"verified_attestations": 1},
+            provenance_verifier=_verified_provenance,
         )
 
+    suite_lock, _repodata, _files, fetch = _fixture()
     with pytest.raises(ValueError, match="returned no evidence"):
         support.verify_published_support(
-            attestation=attestation,
             suite_lock=suite_lock,
+            architecture="x86_64",
             channel_url=CHANNEL,
             download_dir=tmp_path / "no-provenance",
             fetcher=fetch,

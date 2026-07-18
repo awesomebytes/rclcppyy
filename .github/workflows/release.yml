@@ -2,7 +2,8 @@ name: Release
 
 # On a version tag (v*): build native x86_64 and ARM64 ros-jazzy-rclcppyy conda
 # packages, prove each installs and runs from a channel with no repo checkout,
-# then attest and upload both to the prefix.dev channel.
+# and attest each artifact. A separate publication job re-verifies the complete
+# dual-architecture matrix before uploading either package.
 #
 # Authentication: OIDC trusted publishing (no API token stored anywhere).
 # prefix.dev → channel `awesomebytes` → Repository Access authorizes
@@ -45,17 +46,17 @@ jobs:
             machine: aarch64
     steps:
       - name: Checkout exact tag source
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Checkout pinned kit sources
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: fff5aabd66b7eeb051ecacd5716eb0495b00fdfe
+          ref: bf09ec69f389e47217b1789996eb8ce6f61597b7
           path: _deps/cppyy_kit
 
       - name: Checkout pinned upstream contract source
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: ros2/rclpy
           ref: baf9d72cfa127e391a89b4ab51ba9e55c37041fd
@@ -67,7 +68,7 @@ jobs:
           python3 scripts/ci/verify_release_version.py "${GITHUB_REF_NAME}"
 
       - name: Set up source-test environment
-        uses: prefix-dev/setup-pixi@v0.10.0
+        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
         with:
           pixi-version: v0.70.0
           environments: default
@@ -97,7 +98,7 @@ jobs:
 
       - name: Upload preflight evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: release-preflight-${{ matrix.platform }}-${{ github.ref_name }}
           path: |
@@ -106,8 +107,8 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-  release:
-    name: build, prove, attest, upload (${{ matrix.platform }})
+  package:
+    name: build, prove, attest (${{ matrix.platform }})
     needs: preflight
     permissions:
       contents: read
@@ -129,13 +130,13 @@ jobs:
       RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Checkout pinned kit sources
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: fff5aabd66b7eeb051ecacd5716eb0495b00fdfe
+          ref: bf09ec69f389e47217b1789996eb8ce6f61597b7
           path: _deps/cppyy_kit
 
       - name: Verify tag matches all release metadata
@@ -144,19 +145,29 @@ jobs:
           python3 scripts/ci/verify_release_version.py "${GITHUB_REF_NAME}"
 
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.10.0
+        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
         with:
           pixi-version: v0.70.0
           # Only the packaging env; it doesn't pull the ROS/cppyy stack.
           environments: pkg
 
-      # Build the complete local stack from immutable archives. This binds the product
-      # proof to suite-source.lock.json instead of trusting only a matching package
-      # version from a mutable channel.
-      - name: Build exact locked conda stack
+      # Retain and provenance-check suite-owned dependencies before the product
+      # build. The local channel then contains the exact bytes consumers receive.
+      - name: Retain provenance-verified published dependencies
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          pixi run -e pkg bash scripts/ci/build_local_package_stack.sh \
-            _deps/cppyy_kit output
+          mkdir -p build/release
+          python3 scripts/ci/verify_published_support.py \
+            --suite-lock suite-source.lock.json \
+            --architecture "${{ matrix.machine }}" \
+            --download-dir output \
+            --output build/release/published-support.json
+
+      - name: Build product against exact published dependency bytes
+        run: |
+          pixi run -e pkg bash scripts/ci/build_release_product_stack.sh \
+            _deps/cppyy_kit output build/release/published-support.json
 
       - name: Identify the release artifact
         id: artifact
@@ -170,37 +181,40 @@ jobs:
           printf 'path=%s\n' "${artifacts[0]}" >> "$GITHUB_OUTPUT"
           sha256sum "${artifacts[0]}" | tee build/release/SHA256SUMS
           cp output/local-package-attestation.json build/release/
-          if [ -f output/cppyy-arm-package-proof.json ]; then
-            cp output/cppyy-arm-package-proof.json \
-              output/cppyy-arm-runtime-proof.log build/release/
-          fi
 
       # The point of releasing: a user with no clone gets a working install from
       # the channel alone, including the same-handle serialized publisher route.
       - name: Prove the artifact installs and runs from a channel
         run: |
           set -o pipefail
-          scripts/ci/prove_rclcppyy_package.sh output 2>&1 \
+          scripts/ci/prove_rclcppyy_package.sh \
+            output build/release/published-support.json 2>&1 \
             | tee build/release/package-proof.log
 
-      - name: Generate SPDX SBOM from the release artifact
-        uses: anchore/sbom-action@v0.24.0
-        with:
-          file: ${{ steps.artifact.outputs.path }}
-          format: spdx-json
-          output-file: build/release/rclcppyy.spdx.json
-          upload-artifact: false
-          upload-release-assets: false
+      - name: Build validated release inventory and SPDX SBOM
+        run: |
+          product_version="${GITHUB_REF_NAME#v}"
+          pixi run -e pkg python scripts/ci/build_release_inventory.py \
+            --output-dir output \
+            --extract-root "build/release-extracted-${{ matrix.platform }}" \
+            --local-attestation build/release/local-package-attestation.json \
+            --published-support-proof build/release/published-support.json \
+            --suite-lock suite-source.lock.json \
+            --architecture "${{ matrix.machine }}" \
+            --product-version "$product_version" \
+            --product-commit "$GITHUB_SHA" \
+            --inventory build/release/release-package-inventory.json \
+            --spdx build/release/rclcppyy.spdx.json
 
       - name: Attest build provenance
         id: provenance
-        uses: actions/attest@v4
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4
         with:
           subject-path: ${{ steps.artifact.outputs.path }}
 
       - name: Attest release SBOM
         id: sbom-attestation
-        uses: actions/attest@v4
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4
         with:
           subject-path: ${{ steps.artifact.outputs.path }}
           sbom-path: build/release/rclcppyy.spdx.json
@@ -212,21 +226,126 @@ jobs:
           cp "${{ steps.sbom-attestation.outputs.bundle-path }}" \
             build/release/sbom.sigstore.json
 
-      - name: Upload release gate evidence
-        uses: actions/upload-artifact@v4
+      - name: Stage publication bundle
+        run: |
+          mkdir -p "build/release-bundle/product/${{ matrix.platform }}"
+          mkdir -p build/release-bundle/evidence/contracts
+          cp "${{ steps.artifact.outputs.path }}" \
+            "build/release-bundle/product/${{ matrix.platform }}/"
+          cp build/release/local-package-attestation.json \
+            build/release/release-package-inventory.json \
+            build/release/rclcppyy.spdx.json \
+            build/release/published-support.json \
+            build/release/package-proof.log \
+            build/release/provenance.sigstore.json \
+            build/release/sbom.sigstore.json \
+            build/release-bundle/evidence/
+          cp compatibility/jazzy.json \
+            compatibility/manifest.schema.json \
+            schemas/benchmark-v3.schema.json \
+            schemas/compatibility-performance-evidence-v1.schema.json \
+            build/release-bundle/evidence/contracts/
+
+      - name: Upload partial release diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: release-evidence-${{ matrix.platform }}-${{ github.ref_name }}
-          path: |
-            build/release
-            compatibility/jazzy.json
-            compatibility/manifest.schema.json
-            schemas/benchmark-v3.schema.json
-            schemas/compatibility-performance-evidence-v1.schema.json
-          if-no-files-found: error
+          path: build/release
+          if-no-files-found: warn
           retention-days: 90
 
-      - name: Upload to the prefix.dev channel `awesomebytes` (OIDC)
+      - name: Transfer verified publication bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-bundle-${{ matrix.platform }}-${{ github.ref_name }}
+          path: build/release-bundle
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: verify complete matrix and publish
+    needs: package
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact tag source
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - name: Download both verified publication bundles
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          pattern: release-bundle-*-${{ github.ref_name }}
+          path: build/release-input
+          merge-multiple: false
+
+      - name: Verify complete dual-architecture release matrix
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/ci/verify_release_version.py "${GITHUB_REF_NAME}"
+          python3 scripts/ci/verify_release_matrix.py \
+            --input-root build/release-input \
+            --product-commit "$GITHUB_SHA" \
+            --tag "$GITHUB_REF_NAME" \
+            --suite-lock suite-source.lock.json \
+            --output build/release-publication/release-matrix-proof.json
+
+      - name: Set up publication environment
+        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
+        with:
+          pixi-version: v0.70.0
+          environments: pkg
+
+      # One job owns publication. No package is uploaded until both native
+      # bundles and their portable attestations have passed the matrix verifier.
+      - name: Preflight product identities and channel bytes
         run: |
           set -euxo pipefail
-          pixi run -e pkg rattler-build upload prefix --channel awesomebytes \
-            "${{ steps.artifact.outputs.path }}"
+          mapfile -t artifacts < <(
+            find build/release-input -type f \
+              -path '*/product/*/ros-jazzy-rclcppyy-*.conda' | sort
+          )
+          test "${#artifacts[@]}" -eq 2
+          python3 scripts/ci/verify_product_upload.py \
+            --tag "$GITHUB_REF_NAME" \
+            --output build/release-publication/upload-preflight.json \
+            --missing-output build/release-publication/missing.txt \
+            "${artifacts[@]}"
+
+      - name: Upload only absent product identities to prefix.dev (OIDC)
+        run: |
+          set -euo pipefail
+          mapfile -t artifacts < build/release-publication/missing.txt
+          if [ "${#artifacts[@]}" -gt 0 ]; then
+            pixi run -e pkg rattler-build upload prefix --channel awesomebytes \
+              "${artifacts[@]}"
+          else
+            echo "Both product identities already contain the exact release bytes"
+          fi
+
+      - name: Verify both published product artifact bytes
+        run: |
+          set -euo pipefail
+          mapfile -t artifacts < <(
+            find build/release-input -type f \
+              -path '*/product/*/ros-jazzy-rclcppyy-*.conda' | sort
+          )
+          python3 scripts/ci/verify_product_upload.py \
+            --tag "$GITHUB_REF_NAME" \
+            --require-present --attempts 12 --delay-seconds 5 \
+            --output build/release-publication/upload-postflight.json \
+            "${artifacts[@]}"
+
+      - name: Retain publication proof
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-publication-${{ github.ref_name }}
+          path: build/release-publication
+          if-no-files-found: warn
+          retention-days: 90

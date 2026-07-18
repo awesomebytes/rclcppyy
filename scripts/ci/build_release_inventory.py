@@ -14,6 +14,11 @@ import subprocess
 from typing import Callable
 from urllib.parse import quote
 
+try:
+    from .verify_published_support import validate_retained_support
+except ImportError:
+    from verify_published_support import validate_retained_support
+
 
 INVENTORY_SCHEMA = "rclcppyy.release-package-inventory/v1"
 ATTESTATION_SCHEMA = "rclcppyy.local-package-attestation/v2"
@@ -140,6 +145,7 @@ def build_inventory(
     extract_root: Path,
     *,
     attestation: dict,
+    published_support_proof: dict,
     suite_lock: dict,
     architecture: str,
     product_version: str,
@@ -165,6 +171,12 @@ def build_inventory(
              "attestation suite commit differs from source lock")
     _require(attestation.get("architecture") == architecture,
              "attestation architecture differs from release runner")
+    _require(attestation.get("source_snapshots", {}).get(
+        "cppyy_kit", {}).get("method") == "published-release-provenance",
+        "release attestation is not bound to published support bytes")
+    _require(attestation.get("published_dependencies", {}).get(
+        "exact_retained_bytes") is True,
+        "release attestation lacks exact published dependency bytes")
 
     attested_artifacts = attestation.get("artifacts")
     _require(isinstance(attested_artifacts, list) and attested_artifacts,
@@ -196,6 +208,20 @@ def build_inventory(
         _require(package["subdir"] == identity["subdir"],
                  "%s subdir differs from release contract" % name)
 
+    published_rows = validate_retained_support(
+        published_support_proof,
+        output_dir,
+        suite_lock=suite_lock,
+        architecture=architecture,
+    )
+    for name, published in published_rows.items():
+        artifact = by_name[name]["artifact"]
+        _require((artifact["path"], artifact["sha256"], artifact["size_bytes"]) == (
+            published["retained_artifact"]["path"],
+            published["published_artifact"]["sha256"],
+            published["published_artifact"]["size_bytes"],
+        ), "%s inventory bytes differ from published dependency" % name)
+
     product_dependencies = set(by_name[PRODUCT_NAME]["depends"])
     for support_name in SUPPORT_NAMES:
         requirement = "%s ==%s" % (support_name, suite_version)
@@ -214,11 +240,23 @@ def build_inventory(
             "package_version": suite_version,
         },
         "product": {"name": PRODUCT_NAME, "version": product_version},
+        "published_dependencies": [
+            {
+                "name": row["name"],
+                "version": row["version"],
+                "build": row["build"],
+                "subdir": row["subdir"],
+                "sha256": row["published_artifact"]["sha256"],
+                "size_bytes": row["published_artifact"]["size_bytes"],
+            }
+            for row in published_support_proof["packages"]
+        ],
         "packages": sorted(packages, key=lambda package: package["name"]),
         "validated": {
             "artifact_hashes": True,
             "conda_identities": True,
             "exact_support_dependencies": True,
+            "published_dependency_bytes": True,
             "source_commits": True,
         },
         "performance_claims_allowed": False,
@@ -335,6 +373,7 @@ def main(argv=None) -> int:
     parser.add_argument("--output-dir", required=True, type=Path)
     parser.add_argument("--extract-root", required=True, type=Path)
     parser.add_argument("--local-attestation", required=True, type=Path)
+    parser.add_argument("--published-support-proof", required=True, type=Path)
     parser.add_argument("--suite-lock", required=True, type=Path)
     parser.add_argument("--architecture", required=True, choices=sorted(ARCHITECTURES))
     parser.add_argument("--product-version", required=True)
@@ -347,6 +386,7 @@ def main(argv=None) -> int:
             arguments.output_dir.resolve(),
             arguments.extract_root.resolve(),
             attestation=_load_json(arguments.local_attestation),
+            published_support_proof=_load_json(arguments.published_support_proof),
             suite_lock=_load_json(arguments.suite_lock),
             architecture=arguments.architecture,
             product_version=arguments.product_version,

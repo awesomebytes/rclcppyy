@@ -35,43 +35,84 @@ def test_release_requires_dual_arch_source_preflight_and_exact_suite_build():
         (ROOT / ".github" / "workflows" / "release.yml").read_text())
     jobs = workflow["jobs"]
     preflight = jobs["preflight"]
-    release = jobs["release"]
+    package = jobs["package"]
+    publish = jobs["publish"]
     assert workflow["permissions"] == {"contents": "read"}
     assert "permissions" not in preflight
-    assert release["permissions"] == {
+    assert package["permissions"] == {
         "contents": "read",
         "id-token": "write",
         "attestations": "write",
+    }
+    assert publish["permissions"] == {
+        "actions": "read",
+        "contents": "read",
+        "id-token": "write",
     }
     matrix = preflight["strategy"]["matrix"]["include"]
     assert {(item["platform"], item["machine"]) for item in matrix} == {
         ("linux-64", "x86_64"),
         ("linux-aarch64", "aarch64"),
     }
-    assert release["needs"] == "preflight"
+    assert package["needs"] == "preflight"
     assert {
         (item["platform"], item["machine"])
-        for item in release["strategy"]["matrix"]["include"]
+        for item in package["strategy"]["matrix"]["include"]
     } == {
         ("linux-64", "x86_64"),
         ("linux-aarch64", "aarch64"),
     }
+    assert publish["needs"] == "package"
+    assert "strategy" not in publish
 
     suite_commit = json.loads(
         (ROOT / "suite-source.lock.json").read_text())["commit"]
     suite_refs = []
-    for job in (preflight, release):
+    for job in (preflight, package):
         for step in job["steps"]:
             settings = step.get("with", {})
             if settings.get("repository") == "awesomebytes/cppyy_kit":
                 suite_refs.append(settings.get("ref"))
     assert suite_refs == [suite_commit, suite_commit]
 
-    release_commands = "\n".join(
-        step.get("run", "") for step in release["steps"])
-    assert "build_local_package_stack.sh" in release_commands
-    assert "_deps/cppyy_kit output" in release_commands
-    assert "local-package-attestation.json" in release_commands
+    package_commands = "\n".join(
+        step.get("run", "") for step in package["steps"])
+    assert "build_release_product_stack.sh" in package_commands
+    assert "output build/release/published-support.json" in package_commands
+    assert "local-package-attestation.json" in package_commands
+    assert "verify_published_support.py" in package_commands
+    assert "build_release_inventory.py" in package_commands
+    assert "--published-support-proof build/release/published-support.json" in (
+        package_commands)
+    assert "rattler-build upload prefix" not in package_commands
+
+    step_names = [step["name"] for step in package["steps"]]
+    assert step_names.index("Retain provenance-verified published dependencies") < (
+        step_names.index("Build product against exact published dependency bytes"))
+    assert step_names.index("Build product against exact published dependency bytes") < (
+        step_names.index("Prove the artifact installs and runs from a channel"))
+
+    publish_commands = "\n".join(
+        step.get("run", "") for step in publish["steps"])
+    assert "verify_release_matrix.py" in publish_commands
+    assert publish_commands.count("verify_product_upload.py") == 2
+    assert "--missing-output build/release-publication/missing.txt" in publish_commands
+    assert "--require-present --attempts 12 --delay-seconds 5" in publish_commands
+    assert "mapfile -t artifacts < build/release-publication/missing.txt" in (
+        publish_commands)
+    assert publish_commands.count("rattler-build upload prefix") == 1
+    assert "ros-jazzy-rclcppyy-*.conda" in publish_commands
+    assert "cppyy-kit-*.conda" not in publish_commands
+    assert "rclcpp-kit-*.conda" not in publish_commands
+
+    downloads = [step for step in publish["steps"]
+                 if step.get("uses", "").startswith("actions/download-artifact@")]
+    assert len(downloads) == 1
+    assert downloads[0]["with"] == {
+        "pattern": "release-bundle-*-${{ github.ref_name }}",
+        "path": "build/release-input",
+        "merge-multiple": False,
+    }
 
 
 def test_ci_requires_installed_package_proof_on_both_architectures():
