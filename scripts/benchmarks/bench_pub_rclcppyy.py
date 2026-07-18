@@ -5,6 +5,8 @@ import signal
 from rclcppyy import bringup_rclcpp
 import cppyy
 
+from _backend_marker import emit_native_backend
+
 bringup_rclcpp()
 
 cppyy.include("std_msgs/msg/string.hpp")
@@ -118,7 +120,8 @@ def main():
     
     # Create and run the publisher
     publisher = PythonPerfPublisher(rate_hz)
+    emit_native_backend("publisher", publisher.publisher)
     publisher.spin()
 
 if __name__ == "__main__":
-    main() 
+    main()

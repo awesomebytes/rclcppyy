@@ -6,6 +6,8 @@ import numpy as np
 from rclcppyy import bringup_rclcpp
 import cppyy
 
+from _backend_marker import emit_native_backend
+
 bringup_rclcpp()
 
 cppyy.include("std_msgs/msg/string.hpp")
@@ -130,7 +132,8 @@ def main():
     
     # Create and run the subscriber
     subscriber = PythonPerfSubscriber()
+    emit_native_backend("subscriber", subscriber.subscription)
     subscriber.spin()
 
 if __name__ == "__main__":
-    main() 
+    main()

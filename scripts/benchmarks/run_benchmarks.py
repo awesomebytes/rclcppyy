@@ -22,6 +22,7 @@ Usage:
 """
 
 import argparse
+import json
 import os
 import re
 import signal
@@ -36,6 +37,7 @@ from pathlib import Path
 import psutil
 
 from _result_schema import build_document, dumps, write
+from _backend_marker import PREFIX as BACKEND_PREFIX, SCHEMA as BACKEND_SCHEMA
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent
@@ -49,16 +51,19 @@ VARIANTS = {
         "label": "rclpy",
         "pub": "bench_pub_rclpy.py",
         "sub": "bench_sub_rclpy.py",
+        "expected_backend": "python",
     },
     "rclcppyy": {
         "label": "rclcppyy (monkeypatched)",
         "pub": "bench_pub_rclcppyy_monkeypatch.py",
         "sub": "bench_sub_rclcppyy_monkeypatched.py",
+        "expected_backend": "cpp",
     },
     "rclcppyy-templated": {
         "label": "rclcppyy (pure cppyy)",
         "pub": "bench_pub_rclcppyy.py",
         "sub": "bench_sub_rclcppyy.py",
+        "expected_backend": "cpp",
     },
 }
 DEFAULT_VARIANTS = ["rclpy", "rclcppyy"]
@@ -92,6 +97,8 @@ class ChildProcess:
         self.parse_stats = parse_stats
         self.echo = echo
         self.samples = []  # list of (monotonic_time, rate, avg_lat, p99_lat, dropped_cumulative)
+        self.backend_markers = []
+        self.backend_marker_errors = []
         self.tail = deque(maxlen=60)
         self._lock = threading.Lock()
         # start_new_session so the child (and anything it spawns) is its own
@@ -115,6 +122,16 @@ class ChildProcess:
             self.tail.append(line)
             if self.echo:
                 print(f"  [{self.name}] {line}", file=sys.stderr, flush=True)
+            if line.startswith(BACKEND_PREFIX):
+                try:
+                    marker = json.loads(line[len(BACKEND_PREFIX):])
+                    validate_backend_marker(marker)
+                except (json.JSONDecodeError, ValueError) as exc:
+                    with self._lock:
+                        self.backend_marker_errors.append(str(exc))
+                else:
+                    with self._lock:
+                        self.backend_markers.append(marker)
             if self.parse_stats:
                 m = STAT_RE.search(line)
                 if m:
@@ -134,6 +151,10 @@ class ChildProcess:
     def samples_snapshot(self):
         with self._lock:
             return list(self.samples)
+
+    def backend_snapshot(self):
+        with self._lock:
+            return list(self.backend_markers), list(self.backend_marker_errors)
 
     def alive(self):
         return self.proc.poll() is None
@@ -166,6 +187,37 @@ class ChildProcess:
                 self.proc.wait(timeout=grace)
             except Exception:
                 pass
+
+
+def validate_backend_marker(marker):
+    """Validate one child marker before it can become benchmark evidence."""
+    if not isinstance(marker, dict) or marker.get("schema") != BACKEND_SCHEMA:
+        raise ValueError("invalid benchmark backend marker schema")
+    if marker.get("role") not in ("publisher", "subscriber"):
+        raise ValueError("invalid benchmark backend marker role")
+    if marker.get("backend") not in ("python", "cpp"):
+        raise ValueError("invalid benchmark backend marker backend")
+    if not isinstance(marker.get("evidence"), str) or not marker["evidence"]:
+        raise ValueError("benchmark backend marker requires evidence")
+    if not isinstance(marker.get("metadata"), dict):
+        raise ValueError("benchmark backend marker metadata must be an object")
+
+
+def require_backend_marker(child, role, expected_backend):
+    """Return verified backend evidence or reject the benchmark run."""
+    markers, errors = child.backend_snapshot()
+    if errors:
+        raise RuntimeError(f"{role} emitted invalid backend evidence: {errors[-1]}")
+    matching = [marker for marker in markers if marker["role"] == role]
+    if not matching:
+        raise RuntimeError(f"{role} emitted no backend evidence")
+    marker = matching[-1]
+    if marker["backend"] != expected_backend:
+        raise RuntimeError(
+            f"{role} backend mismatch: expected {expected_backend}, "
+            f"observed {marker['backend']} ({marker['evidence']})"
+        )
+    return marker
 
 
 def _avg_cpu(proc, samples):
@@ -234,6 +286,10 @@ def run_pair(variant_key, rate, duration, warmup_timeout, sample_hz=2.0, echo=Fa
                 f"--- sub output tail ---\n{sub.tail_text()}"
             )
 
+        expected_backend = spec["expected_backend"]
+        pub_backend = require_backend_marker(pub, "publisher", expected_backend)
+        sub_backend = require_backend_marker(sub, "subscriber", expected_backend)
+
         log(f"  warmed up; measuring for {duration:.0f}s ...")
 
         # --- measurement window ---
@@ -285,6 +341,10 @@ def run_pair(variant_key, rate, duration, warmup_timeout, sample_hz=2.0, echo=Fa
         return {
             "variant": variant_key,
             "label": spec["label"],
+            "expected_backend": expected_backend,
+            "backend_verified": True,
+            "publisher_backend": pub_backend,
+            "subscriber_backend": sub_backend,
             "target_rate_hz": rate,
             "duration_s": round(elapsed, 2),
             "pub_cpu_pct": round(statistics.mean(pub_cpu), 1) if pub_cpu else float("nan"),

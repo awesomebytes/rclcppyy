@@ -7,6 +7,11 @@ if [ -f "$PIXI_PROJECT_ROOT/install/setup.bash" ]; then
     source "$PIXI_PROJECT_ROOT/install/setup.bash"
 fi
 
+# The overlay provides entry points and ROS resources, but development commands
+# must exercise the checkout rather than a stale copy from an earlier colcon
+# build. Package proofs run in a separate fresh environment.
+export PYTHONPATH="$PIXI_PROJECT_ROOT${PYTHONPATH:+:$PYTHONPATH}"
+
 # --- heavy_hz demo bridge (DEV/demo-only, gated to the heavydemo env) ---------
 # The default env pins the PUBLISHED suite (cppyy-kit / rclcpp-kit 0.1.0), which
 # predates the zero-config auto-PCH. The `heavydemo` env (scripts/heavy_hz_demo/)

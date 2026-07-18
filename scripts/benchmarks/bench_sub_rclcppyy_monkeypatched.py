@@ -7,6 +7,8 @@ import rclpy
 from std_msgs.msg import String
 import time
 
+from _backend_marker import emit_status_backend
+
 # Enable C++ acceleration - this should make subscriptions use C++ under the hood
 import rclcppyy
 rclcppyy.enable_cpp_acceleration()
@@ -36,6 +38,7 @@ class PythonPerfSubscriber:
             self.subscription_callback,
             500  # QoS depth
         )
+        emit_status_backend("subscriber", "subscription")
         
         print(f"Created subscription with type: {type(self.subscription)}")
         print(f"Node type: {type(self.node)}")

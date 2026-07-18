@@ -57,7 +57,7 @@ class TestStatus(unittest.TestCase):
         self.assertIsNone(payload_ref())
         snapshot = rclcppyy.status()
         self.assertEqual(snapshot["entities"][0]["id"], record_id)
-        self.assertTrue(record_id.startswith("entity-"))
+        self.assertTrue(record_id.startswith("entity-"), repr(record_id))
         self.assertEqual(snapshot["entities"][0]["metadata"]["payload"], "payload-value")
         snapshot["entities"][0]["metadata"]["payload"] = "mutated"
         self.assertEqual(

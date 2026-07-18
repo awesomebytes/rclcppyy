@@ -48,7 +48,7 @@ LD_LIBRARY_PATH = "$CONDA_PREFIX/lib"
 build = "colcon build --packages-select rclcppyy"
 clean = "rm -rf build install log"
 test = "pytest test/"
-lint = "flake8 rclcppyy test scripts/check_compatibility_manifest.py scripts/benchmarks/_result_schema.py scripts/benchmarks/run_benchmarks.py"
+lint = "flake8 rclcppyy test scripts/check_compatibility_manifest.py scripts/benchmarks/_result_schema.py scripts/benchmarks/_backend_marker.py scripts/benchmarks/run_benchmarks.py scripts/benchmarks/bench_pub_rclpy.py scripts/benchmarks/bench_sub_rclpy.py scripts/benchmarks/bench_pub_rclcppyy_monkeypatch.py scripts/benchmarks/bench_sub_rclcppyy_monkeypatched.py scripts/benchmarks/bench_pub_rclcppyy.py scripts/benchmarks/bench_sub_rclcppyy.py"
 contract = "python scripts/check_compatibility_manifest.py compatibility/jazzy.json"
 # rclpy-vs-rclcppyy CPU comparison in one command (default: 1 kHz + 10 kHz).
 # Extra flags pass straight through, e.g. `pixi run bench --rate 5000 --duration 10`.
