@@ -79,15 +79,24 @@ jobs:
           upload-release-assets: false
 
       - name: Attest build provenance
+        id: provenance
         uses: actions/attest@v4
         with:
           subject-path: ${{ steps.artifact.outputs.path }}
 
       - name: Attest release SBOM
+        id: sbom-attestation
         uses: actions/attest@v4
         with:
           subject-path: ${{ steps.artifact.outputs.path }}
           sbom-path: build/release/rclcppyy.spdx.json
+
+      - name: Preserve portable attestation bundles
+        run: |
+          cp "${{ steps.provenance.outputs.bundle-path }}" \
+            build/release/provenance.sigstore.json
+          cp "${{ steps.sbom-attestation.outputs.bundle-path }}" \
+            build/release/sbom.sigstore.json
 
       - name: Upload release gate evidence
         uses: actions/upload-artifact@v4
