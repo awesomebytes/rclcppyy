@@ -51,6 +51,25 @@ subscription, timer, executor, context, and message class remain stock Python.
 - The separate native lane exposes `rclcpp` and other C++ libraries directly when
   compatibility is not the primary constraint.
 
+The native lane adds lifecycle management but does not replace the C++ API:
+
+```python
+from std_msgs.msg import String
+import rclcppyy
+
+with rclcppyy.native(["my_program"]) as ros:
+    options = ros.rclcpp.NodeOptions()
+    node = ros.create_node("native_node", options=options, use_intra_process=True)
+    publisher = node.create_publisher(String, "chatter", 10)
+    executor = ros.create_executor("multi_threaded", threads=2)
+    executor.add_node(node)
+```
+
+Nodes, options, publishers, callback groups, and executors in this block are the
+real cppyy-backed C++ objects. The session owns a custom `rclcpp::Context`, orders
+shutdown, and exposes `ros.rclcpp` as the unrestricted escape hatch. Loaned-message
+availability is queried per publisher with `rclcppyy.publisher_capabilities()`.
+
 Measure routes on the target workload rather than assuming that crossing into C++
 is automatically faster:
 
@@ -272,10 +291,10 @@ rclcppyy.hook uninstall` removes it.
 
 At interpreter start the `.pth` registers a post-import hook on `rclpy`; the first
 `import rclpy` triggers `enable_cpp_acceleration()`, after rclpy is importable but
-before the tool builds its node. `ros2 topic hz` drives its loop with
-`rclpy.spin_once` (in ros2cli's `DirectNode` discovery loop and in the hz loop), so
-`enable_cpp_acceleration()` also patches `rclpy.spin_once` to run an rclcpp executor;
-otherwise the CLI would stall at node bring-up.
+before the tool builds its node. The current compatibility architecture leaves
+`rclpy.spin_once`, subscriptions, and executors stock. The startup hook therefore
+provides zero-edit activation and backend reporting, but it must not be described as
+a C++ subscription/executor route until that route has current contract evidence.
 
 **Measured** (stock `ros2 topic hz` vs the same binary under
 `RCLCPPYY_ENABLE_HOOK=1`, against a C++ publisher of a `sensor_msgs/Image`,

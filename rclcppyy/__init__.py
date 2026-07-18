@@ -14,9 +14,16 @@ import importlib
 # bringup shim, which node.py / monkey.py also use internally.
 from rclcppyy.bringup_rclcpp import bringup_rclcpp, shutdown_rclcpp
 from rclcppyy._status import status
+from rclcppyy._status import record_decision
 from rclcppyy.node import RclcppyyNode
 from rclcppyy.monkey import patch_ros2, patch_node_class
 from rclcppyy.policy import AccelerationPolicy, BackendUnavailableError
+from rclcpp_kit.native import (
+    NativeCapabilities,
+    NativeSession,
+    native as _native_session,
+    publisher_capabilities,
+)
 Node = RclcppyyNode
 
 # The moved re-export submodules are imported lazily: ``import rclcppyy`` must not
@@ -76,6 +83,24 @@ def enable_cpp_acceleration(
     return result
 
 
+def native(arguments=None):
+    """Create a managed session whose entities are the real C++ objects."""
+    normalized_arguments = tuple(arguments or ())
+    session = _native_session(arguments=normalized_arguments)
+    record_decision(
+        "operations",
+        "cpp",
+        "created managed native rclcpp session",
+        policies=("native", "explicit_opt_in"),
+        metadata={
+            "operation": "native",
+            "arguments_count": len(normalized_arguments),
+            "capabilities": session.capabilities.to_dict(),
+        },
+    )
+    return session
+
+
 __all__ = [
     'bringup_rclcpp',
     'shutdown_rclcpp',
@@ -87,6 +112,10 @@ __all__ = [
     'patch_node_class',
     'AccelerationPolicy',
     'BackendUnavailableError',
+    'NativeCapabilities',
+    'NativeSession',
+    'native',
+    'publisher_capabilities',
     'rosbag2_cpp',
     'serialization',
     'rosbag2_py_compat',
