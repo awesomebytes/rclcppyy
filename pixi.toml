@@ -65,6 +65,7 @@ build = "colcon build --packages-select rclcppyy"
 clean = "rm -rf build install log"
 test = "pytest test/"
 test-ci = "pytest test/ -v -ra --junitxml=build/test-results/pytest.xml"
+custom-interfaces = "bash scripts/ci/prove_custom_interfaces.sh"
 lint = "flake8 rclcppyy test scripts/check_compatibility_manifest.py scripts/ci/stress_runtime.py scripts/benchmarks/_result_schema.py scripts/benchmarks/_backend_marker.py scripts/benchmarks/_benchmark_matrix.py scripts/benchmarks/_benchmark_protocol.py scripts/benchmarks/bench_worker.py scripts/benchmarks/run_benchmarks.py scripts/benchmarks/bench_pub_rclpy.py scripts/benchmarks/bench_sub_rclpy.py scripts/benchmarks/bench_pub_rclcppyy_monkeypatch.py scripts/benchmarks/bench_sub_rclcppyy_monkeypatched.py scripts/benchmarks/bench_pub_rclcppyy.py scripts/benchmarks/bench_sub_rclcppyy.py"
 contract = "python scripts/check_compatibility_manifest.py compatibility/jazzy.json"
 # rclpy-vs-rclcppyy CPU comparison in one command (default: 1 kHz + 10 kHz).
