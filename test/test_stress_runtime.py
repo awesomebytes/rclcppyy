@@ -34,8 +34,8 @@ def test_runtime_stress_emits_repeated_structured_evidence(tmp_path):
             sys.executable,
             str(SCRIPT),
             "--cycles", "2",
-            "--threads", "2",
-            "--messages-per-thread", "5",
+            "--threads", "4",
+            "--messages-per-thread", "250",
             "--repetitions", "2",
             "--signal-repetitions", "2",
             "--seed", "314159",
@@ -58,8 +58,11 @@ def test_runtime_stress_emits_repeated_structured_evidence(tmp_path):
     assert [item["seed"] for item in evidence["rounds"]] == [314159, 314160]
     assert evidence["summary"]["rounds"] == 2
     assert evidence["summary"]["entity_cycles"] == 4
-    assert evidence["summary"]["messages_expected"] == 20
-    assert evidence["summary"]["messages_received"] == 20
+    assert evidence["summary"]["messages_expected"] == 2000
+    assert evidence["summary"]["messages_received"] == 2000
     assert evidence["summary"]["clean_signal_shutdowns"] == 4
+    assert all(
+        item["concurrent_publish"]["qos_depth"] == 1000
+        for item in evidence["rounds"])
     assert evidence["summary"]["peak_rss_growth_kib"] >= 0
     assert not list(tmp_path.glob(".*.tmp"))

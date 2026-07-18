@@ -88,6 +88,7 @@ def concurrent_publish(threads: int, messages_per_thread: int) -> dict:
     from std_msgs.msg import String
 
     rclcppyy.enable_cpp_acceleration()
+    expected = threads * messages_per_thread
     context = Context()
     context.init(args=[])
     node = rclpy.create_node(
@@ -102,8 +103,13 @@ def concurrent_publish(threads: int, messages_per_thread: int) -> dict:
         with lock:
             received.add(message.data)
 
-    subscription = node.create_subscription(String, "stress_concurrent", on_message, 100)
-    publisher = node.create_publisher(String, "stress_concurrent", 100)
+    # The probe asserts lossless delivery of one complete concurrent burst. Size
+    # the history for that contract so scheduler timing cannot turn it into an
+    # accidental depth-100 drop test before the executor gets CPU.
+    subscription = node.create_subscription(
+        String, "stress_concurrent", on_message, expected)
+    publisher = node.create_publisher(
+        String, "stress_concurrent", expected)
     deadline = time.monotonic() + 10.0
     while publisher.get_subscription_count() < 1 and time.monotonic() < deadline:
         executor.spin_once(timeout_sec=0.02)
@@ -121,7 +127,6 @@ def concurrent_publish(threads: int, messages_per_thread: int) -> dict:
         executor.spin_once(timeout_sec=0.01)
     for thread in workers:
         thread.join()
-    expected = threads * messages_per_thread
     deadline = time.monotonic() + 15.0
     while len(received) < expected and time.monotonic() < deadline:
         executor.spin_once(timeout_sec=0.02)
@@ -137,6 +142,7 @@ def concurrent_publish(threads: int, messages_per_thread: int) -> dict:
     return {
         "threads": threads,
         "messages_per_thread": messages_per_thread,
+        "qos_depth": expected,
         "messages_expected": expected,
         "messages_received": len(received),
     }
