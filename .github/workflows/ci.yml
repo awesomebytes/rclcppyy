@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: a7068db8a5b8e0f7383867e149aec5cddac42247
+          ref: 0a2933d7e463e4d28662e76e8be864afeef6c255
           path: _deps/cppyy_kit
 
       - name: Set up pixi
@@ -157,7 +157,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: a7068db8a5b8e0f7383867e149aec5cddac42247
+          ref: 0a2933d7e463e4d28662e76e8be864afeef6c255
           path: _deps/cppyy_kit
 
       - name: Verify native runner architecture
