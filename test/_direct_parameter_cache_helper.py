@@ -13,7 +13,7 @@ rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
 
 import cppyy  # noqa: E402
 import rclpy  # noqa: E402
-from rcl_interfaces.msg import SetParametersResult  # noqa: E402
+from rcl_interfaces.msg import ParameterDescriptor, SetParametersResult  # noqa: E402
 from rclcpp_kit import native_parameters  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from rclpy.parameter import Parameter  # noqa: E402
@@ -42,7 +42,8 @@ runtime = importlib.import_module("rclcppyy.direct_cpp")._runtime()
 
 capacity_node = Node("direct_parameter_cache_capacity_%d" % os.getpid())
 capacity_node.declare_parameter("a", 1)
-capacity_node.declare_parameter("b", 2)
+dynamic_descriptor = ParameterDescriptor(dynamic_typing=True)
+capacity_node.declare_parameter("b", 2, dynamic_descriptor)
 capacity_node.declare_parameter("c", 3)
 capacity_node._set_direct_parameter_cache_hit_tracking(True)
 
@@ -78,6 +79,27 @@ retained_a_ten = capacity_node.get_parameter("a")
 assert retained_a_ten.value == 10
 assert retained_a_one.value == 1
 assert retained_a_ten is not retained_a_one
+
+retained_b_two = capacity_node.get_parameter("b")
+assert retained_b_two.type_ is Parameter.Type.INTEGER
+assert retained_b_two._rclcppyy_native_parameter.type_code == int(
+    retained_b_two._rclcppyy_native_parameter.native.get_type())
+type_replacement = capacity_node.set_parameters_atomically([
+    Parameter("b", value="two")])
+assert type_replacement.successful
+retained_b_string = capacity_node.get_parameter("b")
+assert retained_b_string is not retained_b_two
+assert retained_b_string.type_ is Parameter.Type.STRING
+assert retained_b_string.value == "two"
+assert retained_b_string._rclcppyy_native_parameter.type_code == int(
+    retained_b_string._rclcppyy_native_parameter.native.get_type())
+assert retained_b_two.type_ is Parameter.Type.INTEGER
+assert retained_b_two.value == 2
+assert type(retained_b_two._rclcppyy_native_parameter.native) is (
+    cppyy.gbl.rclcpp.Parameter)
+assert type(retained_b_string._rclcppyy_native_parameter.native) is (
+    cppyy.gbl.rclcpp.Parameter)
+print("DIRECT_PARAMETER_CACHE_TYPE_REPLACEMENT_OK")
 
 
 def reject(_parameters):
@@ -177,6 +199,10 @@ for node in (disabled_node, failure_node, override_node, capacity_node):
     node.destroy_node()
 assert retained_a_one.value == 1
 assert retained_a_ten.value == 10
+assert retained_b_two.type_ is Parameter.Type.INTEGER
+assert retained_b_two.value == 2
+assert retained_b_string.type_ is Parameter.Type.STRING
+assert retained_b_string.value == "two"
 assert capacity_node.direct_cpp_parameter_cache_stats()["disabled_reason"] == (
     "destroyed")
 rclpy.shutdown()

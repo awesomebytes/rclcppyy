@@ -212,7 +212,11 @@ and set results are actual generated C++ aliases. Non-C++ control messages,
 descriptors, callback results, and parameter objects fail before mutation. The
 public `.value` property is the explicit Python snapshot boundary. Parameter
 gets use a bounded mirror whose values are only these owning C++ facades; no Python
-scalar or message value is cached. The default cache capacity is 1024 names and can
+scalar or message value is cached. Each owner records only its immutable parameter
+type enum at construction, so `.type_` needs no C++ crossing and `.value` dispatches
+directly to one typed C++ `as_*()` accessor. Node updates and cache replacement create
+new owners and tags; previously returned owners retain both their original type and
+payload. The default cache capacity is 1024 names and can
 be changed, or set to zero to disable the optimization, with
 `RCLCPPYY_DIRECT_PARAMETER_CACHE_CAPACITY` before node construction. A common hit is
 a plain dictionary lookup with no lock, cppyy call, or enabled hit counter. Successful
@@ -246,7 +250,10 @@ direct profile. YAML loading, custom service QoS, and non-default event options 
 not claimed. The stock/direct/native-Python local CPU benchmark retains both the
 clean pre-optimization and Phase-1 repeated artifacts. Phase 1 reduced direct get
 CPU by 73.5%, but get and explicit value snapshot still used 10.316x and 8.712x stock
-CPU. Performance claims remain disabled pending the repeated mirror-cache matrix.
+CPU. The clean Phase-2 artifact records direct/stock CPU ratios of 0.6857 for declare,
+0.5633 for cached get, 1.3433 for explicit value snapshot, and 0.5205 for atomic set.
+Snapshot CPU remains slower at 207 ns/op versus 157 ns/op stock. Performance claims
+remain disabled pending a repeated matrix after the type-metadata change.
 
 Common graph queries use the same native node authority: topic/service names and
 types, node names/namespaces/enclaves, per-node endpoint types, publisher/

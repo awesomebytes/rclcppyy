@@ -54,6 +54,8 @@ bringup.convert_python_msg_to_cpp = forbidden_boundary
 kit.convert_python_msg_to_cpp = forbidden_boundary
 serialization.serialize_message = forbidden_boundary
 serialization.deserialize_message = forbidden_boundary
+serialization.serialized_message_from_bytes = forbidden_boundary
+serialization.serialized_message_to_bytes = forbidden_boundary
 rclpy_serialization.serialize_message = forbidden_boundary
 rclpy_serialization.deserialize_message = forbidden_boundary
 
@@ -79,6 +81,8 @@ for index, (type_, value) in enumerate(CASES):
     assert not hasattr(parameter, "__dict__")
     assert isinstance(parameter._rclcppyy_native_parameter, NativeParameter)
     assert isinstance(parameter._rclcppyy_native_parameter.native, cppyy.gbl.rclcpp.Parameter)
+    assert parameter._rclcppyy_native_parameter.type_code == int(
+        parameter._rclcppyy_native_parameter.native.get_type())
     assert parameter.name == "case_%d" % index
     assert parameter.type_ is type_
     assert parameter.value == value
@@ -101,6 +105,8 @@ for type_ in (
     Parameter.Type.STRING_ARRAY,
 ):
     parameter = Parameter("empty_%s" % type_.name.lower(), type_, [])
+    assert parameter._rclcppyy_native_parameter.type_code == int(
+        parameter._rclcppyy_native_parameter.native.get_type())
     assert parameter.type_ is type_
     assert parameter.value == []
 

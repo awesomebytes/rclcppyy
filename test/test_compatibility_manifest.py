@@ -61,7 +61,7 @@ def test_every_supported_entry_references_existing_evidence():
         assert all((REPO_ROOT / path).exists() for path in entry["evidence"]), entry["id"]
 
 
-def test_direct_parameter_note_locks_pre_and_phase_one_cpu_evidence():
+def test_direct_parameter_note_locks_pre_through_phase_two_cpu_evidence():
     entry = next(
         item for item in _manifest()["entries"]
         if item["id"] == "parameter.direct_cpp_local_first_slice"
@@ -78,8 +78,14 @@ def test_direct_parameter_note_locks_pre_and_phase_one_cpu_evidence():
         "and 0.349 for atomic set; direct get CPU fell 73.5% to 1,223 ns/op but "
         "still failed the stock CPU priority."
     ) in entry["notes"]
+    assert (
+        "The clean Phase-2 artifact at product 72e28b5 with suite 0518f37 records "
+        "0.6857 for declare, 0.5633 for get-native, 1.3433 for "
+        "get-value-snapshot, and 0.5205 for atomic set; snapshot median CPU is "
+        "207 ns/op versus 157 ns/op stock."
+    ) in entry["notes"]
     assert "Performance claims remain disabled" in entry["notes"]
-    assert "bounded Phase-2 timings must not replace a full post-change matrix" in (
+    assert "bounded Phase-3 timings must not replace a full post-change matrix" in (
         entry["notes"])
 
 

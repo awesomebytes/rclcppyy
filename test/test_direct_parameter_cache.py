@@ -13,6 +13,7 @@ def test_direct_parameter_cache_capacity_coherence_and_failure_isolation():
     assert process.returncode == 0, format_output(process)
     for marker in (
         "DIRECT_PARAMETER_CACHE_CAPACITY_OK",
+        "DIRECT_PARAMETER_CACHE_TYPE_REPLACEMENT_OK",
         "DIRECT_PARAMETER_CACHE_MUTATION_SNAPSHOTS_OK",
         "DIRECT_PARAMETER_CACHE_OVERRIDE_OK",
         "DIRECT_PARAMETER_CACHE_FAILURE_ISOLATED_OK",
