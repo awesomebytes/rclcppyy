@@ -359,7 +359,7 @@ int run_driver(int argc, char ** argv)
 
   const auto discovery_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(15);
   while (publisher->get_subscription_count() != 1 ||
-    node->count_publishers(output_topic) != 1)
+    subscription->get_publisher_count() != 1)
   {
     executor.spin_some();
     if (std::chrono::steady_clock::now() >= discovery_deadline) {

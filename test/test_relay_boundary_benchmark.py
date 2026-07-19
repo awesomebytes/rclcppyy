@@ -499,6 +499,8 @@ def test_transform_percentiles_and_shared_compatibility_relay():
     assert "while (endpoints.empty())" in aot_source
     assert "catch (const GraphIncomplete &)" in aot_source
     assert "input_publishers.size() > 1" in aot_source
+    assert "subscription->get_publisher_count() != 1" in aot_source
+    assert "node->count_publishers(output_topic)" not in aot_source
 
 
 def test_armed_handshake_and_timeout_stack_dump_are_fail_closed():
