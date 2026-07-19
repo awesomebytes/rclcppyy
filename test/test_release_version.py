@@ -132,3 +132,8 @@ def test_ci_requires_installed_package_proof_on_both_architectures():
     assert "build_local_package_stack.sh" in commands
     assert "prove_rclcppyy_package.sh" in commands
     assert "local-package-attestation.json" in commands
+    direct_benchmark = next(
+        step for step in native["steps"]
+        if step.get("name") == "Prove direct C++ pub/sub on this architecture")
+    assert "rclpy,rclcppyy-direct-copy" in direct_benchmark["run"]
+    assert "small-string,nested-header" in direct_benchmark["run"]

@@ -210,7 +210,8 @@ jobs:
         run: |
           set -euo pipefail
           for repeat in 1 2 3 4 5; do
-            pixi run bench --backends rclpy,rclcppyy,rclcppyy-templated \
+            pixi run bench \
+              --backends rclpy,rclcppyy,rclcppyy-templated,rclcppyy-direct-copy,rclcppyy-direct-lease \
               --workloads small-string,nested-header --rate 1000,10000 \
               --payload-bytes 0,4096 --duration 15 \
               --output "build/dedicated-benchmark/run-${repeat}.json"

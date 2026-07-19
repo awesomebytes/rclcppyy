@@ -87,14 +87,16 @@ jobs:
         id: upstream_contract
         run: pixi run -e upstream-contract upstream-contract
 
-      # End-to-end proof that rclcppyy actually publishes over the C++ backend.
+      # End-to-end proof that the source-compatible direct lane publishes and
+      # subscribes with actual generated C++ messages beside the stock control.
       # Cold cppyy JIT of rclcpp on a 2-core hosted runner is far slower than a
       # dev box, so the warmup budget is generous; run_benchmarks.py already
       # exits non-zero if the subscriber never receives a message.
       - name: Bench smoke (assert rclcppyy publishes)
         id: benchmark
         run: >-
-          pixi run bench --smoke --backends rclcppyy --rate 1000 --duration 3
+          pixi run bench --smoke --backends rclpy,rclcppyy-direct-copy
+          --workloads small-string --rate 1000 --duration 3
           --warmup-timeout 300 --json --output build/bench-smoke.json
 
       - name: Render benchmark evidence
@@ -246,6 +248,14 @@ jobs:
         id: test
         run: pixi run test-ci
 
+      - name: Prove direct C++ pub/sub on this architecture
+        id: direct_benchmark
+        run: >-
+          pixi run bench --smoke --backends rclpy,rclcppyy-direct-copy
+          --workloads small-string,nested-header --rate 1000 --payload-bytes 0
+          --duration 2 --warmup-timeout 300
+          --output build/test-results/direct-cpp-bench-smoke.json
+
       - name: Run reviewed upstream rclpy contract
         id: upstream_contract
         run: pixi run -e upstream-contract upstream-contract
@@ -284,6 +294,7 @@ jobs:
           LINT_OUTCOME: ${{ steps.lint.outcome }}
           CONTRACT_OUTCOME: ${{ steps.contract.outcome }}
           TEST_OUTCOME: ${{ steps.test.outcome }}
+          DIRECT_BENCHMARK_OUTCOME: ${{ steps.direct_benchmark.outcome }}
           UPSTREAM_CONTRACT_OUTCOME: ${{ steps.upstream_contract.outcome }}
           UPSTREAM_CONTENT_FILTER_OUTCOME: ${{ steps.upstream_content_filter.outcome }}
         run: |
@@ -294,7 +305,8 @@ jobs:
           from pathlib import Path
           names = (
               "suite", "build", "launch", "custom_interfaces", "lint", "contract",
-              "test", "upstream_contract", "upstream_content_filter")
+              "test", "direct_benchmark", "upstream_contract",
+              "upstream_content_filter")
           outcomes = {name: os.environ[name.upper() + "_OUTCOME"] for name in names}
           Path("build/test-results/job-outcomes.json").write_text(
               json.dumps(outcomes, indent=2, sort_keys=True) + "\n", encoding="utf-8")

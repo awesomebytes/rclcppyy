@@ -267,6 +267,11 @@ def test_dedicated_workflow_gates_all_five_runs_and_preserves_evidence():
     workflow = yaml.safe_load(
         (ROOT / ".github" / "workflows" / "scheduled.yml").read_text(encoding="utf-8"))
     steps = workflow["jobs"]["dedicated-benchmark"]["steps"]
+    matrix = next(
+        step for step in steps
+        if step.get("name") == "Run repeated raw matrices")
+    assert "rclcppyy-direct-copy" in matrix["run"]
+    assert "rclcppyy-direct-lease" in matrix["run"]
     gate = next(
         step for step in steps
         if step.get("name") == "Gate repeated results against reviewed architecture budget")
