@@ -746,6 +746,10 @@ class DirectNode:
         )
         self._direct_cpp_node = session.create_node(
             str(node_name), namespace=str(namespace or ""), options=options)
+        from rclpy.logging import get_logger
+
+        native_logging = self._direct_cpp_node.get_node_logging_interface()
+        self._logger = get_logger(_cpp_string(native_logging.get_logger_name()))
         self._direct_cpp_executor_ref = None
         self._allow_undeclared_parameters = allow_undeclared_parameters
         from rclcppyy.direct_callback_groups import DirectCallbackGroup
@@ -911,7 +915,7 @@ class DirectNode:
         return str(self._require_node().get_fully_qualified_name())
 
     def get_logger(self):
-        return self._require_node().get_logger()
+        return self._logger
 
     def _parameter_modules(self):
         return _native_parameters, _direct_parameters
@@ -2035,8 +2039,7 @@ class DirectNode:
             )
 
     def _logger_name(self):
-        logger = self._require_node().get_logger()
-        return str(logger.name)
+        return self._logger.name
 
     def _validate_subscription_callback(self, callback):
         callback_target = getattr(callback, "__call__", callback)
