@@ -809,6 +809,17 @@
       "notes": "DirectNode.get_clock() retains one DirectClock/DirectROSClock per node, backed by the native foundation's NativeNodeClock -- the node's exact rclcpp::Clock (node clocks are always RCL_ROS_TIME). DirectClock/DirectROSClock subclass stock rclpy.clock.Clock/ROSClock for isinstance identity but bypass Clock.__new__ so no second, disconnected _rclpy.Clock is created. now() returns a stock rclpy.time.Time built from the native now_nanoseconds() hot path; clock_type is resolved once at construction and cached, so it never re-touches the native object. Verified live with forbidden_boundary poisoned: isinstance/identity (one clock per node, the same object returned on every get_clock() call), a stock-time differential against time.time_ns(), address identity against the node's own native rclcpp::Clock, and clean teardown (destroy_node() closes the retained clock; a later now() raises instead of touching a dangling native reference). A fast in-process unit test additionally proves the wrapper checks closedness before calling into the native object at all. Standalone Clock(...) construction, the raw handle, jump callbacks, sleep_for/sleep_until, and set_ros_time_override are explicit_fail_closed -- the native foundation does not support them yet -- rather than silently falling back to a disconnected stock clock."
     },
     {
+      "id": "time.direct_cpp_sim_time",
+      "area": "time",
+      "api": "profile=direct_cpp use_sim_time + /clock activation through Node.get_clock()",
+      "support": "experimental",
+      "backend": "cpp",
+      "fallback": "process_only",
+      "default": false,
+      "evidence": ["test/test_direct_sim_time.py", "test/_direct_cpp_sim_time_helper.py", "test/_stock_sim_time_peer.py"],
+      "notes": "use_sim_time is an already-landed parameter: setting it via parameter_overrides at construction or set_parameters afterward reaches the real rclcpp parameter machinery with no direct_cpp-specific wiring, so the node's own native rclcpp::TimeSource (attached to every rclcpp::Node, not a product reimplementation) owns activation, /clock delivery, and deactivation exactly as it does for stock. Verified live: parameter_overrides activates ros_time_is_active synchronously at construction (matching stock); publishing rosgraph_msgs/msg/Clock on /clock (registered via interfaces=) drives now() to the published value; setting use_sim_time back to false deactivates and resumes wall time. A stock rclpy sibling process run immediately afterward (sim-time's /clock topic name is fixed and process-wide, so the two scenarios never run concurrently) produces identical activation/deactivation observations and reaches the same simulated nanoseconds value. rclpy.time_source.TimeSource is not patched and not needed; attaching it to a direct_cpp node is a harmless no-op (no clock is ever associated with it), but explicitly attaching a direct clock to it hits the same fail-closed set_ros_time_override every other manual-override path raises -- proven directly rather than half-wiring a second, competing time source."
+    },
+    {
       "id": "type_support.stock_surface",
       "area": "type_support",
       "api": "TypeHash values and type-support checks for installed generated message and service classes",
