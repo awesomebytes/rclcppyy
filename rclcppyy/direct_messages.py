@@ -21,6 +21,7 @@ _FIELD_INTERFACE = re.compile(
 _IMPLEMENTATION_MODULE = re.compile(
     r"^[A-Za-z][A-Za-z0-9_]*\.msg\._[A-Za-z0-9_]+$")
 _PYTHONIZED: dict[Any, Any] = {}
+_TYPE_SUPPORT_MIRRORED: dict[Any, Any] = {}
 
 
 @dataclass(frozen=True)
@@ -34,9 +35,10 @@ class DirectMessageBinding:
 
 
 class DirectMessageInstallation:
-    def __init__(self, replacements, bindings, pythonizations=()):
+    def __init__(self, replacements, bindings, pythonizations=(), type_support_mirrors=()):
         self._replacements = tuple(replacements)
         self._pythonizations = tuple(pythonizations)
+        self._type_support_mirrors = tuple(type_support_mirrors)
         self.bindings = tuple(bindings)
         self._restored = False
 
@@ -50,6 +52,11 @@ class DirectMessageInstallation:
             if cpp_type.__init__ is direct_init:
                 cpp_type.__init__ = original_init
                 _PYTHONIZED.pop(cpp_type, None)
+        for cpp_metaclass, mirror in reversed(self._type_support_mirrors):
+            if cpp_metaclass.__dict__.get("__import_type_support__") is mirror:
+                del cpp_metaclass.__import_type_support__
+                del cpp_metaclass._TYPE_SUPPORT
+                _TYPE_SUPPORT_MIRRORED.pop(cpp_metaclass, None)
         self._restored = True
 
 
@@ -104,6 +111,42 @@ def _pythonize_constructor(binding: DirectMessageBinding):
     cpp_type.__init__ = direct_init
     _PYTHONIZED[cpp_type] = original_init
     return cpp_type, original_init, direct_init
+
+
+def _mirror_type_support_metadata(binding: DirectMessageBinding):
+    """Mirror stock type-support *metadata* onto the rebound cppyy metaclass.
+
+    Stock ``rclpy.type_support`` validators (and any stock generated
+    ``__import_type_support__`` walk that reaches a rebound field, e.g.
+    ``builtin_interfaces.msg.Time``) read ``x.__class__._TYPE_SUPPORT`` and,
+    if ``None``, call ``x.__class__.__import_type_support__()``. A cppyy
+    metaclass has neither, so that walk raises ``AttributeError`` deep inside
+    stock generated code we cannot edit. Attaching a lazy ``_TYPE_SUPPORT``
+    identity capsule -- sourced from the stock class this binding replaced --
+    makes the walk succeed by construction, with correct type-support.
+
+    Deliberately mirrors *only* ``_TYPE_SUPPORT``, never the four conversion
+    capsules (``_CREATE_ROS_MESSAGE``/``_CONVERT_FROM_PY``/``_CONVERT_TO_PY``/
+    ``_DESTROY_ROS_MESSAGE``): a cppyy object exposes its fields as plain
+    Python attributes, so those capsules would silently succeed a round trip
+    through stock C conversion -- a conversion bridge on a path that claims
+    to be accelerated.
+    """
+    cpp_metaclass = type(binding.cpp_type)
+    if cpp_metaclass in _TYPE_SUPPORT_MIRRORED:
+        return None
+    stock_metaclass = type(binding.original_type)
+
+    def _import_type_support(cls):
+        if stock_metaclass._TYPE_SUPPORT is None:
+            stock_metaclass.__import_type_support__()
+        cls._TYPE_SUPPORT = stock_metaclass._TYPE_SUPPORT
+
+    mirror = classmethod(_import_type_support)
+    cpp_metaclass._TYPE_SUPPORT = None
+    cpp_metaclass.__import_type_support__ = mirror
+    _TYPE_SUPPORT_MIRRORED[cpp_metaclass] = mirror
+    return cpp_metaclass, mirror
 
 
 def _dependencies(message_type: type) -> tuple[str, ...]:
@@ -170,11 +213,15 @@ def install(interfaces=()) -> DirectMessageInstallation:
 
     replacements = []
     pythonizations = []
+    type_support_mirrors = []
     try:
         for binding in bindings:
             pythonization = _pythonize_constructor(binding)
             if pythonization is not None:
                 pythonizations.append(pythonization)
+            mirror = _mirror_type_support_metadata(binding)
+            if mirror is not None:
+                type_support_mirrors.append(mirror)
         for module, name, original, cpp_type in targets:
             if getattr(module, name) is not original:
                 raise RuntimeError(
@@ -185,9 +232,10 @@ def install(interfaces=()) -> DirectMessageInstallation:
             replacements.append((module, name, original, cpp_type))
     except Exception:
         DirectMessageInstallation(
-            replacements, bindings, pythonizations).restore()
+            replacements, bindings, pythonizations, type_support_mirrors).restore()
         raise
-    return DirectMessageInstallation(replacements, bindings, pythonizations)
+    return DirectMessageInstallation(
+        replacements, bindings, pythonizations, type_support_mirrors)
 
 
 __all__ = [

@@ -831,6 +831,17 @@
       "notes": "TypeHash semantics and happy-path type-support loading used by selected waitables are covered. Negative checks requiring the upstream-built test extension are tracked separately as unassessed."
     },
     {
+      "id": "type_support.direct_rebound_validation",
+      "area": "type_support",
+      "api": "profile=direct_cpp rclpy.type_support validators over stock types whose type tree reaches a direct-rebound cppyy message",
+      "support": "experimental",
+      "backend": "cpp",
+      "fallback": "none",
+      "default": false,
+      "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_type_support_helper.py", "rclcppyy/direct_messages.py"],
+      "notes": "On Jazzy/Cyclone, direct_messages.install mirrors a lazy, read-only _TYPE_SUPPORT identity capsule onto the metaclass of every direct-rebound cppyy message, sourced from the stock metaclass it replaced. This makes check_for_type_support and check_is_valid_srv_type succeed for any stock type whose generated type-support import transitively walks a rebound field: std_srvs.srv.SetBool, all four lifecycle services (ChangeState/GetState/GetAvailableStates/GetAvailableTransitions), and the auto-generated <Service>_Event message's ServiceEventInfo.stamp field all reach the rebound builtin_interfaces.msg.Time (pulled in by the default tf2_msgs/action/LookupTransform -> action_msgs/msg/GoalInfo.stamp dependency closure). Verified live with the C++ message-conversion boundary poisoned: SetBool, the four lifecycle services, ServiceEventInfo (transitive walk target), and Time itself (direct manifestation) all validate cleanly, the alias is unchanged (Time remains the exact cppyy class), and two distinct rebound messages carry distinct metaclasses with independent _TYPE_SUPPORT state. Only the identity capsule is exposed; asserted absent are the four conversion capsules (_CREATE_ROS_MESSAGE/_CONVERT_FROM_PY/_CONVERT_TO_PY/_DESTROY_ROS_MESSAGE), since a cppyy object exposes its fields as plain Python attributes and those capsules would otherwise round-trip a rebound message through stock C conversion -- a silent conversion bridge on a path that claims to be accelerated. check_is_valid_msg_type over a rebound message still raises stock's misleading RuntimeError pending a registry-gated patch tracked as this entry's own follow-up; serialize_message/deserialize_message over a rebound message remain a separate, pre-existing gap this slice does not bridge. restore() removes exactly the attributes it added."
+    },
+    {
       "id": "utility.process_surface",
       "area": "utility",
       "api": "Default-context helpers, ROS argument removal, ok/shutdown helpers, RMW identity, available RMWs, timeout conversion, and signal options",

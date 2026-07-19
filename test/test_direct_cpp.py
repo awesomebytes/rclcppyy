@@ -380,6 +380,17 @@ def test_direct_cpp_rejects_lookup_transform_imported_before_activation():
     assert "DIRECT_CPP_ACTION_STALE_IMPORT_OK" in process.stdout
 
 
+def test_direct_cpp_stock_type_support_validation_survives_rebound_messages():
+    process = run_helper("_direct_cpp_type_support_helper.py", timeout=180)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_TYPE_SUPPORT_ALIAS_RETAINED_OK" in process.stdout
+    assert "DIRECT_CPP_TYPE_SUPPORT_SRV_OK" in process.stdout
+    assert "DIRECT_CPP_TYPE_SUPPORT_TRANSITIVE_OK" in process.stdout
+    assert "DIRECT_CPP_TYPE_SUPPORT_DIRECT_OK" in process.stdout
+    assert "DIRECT_CPP_TYPE_SUPPORT_NO_BRIDGE_OK" in process.stdout
+    assert "DIRECT_CPP_TYPE_SUPPORT_DISTINCT_METACLASS_OK" in process.stdout
+
+
 def test_direct_cpp_profile_is_jazzy_cyclone_only():
     assert os.environ.get("ROS_DISTRO") == "jazzy"
     assert os.environ.get("RMW_IMPLEMENTATION") == "rmw_cyclonedds_cpp"
