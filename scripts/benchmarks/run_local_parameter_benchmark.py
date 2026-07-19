@@ -13,6 +13,7 @@ import uuid
 
 from _domain_lease import acquire_domain
 from _local_parameter_benchmark_protocol import (
+    POST_INIT_SETTLE_NS,
     PRIMARY_METRIC,
     build_document,
     dumps,
@@ -153,6 +154,7 @@ def _environment(domain_id, args):
         "fixed_warmup_operations": args.warmup_operations,
         "fixed_measured_operations": args.operations,
         "init_jit_setup_warmup_excluded": True,
+        "post_init_settle_ns": POST_INIT_SETTLE_NS,
         "primary_metric": PRIMARY_METRIC,
     }
     return environment, metadata
@@ -171,10 +173,10 @@ def _print_summary(document, output):
     print("raw evidence: %s" % output)
     for workload, values in document["summary"]["median_cpu_ratios"].items():
         print(
-            "%s: direct/stock=%.4f raw/stock=%.4f" % (
+            "%s: direct/stock=%.4f native-python/stock=%.4f" % (
                 workload,
                 values["direct_over_stock_process_cpu"],
-                values["raw_over_stock_process_cpu"],
+                values["native_python_over_stock_process_cpu"],
             ))
 
 

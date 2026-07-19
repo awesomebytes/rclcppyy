@@ -36,7 +36,8 @@
         "variants",
         "workloads",
         "execution_order_policy",
-        "setup_init_jit_excluded"
+        "setup_init_jit_excluded",
+        "post_init_settle_ns"
       ],
       "properties": {
         "name": {"const": "local-parameter-cpu-characterization"},
@@ -46,13 +47,18 @@
         "measured_operations": {"type": "integer", "minimum": 1, "maximum": 100000},
         "repetitions": {"type": "integer", "minimum": 1, "maximum": 30},
         "variants": {
-          "const": ["stock-rclpy", "direct-rclcppyy", "raw-rclcpp"]
+          "const": [
+            "stock-rclpy",
+            "direct-rclcppyy",
+            "native-python-orchestrated"
+          ]
         },
         "workloads": {
           "const": ["declare", "get-native", "get-value-snapshot", "set-atomically"]
         },
         "execution_order_policy": {"const": "deterministic-rotating-variant"},
-        "setup_init_jit_excluded": {"const": true}
+        "setup_init_jit_excluded": {"const": true},
+        "post_init_settle_ns": {"const": 250000000}
       }
     },
     "execution_order": {
@@ -71,7 +77,11 @@
   },
   "$defs": {
     "variant": {
-      "enum": ["stock-rclpy", "direct-rclcppyy", "raw-rclcpp"]
+      "enum": [
+        "stock-rclpy",
+        "direct-rclcppyy",
+        "native-python-orchestrated"
+      ]
     },
     "workload": {
       "enum": ["declare", "get-native", "get-value-snapshot", "set-atomically"]
@@ -95,6 +105,8 @@
         "setup_excluded",
         "jit_excluded",
         "warmup_completed",
+        "post_init_settle_completed",
+        "post_init_settle_ns",
         "fixed_work",
         "teardown_clean",
         "ros_distribution",
@@ -105,6 +117,8 @@
         "setup_excluded": {"const": true},
         "jit_excluded": {"const": true},
         "warmup_completed": {"const": true},
+        "post_init_settle_completed": {"const": true},
+        "post_init_settle_ns": {"const": 250000000},
         "fixed_work": {"const": true},
         "teardown_clean": {"const": true},
         "cleanup_error": {"type": ["string", "null"]},
@@ -316,7 +330,12 @@
         {
           "if": {
             "properties": {
-              "variant": {"enum": ["direct-rclcppyy", "raw-rclcpp"]},
+              "variant": {
+                "enum": [
+                  "direct-rclcppyy",
+                  "native-python-orchestrated"
+                ]
+              },
               "workload": {"const": "set-atomically"}
             },
             "required": ["variant", "workload"]
@@ -338,22 +357,29 @@
         "repetition",
         "workload",
         "direct_over_stock_process_cpu",
-        "raw_over_stock_process_cpu"
+        "native_python_over_stock_process_cpu"
       ],
       "properties": {
         "repetition": {"type": "integer", "minimum": 0, "maximum": 29},
         "workload": {"$ref": "#/$defs/workload"},
         "direct_over_stock_process_cpu": {"$ref": "#/$defs/positive_number"},
-        "raw_over_stock_process_cpu": {"$ref": "#/$defs/positive_number"}
+        "native_python_over_stock_process_cpu": {
+          "$ref": "#/$defs/positive_number"
+        }
       }
     },
     "median_ratio": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["direct_over_stock_process_cpu", "raw_over_stock_process_cpu"],
+      "required": [
+        "direct_over_stock_process_cpu",
+        "native_python_over_stock_process_cpu"
+      ],
       "properties": {
         "direct_over_stock_process_cpu": {"$ref": "#/$defs/positive_number"},
-        "raw_over_stock_process_cpu": {"$ref": "#/$defs/positive_number"}
+        "native_python_over_stock_process_cpu": {
+          "$ref": "#/$defs/positive_number"
+        }
       }
     },
     "snapshot_ratio": {

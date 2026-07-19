@@ -44,6 +44,8 @@ def _sample(item, index, warmup=5, operations=25):
             "setup_excluded": True,
             "jit_excluded": True,
             "warmup_completed": True,
+            "post_init_settle_completed": True,
+            "post_init_settle_ns": protocol.POST_INIT_SETTLE_NS,
             "fixed_work": True,
             "teardown_clean": True,
             "ros_distribution": "jazzy",
@@ -97,12 +99,13 @@ def test_order_rotates_variants_deterministically_by_workload_and_repetition():
     assert order[:3] == [
         {"repetition": 0, "workload": "declare", "variant": "stock-rclpy"},
         {"repetition": 0, "workload": "declare", "variant": "direct-rclcppyy"},
-        {"repetition": 0, "workload": "declare", "variant": "raw-rclcpp"},
+        {"repetition": 0, "workload": "declare", "variant": (
+            "native-python-orchestrated")},
     ]
     assert [item["variant"] for item in order[3:6]] == [
-        "direct-rclcppyy", "raw-rclcpp", "stock-rclpy"]
+        "direct-rclcppyy", "native-python-orchestrated", "stock-rclpy"]
     assert [item["variant"] for item in order[12:15]] == [
-        "direct-rclcppyy", "raw-rclcpp", "stock-rclpy"]
+        "direct-rclcppyy", "native-python-orchestrated", "stock-rclpy"]
 
 
 def test_document_is_cpu_first_strict_and_claims_disabled():
@@ -144,6 +147,8 @@ def test_worker_keeps_setup_warmup_and_poison_outside_cpu_window():
         encoding="utf-8")
     run_source = source[source.index("def run(args):"):]
     assert run_source.index("counters = _install_boundary_poison()") < (
+        run_source.index("measured = _operation(state, args)"))
+    assert run_source.index("time.sleep(POST_INIT_SETTLE_NS") < (
         run_source.index("measured = _operation(state, args)"))
     assert source.index("for index in range(args.warmup_operations)") < source.index(
         "cpu_started = time.process_time_ns()")

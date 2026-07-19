@@ -10,11 +10,13 @@ import statistics
 
 SCHEMA_ID = "rclcppyy.local-parameter-benchmark/v1"
 SAMPLE_SCHEMA = "rclcppyy.local-parameter-sample/v1"
-VARIANTS = ("stock-rclpy", "direct-rclcppyy", "raw-rclcpp")
+VARIANTS = (
+    "stock-rclpy", "direct-rclcppyy", "native-python-orchestrated")
 WORKLOADS = ("declare", "get-native", "get-value-snapshot", "set-atomically")
 PRIMARY_METRIC = "process_cpu_ns_per_operation"
 RMW = "rmw_cyclonedds_cpp"
 ROS_DISTRO = "jazzy"
+POST_INIT_SETTLE_NS = 250_000_000
 OPERATION_ROUTES = {
     "stock-rclpy": {
         "declare": "rclpy.node.Node.declare_parameter",
@@ -28,7 +30,7 @@ OPERATION_ROUTES = {
         "get-value-snapshot": "rclcppyy.direct_cpp.DirectNode.get_parameter.value",
         "set-atomically": "rclcppyy.direct_cpp.DirectNode.set_parameters_atomically",
     },
-    "raw-rclcpp": {
+    "native-python-orchestrated": {
         "declare": "rclcpp_kit.native_parameters.declare_parameter",
         "get-native": "rclcpp_kit.native_parameters.get_parameter",
         "get-value-snapshot": (
@@ -86,7 +88,7 @@ def validate_sample(sample, *, warmup, operations, repetition, order_index):
     runtime = sample.get("runtime")
     required_true = (
         "fresh_process", "setup_excluded", "jit_excluded", "warmup_completed",
-        "fixed_work", "teardown_clean",
+        "post_init_settle_completed", "fixed_work", "teardown_clean",
     )
     if not isinstance(runtime, dict) or any(
             runtime.get(field) is not True for field in required_true):
@@ -94,6 +96,8 @@ def validate_sample(sample, *, warmup, operations, repetition, order_index):
     if runtime.get("ros_distribution") != ROS_DISTRO or runtime.get(
             "rmw_implementation") != RMW:
         raise ValueError("sample did not use Jazzy with CycloneDDS")
+    if runtime.get("post_init_settle_ns") != POST_INIT_SETTLE_NS:
+        raise ValueError("sample post-init settling control is invalid")
 
     correctness = sample.get("correctness")
     if not isinstance(correctness, dict) or correctness.get(
@@ -191,8 +195,8 @@ def summarize(samples, repetitions):
                 "direct_over_stock_process_cpu": (
                     selected["direct-rclcppyy"]["timing"][PRIMARY_METRIC] /
                     stock_cpu),
-                "raw_over_stock_process_cpu": (
-                    selected["raw-rclcpp"]["timing"][PRIMARY_METRIC] /
+                "native_python_over_stock_process_cpu": (
+                    selected["native-python-orchestrated"]["timing"][PRIMARY_METRIC] /
                     stock_cpu),
             })
     medians = {
@@ -200,8 +204,8 @@ def summarize(samples, repetitions):
             "direct_over_stock_process_cpu": statistics.median(
                 row["direct_over_stock_process_cpu"]
                 for row in paired if row["workload"] == workload),
-            "raw_over_stock_process_cpu": statistics.median(
-                row["raw_over_stock_process_cpu"]
+            "native_python_over_stock_process_cpu": statistics.median(
+                row["native_python_over_stock_process_cpu"]
                 for row in paired if row["workload"] == workload),
         }
         for workload in WORKLOADS
@@ -248,6 +252,7 @@ def build_document(*, environment, command, warmup, operations, repetitions, sam
             "workloads": list(WORKLOADS),
             "execution_order_policy": "deterministic-rotating-variant",
             "setup_init_jit_excluded": True,
+            "post_init_settle_ns": POST_INIT_SETTLE_NS,
         },
         "execution_order": execution_order(repetitions),
         "samples": samples,
@@ -274,6 +279,8 @@ def validate_document(document):
         raise ValueError("benchmark CPU/order policy is invalid")
     if benchmark.get("setup_init_jit_excluded") is not True:
         raise ValueError("benchmark setup exclusion is invalid")
+    if benchmark.get("post_init_settle_ns") != POST_INIT_SETTLE_NS:
+        raise ValueError("benchmark post-init settling control is invalid")
     if benchmark.get("name") != "local-parameter-cpu-characterization" or benchmark.get(
             "variants") != list(VARIANTS) or benchmark.get(
             "workloads") != list(WORKLOADS):

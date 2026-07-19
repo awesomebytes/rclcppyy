@@ -11,6 +11,7 @@ import time
 
 from _local_parameter_benchmark_protocol import (
     OPERATION_ROUTES,
+    POST_INIT_SETTLE_NS,
     PRIMARY_METRIC,
     RMW,
     ROS_DISTRO,
@@ -325,6 +326,7 @@ def run(args):
     state = _setup(args.variant, node_name)
     loaded_rmw = _loaded_rmw()
     counters = _install_boundary_poison()
+    time.sleep(POST_INIT_SETTLE_NS / 1_000_000_000)
     measured = None
     cleanup_error = None
     try:
@@ -353,6 +355,8 @@ def run(args):
             "setup_excluded": True,
             "jit_excluded": True,
             "warmup_completed": True,
+            "post_init_settle_completed": True,
+            "post_init_settle_ns": POST_INIT_SETTLE_NS,
             "fixed_work": True,
             "teardown_clean": teardown_clean,
             "cleanup_error": cleanup_error,
