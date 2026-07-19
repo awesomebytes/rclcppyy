@@ -81,6 +81,59 @@ def test_direct_cpp_opt_in_subscription_shared_lease():
     assert "DIRECT_CPP_SUBSCRIPTION_LEASE_REINIT_OK" in process.stdout
 
 
+def test_direct_cpp_message_info_copy_and_lease_with_stock_and_aot(tmp_path):
+    source = HERE.parent / "scripts" / "benchmarks" / "relay_boundary_aot"
+    build_directory = tmp_path / "message-info-aot"
+    configure = [
+        "cmake",
+        "-S", str(source),
+        "-B", str(build_directory),
+        "-G", "Ninja",
+        "-DCMAKE_BUILD_TYPE=Release",
+    ]
+    if os.environ.get("CONDA_PREFIX"):
+        configure.append("-DCMAKE_PREFIX_PATH=" + os.environ["CONDA_PREFIX"])
+    configured = subprocess.run(
+        configure,
+        capture_output=True,
+        text=True,
+        timeout=180,
+        check=False,
+        env=os.environ.copy(),
+    )
+    assert configured.returncode == 0, format_output(configured)
+    built = subprocess.run(
+        [
+            "cmake", "--build", str(build_directory),
+            "--target", "relay_boundary_aot",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=180,
+        check=False,
+        env=os.environ.copy(),
+    )
+    assert built.returncode == 0, format_output(built)
+    executable = build_directory / "relay_boundary_aot"
+    assert executable.is_file() and os.access(executable, os.X_OK)
+
+    for mode in ("copy", "lease"):
+        process = run_helper(
+            "_direct_cpp_message_info_helper.py",
+            mode,
+            executable,
+            timeout=360,
+        )
+        assert process.returncode == 0, format_output(process)
+        assert "DIRECT_CPP_MESSAGE_INFO_FAIL_CLOSED_OK" in process.stdout
+        assert "DIRECT_CPP_MESSAGE_INFO_ONE_ARG_OK" in process.stdout
+        assert "DIRECT_CPP_MESSAGE_INFO_STOCK_INTEROP_OK" in process.stdout
+        assert "DIRECT_CPP_MESSAGE_INFO_AOT_INTEROP_OK" in process.stdout
+        assert "DIRECT_CPP_MESSAGE_INFO_EXCEPTION_OK" in process.stdout
+        assert "DIRECT_CPP_MESSAGE_INFO_CONTRACT_OK" in process.stdout
+        assert "DIRECT_CPP_MESSAGE_INFO_RETAINED_TEARDOWN_OK" in process.stdout
+
+
 def test_direct_cpp_registered_nested_message_uses_exact_cpp_lease():
     process = run_helper(
         "_direct_cpp_generic_message_helper.py", timeout=360)
