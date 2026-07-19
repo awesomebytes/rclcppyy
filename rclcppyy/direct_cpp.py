@@ -1840,13 +1840,16 @@ class DirectNode:
         record_decision(
             "entities",
             "cpp",
-            "direct rclcpp wall timer with Python callback",
+            "direct rclcpp wall timer with Python callback; steady clock only "
+            "-- ROS-clock/sim-time timers are fail-closed pending a suite "
+            "clock-parameterized timer primitive, not implied by this route",
             policies=("direct_cpp", "native_timer_authority", "no_conversion"),
             metadata={
                 "entity_type": "timer",
                 "period_ns": period_ns,
                 "autostart": autostart,
                 "clock": "steady",
+                "ros_clock_support": "fail_closed_pending_suite_primitive",
                 "callback_handoff": "direct_std_function",
                 "creation_route": timer.creation_route,
                 "native_type": timer.native_type_name,

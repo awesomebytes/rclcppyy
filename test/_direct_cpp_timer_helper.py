@@ -52,6 +52,13 @@ runtime = importlib.import_module("rclcppyy.direct_cpp")._runtime()
 
 expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, callback_group=object()))
 expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, clock=object()))
+# The suite provides only a steady rclcpp::WallTimer -- there is no ROS-clock
+# / sim-time-aware timer primitive to build a real clock=... timer on, so a
+# genuine DirectClock argument (not just an arbitrary object()) must be
+# rejected the same way, not silently accepted because it happens to be the
+# "real" clock type.
+expect_rejected(
+    node, lambda: node.create_timer(0.001, lambda: None, clock=node.get_clock()))
 expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, autostart=object()))
 expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, oneshot=False))
 expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, options=object()))
@@ -191,6 +198,11 @@ assert all("no_conversion" in item["policies"] for item in records)
 assert all(item["metadata"]["callback_handoff"] == "direct_std_function" for item in records)
 assert all("rclcpp::WallTimer" in item["metadata"]["native_type"] for item in records)
 assert [item["metadata"]["autostart"] for item in records] == [False, True]
+assert all(item["metadata"]["clock"] == "steady" for item in records)
+assert all(
+    item["metadata"]["ros_clock_support"] == "fail_closed_pending_suite_primitive"
+    for item in records
+)
 
 spin_done = threading.Event()
 spin_errors = []
