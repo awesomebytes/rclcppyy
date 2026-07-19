@@ -274,6 +274,8 @@ def _validate_ready(ready: dict, sample: dict, cache: dict, rmw: str) -> None:
                 "python_callback_crossings_per_request": 1,
                 "request_cpp_copies_per_request": 1,
                 "response_cpp_copies_per_request": 1,
+                "type_alias_identity_verified": True,
+                "conversion_guards_installed": True,
             }
             if ready.get("data_path") != expected_path:
                 raise ValueError("direct C++ service data-path evidence is invalid")

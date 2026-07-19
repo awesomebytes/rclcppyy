@@ -504,10 +504,25 @@ def _run_direct_cpp(args) -> tuple[dict, dict, bool]:
     import rclcppyy
 
     rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
+    import cppyy
     import rclpy
     from rclpy.node import Node
     from std_srvs.srv import SetBool
     import threading
+
+    if SetBool.Request is not cppyy.gbl.std_srvs.srv.SetBool.Request or (
+            SetBool.Response is not cppyy.gbl.std_srvs.srv.SetBool.Response):
+        raise RuntimeError("direct C++ service aliases are not actual C++ values")
+
+    def forbidden_boundary(*_args, **_kwargs):
+        raise RuntimeError("direct C++ service used a conversion or serialization bridge")
+
+    import importlib
+    bringup_rclcpp = importlib.import_module("rclcpp_kit.bringup_rclcpp")
+    serialization = importlib.import_module("rclcpp_kit.serialization")
+    bringup_rclcpp.convert_python_msg_to_cpp = forbidden_boundary
+    serialization.serialize_message = forbidden_boundary
+    serialization.deserialize_message = forbidden_boundary
 
     callback, snapshot = _make_setbool_callback()
     rclpy.init(args=[])
@@ -547,6 +562,8 @@ def _run_direct_cpp(args) -> tuple[dict, dict, bool]:
             "python_callback_crossings_per_request": 1,
             "request_cpp_copies_per_request": 1,
             "response_cpp_copies_per_request": 1,
+            "type_alias_identity_verified": True,
+            "conversion_guards_installed": True,
         },
     }
     teardown_clean = False

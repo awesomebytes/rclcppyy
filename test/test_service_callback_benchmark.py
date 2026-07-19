@@ -162,6 +162,8 @@ def _sample(variant, index=0):
                 "python_callback_crossings_per_request": 1,
                 "request_cpp_copies_per_request": 1,
                 "response_cpp_copies_per_request": 1,
+                "type_alias_identity_verified": True,
+                "conversion_guards_installed": True,
             }
 
     total = WARMUP + MESSAGES
