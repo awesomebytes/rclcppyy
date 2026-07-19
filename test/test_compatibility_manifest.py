@@ -61,6 +61,21 @@ def test_every_supported_entry_references_existing_evidence():
         assert all((REPO_ROOT / path).exists() for path in entry["evidence"]), entry["id"]
 
 
+def test_direct_parameter_note_locks_preoptimization_cpu_baseline():
+    entry = next(
+        item for item in _manifest()["entries"]
+        if item["id"] == "parameter.direct_cpp_local_first_slice"
+    )
+    assert (
+        "The clean pre-optimization baseline at product commit a8c2cb6 records "
+        "direct/stock process-CPU ratios of 0.580 for declare, 38.682 for "
+        "get-native, 30.950 for get-value-snapshot, and 0.446 for atomic set."
+    ) in entry["notes"]
+    assert "Performance claims remain disabled" in entry["notes"]
+    assert "bounded post-change tests must not replace a full post-change matrix" in (
+        entry["notes"])
+
+
 def test_duplicate_ids_are_rejected():
     manifest = _manifest()
     manifest["entries"].append(dict(manifest["entries"][0]))

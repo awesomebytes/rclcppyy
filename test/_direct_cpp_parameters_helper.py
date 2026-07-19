@@ -21,6 +21,7 @@ from rcl_interfaces.msg import (  # noqa: E402
     ParameterValue,
     SetParametersResult,
 )
+from rclcpp_kit import native_parameters  # noqa: E402
 from rclcpp_kit.native_parameters import NativeParameter  # noqa: E402
 from rclcppyy.policy import BackendUnavailableError  # noqa: E402
 from rclpy.exceptions import (  # noqa: E402
@@ -190,6 +191,42 @@ else:
 print("DIRECT_CPP_PARAMETERS_NATIVE_NODE_API_OK")
 
 
+native_parameters.reset_checked_parameter_stats()
+optimized_get = node.get_parameter("group.count")
+assert optimized_get.value == 3
+try:
+    node.get_parameter("typed")
+except ParameterUninitializedException:
+    pass
+else:
+    raise AssertionError("checked get returned a static uninitialized parameter")
+assert node.get_parameter("dynamic").value is None
+try:
+    node.get_parameter("checked_missing")
+except ParameterNotDeclaredException:
+    pass
+else:
+    raise AssertionError("checked get returned an undeclared parameter")
+permissive = Node(
+    "direct_parameters_permissive_%d" % os.getpid(),
+    allow_undeclared_parameters=True,
+)
+permissive_missing = permissive.get_parameter("missing")
+assert permissive_missing.type_ is Parameter.Type.NOT_SET
+assert permissive_missing.value is None
+assert not permissive.has_parameter("missing")
+optimized_native = optimized_get._rclcppyy_native_parameter
+assert cppyy.addressof(optimized_native.native) == int(
+    optimized_native._owner.parameter_address())
+checked_get_stats = native_parameters.checked_parameter_stats()
+assert checked_get_stats.to_dict() == {
+    "calls": 5,
+    "node_value_copies": 3,
+    "result_copies": 0,
+}
+print("DIRECT_CPP_PARAMETERS_CHECKED_GET_OK")
+
+
 retained_callback_parameter = []
 events = []
 
@@ -302,11 +339,14 @@ print("DIRECT_CPP_PARAMETERS_FAIL_CLOSED_OK")
 
 
 retained_get_parameter = node.get_parameter("group.count")
+retained_optimized_get = optimized_get
 assert retained_callback_parameter
 rclpy.shutdown()
 assert retained_get_parameter.value == 41
+assert retained_optimized_get.value == 3
 assert retained_callback_parameter[0].value == 41
 assert node._direct_cpp_node is None
+assert permissive._direct_cpp_node is None
 
 rclpy.init()
 second = Node("direct_parameters_reinit_%d" % os.getpid())

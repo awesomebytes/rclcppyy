@@ -13,7 +13,9 @@ import weakref
 
 import cppyy
 
+from rclcpp_kit import native_parameters as _native_parameters
 from rclcppyy._status import record_decision
+from rclcppyy import direct_parameters as _direct_parameters
 from rclcppyy.policy import BackendUnavailableError
 
 
@@ -858,10 +860,7 @@ class DirectNode:
         return self._require_node().get_logger()
 
     def _parameter_modules(self):
-        from rclcpp_kit import native_parameters
-        from rclcppyy import direct_parameters
-
-        return native_parameters, direct_parameters
+        return _native_parameters, _direct_parameters
 
     def _raise_parameter_callback_exception(self):
         for kind in ("pre", "on", "post"):
@@ -1023,22 +1022,22 @@ class DirectNode:
         return native_parameters.has_parameter(self._require_node(), name)
 
     def get_parameter(self, name):
-        from rclpy.exceptions import ParameterUninitializedException
-
         native_parameters, direct_parameters = self._parameter_modules()
-        if not self.has_parameter(name):
+        status, parameter = native_parameters.get_parameter_checked(
+            self._require_node(), name)
+        if status == native_parameters.CHECKED_PARAMETER_MISSING:
             if self._allow_undeclared_parameters:
                 return direct_parameters.parameter_class()(name)
-            self._require_declared_parameter(name)
-        type_code = native_parameters.get_parameter_types(
-            self._require_node(), (name,))[0]
-        if type_code == native_parameters.PARAMETER_NOT_SET:
-            descriptor = native_parameters.describe_parameters(
-                self._require_node(), (name,))[0]
-            if not bool(descriptor.dynamic_typing):
-                raise ParameterUninitializedException(name)
-        return direct_parameters.wrap_native(
-            native_parameters.get_parameter(self._require_node(), name))
+            from rclpy.exceptions import ParameterNotDeclaredException
+
+            raise ParameterNotDeclaredException(name)
+        if status == native_parameters.CHECKED_PARAMETER_STATIC_UNINITIALIZED:
+            from rclpy.exceptions import ParameterUninitializedException
+
+            raise ParameterUninitializedException(name)
+        if parameter is None:
+            raise RuntimeError("checked native parameter result has no value")
+        return direct_parameters.wrap_native(parameter)
 
     def get_parameters(self, names):
         if not isinstance(names, list):
