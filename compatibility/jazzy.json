@@ -684,7 +684,7 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_direct_logging.py", "test/_direct_logging_probe.py", "test/_direct_logging_rosout_probe.py"],
       "notes": "Activated upstream tests cover logger configuration and formatting, once/throttle/skip-first filters, ROS-time throttling, rosout delivery and disablement, hierarchy, and get/set logging services."
     },
     {
@@ -728,7 +728,7 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_differential_application.py", "test/differential/_application_probe.py"],
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_identity_qos.py", "test/_identity_qos_probe.py", "test/test_identity_qos_events.py", "test/_identity_qos_events_probe.py", "test/test_identity_generated_interfaces.py", "test/_identity_generated_interfaces_probe.py"],
       "notes": "Construction, conversion, validation, compatibility, runtime overrides, event-handle lifetime, incompatible-QoS callbacks, and matched/unmatched callbacks remain stock-authoritative. Middleware-specific event generation outside the reviewed matrix is not implied."
     },
     {
