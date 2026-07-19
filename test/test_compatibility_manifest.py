@@ -109,6 +109,25 @@ def test_direct_remote_parameter_note_locks_clean_cpu_evidence():
     assert "claims remain disabled" in entry["notes"]
 
 
+def test_direct_action_notes_lock_corrected_cpu_evidence():
+    entries = {item["id"]: item for item in _manifest()["entries"]}
+    client = entries["action.direct_cpp_client_first_slice"]["notes"]
+    server = entries["action.direct_cpp_server_first_slice"]["notes"]
+    assert (
+        "build/action-client-cyclone-b2f0f2d-corrected.json uses identical "
+        "public QoS and source/executor shape and records median paired "
+        "direct/stock ratios of 0.2606 CPU"
+    ) in client
+    assert "record zero conversion/serialization/CDR calls" in client
+    assert (
+        "build/action-server-cyclone-b2f0f2d-corrected.json uses one common "
+        "AOT client plus identical public QoS and records median paired "
+        "direct/stock ratios of 0.6475 server CPU"
+    ) in server
+    assert "2,080 counted exact-C++ adapter deep copies" in server
+    assert "representation conversion" in server
+
+
 def test_duplicate_ids_are_rejected():
     manifest = _manifest()
     manifest["entries"].append(dict(manifest["entries"][0]))

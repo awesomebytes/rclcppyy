@@ -82,3 +82,14 @@ pixi run action-client-bench \
 
 The runner exits nonzero if any sample fails. It still records the failed case so
 the document must cover the exact 30-case matrix.
+
+## Current characterization
+
+Clean artifact `build/action-client-cyclone-b2f0f2d-corrected.json` uses product
+`b2f0f2d` and suite `948fd3d` with both repositories clean. All 30 samples pass.
+Median paired direct/stock ratios are 0.2606 client CPU, 0.7138/0.3283 accept
+p50/p99, 0.9922/0.9889 first-feedback p50/p99, 0.9848/0.9647 result p50/p99,
+and 1.0160 throughput. Every dynamic exact-C++ sample arms all 16 boundary
+tripwires and records zero conversion, serialization, and CDR calls. The raw
+artifact keeps claims and interpretation disabled; dedicated-host and native ARM64
+repetition remain required before promotion.

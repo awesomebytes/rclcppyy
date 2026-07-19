@@ -297,8 +297,16 @@ group and default QoS. Server callbacks, node teardown, deferred close, and reta
 goal values have explicit lifetime/error guards. Coroutine callbacks,
 multi-threaded/reentrant server execution, custom goal UUIDs, non-default action QoS,
 synchronous client convenience calls, and introspection remain fail-closed. The
-action client has a strong CPU characterization; the action server is not yet
-benchmarked and carries no performance claim.
+clean corrected action-client artifact records direct/stock paired medians of
+0.2606 CPU, 0.7138/0.3283 accept p50/p99, 0.9848/0.9647 result p50/p99, and
+1.0160 throughput. The corresponding action-server artifact records 0.6475 server
+CPU, 0.7386/0.7364 accept p50/p99, 0.9893/0.9758 result p50/p99, and 1.0107
+throughput. All dynamic exact-C++ lanes arm conversion/serialization/CDR tripwires
+and record zero calls. The direct server still performs four counted exact-C++ deep
+copies per goal for three feedback values plus one result and uses 2.588x AOT server
+CPU, so copy/callback overhead remains an explicit optimization target. These are
+local x86-64 characterizations; claims remain disabled pending dedicated-host and
+native ARM64 repetition.
 
 `std_msgs/msg/String` and `std_msgs/msg/UInt64` remain the default message registry.
 Additional interfaces must use canonical `package/msg/Message` or
