@@ -1103,8 +1103,10 @@
         "area_manifest_entry_ids": [
           "utility.process_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "utility",
       "attribution": "direct_backend",
@@ -1126,7 +1128,7 @@
       },
       "level": "member",
       "path": "rclpy.Parameter.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -1144,8 +1146,10 @@
         "area_manifest_entry_ids": [
           "utility.process_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "utility",
       "attribution": "direct_backend",
@@ -1167,7 +1171,7 @@
       },
       "level": "member",
       "path": "rclpy.Parameter.from_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -1185,8 +1189,10 @@
         "area_manifest_entry_ids": [
           "utility.process_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "utility",
       "attribution": "direct_backend",
@@ -1208,7 +1214,7 @@
       },
       "level": "member",
       "path": "rclpy.Parameter.get_parameter_value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -1226,8 +1232,10 @@
         "area_manifest_entry_ids": [
           "utility.process_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "utility",
       "attribution": "direct_backend",
@@ -1249,7 +1257,7 @@
       },
       "level": "member",
       "path": "rclpy.Parameter.name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -1267,8 +1275,10 @@
         "area_manifest_entry_ids": [
           "utility.process_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "utility",
       "attribution": "direct_backend",
@@ -1290,7 +1300,7 @@
       },
       "level": "member",
       "path": "rclpy.Parameter.to_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -1308,8 +1318,10 @@
         "area_manifest_entry_ids": [
           "utility.process_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "utility",
       "attribution": "direct_backend",
@@ -1331,7 +1343,7 @@
       },
       "level": "member",
       "path": "rclpy.Parameter.type_",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -1349,8 +1361,10 @@
         "area_manifest_entry_ids": [
           "utility.process_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation, and stock-identical behavior. The Phase-3 local-parameter characterization (docs/backend-selection.md) records this explicit .value snapshot access at 1.1073x stock CPU -- slower than stock, not a performance win, on record and not hidden. Direct-C++ authority is claimed on correctness/representation grounds only; the reviewed dual-arch CPU gate remains open and this specific workload does not clear it."
       },
       "area": "utility",
       "attribution": "direct_backend",
@@ -1372,7 +1386,7 @@
       },
       "level": "member",
       "path": "rclpy.Parameter.value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -2242,8 +2256,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -2265,7 +2281,7 @@
       },
       "level": "member",
       "path": "rclpy.action.ActionClient.destroy",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -2484,8 +2500,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -2507,7 +2525,7 @@
       },
       "level": "member",
       "path": "rclpy.action.ActionClient.send_goal_async",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -2531,8 +2549,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -2554,7 +2574,7 @@
       },
       "level": "member",
       "path": "rclpy.action.ActionClient.server_is_ready",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -2615,8 +2635,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -2638,7 +2660,7 @@
       },
       "level": "member",
       "path": "rclpy.action.ActionClient.wait_for_server",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -2830,8 +2852,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -2853,7 +2877,7 @@
       },
       "level": "member",
       "path": "rclpy.action.ActionServer.action_type",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -2951,8 +2975,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -2974,7 +3000,7 @@
       },
       "level": "member",
       "path": "rclpy.action.ActionServer.destroy",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -3109,8 +3135,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -3132,7 +3160,7 @@
       },
       "level": "member",
       "path": "rclpy.action.ActionServer.notify_execute",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -3156,8 +3184,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -3179,7 +3209,7 @@
       },
       "level": "member",
       "path": "rclpy.action.ActionServer.notify_goal_done",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -3203,8 +3233,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -3226,7 +3258,7 @@
       },
       "level": "member",
       "path": "rclpy.action.ActionServer.register_cancel_callback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -3250,8 +3282,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -3273,7 +3307,7 @@
       },
       "level": "member",
       "path": "rclpy.action.ActionServer.register_execute_callback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -3297,8 +3331,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -3320,7 +3356,7 @@
       },
       "level": "member",
       "path": "rclpy.action.ActionServer.register_goal_callback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -3344,8 +3380,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -3367,7 +3405,7 @@
       },
       "level": "member",
       "path": "rclpy.action.ActionServer.register_handle_accepted_callback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4045,8 +4083,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -4068,7 +4108,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ActionClient.destroy",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4287,8 +4327,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -4310,7 +4352,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ActionClient.send_goal_async",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4334,8 +4376,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -4357,7 +4401,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ActionClient.server_is_ready",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4418,8 +4462,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -4441,7 +4487,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ActionClient.wait_for_server",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4512,8 +4558,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -4535,7 +4583,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ClientGoalHandle.__eq__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4659,8 +4707,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -4682,7 +4732,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ClientGoalHandle.__ne__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4706,8 +4756,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -4729,7 +4781,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ClientGoalHandle.__repr__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4753,8 +4805,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -4776,7 +4830,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ClientGoalHandle.accepted",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4847,8 +4901,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -4870,7 +4926,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ClientGoalHandle.cancel_goal_async",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4941,8 +4997,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -4964,7 +5022,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ClientGoalHandle.get_result_async",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4988,8 +5046,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -5011,7 +5071,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ClientGoalHandle.goal_id",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -5035,8 +5095,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -5058,7 +5120,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ClientGoalHandle.stamp",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -5082,8 +5144,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -5105,7 +5169,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ClientGoalHandle.status",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -11607,8 +11671,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -11630,7 +11696,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ActionServer.action_type",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -11728,8 +11794,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -11751,7 +11819,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ActionServer.destroy",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -11886,8 +11954,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -11909,7 +11979,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ActionServer.notify_execute",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -11933,8 +12003,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -11956,7 +12028,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ActionServer.notify_goal_done",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -11980,8 +12052,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -12003,7 +12077,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ActionServer.register_cancel_callback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -12027,8 +12101,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -12050,7 +12126,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ActionServer.register_execute_callback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -12074,8 +12150,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -12097,7 +12175,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ActionServer.register_goal_callback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -12121,8 +12199,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -12144,7 +12224,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ActionServer.register_handle_accepted_callback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -15187,8 +15267,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -15210,7 +15292,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ServerGoalHandle.__eq__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -15334,8 +15416,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -15357,7 +15441,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ServerGoalHandle.__ne__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -15381,8 +15465,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -15404,7 +15490,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ServerGoalHandle.abort",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -15428,8 +15514,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -15451,7 +15539,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ServerGoalHandle.canceled",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -15475,8 +15563,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -15498,7 +15588,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ServerGoalHandle.destroy",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -15522,8 +15612,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -15545,7 +15637,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ServerGoalHandle.execute",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -15569,8 +15661,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -15592,7 +15686,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ServerGoalHandle.executing",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -15616,8 +15710,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -15639,7 +15735,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ServerGoalHandle.goal_id",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -15663,8 +15759,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -15686,7 +15784,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ServerGoalHandle.is_active",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -15710,8 +15808,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -15733,7 +15833,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ServerGoalHandle.is_cancel_requested",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -15757,8 +15857,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -15780,7 +15882,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ServerGoalHandle.publish_feedback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -15804,8 +15906,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -15827,7 +15931,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ServerGoalHandle.request",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -15851,8 +15955,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -15874,7 +15980,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ServerGoalHandle.status",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -15898,8 +16004,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -15921,7 +16029,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ServerGoalHandle.succeed",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -88010,8 +88118,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -88033,7 +88143,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.add_post_set_parameters_callback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -88058,8 +88168,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -88081,7 +88193,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.add_pre_set_parameters_callback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89880,8 +89992,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89903,7 +90017,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.get_parameter",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89928,8 +90042,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89951,7 +90067,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.get_parameter_or",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89976,8 +90092,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89999,7 +90117,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.get_parameter_type",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -90024,8 +90142,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -90047,7 +90167,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.get_parameter_types",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -90072,8 +90192,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -90095,7 +90217,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.get_parameters",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -90570,8 +90692,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -90593,7 +90717,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.has_parameter",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -90762,8 +90886,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -90785,7 +90911,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.remove_post_set_parameters_callback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -90810,8 +90936,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -90833,7 +90961,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.remove_pre_set_parameters_callback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -91280,8 +91408,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -91303,7 +91433,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.undeclare_parameter",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -91992,8 +92122,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -92015,7 +92147,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Parameter.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -92040,8 +92172,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -92063,7 +92197,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Parameter.from_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -92088,8 +92222,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -92111,7 +92247,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Parameter.get_parameter_value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -92136,8 +92272,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -92159,7 +92297,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Parameter.name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -92184,8 +92322,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -92207,7 +92347,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Parameter.to_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -92232,8 +92372,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -92255,7 +92397,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Parameter.type_",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -92280,8 +92422,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation, and stock-identical behavior. The Phase-3 local-parameter characterization (docs/backend-selection.md) records this explicit .value snapshot access at 1.1073x stock CPU -- slower than stock, not a performance win, on record and not hidden. Direct-C++ authority is claimed on correctness/representation grounds only; the reviewed dual-arch CPU gate remains open and this specific workload does not clear it."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -92303,7 +92447,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Parameter.value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -100113,8 +100257,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -100136,7 +100282,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter.Parameter.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -100158,8 +100304,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -100181,7 +100329,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter.Parameter.from_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -100203,8 +100351,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -100226,7 +100376,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter.Parameter.get_parameter_value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -100248,8 +100398,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -100271,7 +100423,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter.Parameter.name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -100293,8 +100445,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -100316,7 +100470,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter.Parameter.to_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -100338,8 +100492,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -100361,7 +100517,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter.Parameter.type_",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -100383,8 +100539,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation, and stock-identical behavior. The Phase-3 local-parameter characterization (docs/backend-selection.md) records this explicit .value snapshot access at 1.1073x stock CPU -- slower than stock, not a performance win, on record and not hidden. Direct-C++ authority is claimed on correctness/representation grounds only; the reviewed dual-arch CPU gate remains open and this specific workload does not clear it."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -100406,7 +100564,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter.Parameter.value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -105547,8 +105705,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -105570,7 +105730,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Parameter.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -105592,8 +105752,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -105615,7 +105777,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Parameter.from_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -105637,8 +105799,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -105660,7 +105824,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Parameter.get_parameter_value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -105682,8 +105846,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -105705,7 +105871,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Parameter.name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -105727,8 +105893,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -105750,7 +105918,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Parameter.to_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -105772,8 +105940,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -105795,7 +105965,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Parameter.type_",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -105817,8 +105987,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation, and stock-identical behavior. The Phase-3 local-parameter characterization (docs/backend-selection.md) records this explicit .value snapshot access at 1.1073x stock CPU -- slower than stock, not a performance win, on record and not hidden. Direct-C++ authority is claimed on correctness/representation grounds only; the reviewed dual-arch CPU gate remains open and this specific workload does not clear it."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -105840,7 +106012,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Parameter.value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -111398,8 +111570,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -111421,7 +111595,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Parameter.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -111443,8 +111617,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -111466,7 +111642,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Parameter.from_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -111488,8 +111664,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -111511,7 +111689,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Parameter.get_parameter_value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -111533,8 +111711,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -111556,7 +111736,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Parameter.name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -111578,8 +111758,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -111601,7 +111783,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Parameter.to_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -111623,8 +111805,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -111646,7 +111830,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Parameter.type_",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -111668,8 +111852,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation, and stock-identical behavior. The Phase-3 local-parameter characterization (docs/backend-selection.md) records this explicit .value snapshot access at 1.1073x stock CPU -- slower than stock, not a performance win, on record and not hidden. Direct-C++ authority is claimed on correctness/representation grounds only; the reviewed dual-arch CPU gate remains open and this specific workload does not clear it."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -111691,7 +111877,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Parameter.value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -171894,11 +172080,11 @@
     "modules": 58,
     "signature_mismatches": 194,
     "statuses": {
-      "exact_direct_cpp_authority": 0,
+      "exact_direct_cpp_authority": 93,
       "explicit_fail_closed": 3,
       "missing_mismatch": 309,
       "mixed_control_direct_data": 0,
-      "unassessed": 2691,
+      "unassessed": 2598,
       "unchanged_stock_fallback": 797
     },
     "stock_only_entries": 115,

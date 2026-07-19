@@ -2,6 +2,438 @@
   "entries": [
     {
       "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.Parameter.__init__",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.Parameter.from_parameter_msg",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.Parameter.get_parameter_value",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.Parameter.name",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.Parameter.to_parameter_msg",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.Parameter.type_",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.Parameter.value",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation, and stock-identical behavior. The Phase-3 local-parameter characterization (docs/backend-selection.md) records this explicit .value snapshot access at 1.1073x stock CPU -- slower than stock, not a performance win, on record and not hidden. Direct-C++ authority is claimed on correctness/representation grounds only; the reviewed dual-arch CPU gate remains open and this specific workload does not clear it.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.ActionClient.destroy",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.ActionClient.send_goal_async",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.ActionClient.server_is_ready",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.ActionClient.wait_for_server",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.ActionServer.action_type",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.ActionServer.destroy",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.ActionServer.notify_execute",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.ActionServer.notify_goal_done",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.ActionServer.register_cancel_callback",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.ActionServer.register_execute_callback",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.ActionServer.register_goal_callback",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.ActionServer.register_handle_accepted_callback",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.client.ActionClient.destroy",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.client.ActionClient.send_goal_async",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.client.ActionClient.server_is_ready",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.client.ActionClient.wait_for_server",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.client.ClientGoalHandle.__eq__",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.client.ClientGoalHandle.__ne__",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.client.ClientGoalHandle.__repr__",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.client.ClientGoalHandle.accepted",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.client.ClientGoalHandle.cancel_goal_async",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.client.ClientGoalHandle.get_result_async",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.client.ClientGoalHandle.goal_id",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.client.ClientGoalHandle.stamp",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.client.ClientGoalHandle.status",
+      "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ActionServer.action_type",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ActionServer.destroy",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ActionServer.notify_execute",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ActionServer.notify_goal_done",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ActionServer.register_cancel_callback",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ActionServer.register_execute_callback",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ActionServer.register_goal_callback",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ActionServer.register_handle_accepted_callback",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ServerGoalHandle.__eq__",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ServerGoalHandle.__ne__",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ServerGoalHandle.abort",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ServerGoalHandle.canceled",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ServerGoalHandle.destroy",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ServerGoalHandle.execute",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ServerGoalHandle.executing",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ServerGoalHandle.goal_id",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ServerGoalHandle.is_active",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ServerGoalHandle.is_cancel_requested",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ServerGoalHandle.publish_feedback",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ServerGoalHandle.request",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ServerGoalHandle.status",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "path": "rclpy.action.server.ServerGoalHandle.succeed",
+      "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "time.stock_surface"
       ],
       "path": "rclpy.clock.Clock",
@@ -2383,6 +2815,318 @@
       "path": "rclpy.logging_service.qos_profile_services_default",
       "rationale": "The direct node's logger is the exact stock rcutils logger (same identity, retained after destroy) with conversion/serialization boundaries forbidden, proven in a fresh process. Stock behavior, not accelerated.",
       "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.add_post_set_parameters_callback",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.add_pre_set_parameters_callback",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.get_parameter",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.get_parameter_or",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.get_parameter_type",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.get_parameter_types",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.get_parameters",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.has_parameter",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.remove_post_set_parameters_callback",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.remove_pre_set_parameters_callback",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.undeclare_parameter",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Parameter.__init__",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Parameter.from_parameter_msg",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Parameter.get_parameter_value",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Parameter.name",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Parameter.to_parameter_msg",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Parameter.type_",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Parameter.value",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation, and stock-identical behavior. The Phase-3 local-parameter characterization (docs/backend-selection.md) records this explicit .value snapshot access at 1.1073x stock CPU -- slower than stock, not a performance win, on record and not hidden. Direct-C++ authority is claimed on correctness/representation grounds only; the reviewed dual-arch CPU gate remains open and this specific workload does not clear it.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter.Parameter.__init__",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter.Parameter.from_parameter_msg",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter.Parameter.get_parameter_value",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter.Parameter.name",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter.Parameter.to_parameter_msg",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter.Parameter.type_",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter.Parameter.value",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation, and stock-identical behavior. The Phase-3 local-parameter characterization (docs/backend-selection.md) records this explicit .value snapshot access at 1.1073x stock CPU -- slower than stock, not a performance win, on record and not hidden. Direct-C++ authority is claimed on correctness/representation grounds only; the reviewed dual-arch CPU gate remains open and this specific workload does not clear it.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Parameter.__init__",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Parameter.from_parameter_msg",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Parameter.get_parameter_value",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Parameter.name",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Parameter.to_parameter_msg",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Parameter.type_",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Parameter.value",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation, and stock-identical behavior. The Phase-3 local-parameter characterization (docs/backend-selection.md) records this explicit .value snapshot access at 1.1073x stock CPU -- slower than stock, not a performance win, on record and not hidden. Direct-C++ authority is claimed on correctness/representation grounds only; the reviewed dual-arch CPU gate remains open and this specific workload does not clear it.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Parameter.__init__",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Parameter.from_parameter_msg",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Parameter.get_parameter_value",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Parameter.name",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Parameter.to_parameter_msg",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Parameter.type_",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Parameter.value",
+      "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation, and stock-identical behavior. The Phase-3 local-parameter characterization (docs/backend-selection.md) records this explicit .value snapshot access at 1.1073x stock CPU -- slower than stock, not a performance win, on record and not hidden. Direct-C++ authority is claimed on correctness/representation grounds only; the reviewed dual-arch CPU gate remains open and this specific workload does not clear it.",
+      "status": "exact_direct_cpp_authority"
     },
     {
       "manifest_entry_ids": [
