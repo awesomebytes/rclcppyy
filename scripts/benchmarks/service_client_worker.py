@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prebuild and run dynamic clients for the SetBool client benchmark."""
+"""Prebuild and run dynamic clients for the service client benchmark."""
 
 from __future__ import annotations
 
@@ -19,7 +19,18 @@ PREFIX = "@@RCLCPPYY_SERVICE_CLIENT_V1@@"
 PREWARM_SCHEMA = "rclcppyy.service-client-prewarm/v1"
 CLIENT_SCHEMA = "rclcppyy.service-client-client-event/v1"
 BACKEND_SCHEMA = "rclcppyy.benchmark-backend/v1"
-HEADER = "std_srvs/srv/set_bool.hpp"
+DEFAULT_SERVICE_TYPE = "std_srvs/srv/SetBool"
+SERVICE_TYPES = (DEFAULT_SERVICE_TYPE, "std_srvs/srv/Trigger")
+SERVICE_SPECS = {
+    DEFAULT_SERVICE_TYPE: {
+        "header": "std_srvs/srv/set_bool.hpp",
+        "cpp_type": "std_srvs::srv::SetBool",
+    },
+    "std_srvs/srv/Trigger": {
+        "header": "std_srvs/srv/trigger.hpp",
+        "cpp_type": "std_srvs::srv::Trigger",
+    },
+}
 RSS_LIMIT_BYTES = 64 * 1024 * 1024
 
 
@@ -67,17 +78,42 @@ def _loaded_rmw() -> str:
     return loaded
 
 
-def _response_code(value: bool, success: bool, message: str) -> int:
+def _python_service(service_type: str):
+    from std_srvs import srv
+
+    return getattr(srv, service_type.rsplit("/", 1)[1])
+
+
+def _sequence_value(service_type: str, sequence: int) -> bool:
+    return True if service_type == "std_srvs/srv/Trigger" else sequence % 2 == 1
+
+
+def _make_request(service_type: str, service, value: bool):
+    if service_type == "std_srvs/srv/Trigger":
+        return service.Request()
+    return service.Request(data=value)
+
+
+def _response_code(service_type: str, value: bool, success: bool, message: str) -> int:
+    if service_type == "std_srvs/srv/Trigger":
+        return (100 if success else 0) + len(message)
     return (100 if success else 0) + (10 if value else 0) + len(message)
 
 
-def _validate_response(value: bool, response) -> int:
+def _validate_response(service_type: str, value: bool, response) -> int:
     success = bool(response.success)
     message = str(response.message)
-    expected = "enabled" if value else "disabled"
-    if success != value or message != expected:
-        raise RuntimeError("SetBool response violated the benchmark contract")
-    return _response_code(value, success, message)
+    if service_type == "std_srvs/srv/Trigger":
+        valid = success and message == "triggered"
+    else:
+        valid = success == value and message == ("enabled" if value else "disabled")
+    if not valid:
+        raise RuntimeError("service response violated the benchmark contract")
+    return _response_code(service_type, value, success, message)
+
+
+def _cpp_client_type(service_type: str) -> str:
+    return "rclcpp::Client<%s>" % SERVICE_SPECS[service_type]["cpp_type"]
 
 
 def _artifact(path: str | Path, cached: bool, reason: str) -> dict:
@@ -101,7 +137,7 @@ def _node_options(ros):
     return options
 
 
-def _state_compile() -> tuple[dict, object]:
+def _state_compile(service_type: str = DEFAULT_SERVICE_TYPE) -> tuple[dict, object]:
     import cppyy
     import cppyy_kit
     from ament_index_python.packages import get_package_prefix
@@ -109,7 +145,8 @@ def _state_compile() -> tuple[dict, object]:
 
     cppyy.add_include_path(os.path.join(
         get_package_prefix("std_srvs"), "include", "std_srvs"))
-    cppyy.include(HEADER)
+    spec = SERVICE_SPECS[service_type]
+    cppyy.include(spec["header"])
     declarations = """
 #include <cstdint>
 #include <memory>
@@ -288,12 +325,36 @@ std::shared_ptr<ClientStateMachine> make_client_state_machine(
 }
 """,
     )
+    if service_type == "std_srvs/srv/Trigger":
+        code = code.replace(
+            "#include <std_srvs/srv/set_bool.hpp>",
+            "#include <std_srvs/srv/trigger.hpp>")
+        code = code.replace(
+            "using Service = std_srvs::srv::SetBool;",
+            "using Service = std_srvs::srv::Trigger;")
+        code = code.replace(
+            'found->second[0] == "std_srvs/srv/SetBool"',
+            'found->second[0] == "std_srvs/srv/Trigger"')
+        code = code.replace("    request->data = value;", "    (void)value;")
+        code = code.replace(
+            '      const std::string expected = value ? "enabled" : "disabled";\n'
+            '      if (response->success != value || response->message != expected) {',
+            '      if (!response->success || response->message != "triggered") {')
+        code = code.replace(
+            "        true_measured_ += value ? 1 : 0;",
+            "        ++true_measured_;")
+        code = code.replace(
+            "        response_checksum_ += (response->success ? 100ULL : 0ULL) +\n"
+            "          (value ? 10ULL : 0ULL) + response->message.size();",
+            "        response_checksum_ += (response->success ? 100ULL : 0ULL) +\n"
+            "          response->message.size();")
     cache_root = os.environ.get("XDG_CACHE_HOME") or os.path.join(
         os.path.expanduser("~"), ".cache")
     result = cppyy_kit.cppdef_cached(
         code,
         decls=declarations,
-        name="rclcppyy_service_client_state_machine_v1",
+        name="rclcppyy_service_client_state_machine_%s_v1" % (
+            service_type.rsplit("/", 1)[1].lower()),
         include_paths=tuple(sorted(ros2_include_paths())),
         library_paths=(get_ros2_lib_path(),),
         libraries=("rclcpp", "std_srvs__rosidl_typesupport_cpp"),
@@ -303,17 +364,18 @@ std::shared_ptr<ClientStateMachine> make_client_state_machine(
     return result, factory
 
 
-def _prewarm() -> int:
+def _prewarm(args) -> int:
     from rclcpp_kit.native import native
-    from std_srvs.srv import SetBool
+
+    service = _python_service(args.service_interface)
 
     with native(["service-client-prewarm"]) as ros:
         node = ros.create_node("service_client_prewarm", options=_node_options(ros))
         before = set(Path(os.environ["XDG_CACHE_HOME"]).rglob("*.so"))
         native_client = ros.create_native_client(
-            node, SetBool, "/service_client/prewarm_native")
+            node, service, "/service_client/prewarm_native")
         native_result = dict(native_client.compile_result)
-        state_result, factory = _state_compile()
+        state_result, factory = _state_compile(args.service_interface)
         state = ros.register_resource(factory(
             node, "/service_client/prewarm_state"))
         state.close()
@@ -332,13 +394,14 @@ def _prewarm() -> int:
         "schema": PREWARM_SCHEMA,
         "pid": os.getpid(),
         "loaded_rmw": _loaded_rmw(),
+        "service_type": args.service_interface,
         "native_client_source_id": native_client.source_id,
         "artifacts": artifacts,
     })
     return 0
 
 
-def _stock_marker(client) -> dict:
+def _stock_marker(client, service_type: str) -> dict:
     return {
         "schema": BACKEND_SCHEMA,
         "role": "client",
@@ -347,11 +410,13 @@ def _stock_marker(client) -> dict:
         "metadata": {
             "entity_type": "%s.%s" % (
                 type(client).__module__, type(client).__qualname__),
+            "service_type": service_type,
         },
     }
 
 
-def _status_client_marker(snapshot: dict, service_name: str) -> dict:
+def _status_client_marker(
+        snapshot: dict, service_name: str, service_type: str) -> dict:
     matches = [
         record for record in snapshot["entities"]
         if record["metadata"].get("entity_type") == "client"
@@ -371,16 +436,18 @@ def _status_client_marker(snapshot: dict, service_name: str) -> dict:
             "policies": record["policies"],
             "entity_type": "client",
             "service_name": service_name,
+            "service_type": service_type,
         },
     }
 
 
-def _direct_cpp_client_proof(snapshot: dict, client, node, guards: dict) -> dict:
+def _direct_cpp_client_proof(
+        snapshot: dict, client, node, guards: dict, service_type: str) -> dict:
     from rclcppyy import direct_cpp
 
     runtime = direct_cpp._runtime()
     raw_client_type = str(getattr(type(client._native.raw_client), "__cpp_name__", ""))
-    if raw_client_type != "rclcpp::Client<std_srvs::srv::SetBool>":
+    if raw_client_type != _cpp_client_type(service_type):
         raise RuntimeError("direct_cpp raw client C++ identity is invalid")
     if runtime.nodes != [node] or runtime.session.nodes != (node._direct_cpp_node,):
         raise RuntimeError("direct_cpp native node authority is invalid")
@@ -394,6 +461,8 @@ def _direct_cpp_client_proof(snapshot: dict, client, node, guards: dict) -> dict
         raise RuntimeError("direct_cpp client authority evidence is ambiguous")
     metadata = matches[0]["metadata"]
     expected = {
+        "service_type": SERVICE_SPECS[service_type]["cpp_type"],
+        "service_interface": service_type,
         "request_representation": "actual_cpp",
         "response_representation": "actual_cpp",
         "python_message_conversions": 0,
@@ -454,7 +523,8 @@ def _install_direct_cpp_boundary_guards() -> dict:
     }
 
 
-def _verify_python_graph(node, server_node: str, service_name: str) -> None:
+def _verify_python_graph(
+        node, server_node: str, service_name: str, service_type: str) -> None:
     deadline = time.monotonic() + 15.0
     while time.monotonic() < deadline:
         count = node.count_services(service_name)
@@ -464,7 +534,7 @@ def _verify_python_graph(node, server_node: str, service_name: str) -> None:
                     server_node, "/"))
             except RuntimeError:
                 services = {}
-            if services.get(service_name) == ["std_srvs/srv/SetBool"]:
+            if services.get(service_name) == [service_type]:
                 return
         elif count > 1:
             raise RuntimeError("service graph contains multiple benchmark servers")
@@ -472,7 +542,8 @@ def _verify_python_graph(node, server_node: str, service_name: str) -> None:
     raise RuntimeError("timed out verifying exact service graph")
 
 
-def _verify_native_graph(node, server_node: str, service_name: str) -> None:
+def _verify_native_graph(
+        node, server_node: str, service_name: str, service_type: str) -> None:
     deadline = time.monotonic() + 15.0
     while time.monotonic() < deadline:
         count = int(node.count_services(service_name))
@@ -482,7 +553,7 @@ def _verify_native_graph(node, server_node: str, service_name: str) -> None:
                 types = list(services.at(service_name))
             except Exception:
                 types = []
-            if [str(value) for value in types] == ["std_srvs/srv/SetBool"]:
+            if [str(value) for value in types] == [service_type]:
                 return
         elif count > 1:
             raise RuntimeError("service graph contains multiple benchmark servers")
@@ -510,7 +581,7 @@ def _warmed(args, *, model: str, authority: str, cache: dict, entity_type: str,
         "endpoint_count": 1,
         "server_node": args.server_node,
         "service_name": args.service_name,
-        "service_type": "std_srvs/srv/SetBool",
+        "service_type": args.service_interface,
         "qos_verified": True,
     }
     if marker is not None:
@@ -541,7 +612,7 @@ def _run_python_client(args, activate: bool) -> tuple[dict, dict, bool]:
     from rclpy.executors import SingleThreadedExecutor
     from rclpy.node import Node
     from rclpy.qos import qos_profile_services_default
-    from std_srvs.srv import SetBool
+    service = _python_service(args.service_interface)
 
     context = Context()
     context.init(args=[])
@@ -549,27 +620,29 @@ def _run_python_client(args, activate: bool) -> tuple[dict, dict, bool]:
         args.node_name, context=context, enable_rosout=False,
         start_parameter_services=False)
     client = node.create_client(
-        SetBool, args.service_name, qos_profile=qos_profile_services_default)
+        service, args.service_name, qos_profile=qos_profile_services_default)
     executor = SingleThreadedExecutor(context=context)
     executor.add_node(node)
 
     def call(value: bool) -> int:
-        future = client.call_async(SetBool.Request(data=value))
+        future = client.call_async(_make_request(args.service_interface, service, value))
         executor.spin_until_future_complete(future, timeout_sec=15.0)
         if not future.done() or future.exception() is not None:
             raise RuntimeError("Python client response failed or timed out")
-        return _validate_response(value, future.result())
+        return _validate_response(args.service_interface, value, future.result())
 
     teardown_clean = False
     try:
-        _verify_python_graph(node, args.server_node, args.service_name)
+        _verify_python_graph(
+            node, args.server_node, args.service_name, args.service_interface)
         if not client.wait_for_service(timeout_sec=1.0):
             raise RuntimeError("verified service is not ready")
         for sequence in range(1, args.warmup_requests + 1):
-            call(sequence % 2 == 1)
+            call(_sequence_value(args.service_interface, sequence))
         marker = (
-            _status_client_marker(rclcppyy.status(), client.srv_name)
-            if activate else _stock_marker(client)
+            _status_client_marker(
+                rclcppyy.status(), client.srv_name, args.service_interface)
+            if activate else _stock_marker(client, args.service_interface)
         )
         ready = _warmed(
             args,
@@ -595,7 +668,7 @@ def _run_python_client(args, activate: bool) -> tuple[dict, dict, bool]:
         true_measured = 0
         for offset in range(1, args.messages + 1):
             sequence = args.warmup_requests + offset
-            value = sequence % 2 == 1
+            value = _sequence_value(args.service_interface, sequence)
             started = time.perf_counter_ns()
             checksum += call(value)
             latencies.append(time.perf_counter_ns() - started)
@@ -626,6 +699,7 @@ def _run_python_client(args, activate: bool) -> tuple[dict, dict, bool]:
             "run_token": args.run_token,
             "pid": os.getpid(),
             "process_group_id": os.getpgrp(),
+            "service_type": args.service_interface,
             "messages": args.messages,
             **report,
         })
@@ -649,17 +723,20 @@ def _run_python_client(args, activate: bool) -> tuple[dict, dict, bool]:
 def _run_direct_cpp_client(args) -> tuple[dict, dict, dict]:
     import rclcppyy as active
 
-    active.enable_cpp_acceleration(profile="direct_cpp")
+    active.enable_cpp_acceleration(
+        profile="direct_cpp", interfaces=(args.service_interface,))
     import cppyy
     import rclpy
     from rclpy.node import Node
     from rclpy.qos import qos_profile_services_default
     from rclpy.task import Future
-    from std_srvs.srv import SetBool
+    service = _python_service(args.service_interface)
+    cpp_service = getattr(
+        cppyy.gbl.std_srvs.srv, args.service_interface.rsplit("/", 1)[1])
 
-    if SetBool.Request is not cppyy.gbl.std_srvs.srv.SetBool.Request or (
-            SetBool.Response is not cppyy.gbl.std_srvs.srv.SetBool.Response):
-        raise RuntimeError("direct_cpp did not install actual C++ SetBool values")
+    if service.Request is not cpp_service.Request or (
+            service.Response is not cpp_service.Response):
+        raise RuntimeError("direct_cpp did not install the exact C++ service values")
     guards = _install_direct_cpp_boundary_guards()
     if not all(guards.values()):
         raise RuntimeError("direct_cpp boundary guards were not installed")
@@ -668,21 +745,21 @@ def _run_direct_cpp_client(args) -> tuple[dict, dict, dict]:
     node = Node(args.node_name)
     raw_node = node._direct_cpp_node
     client = node.create_client(
-        SetBool, args.service_name, qos_profile=qos_profile_services_default)
+        service, args.service_name, qos_profile=qos_profile_services_default)
     endpoint_gone = False
 
     def call(value: bool) -> int:
-        request = SetBool.Request(data=value)
+        request = _make_request(args.service_interface, service, value)
         future = client.call_async(request)
         rclpy.spin_until_future_complete(node, future, timeout_sec=15.0)
         if not future.done() or future.exception() is not None:
             raise RuntimeError("direct_cpp client response failed or timed out")
         response = future.result()
-        return _validate_response(value, response)
+        return _validate_response(args.service_interface, value, response)
 
     def verify_call(value: bool) -> int:
-        request = SetBool.Request(data=value)
-        if type(request) is not SetBool.Request:
+        request = _make_request(args.service_interface, service, value)
+        if type(request) is not service.Request:
             raise RuntimeError("direct_cpp request is not the actual C++ value")
         future = client.call_async(request)
         if type(future) is not Future:
@@ -691,17 +768,18 @@ def _run_direct_cpp_client(args) -> tuple[dict, dict, dict]:
         if not future.done() or future.exception() is not None:
             raise RuntimeError("direct_cpp client response failed or timed out")
         response = future.result()
-        if type(response) is not SetBool.Response:
+        if type(response) is not service.Response:
             raise RuntimeError("direct_cpp response is not the actual C++ value")
-        return _validate_response(value, response)
+        return _validate_response(args.service_interface, value, response)
 
     try:
-        _verify_native_graph(raw_node, args.server_node, args.service_name)
+        _verify_native_graph(
+            raw_node, args.server_node, args.service_name, args.service_interface)
         if not client.wait_for_service(timeout_sec=1.0):
             raise RuntimeError("verified direct_cpp service is not ready")
-        verify_call(True)
+        verify_call(_sequence_value(args.service_interface, 1))
         for sequence in range(2, args.warmup_requests + 1):
-            call(sequence % 2 == 1)
+            call(_sequence_value(args.service_interface, sequence))
         baseline = client.stats()
         artifact = _artifact(
             client.compile_result["so"], client.compile_result.get("cached", False),
@@ -716,10 +794,10 @@ def _run_direct_cpp_client(args) -> tuple[dict, dict, dict]:
                 "kind": "native-client",
                 "source_id": client.source_id,
             },
-            entity_type="rclcpp::Client<std_srvs::srv::SetBool>",
+            entity_type=_cpp_client_type(args.service_interface),
         )
         ready["direct_cpp_proof"] = _direct_cpp_client_proof(
-            active.status(), client, node, guards)
+            active.status(), client, node, guards, args.service_interface)
         _emit(ready)
         _wait_control("START")
         rss_baseline = _peak_rss_bytes()
@@ -730,7 +808,7 @@ def _run_direct_cpp_client(args) -> tuple[dict, dict, dict]:
         true_measured = 0
         for offset in range(1, args.messages + 1):
             sequence = args.warmup_requests + offset
-            value = sequence % 2 == 1
+            value = _sequence_value(args.service_interface, sequence)
             started = time.perf_counter_ns()
             checksum += call(value)
             latencies.append(time.perf_counter_ns() - started)
@@ -766,6 +844,7 @@ def _run_direct_cpp_client(args) -> tuple[dict, dict, dict]:
             "run_token": args.run_token,
             "pid": os.getpid(),
             "process_group_id": os.getpgrp(),
+            "service_type": args.service_interface,
             "messages": args.messages,
             **report,
         })
@@ -813,7 +892,8 @@ def _run_direct_cpp_client(args) -> tuple[dict, dict, dict]:
 
 def _run_native_orchestrated(args) -> tuple[dict, dict, bool]:
     from rclcpp_kit.native import native
-    from std_srvs.srv import SetBool
+
+    service = _python_service(args.service_interface)
 
     session = native(["service-client-native-python-orchestrated"])
     endpoint_gone = False
@@ -822,14 +902,16 @@ def _run_native_orchestrated(args) -> tuple[dict, dict, bool]:
         executor = ros.create_executor("single_threaded", threads=1)
         executor.add_node(node)
         thread = ros.start_executor(executor)
-        client = ros.create_native_client(node, SetBool, args.service_name)
-        _verify_native_graph(node, args.server_node, args.service_name)
+        client = ros.create_native_client(node, service, args.service_name)
+        _verify_native_graph(
+            node, args.server_node, args.service_name, args.service_interface)
         if not client.wait_for_service(1.0):
             raise RuntimeError("verified native service is not ready")
 
         def call(value: bool) -> int:
             request = client.make_request()
-            request.data = value
+            if args.service_interface == DEFAULT_SERVICE_TYPE:
+                request.data = value
             token = client.send(request)
             deadline = time.monotonic() + 15.0
             while time.monotonic() < deadline and not client.ready(token):
@@ -837,10 +919,11 @@ def _run_native_orchestrated(args) -> tuple[dict, dict, bool]:
             if not client.ready(token):
                 client.cancel(token)
                 raise RuntimeError("native orchestrated response timed out")
-            return _validate_response(value, client.take(token))
+            return _validate_response(
+                args.service_interface, value, client.take(token))
 
         for sequence in range(1, args.warmup_requests + 1):
-            call(sequence % 2 == 1)
+            call(_sequence_value(args.service_interface, sequence))
         baseline = client.stats()
         artifact = _artifact(
             client.compile_result["so"], client.compile_result.get("cached", False),
@@ -855,7 +938,7 @@ def _run_native_orchestrated(args) -> tuple[dict, dict, bool]:
                 "kind": "native-client",
                 "source_id": client.source_id,
             },
-            entity_type="rclcpp::Client<std_srvs::srv::SetBool>",
+            entity_type=_cpp_client_type(args.service_interface),
         )
         _emit(ready)
         _wait_control("START")
@@ -867,7 +950,7 @@ def _run_native_orchestrated(args) -> tuple[dict, dict, bool]:
         true_measured = 0
         for offset in range(1, args.messages + 1):
             sequence = args.warmup_requests + offset
-            value = sequence % 2 == 1
+            value = _sequence_value(args.service_interface, sequence)
             started = time.perf_counter_ns()
             checksum += call(value)
             latencies.append(time.perf_counter_ns() - started)
@@ -901,6 +984,7 @@ def _run_native_orchestrated(args) -> tuple[dict, dict, bool]:
             "run_token": args.run_token,
             "pid": os.getpid(),
             "process_group_id": os.getpgrp(),
+            "service_type": args.service_interface,
             "messages": args.messages,
             **report,
         })
@@ -923,7 +1007,7 @@ def _run_native_state_machine(args) -> tuple[dict, dict, bool]:
     endpoint_gone = False
     with session as ros:
         node = ros.create_node(args.node_name, options=_node_options(ros))
-        compile_result, factory = _state_compile()
+        compile_result, factory = _state_compile(args.service_interface)
         state = ros.register_resource(factory(node, args.service_name))
         state.verify_graph(args.server_node, args.service_name)
         state.warmup(args.warmup_requests)
@@ -939,7 +1023,7 @@ def _run_native_state_machine(args) -> tuple[dict, dict, bool]:
                 "state": "prebuilt",
                 "kind": "cpp-client-state-machine",
             },
-            entity_type="rclcpp::Client<std_srvs::srv::SetBool>",
+            entity_type=_cpp_client_type(args.service_interface),
         )
         _emit(ready)
         _wait_control("START")
@@ -969,6 +1053,7 @@ def _run_native_state_machine(args) -> tuple[dict, dict, bool]:
             "run_token": args.run_token,
             "pid": os.getpid(),
             "process_group_id": os.getpgrp(),
+            "service_type": args.service_interface,
             "messages": args.messages,
             **report,
         })
@@ -1008,6 +1093,7 @@ def _run_client(args) -> int:
         "run_token": args.run_token,
         "pid": os.getpid(),
         "process_group_id": os.getpgrp(),
+        "service_type": args.service_interface,
         "endpoint_disappeared": teardown,
         "teardown_clean": teardown,
     }
@@ -1020,6 +1106,9 @@ def _run_client(args) -> int:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--prewarm", action="store_true")
+    parser.add_argument(
+        "--service-interface", choices=SERVICE_TYPES,
+        default=DEFAULT_SERVICE_TYPE)
     parser.add_argument("--variant", choices=(
         "stock-rclpy", "compatible-rclcppyy", "direct-cpp-rclcppyy",
         "native-python-orchestrated", "native-cpp-state-machine"))
@@ -1037,7 +1126,7 @@ def main() -> int:
     parser = _parser()
     args = parser.parse_args()
     if args.prewarm:
-        return _prewarm()
+        return _prewarm(args)
     required = (
         "variant", "service_name", "node_name", "server_node",
         "warmup_requests", "messages", "run_token")

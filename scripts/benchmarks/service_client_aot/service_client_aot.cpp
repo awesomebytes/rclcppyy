@@ -1,6 +1,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rmw/rmw.h>
 #include <std_srvs/srv/set_bool.hpp>
+#include <std_srvs/srv/trigger.hpp>
 
 #include <atomic>
 #include <cerrno>
@@ -21,7 +22,17 @@
 
 namespace {
 
+#ifdef RCLCPPYY_BENCHMARK_TRIGGER
+using Service = std_srvs::srv::Trigger;
+constexpr const char * kServiceType = "std_srvs/srv/Trigger";
+constexpr const char * kCppServiceType = "std_srvs::srv::Trigger";
+constexpr const char * kServerModel = "common-release-aot-trigger-server";
+#else
 using Service = std_srvs::srv::SetBool;
+constexpr const char * kServiceType = "std_srvs/srv/SetBool";
+constexpr const char * kCppServiceType = "std_srvs::srv::SetBool";
+constexpr const char * kServerModel = "common-release-aot-setbool-server";
+#endif
 constexpr const char * kPrefix = "@@RCLCPPYY_SERVICE_CLIENT_V1@@";
 constexpr std::uint64_t kRssLimitBytes = 64ULL * 1024ULL * 1024ULL;
 
@@ -114,16 +125,38 @@ rclcpp::NodeOptions node_options()
 
 std::uint64_t response_code(bool request, const Service::Response & response)
 {
+#ifdef RCLCPPYY_BENCHMARK_TRIGGER
+  (void)request;
+  return (response.success ? 100ULL : 0ULL) + response.message.size();
+#else
   return (response.success ? 100ULL : 0ULL) +
          (request ? 10ULL : 0ULL) + response.message.size();
+#endif
 }
 
 void validate_response(bool request, const Service::Response & response)
 {
+#ifdef RCLCPPYY_BENCHMARK_TRIGGER
+  (void)request;
+  if (!response.success || response.message != "triggered") {
+    throw std::runtime_error("Trigger response violated the benchmark contract");
+  }
+#else
   const std::string expected = request ? "enabled" : "disabled";
   if (response.success != request || response.message != expected) {
     throw std::runtime_error("SetBool response violated the benchmark contract");
   }
+#endif
+}
+
+bool sequence_value(std::uint64_t sequence)
+{
+#ifdef RCLCPPYY_BENCHMARK_TRIGGER
+  (void)sequence;
+  return true;
+#else
+  return sequence % 2 == 1;
+#endif
 }
 
 class ExecutorSpin final {
@@ -171,14 +204,22 @@ public:
       [this](
         const std::shared_ptr<Service::Request> request,
         std::shared_ptr<Service::Response> response) {
+#ifdef RCLCPPYY_BENCHMARK_TRIGGER
+        (void)request;
+        constexpr bool value = true;
+        response->success = true;
+        response->message = "triggered";
+#else
+        const bool value = request->data;
         response->success = request->data;
         response->message = request->data ? "enabled" : "disabled";
+#endif
         total_.fetch_add(1, std::memory_order_relaxed);
-        true_total_.fetch_add(request->data ? 1 : 0, std::memory_order_relaxed);
+        true_total_.fetch_add(value ? 1 : 0, std::memory_order_relaxed);
         if (armed_.load(std::memory_order_acquire)) {
           measured_.fetch_add(1, std::memory_order_relaxed);
-          true_measured_.fetch_add(request->data ? 1 : 0, std::memory_order_relaxed);
-          checksum_.fetch_add(response_code(request->data, *response), std::memory_order_relaxed);
+          true_measured_.fetch_add(value ? 1 : 0, std::memory_order_relaxed);
+          checksum_.fetch_add(response_code(value, *response), std::memory_order_relaxed);
         }
       },
       service_qos());
@@ -203,14 +244,18 @@ private:
 
 int run_server(int argc, char ** argv)
 {
-  if (argc != 7) {
-    throw std::invalid_argument("server usage: server SERVICE NODE WARMUP MESSAGES TOKEN");
+  if (argc != 8) {
+    throw std::invalid_argument(
+            "server usage: server SERVICE NODE WARMUP MESSAGES TOKEN INTERFACE");
   }
   const std::string service_name(argv[2]);
   const std::string node_name(argv[3]);
   const auto warmup = parse_uint64(argv[4], "warmup");
   const auto messages = parse_uint64(argv[5], "messages");
   const std::string token(argv[6]);
+  if (std::string(argv[7]) != kServiceType) {
+    throw std::invalid_argument("server interface differs from compiled service type");
+  }
   auto server = std::make_shared<CommonServer>(node_name, service_name);
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(server);
@@ -220,10 +265,9 @@ int run_server(int argc, char ** argv)
             << "\"event\":\"ready\",\"run_token\":" << quote(token) << ","
             << "\"pid\":" << getpid() << ",\"process_group_id\":" << getpgrp() << ","
             << "\"node_name\":" << quote(node_name) << ",\"loaded_rmw\":"
-            << quote(loaded_rmw()) << ",\"execution_model\":"
-            << "\"common-release-aot-setbool-server\","
+            << quote(loaded_rmw()) << ",\"execution_model\":" << quote(kServerModel) << ","
             << "\"service_name\":" << quote(service_name) << ","
-            << "\"service_type\":\"std_srvs/srv/SetBool\"}" << std::endl;
+            << "\"service_type\":" << quote(kServiceType) << "}" << std::endl;
 
   std::string command;
   if (!std::getline(std::cin, command) || command != "START") {
@@ -240,7 +284,8 @@ int run_server(int argc, char ** argv)
             << "\"event\":\"armed\",\"run_token\":" << quote(token) << ","
             << "\"pid\":" << getpid() << ",\"process_group_id\":" << getpgrp() << ","
             << "\"warmup_requests\":" << warmup << ","
-            << "\"cpu_clock\":\"CLOCK_PROCESS_CPUTIME_ID\"}" << std::endl;
+            << "\"cpu_clock\":\"CLOCK_PROCESS_CPUTIME_ID\",\"service_type\":"
+            << quote(kServiceType) << "}" << std::endl;
   if (!std::getline(std::cin, command) || command != "REPORT") {
     throw std::runtime_error("server expected REPORT control");
   }
@@ -259,6 +304,7 @@ int run_server(int argc, char ** argv)
   std::cout << kPrefix
             << "{\"schema\":\"rclcppyy.service-client-server-event/v1\","
             << "\"event\":\"report\",\"run_token\":" << quote(token) << ","
+            << "\"service_type\":" << quote(kServiceType) << ","
             << "\"warmup_requests\":" << warmup << ",\"total_requests\":" << total << ","
             << "\"measured_requests\":" << measured << ",\"true_total\":"
             << true_total << ",\"true_measured\":" << true_measured << ","
@@ -276,7 +322,9 @@ std::shared_ptr<Service::Response> call_once(
   bool value)
 {
   auto request = std::make_shared<Service::Request>();
+#ifndef RCLCPPYY_BENCHMARK_TRIGGER
   request->data = value;
+#endif
   auto future = client->async_send_request(request);
   if (rclcpp::spin_until_future_complete(node, future, std::chrono::seconds(15)) !=
     rclcpp::FutureReturnCode::SUCCESS)
@@ -300,7 +348,7 @@ void verify_server_graph(
         const auto services = node->get_service_names_and_types_by_node(server_name, "/");
         const auto found = services.find(service_name);
         if (found != services.end() && found->second.size() == 1 &&
-          found->second[0] == "std_srvs/srv/SetBool")
+          found->second[0] == kServiceType)
         {
           return;
         }
@@ -316,9 +364,9 @@ void verify_server_graph(
 
 int run_client(int argc, char ** argv)
 {
-  if (argc != 8) {
+  if (argc != 9) {
     throw std::invalid_argument(
-            "client usage: client SERVICE CLIENT_NODE SERVER_NODE WARMUP MESSAGES TOKEN");
+            "client usage: client SERVICE CLIENT_NODE SERVER_NODE WARMUP MESSAGES TOKEN INTERFACE");
   }
   const std::string service_name(argv[2]);
   const std::string client_name(argv[3]);
@@ -326,11 +374,14 @@ int run_client(int argc, char ** argv)
   const auto warmup = parse_uint64(argv[5], "warmup");
   const auto messages = parse_uint64(argv[6], "messages");
   const std::string token(argv[7]);
+  if (std::string(argv[8]) != kServiceType) {
+    throw std::invalid_argument("client interface differs from compiled service type");
+  }
   auto node = std::make_shared<rclcpp::Node>(client_name, node_options());
   auto client = node->create_client<Service>(service_name, service_qos());
   verify_server_graph(node, server_name, service_name);
   for (std::uint64_t sequence = 1; sequence <= warmup; ++sequence) {
-    call_once(node, client, sequence % 2 == 1);
+    call_once(node, client, sequence_value(sequence));
   }
   std::cout << kPrefix
             << "{\"schema\":\"rclcppyy.service-client-client-event/v1\","
@@ -341,11 +392,11 @@ int run_client(int argc, char ** argv)
             << "\"execution_model\":\"conventional-release-aot-client\","
             << "\"client_authority\":\"cpp\","
             << "\"cache\":{\"state\":\"prebuilt\",\"kind\":\"aot-binary\"},"
-            << "\"entity_type\":\"rclcpp::Client<std_srvs::srv::SetBool>\","
+            << "\"entity_type\":\"rclcpp::Client<" << kCppServiceType << ">\","
             << "\"warmup_requests\":" << warmup << ",\"topology_verified\":true,"
             << "\"endpoint_count\":1,\"server_node\":" << quote(server_name) << ","
             << "\"service_name\":" << quote(service_name) << ","
-            << "\"service_type\":\"std_srvs/srv/SetBool\",\"qos_verified\":true}" << std::endl;
+            << "\"service_type\":" << quote(kServiceType) << ",\"qos_verified\":true}" << std::endl;
 
   std::string command;
   if (!std::getline(std::cin, command) || command != "START") {
@@ -360,7 +411,7 @@ int run_client(int argc, char ** argv)
   const auto wall_start = std::chrono::steady_clock::now();
   for (std::uint64_t offset = 1; offset <= messages; ++offset) {
     const auto sequence = warmup + offset;
-    const bool value = sequence % 2 == 1;
+    const bool value = sequence_value(sequence);
     const auto started = std::chrono::steady_clock::now();
     const auto response = call_once(node, client, value);
     const auto stopped = std::chrono::steady_clock::now();
@@ -378,6 +429,7 @@ int run_client(int argc, char ** argv)
             << "{\"schema\":\"rclcppyy.service-client-client-event/v1\","
             << "\"event\":\"measured\",\"variant\":\"aot-staged\","
             << "\"run_token\":" << quote(token) << ",\"pid\":" << getpid() << ","
+            << "\"service_type\":" << quote(kServiceType) << ","
             << "\"process_group_id\":" << getpgrp() << ",\"messages\":" << messages << ","
             << "\"total_requests\":" << (warmup + messages) << ","
             << "\"true_measured\":" << true_requests << ",\"response_checksum\":"
@@ -417,6 +469,7 @@ int run_client(int argc, char ** argv)
             << "\"event\":\"teardown\",\"variant\":\"aot-staged\","
             << "\"run_token\":" << quote(token) << ",\"pid\":" << getpid() << ","
             << "\"process_group_id\":" << getpgrp() << ","
+            << "\"service_type\":" << quote(kServiceType) << ","
             << "\"endpoint_disappeared\":true,\"teardown_clean\":true}" << std::endl;
   return 0;
 }

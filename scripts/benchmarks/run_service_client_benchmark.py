@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the controlled Jazzy/Cyclone SetBool client benchmark."""
+"""Run the controlled Jazzy/Cyclone service client benchmark."""
 
 from __future__ import annotations
 
@@ -22,8 +22,10 @@ import psutil
 from _domain_lease import acquire_domain
 from _service_client_protocol import (
     CLIENT_SCHEMA,
+    DEFAULT_SERVICE_TYPE,
     QOS,
     SAMPLE_SCHEMA,
+    SERVICE_TYPES,
     VARIANTS,
     build_document,
     dumps,
@@ -109,7 +111,9 @@ def _compiler_version(compiler: str, env: dict) -> str:
     return output.splitlines()[0]
 
 
-def _compile_aot(build_directory: Path, env: dict, timeout: float) -> tuple[Path, dict]:
+def _compile_aot(
+        build_directory: Path, env: dict, timeout: float,
+        service_type: str = DEFAULT_SERVICE_TYPE) -> tuple[Path, dict]:
     cmake = shutil.which("cmake")
     if cmake is None:
         raise RuntimeError("cmake is required for the service client AOT reference")
@@ -120,6 +124,7 @@ def _compile_aot(build_directory: Path, env: dict, timeout: float) -> tuple[Path
         "-G", "Ninja",
         "-DCMAKE_BUILD_TYPE=Release",
         "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+        "-DRCLCPPYY_SERVICE_INTERFACE=" + service_type,
     ]
     if env.get("CONDA_PREFIX"):
         configure.append("-DCMAKE_PREFIX_PATH=" + env["CONDA_PREFIX"])
@@ -180,10 +185,15 @@ def _one_protocol_line(stdout: str, label: str) -> tuple[dict, list[str]]:
     return document, [line for line in lines if not line.startswith(PROTOCOL_PREFIX)]
 
 
-def _prewarm(cache_root: Path, env: dict, timeout: float) -> dict:
+def _prewarm(
+        cache_root: Path, env: dict, timeout: float,
+        service_type: str = DEFAULT_SERVICE_TYPE) -> dict:
     if cache_root.exists() and any(cache_root.iterdir()):
         raise RuntimeError("service client cache root must start empty")
-    command = [sys.executable, "-u", str(WORKER), "--prewarm"]
+    command = [
+        sys.executable, "-u", str(WORKER), "--prewarm",
+        "--service-interface", service_type,
+    ]
     cold, cold_diagnostics = _one_protocol_line(
         _run_command(command, env=env, timeout=timeout, label="cold client prewarm"),
         "cold client prewarm",
@@ -194,8 +204,8 @@ def _prewarm(cache_root: Path, env: dict, timeout: float) -> dict:
     )
     cold["stdout_diagnostics"] = cold_diagnostics
     warm["stdout_diagnostics"] = warm_diagnostics
-    validate_prewarm(cold, expect_hits=False)
-    validate_prewarm(warm, expect_hits=True)
+    validate_prewarm(cold, expect_hits=False, service_type=service_type)
+    validate_prewarm(warm, expect_hits=True, service_type=service_type)
     return {
         "isolated_root": True,
         "autopch_disabled": True,
@@ -301,7 +311,8 @@ def _write_control(process: subprocess.Popen, command: str, label: str) -> None:
 
 
 def _validate_armed_before_measurement(
-        armed: dict, *, token: str, server_pid: int, warmup: int) -> None:
+        armed: dict, *, token: str, server_pid: int, warmup: int,
+        service_type: str = DEFAULT_SERVICE_TYPE) -> None:
     expected = {
         "schema": "rclcppyy.service-client-server-event/v1",
         "event": "armed",
@@ -310,31 +321,37 @@ def _validate_armed_before_measurement(
         "process_group_id": server_pid,
         "warmup_requests": warmup,
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
+        "service_type": service_type,
     }
-    if armed != expected:
+    actual = dict(armed)
+    actual.setdefault("service_type", DEFAULT_SERVICE_TYPE)
+    if actual != expected:
         raise RuntimeError("common server emitted invalid armed evidence")
 
 
 def _server_argv(
         executable: Path, service_name: str, server_node: str,
-        warmup: int, messages: int, token: str) -> list[str]:
+        warmup: int, messages: int, token: str,
+        service_type: str = DEFAULT_SERVICE_TYPE) -> list[str]:
     return [
         str(executable), "server", service_name, server_node,
-        str(warmup), str(messages), token,
+        str(warmup), str(messages), token, service_type,
     ]
 
 
 def _client_argv(
         variant: str, executable: Path, service_name: str, client_node: str,
-        server_node: str, warmup: int, messages: int, token: str) -> list[str]:
+        server_node: str, warmup: int, messages: int, token: str,
+        service_type: str = DEFAULT_SERVICE_TYPE) -> list[str]:
     if variant == "aot-staged":
         return [
             str(executable), "client", service_name, client_node, server_node,
-            str(warmup), str(messages), token,
+            str(warmup), str(messages), token, service_type,
         ]
     return [
         sys.executable, "-u", str(WORKER),
         "--variant", variant,
+        "--service-interface", service_type,
         "--service-name", service_name,
         "--node-name", client_node,
         "--server-node", server_node,
@@ -360,7 +377,8 @@ def _spawn(argv: list[str], env: dict) -> subprocess.Popen:
 def _run_sample(
         *, variant: str, repetition: int, executable: Path, build: dict,
         cache: dict, warmup: int, messages: int, domain_id: int,
-        requested_rmw: str, env: dict, timeout: float) -> dict:
+        requested_rmw: str, env: dict, timeout: float,
+        service_type: str = DEFAULT_SERVICE_TYPE) -> dict:
     token = "run_" + uuid.uuid4().hex
     suffix = token[4:16]
     service_name = "/rclcppyy_service_client/" + token
@@ -370,7 +388,8 @@ def _run_sample(
     client = None
     try:
         server = _spawn(_server_argv(
-            executable, service_name, server_node, warmup, messages, token), env)
+            executable, service_name, server_node, warmup, messages, token,
+            service_type), env)
         server_ready, server_ready_diagnostics = _read_document(
             server, timeout, "common AOT server readiness")
         if server_ready.get("pid") != server.pid or server_ready.get(
@@ -379,7 +398,7 @@ def _run_sample(
 
         client = _spawn(_client_argv(
             variant, executable, service_name, client_node, server_node,
-            warmup, messages, token), env)
+            warmup, messages, token, service_type), env)
         warmed, client_warm_diagnostics = _read_document(
             client, timeout, "%s client warmup" % variant)
         if warmed.get("schema") != CLIENT_SCHEMA or warmed.get("event") != "warmed":
@@ -400,7 +419,8 @@ def _run_sample(
         armed, server_armed_diagnostics = _read_document(
             server, timeout, "common AOT server armed")
         _validate_armed_before_measurement(
-            armed, token=token, server_pid=server.pid, warmup=warmup)
+            armed, token=token, server_pid=server.pid, warmup=warmup,
+            service_type=service_type)
         _write_control(client, "START", "%s client" % variant)
         client_report, client_report_diagnostics = _read_document(
             client, timeout, "%s client measured result" % variant,
@@ -435,6 +455,7 @@ def _run_sample(
             "run_token": token,
             "ros_domain_id": domain_id,
             "requested_rmw": requested_rmw,
+            "service_type": service_type,
             "qos": dict(QOS),
             "server_pid": server.pid,
             "client_pid": client.pid,
@@ -468,6 +489,7 @@ def _run_sample(
         }
         validate_sample(sample, {
             "requested_rmw": requested_rmw,
+            "service_type": service_type,
             "qos": QOS,
             "warmup_requests": warmup,
             "messages": messages,
@@ -475,7 +497,8 @@ def _run_sample(
         return sample
     except Exception as exc:
         diagnostics = None
-        if client is not None and variant != "aot-staged":
+        if client is not None and variant != "aot-staged" and client.stderr is not None and (
+                not client.stderr.closed):
             diagnostics = _drain_stderr_after_stack_request(client)
         if diagnostics:
             raise RuntimeError(
@@ -524,6 +547,9 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--variants", help="comma-separated client variants")
+    parser.add_argument(
+        "--service-interface", choices=SERVICE_TYPES,
+        default=DEFAULT_SERVICE_TYPE)
     parser.add_argument("--messages", type=int)
     parser.add_argument("--warmup-requests", type=int)
     parser.add_argument("--repetitions", type=int)
@@ -573,8 +599,10 @@ def main() -> int:
         build_directory.mkdir(mode=0o700)
         cache_root.mkdir(mode=0o700)
         environment["XDG_CACHE_HOME"] = str(cache_root)
-        executable, aot_build = _compile_aot(build_directory, environment, args.timeout)
-        cache = _prewarm(cache_root, environment, args.timeout)
+        executable, aot_build = _compile_aot(
+            build_directory, environment, args.timeout, args.service_interface)
+        cache = _prewarm(
+            cache_root, environment, args.timeout, args.service_interface)
         with acquire_domain() as lease:
             environment["ROS_DOMAIN_ID"] = str(lease.domain_id)
             for repetition in range(1, repetitions + 1):
@@ -595,12 +623,14 @@ def main() -> int:
                             requested_rmw=requested_rmw,
                             env=environment,
                             timeout=args.timeout,
+                            service_type=args.service_interface,
                         ))
                     except (OSError, psutil.Error, RuntimeError, ValueError) as exc:
                         failure = {
                             "case_id": "%s__rep_%d" % (variant, repetition),
                             "variant": variant,
                             "repetition": repetition,
+                            "service_type": args.service_interface,
                             "error": str(exc),
                         }
                         if isinstance(exc, ProtocolTimeout) and exc.stderr:
@@ -612,6 +642,7 @@ def main() -> int:
                 "warmup_requests": warmup,
                 "repetitions": repetitions,
                 "requested_rmw": requested_rmw,
+                "service_type": args.service_interface,
                 "qos": dict(QOS),
                 "execution_order": execution_order,
             }

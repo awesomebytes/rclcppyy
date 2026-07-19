@@ -1,9 +1,11 @@
 # Controlled service-client benchmark
 
-This benchmark characterizes client-side CPU cost for one fixed
-`std_srvs/srv/SetBool` service across six execution boundaries. It is a raw
-evidence generator, not a release gate or a source of performance claims. ROS 2
-Jazzy with CycloneDDS is the only accepted environment for this v1 protocol.
+This benchmark characterizes client-side CPU cost for a selected
+`std_srvs/srv/SetBool` or `std_srvs/srv/Trigger` service across six execution
+boundaries. SetBool remains the default for command and artifact compatibility.
+It is a raw evidence generator, not a release gate or a source of performance
+claims. ROS 2 Jazzy with CycloneDDS is the only accepted environment for this
+v1 protocol.
 
 ## Variants
 
@@ -12,7 +14,7 @@ Jazzy with CycloneDDS is the only accepted environment for this v1 protocol.
    activation as the only setup difference. The client remains a
    Python-authoritative `rclpy.client.Client`.
 3. `direct-cpp-rclcppyy`: the production `direct_cpp` client behind the usual
-   `Node.create_client()`, `SetBool.Request(...)`, `call_async()`, and
+   `Node.create_client()`, generated `Request(...)`, `call_async()`, and
    `rclpy.spin_until_future_complete()` call shape. The node and client are C++
    authoritative, Request and Response are the actual generated C++ types, and
    each operation returns an actual `rclpy.task.Future`. There is one Python
@@ -20,7 +22,7 @@ Jazzy with CycloneDDS is the only accepted environment for this v1 protocol.
    copy of the request, and no Python message conversion.
 4. `native-python-orchestrated`: the existing managed native client with Python
    orchestrating each request. It allocates and submits the direct shared C++
-   `SetBool::Request`; no Python message conversion occurs. Exact managed-client
+   C++ `Request`; no Python message conversion occurs. Exact managed-client
    counters record one Python request and response crossing per call.
 5. `native-cpp-state-machine`: a benchmark-private, content-addressed C++ client
    that owns graph verification, requests, waits, validation, and timing for the
@@ -29,16 +31,19 @@ Jazzy with CycloneDDS is the only accepted environment for this v1 protocol.
 6. `aot-staged`: a conventional Release-mode C++ client.
 
 Every client talks to the same staged Release AOT C++ server. The service
-contract is exact: response `success` equals request `data`, and `message` is
-`enabled` or `disabled`. All lanes use reliable/volatile `KeepLast(10)` service
-QoS, alternating boolean input, and one outstanding request at a time.
+contract is exact. SetBool alternates `data` and returns matching `success` with
+`enabled` or `disabled`. Trigger sends an empty request and returns
+`success=true` with `message="triggered"`. All lanes use reliable/volatile
+`KeepLast(10)` service QoS and one outstanding request at a time.
 
 ## Measurement boundary
 
 Each sample leases one ROS domain and creates a fresh server/client process
 pair, fresh process groups, unique node names, and a unique service name. The
-client proves that exactly one `std_srvs/srv/SetBool` endpoint belongs to the
-expected server node before completing warmup. The measured barrier is:
+client proves that exactly one endpoint of the selected exact service type
+belongs to the expected server node before completing warmup. Every prewarm,
+server, client, sample, and failure record carries the canonical service type.
+The measured barrier is:
 
 1. common server readiness;
 2. exact client discovery, type/owner/cardinality proof, and client warmup;
@@ -95,6 +100,11 @@ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
 RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
   pixi run service-client-bench \
   --output build/service-client-measurement.json
+
+RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
+  pixi run service-client-bench \
+  --service-interface std_srvs/srv/Trigger \
+  --output build/service-client-trigger.json
 ```
 
 Smoke mode uses a short workload to validate compilation, authority markers,

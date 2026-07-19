@@ -1,4 +1,4 @@
-"""Contract and live smoke coverage for the SetBool client benchmark."""
+"""Contract and live smoke coverage for the service client benchmark."""
 
 from __future__ import annotations
 
@@ -32,6 +32,8 @@ DIGEST = "a" * 64
 RMW = "rmw_cyclonedds_cpp"
 MESSAGES = 4
 WARMUP = 2
+SET_BOOL = "std_srvs/srv/SetBool"
+TRIGGER = "std_srvs/srv/Trigger"
 
 
 def _artifact(*, cached):
@@ -44,12 +46,13 @@ def _artifact(*, cached):
     }
 
 
-def _cache():
+def _cache(service_type=SET_BOOL):
     def phase(cached):
         return {
             "schema": protocol.PREWARM_SCHEMA,
             "pid": 42 if not cached else 43,
             "loaded_rmw": RMW,
+            "service_type": service_type,
             "native_client_source_id": "1" * 16,
             "artifacts": {
                 "native_client": _artifact(cached=cached),
@@ -98,17 +101,17 @@ def _rss_guard():
     }
 
 
-def _backend_marker(evidence):
+def _backend_marker(evidence, service_type=SET_BOOL):
     return {
         "schema": "rclcppyy.benchmark-backend/v1",
         "role": "client",
         "backend": "python",
         "evidence": evidence,
-        "metadata": {"fixture": True},
+        "metadata": {"fixture": True, "service_type": service_type},
     }
 
 
-def _sample(variant, index=0):
+def _sample(variant, index=0, service_type=SET_BOOL):
     token = "run_" + format(index + 1, "032x")
     server_pid = 3000 + index * 2
     client_pid = server_pid + 1
@@ -116,6 +119,8 @@ def _sample(variant, index=0):
     client_node = "service_client_%d" % index
     service_name = "/fixture/" + token
     spec = protocol.VARIANTS[variant]
+    service_spec = protocol.SERVICE_SPECS[service_type]
+    entity_type = "rclcpp::Client<%s>" % service_spec["cpp_type"]
     server_ready = {
         "schema": protocol.SERVER_SCHEMA,
         "event": "ready",
@@ -124,9 +129,9 @@ def _sample(variant, index=0):
         "process_group_id": server_pid,
         "node_name": server_node,
         "loaded_rmw": RMW,
-        "execution_model": "common-release-aot-setbool-server",
+        "execution_model": service_spec["server_model"],
         "service_name": service_name,
-        "service_type": "std_srvs/srv/SetBool",
+        "service_type": service_type,
     }
     warmed = {
         "schema": protocol.CLIENT_SCHEMA,
@@ -144,36 +149,36 @@ def _sample(variant, index=0):
         "endpoint_count": 1,
         "server_node": server_node,
         "service_name": service_name,
-        "service_type": "std_srvs/srv/SetBool",
+        "service_type": service_type,
         "qos_verified": True,
     }
     if variant == "aot-staged":
         warmed["cache"] = {"state": "prebuilt", "kind": "aot-binary"}
-        warmed["entity_type"] = "rclcpp::Client<std_srvs::srv::SetBool>"
+        warmed["entity_type"] = entity_type
     elif variant in ("stock-rclpy", "compatible-rclcppyy"):
         warmed["cache"] = {"state": "not_applicable", "kind": spec["cache"]}
         warmed["entity_type"] = "rclpy.client.Client"
         warmed["backend_marker"] = _backend_marker(
             "stock_rclpy_entity" if variant == "stock-rclpy"
-            else "rclcppyy_status_entity")
+            else "rclcppyy_status_entity", service_type)
     else:
         artifact_name = (
             "native_client"
             if variant in ("direct-cpp-rclcppyy", "native-python-orchestrated")
             else "cpp_state_machine")
         warmed["cache"] = {
-            **_cache()["phases"]["warm"]["artifacts"][artifact_name],
+            **_cache(service_type)["phases"]["warm"]["artifacts"][artifact_name],
             "state": "prebuilt",
             "kind": spec["cache"],
         }
-        warmed["entity_type"] = "rclcpp::Client<std_srvs::srv::SetBool>"
+        warmed["entity_type"] = entity_type
         if variant == "direct-cpp-rclcppyy":
             warmed["cache"]["source_id"] = "1" * 16
             warmed["direct_cpp_proof"] = {
                 "profile": "direct_cpp",
                 "node_authority": "cpp",
                 "client_authority": "cpp",
-                "client_entity_type": "rclcpp::Client<std_srvs::srv::SetBool>",
+                "client_entity_type": entity_type,
                 "runtime_facade_node_count": 1,
                 "native_session_node_count": 1,
                 "native_node_identity_verified": True,
@@ -200,7 +205,8 @@ def _sample(variant, index=0):
                     "metadata": {
                         "entity_type": "client",
                         "service_name": service_name,
-                        "service_type": "std_srvs::srv::SetBool",
+                        "service_type": service_spec["cpp_type"],
+                        "service_interface": service_type,
                         "request_representation": "actual_cpp",
                         "response_representation": "actual_cpp",
                         "python_message_conversions": 0,
@@ -224,10 +230,12 @@ def _sample(variant, index=0):
         "run_token": token,
         "pid": client_pid,
         "process_group_id": client_pid,
+        "service_type": service_type,
         "messages": MESSAGES,
         "total_requests": total,
-        "true_measured": protocol.true_requests(WARMUP + 1, MESSAGES),
-        "response_checksum": protocol.response_checksum(WARMUP + 1, MESSAGES),
+        "true_measured": protocol.true_requests(WARMUP + 1, MESSAGES, service_type),
+        "response_checksum": protocol.response_checksum(
+            WARMUP + 1, MESSAGES, service_type),
         "python_orchestration_requests_measured": spec["orchestration"] * MESSAGES,
         "python_request_crossings_measured": spec["request_crossing"] * MESSAGES,
         "python_response_crossings_measured": spec["response_crossing"] * MESSAGES,
@@ -246,12 +254,14 @@ def _sample(variant, index=0):
         "schema": protocol.SERVER_SCHEMA,
         "event": "report",
         "run_token": token,
+        "service_type": service_type,
         "warmup_requests": WARMUP,
         "total_requests": total,
         "measured_requests": MESSAGES,
-        "true_total": protocol.true_requests(1, total),
-        "true_measured": protocol.true_requests(WARMUP + 1, MESSAGES),
-        "response_checksum": protocol.response_checksum(WARMUP + 1, MESSAGES),
+        "true_total": protocol.true_requests(1, total, service_type),
+        "true_measured": protocol.true_requests(WARMUP + 1, MESSAGES, service_type),
+        "response_checksum": protocol.response_checksum(
+            WARMUP + 1, MESSAGES, service_type),
         "exceptions": 0,
         "pending_requests": 0,
         "cpu_time_ns": 800,
@@ -268,6 +278,7 @@ def _sample(variant, index=0):
         "run_token": token,
         "ros_domain_id": 77,
         "requested_rmw": RMW,
+        "service_type": service_type,
         "qos": dict(protocol.QOS),
         "server_pid": server_pid,
         "client_pid": client_pid,
@@ -288,6 +299,7 @@ def _sample(variant, index=0):
             "process_group_id": server_pid,
             "warmup_requests": WARMUP,
             "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
+            "service_type": service_type,
         },
         "client_report": client_report,
         "server_report": server_report,
@@ -298,6 +310,7 @@ def _sample(variant, index=0):
             "run_token": token,
             "pid": client_pid,
             "process_group_id": client_pid,
+            "service_type": service_type,
             "endpoint_disappeared": True,
             "teardown_clean": True,
         },
@@ -329,22 +342,25 @@ def _sample(variant, index=0):
     return sample
 
 
-def _parameters():
+def _parameters(service_type=SET_BOOL):
     return {
         "variants": list(protocol.VARIANTS),
         "messages": MESSAGES,
         "warmup_requests": WARMUP,
         "repetitions": 1,
         "requested_rmw": RMW,
+        "service_type": service_type,
         "qos": dict(protocol.QOS),
         "execution_order": ["fixture"],
     }
 
 
+@pytest.mark.parametrize("service_type", protocol.SERVICE_TYPES)
 @pytest.mark.parametrize("variant", protocol.VARIANTS)
-def test_each_client_variant_satisfies_the_strict_contract(variant):
+def test_each_client_variant_satisfies_the_strict_contract(variant, service_type):
     protocol.validate_sample(
-        _sample(variant), _parameters(), _build(), _cache())
+        _sample(variant, service_type=service_type),
+        _parameters(service_type), _build(), _cache(service_type))
 
 
 @pytest.mark.parametrize(
@@ -446,13 +462,15 @@ def test_direct_cpp_lane_uses_the_production_client_and_future_path():
     source = inspect.getsource(worker._run_direct_cpp_client)
     measured_call = source.split("    def call(value: bool)", 1)[1].split(
         "    def verify_call(value: bool)", 1)[0]
-    assert 'active.enable_cpp_acceleration(profile="direct_cpp")' in source
-    assert "SetBool.Request(data=value)" in source
-    assert "type(request) is not SetBool.Request" in source
+    assert 'profile="direct_cpp", interfaces=(args.service_interface,)' in source
+    assert "cppyy.gbl.std_srvs.srv" in source
+    assert "service.Request is not cpp_service.Request" in source
+    assert "service.Response is not cpp_service.Response" in source
+    assert "type(request) is not service.Request" in source
     assert "client.call_async(request)" in source
     assert "type(future) is not Future" in source
     assert "rclpy.spin_until_future_complete(node, future" in source
-    assert "type(response) is not SetBool.Response" in source
+    assert "type(response) is not service.Response" in source
     assert "type(" not in measured_call
     assert "final.cpp_request_copies - baseline.cpp_request_copies" in source
     assert "convert_python_msg_to_cpp" not in source
@@ -464,6 +482,32 @@ def test_direct_cpp_lane_uses_the_production_client_and_future_path():
     assert "type(client._native.raw_client)" in proof
     assert "runtime.nodes != [node]" in proof
     assert "runtime.session.nodes != (node._direct_cpp_node,)" in proof
+
+
+def test_trigger_workload_uses_empty_requests_and_exact_contract():
+    class Service:
+        class Request:
+            pass
+
+    request = worker._make_request(TRIGGER, Service, True)
+    assert type(request) is Service.Request
+    response = type("Response", (), {"success": True, "message": "triggered"})()
+    assert worker._validate_response(TRIGGER, True, response) == 109
+    assert protocol.true_requests(3, 4, TRIGGER) == 4
+    assert protocol.response_checksum(3, 4, TRIGGER) == 436
+
+
+def test_every_generated_trigger_marker_records_the_exact_service_type():
+    sample = _sample("direct-cpp-rclcppyy", service_type=TRIGGER)
+    assert sample["service_type"] == TRIGGER
+    for name in (
+            "server_ready", "server_armed", "client_warmed", "client_report",
+            "server_report", "client_teardown"):
+        assert sample[name]["service_type"] == TRIGGER
+    assert sample["client_warmed"]["direct_cpp_proof"][
+        "client_entity_type"] == "rclcpp::Client<std_srvs::srv::Trigger>"
+    assert sample["client_warmed"]["direct_cpp_proof"]["status_decision"][
+        "metadata"]["service_type"] == "std_srvs::srv::Trigger"
 
 
 def test_cpp_state_machine_has_no_python_per_request_callback():
@@ -492,7 +536,9 @@ def test_runner_rejects_any_server_armed_drift():
         )
 
 
-def test_document_and_schema_forbid_claims_and_server_ranking(monkeypatch):
+@pytest.mark.parametrize("service_type", protocol.SERVICE_TYPES)
+def test_document_and_schema_forbid_claims_and_server_ranking(
+        monkeypatch, service_type):
     monkeypatch.setattr(protocol, "environment_metadata", lambda _root: {
         "source": {"commit": "1" * 40, "dirty": True},
         "source_dependencies": {
@@ -500,13 +546,13 @@ def test_document_and_schema_forbid_claims_and_server_ranking(monkeypatch):
         },
     })
     results = [
-        _sample(variant, index)
+        _sample(variant, index, service_type)
         for index, variant in enumerate(protocol.VARIANTS)
     ]
     document = protocol.build_document(
         repo_root=REPO_ROOT,
         mode="measurement",
-        parameters=_parameters(),
+        parameters=_parameters(service_type),
         isolation={
             "fresh_process_pair_per_sample": True,
             "two_process_groups_per_sample": True,
@@ -516,7 +562,7 @@ def test_document_and_schema_forbid_claims_and_server_ranking(monkeypatch):
             "ros_domain_id": 77,
         },
         aot_build=_build(),
-        cache=_cache(),
+        cache=_cache(service_type),
         source_files={"runner": DIGEST},
         results=results,
         failures=[],
@@ -554,8 +600,10 @@ def test_document_and_schema_forbid_claims_and_server_ranking(monkeypatch):
     assert len(schema["properties"]["results"]["items"]["allOf"]) == 6
 
 
-def test_all_client_variants_run_against_common_aot_server(tmp_path):
-    output = tmp_path / "service-client-smoke.json"
+@pytest.mark.parametrize("service_type", protocol.SERVICE_TYPES)
+def test_all_client_variants_run_against_common_aot_server(tmp_path, service_type):
+    interface_name = service_type.rsplit("/", 1)[1].lower()
+    output = tmp_path / ("service-client-%s-smoke.json" % interface_name)
     environment = os.environ.copy()
     environment["RMW_IMPLEMENTATION"] = RMW
     process = subprocess.run(
@@ -563,6 +611,7 @@ def test_all_client_variants_run_against_common_aot_server(tmp_path):
             sys.executable,
             str(BENCH_DIR / "run_service_client_benchmark.py"),
             "--smoke",
+            "--service-interface", service_type,
             "--messages", "4",
             "--warmup-requests", "2",
             "--repetitions", "1",
@@ -582,6 +631,7 @@ def test_all_client_variants_run_against_common_aot_server(tmp_path):
     assert document["failures"] == []
     assert document["benchmark"]["mode"] == "smoke"
     assert document["benchmark"]["parameters"]["requested_rmw"] == RMW
+    assert document["benchmark"]["parameters"]["service_type"] == service_type
     assert document["benchmark"]["performance_claims_allowed"] is False
     assert document["comparison"]["interpretation_allowed"] is False
     assert {row["variant"] for row in document["results"]} == set(
@@ -591,10 +641,16 @@ def test_all_client_variants_run_against_common_aot_server(tmp_path):
         for pid in (row["server_pid"], row["client_pid"])
     }) == 12
     for row in document["results"]:
+        assert row["service_type"] == service_type
+        for marker in (
+                "server_ready", "server_armed", "client_warmed", "client_report",
+                "server_report", "client_teardown"):
+            assert row[marker]["service_type"] == service_type
         assert row["client_report"]["total_requests"] == 6
         assert row["server_report"]["total_requests"] == 6
-        assert row["client_report"]["response_checksum"] == 250
-        assert row["server_report"]["response_checksum"] == 250
+        expected_checksum = 436 if service_type == TRIGGER else 250
+        assert row["client_report"]["response_checksum"] == expected_checksum
+        assert row["server_report"]["response_checksum"] == expected_checksum
         assert row["client_report"]["pending_requests"] == 0
         assert len(row["client_report"]["latency_ns"]) == 4
         assert row["client_teardown"]["endpoint_disappeared"] is True

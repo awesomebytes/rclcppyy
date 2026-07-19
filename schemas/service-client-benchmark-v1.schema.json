@@ -33,7 +33,12 @@
         "scope"
       ],
       "properties": {
-        "name": {"const": "jazzy_cyclone_setbool_client_cpu"},
+        "name": {
+          "enum": [
+            "jazzy_cyclone_setbool_client_cpu",
+            "jazzy_cyclone_trigger_client_cpu"
+          ]
+        },
         "mode": {"enum": ["smoke", "measurement"]},
         "performance_claims_allowed": {"const": false},
         "parameters": {
@@ -58,6 +63,7 @@
             "warmup_requests": {"type": "integer", "minimum": 1, "maximum": 100000},
             "repetitions": {"type": "integer", "minimum": 1, "maximum": 30},
             "requested_rmw": {"const": "rmw_cyclonedds_cpp"},
+            "service_type": {"$ref": "#/$defs/service_type"},
             "qos": {"$ref": "#/$defs/qos"},
             "execution_order": {"type": "array", "items": {"type": "string"}}
           }
@@ -138,6 +144,7 @@
           "run_token": {"type": "string", "pattern": "^run_[a-f0-9]{32}$"},
           "ros_domain_id": {"type": "integer", "minimum": 0, "maximum": 232},
           "requested_rmw": {"const": "rmw_cyclonedds_cpp"},
+          "service_type": {"$ref": "#/$defs/service_type"},
           "qos": {"$ref": "#/$defs/qos"},
           "server_pid": {"type": "integer", "minimum": 1},
           "client_pid": {"type": "integer", "minimum": 1},
@@ -167,8 +174,13 @@
             "properties": {
               "schema": {"const": "rclcppyy.service-client-server-event/v1"},
               "event": {"const": "ready"},
-              "execution_model": {"const": "common-release-aot-setbool-server"},
-              "service_type": {"const": "std_srvs/srv/SetBool"}
+              "execution_model": {
+                "enum": [
+                  "common-release-aot-setbool-server",
+                  "common-release-aot-trigger-server"
+                ]
+              },
+              "service_type": {"$ref": "#/$defs/service_type"}
             }
           },
           "client_warmed": {
@@ -193,7 +205,7 @@
               "client_authority": {"enum": ["python", "cpp"]},
               "topology_verified": {"const": true},
               "endpoint_count": {"const": 1},
-              "service_type": {"const": "std_srvs/srv/SetBool"},
+              "service_type": {"$ref": "#/$defs/service_type"},
               "qos_verified": {"const": true}
             }
           },
@@ -211,7 +223,8 @@
             "properties": {
               "schema": {"const": "rclcppyy.service-client-server-event/v1"},
               "event": {"const": "armed"},
-              "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"}
+              "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
+              "service_type": {"$ref": "#/$defs/service_type"}
             }
           },
           "client_report": {
@@ -239,6 +252,7 @@
             "properties": {
               "schema": {"const": "rclcppyy.service-client-client-event/v1"},
               "event": {"const": "measured"},
+              "service_type": {"$ref": "#/$defs/service_type"},
               "variant": {"$ref": "#/$defs/variant"},
               "cpp_request_copies_measured": {"type": "integer", "minimum": 1},
               "exceptions": {"const": 0},
@@ -272,6 +286,7 @@
             "properties": {
               "schema": {"const": "rclcppyy.service-client-server-event/v1"},
               "event": {"const": "report"},
+              "service_type": {"$ref": "#/$defs/service_type"},
               "exceptions": {"const": 0},
               "pending_requests": {"const": 0},
               "cpu_time_ns": {"type": "integer", "minimum": 0},
@@ -296,6 +311,7 @@
             "properties": {
               "schema": {"const": "rclcppyy.service-client-client-event/v1"},
               "event": {"const": "teardown"},
+              "service_type": {"$ref": "#/$defs/service_type"},
               "endpoint_disappeared": {"const": true},
               "teardown_clean": {"const": true}
             }
@@ -347,7 +363,12 @@
                         "profile": {"const": "direct_cpp"},
                         "node_authority": {"const": "cpp"},
                         "client_authority": {"const": "cpp"},
-                        "client_entity_type": {"const": "rclcpp::Client<std_srvs::srv::SetBool>"},
+                        "client_entity_type": {
+                          "enum": [
+                            "rclcpp::Client<std_srvs::srv::SetBool>",
+                            "rclcpp::Client<std_srvs::srv::Trigger>"
+                          ]
+                        },
                         "runtime_facade_node_count": {"const": 1},
                         "native_session_node_count": {"const": 1},
                         "native_node_identity_verified": {"const": true},
@@ -456,6 +477,9 @@
         "native-cpp-state-machine",
         "aot-staged"
       ]
+    },
+    "service_type": {
+      "enum": ["std_srvs/srv/SetBool", "std_srvs/srv/Trigger"]
     },
     "qos": {
       "type": "object",

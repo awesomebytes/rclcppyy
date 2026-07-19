@@ -1,4 +1,4 @@
-"""Strict evidence contract for the controlled SetBool client benchmark."""
+"""Strict evidence contract for the controlled service client benchmark."""
 
 from __future__ import annotations
 
@@ -18,6 +18,22 @@ SAMPLE_SCHEMA = "rclcppyy.service-client-sample/v1"
 PREWARM_SCHEMA = "rclcppyy.service-client-prewarm/v1"
 SERVER_SCHEMA = "rclcppyy.service-client-server-event/v1"
 CLIENT_SCHEMA = "rclcppyy.service-client-client-event/v1"
+DEFAULT_SERVICE_TYPE = "std_srvs/srv/SetBool"
+SERVICE_TYPES = (DEFAULT_SERVICE_TYPE, "std_srvs/srv/Trigger")
+SERVICE_SPECS = {
+    DEFAULT_SERVICE_TYPE: {
+        "benchmark_name": "jazzy_cyclone_setbool_client_cpu",
+        "cpp_type": "std_srvs::srv::SetBool",
+        "server_model": "common-release-aot-setbool-server",
+        "workload": "one-outstanding alternating SetBool requests",
+    },
+    "std_srvs/srv/Trigger": {
+        "benchmark_name": "jazzy_cyclone_trigger_client_cpu",
+        "cpp_type": "std_srvs::srv::Trigger",
+        "server_model": "common-release-aot-trigger-server",
+        "workload": "one-outstanding empty Trigger requests",
+    },
+}
 VARIANTS = {
     "stock-rclpy": {
         "model": "same-python-client-stock-rclpy",
@@ -126,11 +142,17 @@ def latency_summary(values: list[int]) -> dict[str, int]:
     }
 
 
-def true_requests(start: int, count: int) -> int:
+def true_requests(
+        start: int, count: int, service_type: str = DEFAULT_SERVICE_TYPE) -> int:
+    if service_type == "std_srvs/srv/Trigger":
+        return count
     return sum(sequence % 2 == 1 for sequence in range(start, start + count))
 
 
-def response_checksum(start: int, count: int) -> int:
+def response_checksum(
+        start: int, count: int, service_type: str = DEFAULT_SERVICE_TYPE) -> int:
+    if service_type == "std_srvs/srv/Trigger":
+        return 109 * count
     total = 0
     for sequence in range(start, start + count):
         total += 117 if sequence % 2 == 1 else 8
@@ -148,11 +170,15 @@ def _artifact(value: dict, cached: bool | None = None) -> None:
         raise ValueError("client cache artifact identity is invalid")
 
 
-def validate_prewarm(value: dict, expect_hits: bool) -> None:
+def validate_prewarm(
+        value: dict, expect_hits: bool,
+        service_type: str = DEFAULT_SERVICE_TYPE) -> None:
     if not isinstance(value, dict) or value.get("schema") != PREWARM_SCHEMA:
         raise ValueError("unsupported client prewarm schema")
     if not _positive(value.get("pid")) or not isinstance(value.get("loaded_rmw"), str):
         raise ValueError("client prewarm process/RMW evidence is invalid")
+    if value.get("service_type", DEFAULT_SERVICE_TYPE) != service_type:
+        raise ValueError("client prewarm service type is invalid")
     source_id = value.get("native_client_source_id")
     if not isinstance(source_id, str) or not re.fullmatch(r"[a-f0-9]{16}", source_id):
         raise ValueError("native client source id is invalid")
@@ -168,7 +194,9 @@ def validate_prewarm(value: dict, expect_hits: bool) -> None:
         raise ValueError("client prewarm diagnostics are invalid")
 
 
-def validate_cache(value: dict, rmw: str) -> None:
+def validate_cache(
+        value: dict, rmw: str,
+        service_type: str = DEFAULT_SERVICE_TYPE) -> None:
     required = (
         "isolated_root", "autopch_disabled", "fresh_process_per_phase",
         "compilation_excluded_from_samples", "warm_hits_verified")
@@ -179,8 +207,8 @@ def validate_cache(value: dict, rmw: str) -> None:
     phases = value.get("phases")
     if not isinstance(phases, dict) or set(phases) != {"cold", "warm"}:
         raise ValueError("client cache phases are incomplete")
-    validate_prewarm(phases["cold"], False)
-    validate_prewarm(phases["warm"], True)
+    validate_prewarm(phases["cold"], False, service_type)
+    validate_prewarm(phases["warm"], True, service_type)
     if phases["cold"]["loaded_rmw"] != rmw or phases["warm"]["loaded_rmw"] != rmw:
         raise ValueError("client prewarm used the wrong RMW")
     for name in ("native_client", "cpp_state_machine"):
@@ -228,6 +256,8 @@ def _validate_build(value: dict) -> None:
 
 
 def _validate_server_ready(value: dict, sample: dict, rmw: str) -> None:
+    service_type = sample.get("service_type", DEFAULT_SERVICE_TYPE)
+    spec = SERVICE_SPECS[service_type]
     expected = {
         "schema": SERVER_SCHEMA,
         "event": "ready",
@@ -236,15 +266,16 @@ def _validate_server_ready(value: dict, sample: dict, rmw: str) -> None:
         "process_group_id": sample["server_pid"],
         "node_name": sample["topology"]["server_node"],
         "loaded_rmw": rmw,
-        "execution_model": "common-release-aot-setbool-server",
+        "execution_model": spec["server_model"],
         "service_name": sample["topology"]["service_name"],
-        "service_type": "std_srvs/srv/SetBool",
+        "service_type": service_type,
     }
     if value != expected:
         raise ValueError("common service server ready evidence is invalid")
 
 
 def _validate_server_armed(value: dict, sample: dict, warmup: int) -> None:
+    service_type = sample.get("service_type", DEFAULT_SERVICE_TYPE)
     expected = {
         "schema": SERVER_SCHEMA,
         "event": "armed",
@@ -253,23 +284,30 @@ def _validate_server_armed(value: dict, sample: dict, warmup: int) -> None:
         "process_group_id": sample["server_pid"],
         "warmup_requests": warmup,
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
+        "service_type": service_type,
     }
-    if value != expected:
+    actual = dict(value) if isinstance(value, dict) else value
+    if isinstance(actual, dict):
+        actual.setdefault("service_type", DEFAULT_SERVICE_TYPE)
+    if actual != expected:
         raise ValueError("common service server armed evidence is invalid")
 
 
 def _validate_server_report(value: dict, sample: dict, warmup: int, messages: int) -> None:
     total = warmup + messages
+    service_type = sample.get("service_type", DEFAULT_SERVICE_TYPE)
     if not isinstance(value, dict) or value.get("schema") != SERVER_SCHEMA or value.get(
             "event") != "report" or value.get("run_token") != sample["run_token"]:
         raise ValueError("common service server report identity is invalid")
+    if value.get("service_type", DEFAULT_SERVICE_TYPE) != service_type:
+        raise ValueError("common service server type evidence is invalid")
     expected = {
         "warmup_requests": warmup,
         "total_requests": total,
         "measured_requests": messages,
-        "true_total": true_requests(1, total),
-        "true_measured": true_requests(warmup + 1, messages),
-        "response_checksum": response_checksum(warmup + 1, messages),
+        "true_total": true_requests(1, total, service_type),
+        "true_measured": true_requests(warmup + 1, messages, service_type),
+        "response_checksum": response_checksum(warmup + 1, messages, service_type),
         "exceptions": 0,
         "pending_requests": 0,
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
@@ -287,6 +325,8 @@ def _validate_client_warmed(value: dict, sample: dict, cache: dict, rmw: str,
                             warmup: int) -> None:
     variant = sample["variant"]
     spec = VARIANTS[variant]
+    service_type = sample.get("service_type", DEFAULT_SERVICE_TYPE)
+    service_spec = SERVICE_SPECS[service_type]
     if not isinstance(value, dict) or value.get("schema") != CLIENT_SCHEMA or value.get(
             "event") != "warmed":
         raise ValueError("client warmed evidence is invalid")
@@ -304,7 +344,7 @@ def _validate_client_warmed(value: dict, sample: dict, cache: dict, rmw: str,
         "endpoint_count": 1,
         "server_node": sample["topology"]["server_node"],
         "service_name": sample["topology"]["service_name"],
-        "service_type": "std_srvs/srv/SetBool",
+        "service_type": service_type,
         "qos_verified": True,
     }
     if any(value.get(name) != expected for name, expected in exact.items()):
@@ -339,7 +379,8 @@ def _validate_client_warmed(value: dict, sample: dict, cache: dict, rmw: str,
         if (artifact["path"], artifact["sha256"], artifact["size_bytes"]) != (
                 expected["path"], expected["sha256"], expected["size_bytes"]):
             raise ValueError("native client artifact differs from warm manifest")
-        if value.get("entity_type") != "rclcpp::Client<std_srvs::srv::SetBool>":
+        entity_type = "rclcpp::Client<%s>" % service_spec["cpp_type"]
+        if value.get("entity_type") != entity_type:
             raise ValueError("native client entity type is invalid")
         if variant == "direct-cpp-rclcppyy":
             if artifact.get("source_id") != cache["phases"]["warm"][
@@ -350,7 +391,7 @@ def _validate_client_warmed(value: dict, sample: dict, cache: dict, rmw: str,
                 "profile": "direct_cpp",
                 "node_authority": "cpp",
                 "client_authority": "cpp",
-                "client_entity_type": "rclcpp::Client<std_srvs::srv::SetBool>",
+                "client_entity_type": entity_type,
                 "runtime_facade_node_count": 1,
                 "native_session_node_count": 1,
                 "native_node_identity_verified": True,
@@ -383,7 +424,8 @@ def _validate_client_warmed(value: dict, sample: dict, cache: dict, rmw: str,
                 "metadata": {
                     "entity_type": "client",
                     "service_name": sample["topology"]["service_name"],
-                    "service_type": "std_srvs::srv::SetBool",
+                    "service_type": service_spec["cpp_type"],
+                    "service_interface": service_type,
                     "request_representation": "actual_cpp",
                     "response_representation": "actual_cpp",
                     "python_message_conversions": 0,
@@ -407,17 +449,20 @@ def _validate_client_warmed(value: dict, sample: dict, cache: dict, rmw: str,
 def _validate_client_report(value: dict, sample: dict, warmup: int, messages: int) -> None:
     variant = sample["variant"]
     spec = VARIANTS[variant]
+    service_type = sample.get("service_type", DEFAULT_SERVICE_TYPE)
     if not isinstance(value, dict) or value.get("schema") != CLIENT_SCHEMA or value.get(
             "event") != "measured" or value.get("variant") != variant or value.get(
                 "run_token") != sample["run_token"]:
         raise ValueError("client measured identity is invalid")
+    if value.get("service_type", DEFAULT_SERVICE_TYPE) != service_type:
+        raise ValueError("client measured service type is invalid")
     exact = {
         "pid": sample["client_pid"],
         "process_group_id": sample["client_pid"],
         "messages": messages,
         "total_requests": warmup + messages,
-        "true_measured": true_requests(warmup + 1, messages),
-        "response_checksum": response_checksum(warmup + 1, messages),
+        "true_measured": true_requests(warmup + 1, messages, service_type),
+        "response_checksum": response_checksum(warmup + 1, messages, service_type),
         "python_orchestration_requests_measured": spec["orchestration"] * messages,
         "python_request_crossings_measured": spec["request_crossing"] * messages,
         "python_response_crossings_measured": spec["response_crossing"] * messages,
@@ -441,6 +486,7 @@ def _validate_client_report(value: dict, sample: dict, warmup: int, messages: in
 
 
 def _validate_teardown(value: dict, sample: dict) -> None:
+    service_type = sample.get("service_type", DEFAULT_SERVICE_TYPE)
     expected = {
         "schema": CLIENT_SCHEMA,
         "event": "teardown",
@@ -448,6 +494,7 @@ def _validate_teardown(value: dict, sample: dict) -> None:
         "run_token": sample["run_token"],
         "pid": sample["client_pid"],
         "process_group_id": sample["client_pid"],
+        "service_type": service_type,
         "endpoint_disappeared": True,
         "teardown_clean": True,
     }
@@ -462,7 +509,10 @@ def _validate_teardown(value: dict, sample: dict) -> None:
             "native_executor_released": True,
             "runtime_nodes_released": True,
         }
-    if value != expected:
+    actual = dict(value) if isinstance(value, dict) else value
+    if isinstance(actual, dict):
+        actual.setdefault("service_type", DEFAULT_SERVICE_TYPE)
+    if actual != expected:
         raise ValueError("client endpoint disappearance/teardown evidence is invalid")
 
 
@@ -472,6 +522,10 @@ def validate_sample(sample: dict, parameters: dict, build: dict, cache: dict) ->
     variant = sample.get("variant")
     if variant not in VARIANTS or not _positive(sample.get("repetition")):
         raise ValueError("service client variant/repetition is invalid")
+    service_type = parameters.get("service_type", DEFAULT_SERVICE_TYPE)
+    if service_type not in SERVICE_TYPES or sample.get(
+            "service_type", DEFAULT_SERVICE_TYPE) != service_type:
+        raise ValueError("service client interface is invalid")
     token = sample.get("run_token")
     if not isinstance(token, str) or not re.fullmatch(r"run_[a-f0-9]{32}", token):
         raise ValueError("service client run token is invalid")
@@ -584,6 +638,8 @@ def build_document(
         *, repo_root: Path, mode: str, parameters: dict, isolation: dict,
         aot_build: dict, cache: dict, source_files: dict, results: list,
         failures: list, command: list[str] | None = None) -> dict:
+    service_type = parameters.get("service_type", DEFAULT_SERVICE_TYPE)
+    service_spec = SERVICE_SPECS[service_type]
     document = {
         "schema": SCHEMA_ID,
         "generated_at": datetime.datetime.now(
@@ -591,7 +647,7 @@ def build_document(
         "command": list(command if command is not None else sys.argv),
         "environment": environment_metadata(repo_root),
         "benchmark": {
-            "name": "jazzy_cyclone_setbool_client_cpu",
+            "name": service_spec["benchmark_name"],
             "mode": mode,
             "performance_claims_allowed": False,
             "parameters": parameters,
@@ -600,7 +656,7 @@ def build_document(
             "cache": cache,
             "source_files": source_files,
             "statistics": {
-                "workload": "one-outstanding alternating SetBool requests",
+                "workload": service_spec["workload"],
                 "client_cpu": "client-owned CLOCK_PROCESS_CPUTIME_ID delta",
                 "server_cpu": "common server drift diagnostic only",
                 "rtt": "client steady-clock observations; nearest-rank percentiles",
@@ -628,12 +684,16 @@ def validate_document(document: dict) -> None:
     _source_environment(document.get("environment"))
     benchmark = document.get("benchmark")
     if not isinstance(benchmark, dict) or benchmark.get(
-            "name") != "jazzy_cyclone_setbool_client_cpu" or benchmark.get(
-                "mode") not in ("smoke", "measurement"):
+            "mode") not in ("smoke", "measurement"):
         raise ValueError("service client benchmark metadata is invalid")
     if benchmark.get("performance_claims_allowed") is not False:
         raise ValueError("raw service client benchmark cannot allow claims")
     parameters = benchmark.get("parameters")
+    service_type = parameters.get(
+        "service_type", DEFAULT_SERVICE_TYPE) if isinstance(parameters, dict) else None
+    if service_type not in SERVICE_TYPES or benchmark.get(
+            "name") != SERVICE_SPECS[service_type]["benchmark_name"]:
+        raise ValueError("service client benchmark interface metadata is invalid")
     variants = parameters.get("variants") if isinstance(parameters, dict) else None
     if not isinstance(variants, list) or not variants or len(set(variants)) != len(variants) or any(
             variant not in VARIANTS for variant in variants):
@@ -644,7 +704,10 @@ def validate_document(document: dict) -> None:
                     parameters.get("repetitions")):
         raise ValueError("service client benchmark parameters are invalid")
     _validate_build(benchmark.get("aot_build"))
-    validate_cache(benchmark.get("cache"), parameters["requested_rmw"])
+    service_type = parameters.get("service_type", DEFAULT_SERVICE_TYPE)
+    if service_type not in SERVICE_TYPES:
+        raise ValueError("service client benchmark interface is invalid")
+    validate_cache(benchmark.get("cache"), parameters["requested_rmw"], service_type)
     source_files = benchmark.get("source_files")
     if not isinstance(source_files, dict) or not source_files or any(
             not _sha(value) for value in source_files.values()):
