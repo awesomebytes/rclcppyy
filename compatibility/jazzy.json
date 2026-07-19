@@ -283,13 +283,13 @@
     {
       "id": "timer.direct_cpp_first_slice",
       "area": "timer",
-      "api": "profile=direct_cpp Node.create_timer, cancel/reset/destroy, spin, and spin_once",
+      "api": "profile=direct_cpp Node.create_timer including autostart=False, cancel/reset/destroy, spin, and spin_once",
       "support": "experimental",
       "backend": "cpp",
       "fallback": "none",
       "default": false,
       "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_timer_helper.py", "rclcppyy/direct_cpp.py", "scripts/benchmarks/timer_executor_worker.py", "scripts/benchmarks/_timer_executor_protocol.py", "test/test_timer_executor_benchmark.py", "docs/backend-selection.md", "docs/timer-executor-benchmark.md"],
-      "notes": "On Jazzy/Cyclone, the opt-in profile creates a real rclcpp WallTimer on the NativeSession executor and enters the Python callback once per firing without message conversion, serialization, or a per-firing data copy. Default clock, callback group, autostart, and continuous periodic use are the bounded surface; unsupported options fail before entity creation. Controlled evidence shows substantially lower process CPU and better consecutive-interval jitter than stock, but materially worse first-reset error and absolute scheduled phase. The route remains experimental and is not suitable for reset-sensitive deadlines."
+      "notes": "On Jazzy/Cyclone, the opt-in profile creates a real rclcpp WallTimer on the NativeSession executor and enters the Python callback once per firing without message conversion, serialization, or a per-firing data copy. Default clock, callback groups, continuous periodic use, and native autostart=false construction followed by reset are covered; custom clocks and unsupported options fail before entity creation. Controlled evidence shows substantially lower process CPU and better consecutive-interval jitter than stock, but materially worse first-reset error and absolute scheduled phase. The route remains experimental and is not suitable for reset-sensitive deadlines."
     },
     {
       "id": "executor.spin",
