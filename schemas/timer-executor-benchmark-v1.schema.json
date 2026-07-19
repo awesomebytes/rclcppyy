@@ -17,6 +17,7 @@
     "source_files",
     "results",
     "failures",
+    "public_ste_regression",
     "claims",
     "interpretation"
   ],
@@ -45,6 +46,8 @@
             "stock-rclpy",
             "compatible-rclcppyy",
             "direct-cpp-rclcppyy",
+            "direct-public-ste",
+            "direct-raw-ste-control",
             "native-python-callback",
             "native-cpp-callback",
             "aot-staged"
@@ -53,13 +56,13 @@
         "period_ns": {"const": 1000000},
         "warmup_firings": {"const": 500},
         "measured_firings": {"const": 5000},
-        "repetitions": {"const": 5},
+        "repetitions": {"const": 10},
         "requested_rmw": {"const": "rmw_cyclonedds_cpp"},
         "ros_distro": {"const": "jazzy"},
         "execution_order": {
           "type": "array",
-          "minItems": 30,
-          "maxItems": 30,
+          "minItems": 80,
+          "maxItems": 80,
           "uniqueItems": true,
           "items": {"type": "string"}
         }
@@ -109,11 +112,12 @@
         "properties": {
           "case_id": {"type": "string", "minLength": 1},
           "variant": {"$ref": "#/$defs/variant"},
-          "repetition": {"type": "integer", "minimum": 1, "maximum": 5},
+          "repetition": {"type": "integer", "minimum": 1, "maximum": 10},
           "error": {"type": "string", "minLength": 1}
         }
       }
     },
+    "public_ste_regression": {"$ref": "#/$defs/public_ste_regression"},
     "claims": {
       "const": {"enabled": false, "reason": "characterization_only"}
     },
@@ -127,10 +131,92 @@
         "stock-rclpy",
         "compatible-rclcppyy",
         "direct-cpp-rclcppyy",
+        "direct-public-ste",
+        "direct-raw-ste-control",
         "native-python-callback",
         "native-cpp-callback",
         "aot-staged"
       ]
+    },
+    "regression_pair": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repetition",
+        "public_case_id",
+        "raw_case_id",
+        "public_cpu_ns_per_firing",
+        "raw_cpu_ns_per_firing",
+        "cpu_ratio",
+        "public_absolute_latency_p99_ns",
+        "raw_absolute_latency_p99_ns"
+      ],
+      "properties": {
+        "repetition": {"type": "integer", "minimum": 1, "maximum": 10},
+        "public_case_id": {"type": "string", "minLength": 1},
+        "raw_case_id": {"type": "string", "minLength": 1},
+        "public_cpu_ns_per_firing": {"type": "number", "exclusiveMinimum": 0},
+        "raw_cpu_ns_per_firing": {"type": "number", "exclusiveMinimum": 0},
+        "cpu_ratio": {"type": "number", "exclusiveMinimum": 0},
+        "public_absolute_latency_p99_ns": {"type": "integer", "minimum": 0},
+        "raw_absolute_latency_p99_ns": {"type": "integer", "minimum": 0}
+      }
+    },
+    "public_ste_regression": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "public_variant",
+        "raw_control_variant",
+        "primary_metric",
+        "secondary_metric",
+        "cpu_ratio_limit",
+        "required_pairs",
+        "pair_count",
+        "mode",
+        "status",
+        "reason",
+        "public_median_cpu_ns_per_firing",
+        "raw_median_cpu_ns_per_firing",
+        "median_cpu_ratio",
+        "public_median_absolute_latency_p99_ns",
+        "raw_median_absolute_latency_p99_ns",
+        "median_absolute_latency_p99_ratio",
+        "pairs"
+      ],
+      "properties": {
+        "schema": {"const": "rclcppyy.public-ste-regression/v1"},
+        "public_variant": {"const": "direct-public-ste"},
+        "raw_control_variant": {"const": "direct-raw-ste-control"},
+        "primary_metric": {"const": "worker_cpu_ns_per_firing"},
+        "secondary_metric": {"const": "scheduled_deadline_error.absolute_ns.p99"},
+        "cpu_ratio_limit": {"const": 1.03},
+        "required_pairs": {"const": 10},
+        "pair_count": {"type": "integer", "minimum": 0, "maximum": 10},
+        "mode": {"enum": ["enforced", "characterization"]},
+        "status": {"enum": ["pass", "fail", "characterization"]},
+        "reason": {
+          "enum": [
+            "within_cpu_ratio_limit",
+            "cpu_ratio_limit_exceeded",
+            "characterization_requested",
+            "incomplete_pairs"
+          ]
+        },
+        "public_median_cpu_ns_per_firing": {"type": ["number", "null"]},
+        "raw_median_cpu_ns_per_firing": {"type": ["number", "null"]},
+        "median_cpu_ratio": {"type": ["number", "null"]},
+        "public_median_absolute_latency_p99_ns": {"type": ["number", "null"]},
+        "raw_median_absolute_latency_p99_ns": {"type": ["number", "null"]},
+        "median_absolute_latency_p99_ratio": {"type": ["number", "null"]},
+        "pairs": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 10,
+          "items": {"$ref": "#/$defs/regression_pair"}
+        }
+      }
     },
     "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
     "artifact": {
@@ -246,7 +332,8 @@
         "callback_handoff",
         "executor_session_owned",
         "native_timer_type",
-        "native_executor_type"
+        "native_executor_type",
+        "executor_surface"
       ],
       "properties": {
         "profile": {"const": "direct_cpp"},
@@ -266,6 +353,13 @@
         "native_executor_type": {
           "type": "string",
           "pattern": "^rclcpp::executors::SingleThreadedExecutor"
+        },
+        "executor_surface": {
+          "enum": [
+            "rclpy-spin-once",
+            "rclpy-public-single-threaded-executor",
+            "native-session-raw-single-threaded-executor"
+          ]
         }
       }
     },
@@ -443,7 +537,7 @@
         "schema": {"const": "rclcppyy.timer-executor-sample/v1"},
         "case_id": {"type": "string", "minLength": 1},
         "variant": {"$ref": "#/$defs/variant"},
-        "repetition": {"type": "integer", "minimum": 1, "maximum": 5},
+        "repetition": {"type": "integer", "minimum": 1, "maximum": 10},
         "run_token": {"type": "string", "pattern": "^timer_[a-f0-9]{32}$"},
         "node_name": {"type": "string", "pattern": "^timer_executor_[a-f0-9]{12}$"},
         "worker_pid": {"type": "integer", "minimum": 1},
@@ -508,7 +602,13 @@
         {
           "if": {
             "properties": {
-              "variant": {"const": "direct-cpp-rclcppyy"}
+              "variant": {
+                "enum": [
+                  "direct-cpp-rclcppyy",
+                  "direct-public-ste",
+                  "direct-raw-ste-control"
+                ]
+              }
             },
             "required": ["variant"]
           },
@@ -526,7 +626,16 @@
         {
           "if": {
             "properties": {
-              "variant": {"enum": ["stock-rclpy", "compatible-rclcppyy", "direct-cpp-rclcppyy", "native-python-callback"]}
+              "variant": {
+                "enum": [
+                  "stock-rclpy",
+                  "compatible-rclcppyy",
+                  "direct-cpp-rclcppyy",
+                  "direct-public-ste",
+                  "direct-raw-ste-control",
+                  "native-python-callback"
+                ]
+              }
             },
             "required": ["variant"]
           },

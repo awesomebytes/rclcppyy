@@ -32,7 +32,7 @@ from _timer_executor_protocol import (
     WARMUP_FIRINGS,
     build_document,
     dumps,
-    rotating_order,
+    measurement_order,
     validate_prewarm,
     validate_sample,
     write,
@@ -410,6 +410,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--timeout", type=float, default=90.0)
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--output", type=Path)
+    parser.add_argument(
+        "--characterization-only",
+        action="store_true",
+        help="report the public/raw comparison without enforcing its CPU gate",
+    )
     return parser
 
 
@@ -442,9 +447,8 @@ def main() -> int:
             cache = _prewarm(cache_root, env, args.timeout)
             observer = GraphObserver("timer_executor_observer_%s" % uuid.uuid4().hex[:12])
             try:
-                variants = list(VARIANTS)
                 for repetition in range(1, REPETITIONS + 1):
-                    for variant in rotating_order(variants, repetition):
+                    for variant in measurement_order(repetition):
                         case_id = "%s__rep_%d" % (variant, repetition)
                         execution_order.append(case_id)
                         try:
@@ -504,18 +508,42 @@ def main() -> int:
                 results=results,
                 failures=failures,
                 command=[sys.executable, str(Path(__file__)), *sys.argv[1:]],
+                characterization_only=args.characterization_only,
             )
             if args.output is not None:
                 write(document, args.output)
             if args.json:
                 print(dumps(document), end="")
             else:
+                regression = document["public_ste_regression"]
                 print(
                     "Timer benchmark emitted %d raw samples; claims and interpretation disabled."
                     % len(results))
+                print(
+                    "Public STE/raw control median CPU ratio: %s (limit %.2f, %s); "
+                    "absolute latency p99 median ratio: %s."
+                    % (
+                        (
+                            "%.6f" % regression["median_cpu_ratio"]
+                            if regression["median_cpu_ratio"] is not None else "unavailable"
+                        ),
+                        regression["cpu_ratio_limit"],
+                        regression["status"],
+                        (
+                            "%.6f" % regression[
+                                "median_absolute_latency_p99_ratio"]
+                            if regression[
+                                "median_absolute_latency_p99_ratio"] is not None
+                            else "unavailable"
+                        ),
+                    )
+                )
                 if failures:
                     print("%d sample(s) failed" % len(failures), file=sys.stderr)
-            return 1 if failures else 0
+            regression_failed = (
+                document["public_ste_regression"]["status"] == "fail"
+            )
+            return 1 if failures or regression_failed else 0
 
 
 if __name__ == "__main__":

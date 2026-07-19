@@ -107,7 +107,7 @@ def _sample(variant, repetition=1, index=0):
             "timer_status_backend": "python",
             "timer_decision_id": 7,
         }
-    elif variant == "direct-cpp-rclcppyy":
+    elif variant in protocol.DIRECT_VARIANTS:
         cache_marker = {
             "state": "process_warm",
             "kind": "direct-rclcpp-runtime",
@@ -121,6 +121,7 @@ def _sample(variant, repetition=1, index=0):
             "executor_session_owned": True,
             "native_timer_type": "rclcpp::WallTimer<std::function<void()>>",
             "native_executor_type": "rclcpp::executors::SingleThreadedExecutor",
+            "executor_surface": spec["executor_surface"],
         }
     elif variant == "native-python-callback":
         cache_marker = {
@@ -168,7 +169,7 @@ def _sample(variant, repetition=1, index=0):
         },
         "cache": cache_marker,
     }
-    if variant == "direct-cpp-rclcppyy":
+    if variant in protocol.DIRECT_VARIANTS:
         ready["timer_marker"]["implementation"] = (
             "rclcpp::WallTimer<std::function<void()>>")
         ready["executor_marker"]["implementation"] = (
@@ -262,11 +263,11 @@ def _document():
     order = []
     index = 0
     for repetition in range(1, protocol.REPETITIONS + 1):
-        for variant in protocol.rotating_order(list(protocol.VARIANTS), repetition):
+        for variant in protocol.measurement_order(repetition):
             order.append("%s__rep_%d" % (variant, repetition))
             results.append(_sample(variant, repetition, index))
             index += 1
-    return {
+    document = {
         "schema": protocol.SCHEMA_ID,
         "generated_at": "2026-01-01T00:00:00+00:00",
         "mode": "measurement",
@@ -301,9 +302,11 @@ def _document():
         },
         "results": results,
         "failures": [],
+        "public_ste_regression": protocol.build_public_ste_regression(results),
         "claims": {"enabled": False, "reason": "characterization_only"},
         "interpretation": {"enabled": False, "reason": "raw_evidence_only"},
     }
+    return document
 
 
 def _replace(document, path, value):
@@ -325,6 +328,10 @@ def test_wrapping_recurrence_is_fixed():
     assert protocol.consecutive_interval_errors([1_179_157, 1_179_784, 1_170_000]) == [
         627, -9_784]
     assert protocol.max_phase_slip_periods([1_179_157, 1_170_000]) == 1
+    assert protocol.measurement_order(1)[:2] == [
+        "direct-public-ste", "direct-raw-ste-control"]
+    assert protocol.measurement_order(2)[:2] == [
+        "direct-raw-ste-control", "direct-public-ste"]
 
 
 @pytest.mark.parametrize("variant", tuple(protocol.VARIANTS))
@@ -370,6 +377,9 @@ def test_each_variant_satisfies_the_exact_sample_contract(variant):
             "worker_ready", "executor_marker", "implementation"), "PythonExecutor"),
         ("direct-cpp-rclcppyy", (
             "worker_ready", "activation", "native_timer_type"), "rclcpp::TimerBase"),
+        ("direct-public-ste", (
+            "worker_ready", "activation", "executor_surface"),
+            "native-session-raw-single-threaded-executor"),
         ("direct-cpp-rclcppyy", (
             "worker_report", "python_boundary_crossings"), 0),
         ("native-cpp-callback", ("worker_report", "python_callback_count"), 1),
@@ -421,16 +431,49 @@ def test_cache_contract_rejects_invalid_cold_warm_evidence(path, value):
 def test_complete_document_and_rotating_order_validate():
     document = _document()
     protocol.validate_document(document)
-    assert len(document["results"]) == 30
-    assert document["parameters"]["execution_order"][:7] == [
+    assert len(document["results"]) == 80
+    assert document["parameters"]["execution_order"][:8] == [
+        "direct-public-ste__rep_1",
+        "direct-raw-ste-control__rep_1",
         "stock-rclpy__rep_1",
         "compatible-rclcppyy__rep_1",
         "direct-cpp-rclcppyy__rep_1",
         "native-python-callback__rep_1",
         "native-cpp-callback__rep_1",
         "aot-staged__rep_1",
-        "compatible-rclcppyy__rep_2",
     ]
+    regression = document["public_ste_regression"]
+    assert regression["pair_count"] == 10
+    assert regression["median_cpu_ratio"] == 1.0
+    assert regression["status"] == "pass"
+
+
+def test_public_ste_regression_gate_and_characterization_modes():
+    results = _document()["results"]
+    for sample in results:
+        if sample["variant"] == "direct-public-ste":
+            sample["worker_report"]["cpu_time_ns"] = 5_200_000
+            sample["timing"]["worker_cpu_ns_per_firing"] = 1_040.0
+    regression = protocol.build_public_ste_regression(results)
+    assert regression["pair_count"] == protocol.REGRESSION_REQUIRED_PAIRS
+    assert regression["median_cpu_ratio"] == 1.04
+    assert regression["status"] == "fail"
+    assert regression["reason"] == "cpu_ratio_limit_exceeded"
+
+    characterization = protocol.build_public_ste_regression(
+        results, characterization_only=True)
+    assert characterization["mode"] == "characterization"
+    assert characterization["status"] == "characterization"
+    assert characterization["reason"] == "characterization_requested"
+    assert characterization["median_cpu_ratio"] == 1.04
+
+    incomplete = protocol.build_public_ste_regression([
+        sample for sample in results
+        if sample["case_id"] != "direct-raw-ste-control__rep_10"
+    ])
+    assert incomplete["pair_count"] == 9
+    assert incomplete["status"] == "characterization"
+    assert incomplete["reason"] == "incomplete_pairs"
 
 
 @pytest.mark.parametrize(
@@ -443,6 +486,7 @@ def test_complete_document_and_rotating_order_validate():
         (("parameters", "execution_order"), []),
         (("isolation", "fresh_process_group_per_sample"), False),
         (("source_files", "worker"), "invalid"),
+        (("public_ste_regression", "median_cpu_ratio"), 1.02),
     ],
 )
 def test_document_contract_rejects_interpretation_or_matrix_drift(path, value):
@@ -477,6 +521,8 @@ def test_schema_encodes_the_same_negative_contracts():
         protocol.RMW)
     assert properties["parameters"]["properties"]["variants"]["const"] == list(
         protocol.VARIANTS)
+    assert properties["public_ste_regression"] == {
+        "$ref": "#/$defs/public_ste_regression"}
     assert schema["$defs"]["direct_activation"]["properties"][
         "timer_decision_id"] == {
             "type": "string",
@@ -535,7 +581,15 @@ def test_private_aot_helper_builds_release_o3_ndebug(tmp_path):
     os.environ.get("ROS_DISTRO") != protocol.ROS_DISTRO,
     reason="live timer smoke requires ROS 2 Jazzy",
 )
-@pytest.mark.parametrize("variant", ("stock-rclpy", "direct-cpp-rclcppyy"))
+@pytest.mark.parametrize(
+    "variant",
+    (
+        "stock-rclpy",
+        "direct-cpp-rclcppyy",
+        "direct-public-ste",
+        "direct-raw-ste-control",
+    ),
+)
 def test_live_cyclone_python_timer_graph_and_protocol(monkeypatch, variant):
     from _domain_lease import acquire_domain
 
@@ -591,7 +645,7 @@ def test_live_cyclone_python_timer_graph_and_protocol(monkeypatch, variant):
             assert report["missed_periods"] == report["max_phase_slip_periods"]
             assert isinstance(report["max_phase_slip_periods"], int)
             assert report["teardown_clean"] is True
-            if variant == "direct-cpp-rclcppyy":
+            if variant in protocol.DIRECT_VARIANTS:
                 assert ready["activation"] == {
                     "profile": "direct_cpp",
                     "timer_status_backend": "cpp",
@@ -601,6 +655,8 @@ def test_live_cyclone_python_timer_graph_and_protocol(monkeypatch, variant):
                     "executor_session_owned": True,
                     "native_timer_type": ready["timer_marker"]["implementation"],
                     "native_executor_type": ready["executor_marker"]["implementation"],
+                    "executor_surface": protocol.VARIANTS[variant][
+                        "executor_surface"],
                 }
                 assert "rclcpp::WallTimer" in ready[
                     "timer_marker"]["implementation"]

@@ -299,12 +299,41 @@ def _direct_cpp_python_callback(args) -> int:
     active_product.enable_cpp_acceleration(profile="direct_cpp")
 
     import rclpy
+    from rclpy.executors import SingleThreadedExecutor
     from rclpy.node import Node
     from rclcppyy import direct_cpp
 
     rclpy.init(args=[])
     node = Node(args.node_name)
     runtime = direct_cpp._runtime()
+    executor_surface = VARIANTS[args.variant]["executor_surface"]
+    executor = None
+    native_executor = None
+
+    if args.variant == "direct-public-ste":
+        executor = SingleThreadedExecutor(context=node.context)
+        if not executor.add_node(node):
+            raise RuntimeError("public direct STE did not acquire the benchmark node")
+        native_executor = executor.native_executor
+
+        def spin_once(timeout_sec):
+            executor.spin_once(timeout_sec=timeout_sec)
+
+    elif args.variant == "direct-raw-ste-control":
+        import cppyy
+
+        native_executor = runtime.session.create_executor("single_threaded")
+        native_executor.add_node(node._direct_cpp_node)
+
+        def spin_once(timeout_sec):
+            duration = cppyy.gbl.std.chrono.nanoseconds(int(timeout_sec * 1e9))
+            native_executor.spin_once(duration)
+            node._poll_direct_clients()
+
+    else:
+        def spin_once(timeout_sec):
+            rclpy.spin_once(node, timeout_sec=timeout_sec)
+
     phase = {"name": "warmup"}
     warmup = {"count": 0}
     measured = {"count": 0}
@@ -335,7 +364,13 @@ def _direct_cpp_python_callback(args) -> int:
 
     timer = node.create_timer(PERIOD_NS / 1e9, callback, autostart=True)
     while warmup["count"] < args.warmup_firings:
-        rclpy.spin_once(node, timeout_sec=0.1)
+        spin_once(0.1)
+
+    if native_executor is None:
+        global_executor = runtime._global_executor
+        if global_executor is None:
+            raise RuntimeError("direct global executor was not created during warmup")
+        native_executor = global_executor.native_executor
 
     records = [
         record for record in active_product.status()["entities"]
@@ -344,7 +379,7 @@ def _direct_cpp_python_callback(args) -> int:
     if not records or records[-1]["backend"] != "cpp":
         raise RuntimeError("direct timer did not record native authority")
     timer_record = records[-1]
-    executor_type = _cpp_name(runtime.executor)
+    executor_type = _cpp_name(native_executor)
     activation = {
         "profile": "direct_cpp",
         "timer_status_backend": "cpp",
@@ -353,11 +388,11 @@ def _direct_cpp_python_callback(args) -> int:
         "callback_handoff": timer_record["metadata"]["callback_handoff"],
         "native_timer_type": timer_record["metadata"]["native_type"],
         "native_executor_type": executor_type,
+        "executor_surface": executor_surface,
         "executor_session_owned": (
             runtime.session is not None
-            and runtime.executor is not None
             and any(
-                runtime.executor is candidate
+                native_executor is candidate
                 for candidate in runtime.session.executors
             )
         ),
@@ -398,19 +433,28 @@ def _direct_cpp_python_callback(args) -> int:
     timing["cpu_start_ns"] = time.process_time_ns()
     timer.reset()
     while measured["count"] < args.measured_firings:
-        rclpy.spin_once(node, timeout_sec=0.1)
+        spin_once(0.1)
 
     canceled_count = measured["count"]
     for _ in range(3):
-        rclpy.spin_once(node, timeout_sec=0.001)
+        spin_once(0.001)
     post_cancel = measured["count"] - canceled_count
     timer_canceled = timer.is_canceled()
     timer_destroyed = node.destroy_timer(timer)
+    if args.variant == "direct-public-ste":
+        executor.remove_node(node)
+        executor_shutdown = executor.shutdown(timeout_sec=2.0)
+    elif args.variant == "direct-raw-ste-control":
+        native_executor.remove_node(node._direct_cpp_node)
+        executor_shutdown = node.executor is None
+    else:
+        executor_shutdown = True
     node.destroy_node()
     rclpy.shutdown()
     teardown_clean = (
         timer_canceled
         and timer_destroyed
+        and executor_shutdown
         and not rclpy.ok()
         and runtime.session is None
         and runtime.executor is None
@@ -930,7 +974,11 @@ def main() -> int:
         return _python_authority(args, activate=False)
     if args.variant == "compatible-rclcppyy":
         return _python_authority(args, activate=True)
-    if args.variant == "direct-cpp-rclcppyy":
+    if args.variant in (
+        "direct-cpp-rclcppyy",
+        "direct-public-ste",
+        "direct-raw-ste-control",
+    ):
         return _direct_cpp_python_callback(args)
     if args.variant == "native-python-callback":
         return _native_python_callback(args)

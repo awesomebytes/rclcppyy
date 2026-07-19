@@ -7,6 +7,7 @@ import json
 import math
 from pathlib import Path
 import re
+import statistics
 import sys
 
 from _result_schema import environment_metadata
@@ -21,7 +22,10 @@ ROS_DISTRO = "jazzy"
 PERIOD_NS = 1_000_000
 WARMUP_FIRINGS = 500
 MEASURED_FIRINGS = 5_000
-REPETITIONS = 5
+REPETITIONS = 10
+REGRESSION_REQUIRED_PAIRS = 10
+REGRESSION_CPU_RATIO_LIMIT = 1.03
+REGRESSION_VARIANTS = ("direct-public-ste", "direct-raw-ste-control")
 MASK64 = (1 << 64) - 1
 RECURRENCE_MULTIPLIER = 6_364_136_223_846_793_005
 RECURRENCE_INCREMENT = 1_442_695_040_888_963_407
@@ -54,6 +58,25 @@ VARIANTS = {
         "callback_language": "python",
         "cache_kind": "direct-rclcpp-runtime",
         "python_crossings_per_firing": 1,
+        "executor_surface": "rclpy-spin-once",
+    },
+    "direct-public-ste": {
+        "execution_model": "direct-rclcpp-wall-timer-public-ste-python-callback",
+        "timer_authority": "cpp",
+        "executor_authority": "cpp",
+        "callback_language": "python",
+        "cache_kind": "direct-rclcpp-runtime",
+        "python_crossings_per_firing": 1,
+        "executor_surface": "rclpy-public-single-threaded-executor",
+    },
+    "direct-raw-ste-control": {
+        "execution_model": "direct-rclcpp-wall-timer-raw-ste-python-callback",
+        "timer_authority": "cpp",
+        "executor_authority": "cpp",
+        "callback_language": "python",
+        "cache_kind": "direct-rclcpp-runtime",
+        "python_crossings_per_firing": 1,
+        "executor_surface": "native-session-raw-single-threaded-executor",
     },
     "native-python-callback": {
         "execution_model": "managed-rclcpp-wall-timer-python-callback",
@@ -80,6 +103,15 @@ VARIANTS = {
         "python_crossings_per_firing": 0,
     },
 }
+
+DIRECT_VARIANTS = tuple(
+    variant for variant, spec in VARIANTS.items()
+    if "executor_surface" in spec
+)
+BASE_VARIANTS = tuple(
+    variant for variant in VARIANTS
+    if variant not in REGRESSION_VARIANTS
+)
 
 
 def _is_int(value) -> bool:
@@ -273,7 +305,7 @@ def _validate_ready(ready: dict, sample: dict, cache: dict) -> None:
             raise ValueError("compatible timer must be activation-only")
         if not isinstance(activation, dict) or activation.get("timer_status_backend") != "python":
             raise ValueError("compatible timer did not prove Python authority")
-    elif variant == "direct-cpp-rclcppyy":
+    elif variant in DIRECT_VARIANTS:
         activation = ready.get("activation")
         expected_activation = {
             "profile": "direct_cpp",
@@ -285,6 +317,7 @@ def _validate_ready(ready: dict, sample: dict, cache: dict) -> None:
             "executor_session_owned": True,
             "native_timer_type": ready["timer_marker"]["implementation"],
             "native_executor_type": ready["executor_marker"]["implementation"],
+            "executor_surface": spec["executor_surface"],
         }
         if artifact != {"state": "process_warm", "kind": "direct-rclcpp-runtime"}:
             raise ValueError("direct timer runtime cache marker is invalid")
@@ -468,6 +501,120 @@ def rotating_order(variants: list[str], repetition: int) -> list[str]:
     return variants[offset:] + variants[:offset]
 
 
+def measurement_order(repetition: int) -> list[str]:
+    """Keep the regression pair adjacent and alternate its local order."""
+    pair = list(REGRESSION_VARIANTS)
+    if repetition % 2 == 0:
+        pair.reverse()
+    return pair + rotating_order(list(BASE_VARIANTS), repetition)
+
+
+def build_public_ste_regression(
+    results: list[dict], *, characterization_only: bool = False
+) -> dict:
+    """Build the paired CPU gate and its secondary latency evidence."""
+    by_case = {
+        (row.get("variant"), row.get("repetition")): row
+        for row in results
+        if isinstance(row, dict)
+    }
+    pairs = []
+    for repetition in range(1, REPETITIONS + 1):
+        public = by_case.get((REGRESSION_VARIANTS[0], repetition))
+        raw = by_case.get((REGRESSION_VARIANTS[1], repetition))
+        if public is None or raw is None:
+            continue
+        public_cpu = float(public["timing"]["worker_cpu_ns_per_firing"])
+        raw_cpu = float(raw["timing"]["worker_cpu_ns_per_firing"])
+        public_latency = int(
+            public["timing"]["scheduled_deadline_error"]["absolute_ns"]["p99"])
+        raw_latency = int(
+            raw["timing"]["scheduled_deadline_error"]["absolute_ns"]["p99"])
+        pairs.append({
+            "repetition": repetition,
+            "public_case_id": public["case_id"],
+            "raw_case_id": raw["case_id"],
+            "public_cpu_ns_per_firing": public_cpu,
+            "raw_cpu_ns_per_firing": raw_cpu,
+            "cpu_ratio": public_cpu / raw_cpu,
+            "public_absolute_latency_p99_ns": public_latency,
+            "raw_absolute_latency_p99_ns": raw_latency,
+        })
+
+    public_cpu_values = [row["public_cpu_ns_per_firing"] for row in pairs]
+    raw_cpu_values = [row["raw_cpu_ns_per_firing"] for row in pairs]
+    public_latency_values = [row["public_absolute_latency_p99_ns"] for row in pairs]
+    raw_latency_values = [row["raw_absolute_latency_p99_ns"] for row in pairs]
+    if pairs:
+        public_cpu_median = float(statistics.median(public_cpu_values))
+        raw_cpu_median = float(statistics.median(raw_cpu_values))
+        cpu_ratio = public_cpu_median / raw_cpu_median
+        public_latency_median = float(statistics.median(public_latency_values))
+        raw_latency_median = float(statistics.median(raw_latency_values))
+        latency_ratio = (
+            public_latency_median / raw_latency_median
+            if raw_latency_median else None
+        )
+    else:
+        public_cpu_median = None
+        raw_cpu_median = None
+        cpu_ratio = None
+        public_latency_median = None
+        raw_latency_median = None
+        latency_ratio = None
+
+    if characterization_only:
+        mode = "characterization"
+        status = "characterization"
+        reason = "characterization_requested"
+    elif len(pairs) < REGRESSION_REQUIRED_PAIRS:
+        mode = "characterization"
+        status = "characterization"
+        reason = "incomplete_pairs"
+    elif cpu_ratio <= REGRESSION_CPU_RATIO_LIMIT:
+        mode = "enforced"
+        status = "pass"
+        reason = "within_cpu_ratio_limit"
+    else:
+        mode = "enforced"
+        status = "fail"
+        reason = "cpu_ratio_limit_exceeded"
+
+    return {
+        "schema": "rclcppyy.public-ste-regression/v1",
+        "public_variant": REGRESSION_VARIANTS[0],
+        "raw_control_variant": REGRESSION_VARIANTS[1],
+        "primary_metric": "worker_cpu_ns_per_firing",
+        "secondary_metric": "scheduled_deadline_error.absolute_ns.p99",
+        "cpu_ratio_limit": REGRESSION_CPU_RATIO_LIMIT,
+        "required_pairs": REGRESSION_REQUIRED_PAIRS,
+        "pair_count": len(pairs),
+        "mode": mode,
+        "status": status,
+        "reason": reason,
+        "public_median_cpu_ns_per_firing": public_cpu_median,
+        "raw_median_cpu_ns_per_firing": raw_cpu_median,
+        "median_cpu_ratio": cpu_ratio,
+        "public_median_absolute_latency_p99_ns": public_latency_median,
+        "raw_median_absolute_latency_p99_ns": raw_latency_median,
+        "median_absolute_latency_p99_ratio": latency_ratio,
+        "pairs": pairs,
+    }
+
+
+def validate_public_ste_regression(regression: dict, results: list[dict]) -> None:
+    if not isinstance(regression, dict):
+        raise ValueError("public STE regression evidence is required")
+    characterization = regression.get("mode") == "characterization"
+    expected = build_public_ste_regression(
+        results, characterization_only=(
+            characterization and regression.get("reason") == "characterization_requested"
+        ),
+    )
+    if regression != expected:
+        raise ValueError("public STE regression evidence is inconsistent")
+
+
 def validate_document(document: dict) -> None:
     if not isinstance(document, dict) or document.get("schema") != SCHEMA_ID:
         raise ValueError("unsupported timer benchmark schema")
@@ -506,10 +653,10 @@ def validate_document(document: dict) -> None:
     expected_order = [
         "%s__rep_%d" % (variant, repetition)
         for repetition in range(1, REPETITIONS + 1)
-        for variant in rotating_order(list(VARIANTS), repetition)
+        for variant in measurement_order(repetition)
     ]
     if parameters.get("execution_order") != expected_order:
-        raise ValueError("timer execution order is not the rotating five-repetition matrix")
+        raise ValueError("timer execution order is not the paired rotating matrix")
     isolation = document.get("isolation")
     required_isolation = (
         "fresh_worker_process_per_sample", "fresh_process_group_per_sample",
@@ -564,6 +711,7 @@ def validate_document(document: dict) -> None:
         cases[row["case_id"]] = "failure"
     if set(cases) != set(expected_order):
         raise ValueError("timer document does not cover the exact sample matrix")
+    validate_public_ste_regression(document.get("public_ste_regression"), results)
 
 
 def build_document(
@@ -578,6 +726,7 @@ def build_document(
     results: list[dict],
     failures: list[dict],
     command: list[str],
+    characterization_only: bool = False,
 ) -> dict:
     document = {
         "schema": SCHEMA_ID,
@@ -592,6 +741,8 @@ def build_document(
         "source_files": source_files,
         "results": results,
         "failures": failures,
+        "public_ste_regression": build_public_ste_regression(
+            results, characterization_only=characterization_only),
         "claims": {"enabled": False, "reason": "characterization_only"},
         "interpretation": {"enabled": False, "reason": "raw_evidence_only"},
     }
