@@ -94,6 +94,21 @@ def test_direct_parameter_note_locks_pre_through_phase_three_cpu_evidence():
     assert "explicit snapshot CPU still misses the stock priority" in entry["notes"]
 
 
+def test_direct_remote_parameter_note_locks_clean_cpu_evidence():
+    entry = next(
+        item for item in _manifest()["entries"]
+        if item["id"] == "parameter.direct_cpp_remote_client"
+    )
+    assert (
+        "Clean five-repetition artifact "
+        "build/remote-parameter-cyclone-be024c2.json records direct/stock "
+        "combined process-CPU ratios of 0.1583 for get-one and 0.2492 for "
+        "set-atomically-one, with 6.3175x and 4.0148x throughput respectively."
+    ) in entry["notes"]
+    assert "boundary counters at zero" in entry["notes"]
+    assert "claims remain disabled" in entry["notes"]
+
+
 def test_duplicate_ids_are_rejected():
     manifest = _manifest()
     manifest["entries"].append(dict(manifest["entries"][0]))

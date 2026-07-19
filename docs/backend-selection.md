@@ -265,6 +265,15 @@ records 0.6943 for declare, 0.6090 for cached get, 1.1073 for explicit value sna
 and 0.5148 for atomic set. Snapshot CPU improved to 167 ns/op versus 152 ns/op stock,
 but still misses the CPU priority; no Python scalar or message payload is cached.
 
+The clean five-repetition remote-parameter characterization at product `be024c2`
+and suite `948fd3d` runs the unchanged installed `AsyncParameterClient` source in
+both lanes. Direct/stock combined client-server process-CPU ratios are 0.1583 for
+one-value get and 0.2492 for one-value atomic set; paired throughput is 6.3175x and
+4.0148x. Exact-C++ request, response, parameter, result, node, and retained-owner
+proofs pass with all conversion, serialization, and CDR counters at zero. These are
+local x86-64 characterization results, not promoted claims; dedicated-host and
+native ARM64 repetition remain required.
+
 Common graph queries use the same native node authority: topic/service names and
 types, node names/namespaces/enclaves, per-node endpoint types, publisher/
 subscriber/service/client counts, topic/service resolution, and `wait_for_node`.
