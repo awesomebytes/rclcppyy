@@ -27,6 +27,13 @@ _PYTHONIZED: dict[Any, Any] = {}
 _ACTIVE_INSTALLATION = None
 _DEFAULT_QOS = object()
 _FEEDBACK_CAPACITY = 1024
+_STATUS_UNKNOWN = 0
+_STATUS_EXECUTING = 2
+_TERMINAL_STATUS = {
+    "succeed": 4,
+    "canceled": 5,
+    "abort": 6,
+}
 
 
 def _unsupported(reason: str):
@@ -42,6 +49,40 @@ def _byte_values(values) -> bytes:
 
 def _int8_value(value) -> int:
     return ord(value) if isinstance(value, str) else int(value)
+
+
+def _default_goal_callback(_goal):
+    from rclpy.action import GoalResponse
+
+    return GoalResponse.ACCEPT
+
+
+def _default_cancel_callback(_goal_handle):
+    from rclpy.action import CancelResponse
+
+    return CancelResponse.REJECT
+
+
+def _default_handle_accepted_callback(goal_handle):
+    goal_handle.execute()
+
+
+def _validate_sync_callback(name, callback):
+    if not callable(callback):
+        raise TypeError("%s must be callable" % name)
+    target = getattr(callback, "__call__", callback)
+    if inspect.iscoroutinefunction(callback) or inspect.iscoroutinefunction(target):
+        _unsupported("direct_cpp action servers require synchronous %s" % name)
+
+
+def _sync_result(name, callback, argument):
+    result = callback(argument)
+    if inspect.isawaitable(result):
+        close = getattr(result, "close", None)
+        if close is not None:
+            close()
+        raise TypeError("%s must complete synchronously" % name)
+    return result
 
 
 @dataclass(frozen=True)
@@ -917,11 +958,576 @@ class DirectActionClient:
         return True
 
 
-class DirectActionServer:
-    """Fail-closed marker for the not-yet-implemented direct action server."""
+class DirectServerGoalHandle:
+    """Jazzy-shaped server goal handle over one native C++ goal record."""
 
-    def __init__(self, *args, **kwargs):
-        _unsupported("direct_cpp action servers do not yet have C++ authority")
+    def __init__(self, action_server, accepted_goal):
+        self._action_server = action_server
+        self._token = int(accepted_goal.token)
+        self._goal_request = accepted_goal.goal
+        self._goal_id = accepted_goal.goal_id
+        self._initial_status = int(accepted_goal.status)
+        self._pending_terminal = None
+        self._terminal_status = None
+        self._executing = self._initial_status == _STATUS_EXECUTING
+        self._execute_callback_depth = 0
+        self._destroyed = False
+        self._lock = threading.RLock()
+
+    @property
+    def request(self):
+        return self._goal_request
+
+    @property
+    def goal_id(self):
+        return self._goal_id
+
+    @property
+    def is_active(self):
+        with self._lock:
+            if self._destroyed or self._terminal_status is not None:
+                return False
+            if self._pending_terminal is not None:
+                return False
+        return self._action_server._goal_is_active(self)
+
+    @property
+    def is_cancel_requested(self):
+        if self._destroyed or self._terminal_status is not None:
+            return False
+        return self._action_server._goal_is_canceling(self)
+
+    @property
+    def status(self):
+        with self._lock:
+            if self._terminal_status is not None:
+                return self._terminal_status
+            if self._pending_terminal is not None:
+                return _TERMINAL_STATUS[self._pending_terminal]
+            if self._destroyed:
+                return _STATUS_UNKNOWN
+        return self._action_server._goal_status(self)
+
+    def executing(self):
+        self._action_server._begin_goal_execution(self, skip_if_canceling=False)
+
+    def execute(self, execute_callback=None):
+        self._action_server.notify_execute(self, execute_callback)
+
+    def publish_feedback(self, feedback):
+        self._require_available()
+        if not isinstance(feedback, self._action_server.action_type.Feedback):
+            raise TypeError(
+                "feedback must be an actual direct_cpp C++ action Feedback")
+        self._action_server._native.publish_feedback(self._token, feedback)
+
+    def succeed(self, response=None):
+        self._request_terminal("succeed", response)
+
+    def abort(self, response=None):
+        self._request_terminal("abort", response)
+
+    def canceled(self, response=None):
+        self._request_terminal("canceled", response)
+
+    def _request_terminal(self, operation, response):
+        self._require_available()
+        if response is None and self._execute_callback_depth == 0:
+            _unsupported(
+                "response-less terminal state changes require an active "
+                "direct_cpp execute callback")
+        if response is not None and not isinstance(
+            response, self._action_server.action_type.Result
+        ):
+            raise TypeError(
+                "response must be an actual direct_cpp C++ action Result")
+        with self._lock:
+            if self._terminal_status is not None:
+                raise RuntimeError("direct_cpp action goal is already terminal")
+            if self._pending_terminal not in (None, operation):
+                raise RuntimeError(
+                    "direct_cpp action goal already has a pending terminal state")
+            self._pending_terminal = operation
+        if response is not None:
+            self._action_server._commit_terminal(self, operation, response)
+
+    def _require_available(self):
+        if self._destroyed:
+            raise RuntimeError("direct_cpp server goal handle is destroyed")
+        if self._action_server.closed:
+            raise RuntimeError("direct_cpp action server is destroyed")
+
+    def destroy(self):
+        with self._lock:
+            if self._destroyed:
+                return
+            self._destroyed = True
+        self._action_server._forget_goal(self)
+
+    def __eq__(self, other):
+        if not isinstance(other, DirectServerGoalHandle):
+            return False
+        return _byte_values(self.goal_id.uuid) == _byte_values(other.goal_id.uuid)
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __repr__(self):
+        return "ServerGoalHandle <id=%r, status=%d>" % (
+            list(_byte_values(self.goal_id.uuid)), self.status)
+
+
+class DirectActionServer:
+    """Lean synchronous ActionServer facade over ``rclcpp_action`` authority."""
+
+    def __init__(
+        self,
+        node,
+        action_type,
+        action_name,
+        execute_callback=None,
+        *,
+        callback_group=None,
+        goal_callback=_default_goal_callback,
+        handle_accepted_callback=_default_handle_accepted_callback,
+        cancel_callback=_default_cancel_callback,
+        goal_service_qos_profile=_DEFAULT_QOS,
+        result_service_qos_profile=_DEFAULT_QOS,
+        cancel_service_qos_profile=_DEFAULT_QOS,
+        feedback_pub_qos_profile=_DEFAULT_QOS,
+        status_pub_qos_profile=_DEFAULT_QOS,
+        result_timeout=900,
+    ):
+        binding = resolve_supported_type(action_type)
+        if getattr(node, "_direct_cpp_node", None) is None:
+            raise TypeError("direct_cpp ActionServer requires a direct_cpp Node")
+        servers = getattr(node, "_direct_cpp_action_servers", None)
+        if servers is None:
+            _unsupported(
+                "direct_cpp ActionServer node polling integration is not active")
+        self._validate_qos(
+            goal_service_qos_profile,
+            result_service_qos_profile,
+            cancel_service_qos_profile,
+            feedback_pub_qos_profile,
+            status_pub_qos_profile,
+        )
+        name = str(action_name)
+        if not name.strip():
+            raise ValueError("action_name must not be empty")
+        if callback_group is not None and getattr(
+            callback_group, "_kind", None
+        ) == "reentrant":
+            _unsupported(
+                "P0 direct_cpp action servers require a mutually-exclusive "
+                "callback group")
+        executor = getattr(node, "executor", None)
+        if executor is not None and getattr(executor, "_kind", None) == "multi_threaded":
+            _unsupported(
+                "P0 direct_cpp action servers do not support MultiThreadedExecutor")
+
+        self._node = node
+        self._action_type = action_type
+        self._action_name = name
+        self._cpp_types = binding.cpp_types
+        self._binding = binding
+        self._lock = threading.RLock()
+        self._goal_handles = {}
+        self._callback_errors = []
+        self._callback_depth = 0
+        self._closed = False
+        self._close_pending = False
+        self._native = None
+        self.callback_group = None
+        self._goal_callback = None
+        self._cancel_callback = None
+        self._handle_accepted_callback = None
+        self._execute_callback = None
+
+        self.register_goal_callback(goal_callback)
+        self.register_cancel_callback(cancel_callback)
+        self.register_handle_accepted_callback(handle_accepted_callback)
+        if execute_callback is not None:
+            self.register_execute_callback(execute_callback)
+
+        group, native_group = node._resolve_callback_group(callback_group)
+        if getattr(group, "_kind", None) != "mutually_exclusive":
+            _unsupported(
+                "P0 direct_cpp action servers require a mutually-exclusive "
+                "callback group")
+        from rclcppyy.direct_cpp import _runtime
+
+        self._native = _runtime().require_session().create_native_action_server(
+            node._require_node(),
+            action_type,
+            name,
+            goal_callback=self._decide_goal,
+            cancel_callback=self._decide_cancel,
+            callback_group=native_group,
+            result_timeout=result_timeout,
+        )
+        self.callback_group = group
+        servers.append(self)
+        group.add_entity(self)
+        record_decision(
+            "entities",
+            "cpp",
+            "direct typed rclcpp action server with generated C++ values",
+            policies=(
+                "direct_cpp", "direct_cpp_action_server", "no_conversion",
+                "synchronous_p0", "polled_accepted_goals",
+            ),
+            metadata={
+                "entity_type": "action_server",
+                "action_name": name,
+                "action_type": binding.cpp_types.cpp_name,
+                "action_interface": binding.interface,
+                "goal_representation": "actual_cpp",
+                "goal_id_representation": "actual_cpp",
+                "feedback_representation": "actual_cpp",
+                "result_representation": "actual_cpp",
+                "python_message_conversions": 0,
+                "python_serialization_calls": 0,
+                "decision_callbacks": "synchronous_creator_thread",
+                "terminal_result": "exact_cpp_deferred_commit",
+                "source_id": self._native.source_id,
+            },
+        )
+
+    @staticmethod
+    def _validate_qos(goal, result, cancel, feedback, status):
+        from rclpy.qos import qos_profile_action_status_default
+        from rclpy.qos import qos_profile_services_default
+        from rclpy.qos import QoSProfile
+
+        expected = (
+            qos_profile_services_default,
+            qos_profile_services_default,
+            qos_profile_services_default,
+            QoSProfile(depth=10),
+            qos_profile_action_status_default,
+        )
+        supplied = (goal, result, cancel, feedback, status)
+        unsupported = [
+            name for name, value, default in zip(
+                ("goal", "result", "cancel", "feedback", "status"),
+                supplied,
+                expected,
+            )
+            if value is not _DEFAULT_QOS and value != default
+        ]
+        if unsupported:
+            _unsupported(
+                "P0 direct_cpp action servers require default QoS for: %s" %
+                ", ".join(unsupported))
+
+    @property
+    def action_type(self):
+        return self._action_type
+
+    @property
+    def action_name(self):
+        return self._action_name
+
+    @property
+    def closed(self):
+        return self._closed
+
+    @property
+    def close_pending(self):
+        return self._close_pending and not self._closed
+
+    @property
+    def compile_result(self):
+        return dict(self._native.compile_result)
+
+    @property
+    def source_id(self):
+        return self._native.source_id
+
+    def register_goal_callback(self, goal_callback):
+        if self._closed:
+            raise RuntimeError("direct_cpp action server is destroyed")
+        callback = _default_goal_callback if goal_callback is None else goal_callback
+        _validate_sync_callback("goal_callback", callback)
+        with self._lock:
+            self._goal_callback = callback
+
+    def register_cancel_callback(self, cancel_callback):
+        if self._closed:
+            raise RuntimeError("direct_cpp action server is destroyed")
+        callback = _default_cancel_callback if cancel_callback is None else cancel_callback
+        _validate_sync_callback("cancel_callback", callback)
+        with self._lock:
+            self._cancel_callback = callback
+
+    def register_handle_accepted_callback(self, handle_accepted_callback):
+        if self._closed:
+            raise RuntimeError("direct_cpp action server is destroyed")
+        callback = (
+            _default_handle_accepted_callback
+            if handle_accepted_callback is None
+            else handle_accepted_callback
+        )
+        _validate_sync_callback("handle_accepted_callback", callback)
+        with self._lock:
+            self._handle_accepted_callback = callback
+
+    def register_execute_callback(self, execute_callback):
+        if self._closed:
+            raise RuntimeError("direct_cpp action server is destroyed")
+        _validate_sync_callback("execute_callback", execute_callback)
+        with self._lock:
+            self._execute_callback = execute_callback
+
+    def _record_callback_error(self, error):
+        with self._lock:
+            self._callback_errors.append(error)
+
+    def _invoke_callback(self, name, callback, argument):
+        with self._lock:
+            self._callback_depth += 1
+        try:
+            return _sync_result(name, callback, argument)
+        finally:
+            with self._lock:
+                self._callback_depth -= 1
+
+    def callback_error_ready(self):
+        with self._lock:
+            return bool(self._callback_errors)
+
+    def take_callback_error(self):
+        with self._lock:
+            if not self._callback_errors:
+                raise RuntimeError("no direct action-server callback error is ready")
+            return self._callback_errors.pop(0)
+
+    def _decide_goal(self, goal):
+        if self._closed:
+            return False
+        with self._lock:
+            callback = self._goal_callback
+        try:
+            response = self._invoke_callback("goal_callback", callback, goal)
+            from rclpy.action import GoalResponse
+
+            if not isinstance(response, GoalResponse):
+                raise TypeError("goal_callback must return GoalResponse")
+            return response == GoalResponse.ACCEPT
+        except BaseException as error:
+            self._record_callback_error(error)
+            return False
+
+    def _decide_cancel(self, token):
+        if self._closed:
+            return False
+        with self._lock:
+            handle = self._goal_handles.get(int(token))
+            callback = self._cancel_callback
+        if handle is None:
+            return False
+        try:
+            response = self._invoke_callback("cancel_callback", callback, handle)
+            from rclpy.action import CancelResponse
+
+            if not isinstance(response, CancelResponse):
+                raise TypeError("cancel_callback must return CancelResponse")
+            return response == CancelResponse.ACCEPT
+        except BaseException as error:
+            self._record_callback_error(error)
+            return False
+
+    def _poll_ready(self):
+        if self._closed:
+            return
+        if self._close_pending:
+            self._service_pending_close()
+            return
+        while self._native.callback_error_ready():
+            self._record_callback_error(self._native.take_callback_error())
+        while not self._closed and self._native.accepted_ready_count():
+            accepted = self._native.take_accepted()
+            handle = DirectServerGoalHandle(self, accepted)
+            with self._lock:
+                self._goal_handles[handle._token] = handle
+                callback = self._handle_accepted_callback
+            try:
+                self._invoke_callback(
+                    "handle_accepted_callback", callback, handle)
+            except BaseException as error:
+                self._record_callback_error(error)
+                self._abort_after_callback_error(handle)
+        if self._close_pending:
+            self._service_pending_close()
+
+    def _abort_after_callback_error(self, handle):
+        if self._closed or handle._terminal_status is not None:
+            return
+        try:
+            if not handle._executing and not handle.is_cancel_requested:
+                self._begin_goal_execution(handle, skip_if_canceling=True)
+            result = self.action_type.Result()
+            self._commit_terminal(handle, "abort", result, replace_pending=True)
+        except BaseException as error:
+            self._record_callback_error(error)
+
+    def notify_execute(self, goal_handle, execute_callback):
+        self._validate_goal_handle(goal_handle)
+        callback = self._execute_callback if execute_callback is None else execute_callback
+        if callback is not None:
+            _validate_sync_callback("execute_callback", callback)
+        self._begin_goal_execution(goal_handle, skip_if_canceling=True)
+        if callback is not None:
+            self._execute_goal(callback, goal_handle)
+
+    def notify_goal_done(self):
+        return None
+
+    def _begin_goal_execution(self, handle, *, skip_if_canceling):
+        self._validate_goal_handle(handle)
+        with handle._lock:
+            if handle._executing:
+                raise RuntimeError("direct_cpp action goal is already executing")
+            if handle._terminal_status is not None or handle._pending_terminal is not None:
+                raise RuntimeError("direct_cpp action goal is already terminal")
+            if skip_if_canceling and handle.is_cancel_requested:
+                return
+            self._native.execute(handle._token)
+            handle._executing = True
+
+    def _execute_goal(self, callback, handle):
+        with handle._lock:
+            handle._execute_callback_depth += 1
+        try:
+            result = self._invoke_callback("execute_callback", callback, handle)
+            if not isinstance(result, self.action_type.Result):
+                raise TypeError(
+                    "execute_callback must return an actual direct_cpp C++ action Result")
+        except BaseException as error:
+            self._record_callback_error(error)
+            result = self.action_type.Result()
+            if handle._terminal_status is None:
+                self._commit_terminal(handle, "abort", result, replace_pending=True)
+            return
+        finally:
+            with handle._lock:
+                handle._execute_callback_depth -= 1
+        if handle._terminal_status is not None:
+            return
+        operation = handle._pending_terminal or "abort"
+        self._commit_terminal(handle, operation, result)
+
+    def _commit_terminal(self, handle, operation, result, *, replace_pending=False):
+        self._validate_goal_handle(handle)
+        if operation not in _TERMINAL_STATUS:
+            raise ValueError("unknown direct action terminal operation")
+        if not isinstance(result, self.action_type.Result):
+            raise TypeError("terminal result must be an actual direct_cpp C++ Result")
+        with handle._lock:
+            if handle._terminal_status is not None:
+                raise RuntimeError("direct_cpp action goal is already terminal")
+            if replace_pending:
+                handle._pending_terminal = operation
+            elif handle._pending_terminal not in (None, operation):
+                raise RuntimeError("direct_cpp action goal has another terminal state")
+            getattr(self._native, operation)(handle._token, result)
+            handle._pending_terminal = None
+            handle._terminal_status = _TERMINAL_STATUS[operation]
+
+    def _validate_goal_handle(self, handle):
+        if self._closed:
+            raise RuntimeError("direct_cpp action server is destroyed")
+        if not isinstance(handle, DirectServerGoalHandle):
+            raise TypeError("expected a direct_cpp ServerGoalHandle")
+        if handle._action_server is not self:
+            raise TypeError("server goal handle belongs to another ActionServer")
+        if handle._destroyed:
+            raise RuntimeError("direct_cpp server goal handle is destroyed")
+        with self._lock:
+            if self._goal_handles.get(handle._token) is not handle:
+                raise RuntimeError("direct_cpp action goal is no longer tracked")
+
+    def _goal_status(self, handle):
+        self._validate_goal_handle(handle)
+        return int(self._native.status(handle._token))
+
+    def _goal_is_active(self, handle):
+        self._validate_goal_handle(handle)
+        return bool(self._native.is_active(handle._token))
+
+    def _goal_is_canceling(self, handle):
+        self._validate_goal_handle(handle)
+        return bool(self._native.is_canceling(handle._token))
+
+    def _forget_goal(self, handle):
+        with self._lock:
+            if self._goal_handles.get(handle._token) is handle:
+                del self._goal_handles[handle._token]
+        if not self._closed:
+            self._native.forget(handle._token)
+
+    def stats(self):
+        return self._native.stats()
+
+    def configure_introspection(self, *args, **kwargs):
+        _unsupported("P0 direct_cpp action servers do not support introspection")
+
+    def destroy(self):
+        self.close()
+
+    def close(self):
+        if self._closed:
+            return False
+        with self._lock:
+            if self._callback_depth:
+                self._close_pending = True
+                return False
+        if not self._native.close():
+            self._close_pending = True
+            return False
+        self._finalize_close()
+        return True
+
+    def _service_pending_close(self):
+        if self._closed or not self._close_pending:
+            return False
+        with self._lock:
+            if self._callback_depth:
+                return False
+        if self._native.close_pending:
+            closed = self._native.service_deferred_close()
+        else:
+            closed = self._native.close()
+        if closed:
+            self._finalize_close()
+        return bool(closed)
+
+    def _finalize_close(self):
+        if self._closed:
+            return
+        self._closed = True
+        self._close_pending = False
+        with self._lock:
+            handles = tuple(self._goal_handles.values())
+            self._goal_handles.clear()
+            self._goal_callback = None
+            self._cancel_callback = None
+            self._handle_accepted_callback = None
+            self._execute_callback = None
+        for handle in handles:
+            with handle._lock:
+                handle._destroyed = True
+        if self.callback_group is not None:
+            self.callback_group.discard_entity(self)
+        discard = getattr(self._node, "_discard_direct_action_server", None)
+        if discard is not None:
+            discard(self)
+        else:
+            try:
+                self._node._direct_cpp_action_servers.remove(self)
+            except (AttributeError, ValueError):
+                pass
 
 
 __all__ = [
@@ -932,6 +1538,7 @@ __all__ = [
     "DirectActionPlan",
     "DirectActionServer",
     "DirectClientGoalHandle",
+    "DirectServerGoalHandle",
     "assert_early_imports",
     "install",
     "normalize_interfaces",
