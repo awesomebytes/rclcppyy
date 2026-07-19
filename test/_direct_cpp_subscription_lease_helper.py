@@ -122,7 +122,10 @@ assert all(type(message) is UInt64 for message in node.integers)
 assert [str(message.data) for message in node.strings] == ["first", "second"]
 assert [int(message.data) for message in node.integers] == [7, 2**63 + 9]
 
-wrappers = tuple(node._direct_cpp_subscriptions)
+wrappers = tuple(
+    subscription._native
+    for subscription in node._direct_cpp_subscriptions
+)
 assert len(wrappers) == 2
 for wrapper in wrappers:
     stats = wrapper.stats()
@@ -196,8 +199,8 @@ publish_pair(reinitialized, ("reinitialized",), (303,))
 assert str(reinitialized.strings[0].data) == "reinitialized"
 assert int(reinitialized.integers[0].data) == 303
 assert all(
-    wrapper.lease_count == 1
-    for wrapper in reinitialized._direct_cpp_subscriptions
+    subscription._native.lease_count == 1
+    for subscription in reinitialized._direct_cpp_subscriptions
 )
 reinitialized.destroy_node()
 rclpy.shutdown()

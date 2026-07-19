@@ -15,7 +15,10 @@ def test_direct_cpp_source_compatible_pubsub_and_lifetime():
     assert process.returncode == 0, format_output(process)
     assert "DIRECT_CPP_CONSTRUCTORS_OK" in process.stdout
     assert "DIRECT_CPP_FAIL_CLOSED_OK" in process.stdout
+    assert "DIRECT_CPP_FACADES_OK" in process.stdout
     assert "DIRECT_CPP_MESSAGES_OK" in process.stdout
+    assert "DIRECT_CPP_NAMESPACED_REMAP_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_OK" in process.stdout
     assert "DIRECT_CPP_TEARDOWN_OK" in process.stdout
 
 

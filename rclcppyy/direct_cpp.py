@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from enum import Enum
 import math
 import inspect
 import os
@@ -118,6 +119,179 @@ class _DirectRuntime:
         self.session.close("rclcppyy direct_cpp shutdown")
         self.executor = None
         self.session = None
+
+
+def _invalid_handle(reason):
+    from rclpy.exceptions import InvalidHandle
+
+    raise InvalidHandle(reason)
+
+
+def _qos_profile_from_depth(depth):
+    from rclpy.qos import QoSProfile
+
+    return QoSProfile(depth=depth)
+
+
+class DirectPublisher:
+    """rclpy-shaped metadata and lifetime around a typed C++ publisher."""
+
+    def __init__(self, msg_type, topic, qos_profile, logger_name, native):
+        self._native = native
+        self._closed = False
+        self.msg_type = msg_type
+        self.topic = str(native.entity().get_topic_name())
+        self.qos_profile = qos_profile
+        self.event_handlers = []
+        self._logger_name = str(logger_name)
+        # This is a cppyy-bound ManagedPublisher<MessageT>::publish overload.
+        # Do not replace it with a Python method: publish is the message hot path.
+        self.publish = native.publish
+
+    @property
+    def closed(self):
+        return self._closed
+
+    @property
+    def handle(self):
+        _unsupported("direct_cpp publishers do not expose a stock rclpy handle")
+
+    @property
+    def native_entity(self):
+        return self._require_native().entity()
+
+    @property
+    def topic_name(self):
+        return str(self.native_entity.get_topic_name())
+
+    @property
+    def logger_name(self):
+        self._require_native()
+        return self._logger_name
+
+    def get_subscription_count(self):
+        return int(self.native_entity.get_subscription_count())
+
+    def assert_liveliness(self):
+        result = self.native_entity.assert_liveliness()
+        if result is False:
+            raise RuntimeError("direct_cpp publisher could not assert liveliness")
+
+    def wait_for_all_acked(self, timeout=None):
+        if timeout is None:
+            nanoseconds = -1
+        else:
+            from rclpy.duration import Duration
+
+            if not isinstance(timeout, Duration):
+                raise TypeError("timeout must be an rclpy.duration.Duration")
+            nanoseconds = timeout.nanoseconds
+        duration = cppyy.gbl.std.chrono.nanoseconds(int(nanoseconds))
+        return bool(self.native_entity.wait_for_all_acked(duration))
+
+    def _require_native(self):
+        if self._closed:
+            _invalid_handle("direct_cpp publisher is destroyed")
+        return self._native
+
+    def _close(self):
+        if self._closed:
+            return False
+        closed = bool(self._native.close())
+        self._closed = True
+        return closed
+
+    def destroy(self):
+        if not self._close():
+            _invalid_handle("direct_cpp publisher is already destroyed")
+
+
+class DirectSubscription:
+    """rclpy-shaped control plane over one existing C++ callback route."""
+
+    class CallbackType(Enum):
+        MessageOnly = 0
+        WithMessageInfo = 1
+
+    def __init__(
+        self,
+        msg_type,
+        topic,
+        callback,
+        qos_profile,
+        logger_name,
+        native,
+    ):
+        self._native = native
+        self._closed = False
+        self.msg_type = msg_type
+        self.topic = str(native.entity.get_topic_name())
+        self._callback = callback
+        self.callback_group = None
+        self._executor_event = False
+        self.qos_profile = qos_profile
+        self.raw = False
+        self.event_handlers = []
+        self._callback_type = self.CallbackType.MessageOnly
+        self._logger_name = str(logger_name)
+
+    @property
+    def closed(self):
+        return self._closed
+
+    @property
+    def handle(self):
+        _unsupported("direct_cpp subscriptions do not expose a stock rclpy handle")
+
+    @property
+    def native_entity(self):
+        return self._require_native().entity
+
+    @property
+    def topic_name(self):
+        return str(self.native_entity.get_topic_name())
+
+    @property
+    def logger_name(self):
+        self._require_native()
+        return self._logger_name
+
+    @property
+    def callback(self):
+        return self._callback
+
+    @callback.setter
+    def callback(self, value):
+        _unsupported("direct_cpp subscriptions do not support callback replacement")
+
+    @property
+    def is_cft_enabled(self):
+        _unsupported("direct_cpp subscriptions do not support content filtering")
+
+    def set_content_filter(self, filter_expression, expression_parameters):
+        _unsupported("direct_cpp subscriptions do not support content filtering")
+
+    def get_content_filter(self):
+        _unsupported("direct_cpp subscriptions do not support content filtering")
+
+    def get_publisher_count(self):
+        return int(self.native_entity.get_publisher_count())
+
+    def _require_native(self):
+        if self._closed:
+            _invalid_handle("direct_cpp subscription is destroyed")
+        return self._native
+
+    def _close(self):
+        if self._closed:
+            return False
+        closed = bool(self._native.close())
+        self._closed = True
+        return closed
+
+    def destroy(self):
+        if not self._close():
+            _invalid_handle("direct_cpp subscription is already destroyed")
 
 
 class DirectClient:
@@ -380,11 +554,11 @@ class DirectNode:
 
     @property
     def publishers(self):
-        return list(self._direct_cpp_publishers)
+        yield from self._direct_cpp_publishers
 
     @property
     def subscriptions(self):
-        return [item.entity for item in self._direct_cpp_subscriptions]
+        yield from self._direct_cpp_subscriptions
 
     @property
     def timers(self):
@@ -437,8 +611,15 @@ class DirectNode:
         direct_entities.resolve_supported_type(msg_type)
         qos = direct_entities.qos_from_depth(
             _runtime().session.rclcpp, qos_profile)
-        publisher = direct_entities.create_publisher(
+        native = direct_entities.create_managed_publisher(
             self._require_node(), msg_type, str(topic), qos)
+        publisher = DirectPublisher(
+            msg_type,
+            topic,
+            _qos_profile_from_depth(qos_profile),
+            self._logger_name(),
+            native,
+        )
         self._direct_cpp_publishers.append(publisher)
         self._record_entity("publisher", topic, msg_type)
         return publisher
@@ -469,19 +650,28 @@ class DirectNode:
         direct_entities.resolve_supported_type(msg_type)
         if not callable(callback):
             raise TypeError("subscription callback must be callable")
+        self._validate_subscription_callback(callback)
         qos = direct_entities.qos_from_depth(
             _runtime().session.rclcpp, qos_profile)
         if "subscription_shared_lease" in _runtime().optimizations:
             from rclcpp_kit import direct_subscription_lease
 
-            subscription = direct_subscription_lease.create_subscription_lease(
+            native = direct_subscription_lease.create_subscription_lease(
                 self._require_node(), msg_type, str(topic), callback, qos)
         else:
-            subscription = direct_entities.create_subscription(
+            native = direct_entities.create_subscription(
                 self._require_node(), msg_type, str(topic), callback, qos)
+        subscription = DirectSubscription(
+            msg_type,
+            topic,
+            callback,
+            _qos_profile_from_depth(qos_profile),
+            self._logger_name(),
+            native,
+        )
         self._direct_cpp_subscriptions.append(subscription)
-        self._record_entity("subscription", topic, msg_type, subscription)
-        return subscription.entity
+        self._record_entity("subscription", topic, msg_type, native)
+        return subscription
 
     def create_timer(
         self,
@@ -602,6 +792,20 @@ class DirectNode:
                 return True
         return False
 
+    def destroy_publisher(self, publisher):
+        for index, candidate in enumerate(self._direct_cpp_publishers):
+            if publisher is candidate:
+                del self._direct_cpp_publishers[index]
+                return candidate._close()
+        return False
+
+    def destroy_subscription(self, subscription):
+        for index, candidate in enumerate(self._direct_cpp_subscriptions):
+            if subscription is candidate:
+                del self._direct_cpp_subscriptions[index]
+                return candidate._close()
+        return False
+
     def destroy_client(self, client):
         for index, candidate in enumerate(self._direct_cpp_clients):
             if client is candidate:
@@ -628,6 +832,10 @@ class DirectNode:
         node = self._direct_cpp_node
         if node is None:
             return
+        while self._direct_cpp_publishers:
+            self.destroy_publisher(self._direct_cpp_publishers[0])
+        while self._direct_cpp_subscriptions:
+            self.destroy_subscription(self._direct_cpp_subscriptions[0])
         for timer in tuple(self._direct_cpp_timers):
             timer.destroy()
         for client in tuple(self._direct_cpp_clients):
@@ -636,20 +844,18 @@ class DirectNode:
             service.close()
         for action_client in tuple(self._direct_cpp_action_clients):
             action_client.close()
-        for subscription in tuple(self._direct_cpp_subscriptions):
-            close = getattr(subscription, "close", None)
-            if close is not None:
-                close()
         self._direct_cpp_timers.clear()
         self._direct_cpp_clients.clear()
         self._direct_cpp_services.clear()
         self._direct_cpp_action_clients.clear()
-        self._direct_cpp_publishers.clear()
-        self._direct_cpp_subscriptions.clear()
         _runtime().detach(self, node)
         self._direct_cpp_node = None
 
     def _mark_runtime_shutdown(self):
+        for publisher in tuple(self._direct_cpp_publishers):
+            publisher._close()
+        for subscription in tuple(self._direct_cpp_subscriptions):
+            subscription._close()
         for timer in tuple(self._direct_cpp_timers):
             timer.destroy()
         for client in tuple(self._direct_cpp_clients):
@@ -658,10 +864,6 @@ class DirectNode:
             service.close()
         for action_client in tuple(self._direct_cpp_action_clients):
             action_client.close()
-        for subscription in tuple(self._direct_cpp_subscriptions):
-            close = getattr(subscription, "close", None)
-            if close is not None:
-                close()
         self._direct_cpp_timers.clear()
         self._direct_cpp_clients.clear()
         self._direct_cpp_services.clear()
@@ -682,6 +884,31 @@ class DirectNode:
                 "direct_cpp %s does not support option(s): %s" %
                 (entity_type, ", ".join(selected))
             )
+
+    def _logger_name(self):
+        logger = self._require_node().get_logger()
+        return str(logger.name)
+
+    def _validate_subscription_callback(self, callback):
+        callback_target = getattr(callback, "__call__", callback)
+        if inspect.iscoroutinefunction(callback) or inspect.iscoroutinefunction(
+            callback_target
+        ):
+            _unsupported("direct_cpp subscriptions require a synchronous callback")
+        signature = inspect.signature(callback)
+        try:
+            signature.bind(object())
+            return
+        except TypeError:
+            pass
+        try:
+            signature.bind(object(), object())
+        except TypeError as exc:
+            raise RuntimeError(
+                "subscription callback must accept exactly one message argument"
+            ) from exc
+        _unsupported(
+            "direct_cpp subscriptions do not yet support MessageInfo callbacks")
 
     def _require_default_service_qos(self, qos_profile):
         from rclpy.qos import qos_profile_services_default
@@ -806,7 +1033,12 @@ def _check_runtime() -> None:
 
 def _check_early_activation() -> None:
     stale = sorted(
-        name for name in ("rclpy.node", "rclpy.executors") if name in sys.modules)
+        name for name in (
+            "rclpy.executors",
+            "rclpy.node",
+            "rclpy.publisher",
+            "rclpy.subscription",
+        ) if name in sys.modules)
     if stale:
         raise RuntimeError(
             "direct_cpp must be enabled before importing: %s" % ", ".join(stale))
@@ -928,11 +1160,17 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         import rclpy.action.client as action_client_module
         import rclpy.action.server as action_server_module
         import rclpy.node as node_module
+        import rclpy.publisher as publisher_module
+        import rclpy.subscription as subscription_module
 
         runtime = _DirectRuntime(
             normalized_optimizations, normalized_interfaces)
+        DirectSubscription.CallbackType = (
+            subscription_module.Subscription.CallbackType)
         replacements = (
             (node_module, "Node", DirectNode),
+            (publisher_module, "Publisher", DirectPublisher),
+            (subscription_module, "Subscription", DirectSubscription),
             (action_module, "ActionClient", direct_actions.DirectActionClient),
             (action_client_module, "ActionClient", direct_actions.DirectActionClient),
             (
@@ -992,4 +1230,11 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
     return True
 
 
-__all__ = ["DirectClient", "DirectNode", "DirectService", "activate"]
+__all__ = [
+    "DirectClient",
+    "DirectNode",
+    "DirectPublisher",
+    "DirectService",
+    "DirectSubscription",
+    "activate",
+]

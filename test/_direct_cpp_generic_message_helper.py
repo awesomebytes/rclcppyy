@@ -100,14 +100,15 @@ def spin_until(node, condition):
 
 rclpy.init(args=[])
 node = HeaderPair()
-before = (len(node.publishers), len(node.subscriptions))
+before = (len(tuple(node.publishers)), len(tuple(node.subscriptions)))
 try:
     node.create_publisher(Float64, "/direct_cpp/unregistered", 10)
 except TypeError:
     pass
 else:
     raise AssertionError("unregistered Python message class created a direct publisher")
-assert (len(node.publishers), len(node.subscriptions)) == before
+assert (
+    len(tuple(node.publishers)), len(tuple(node.subscriptions))) == before
 
 spin_until(node, lambda: node.publisher.get_subscription_count() == 1)
 message = Header()
@@ -122,7 +123,7 @@ assert type(received) is Header
 assert int(received.stamp.sec) == 31
 assert int(received.stamp.nanosec) == 42
 assert str(received.frame_id) == "exact-generated-cpp"
-wrapper = node._direct_cpp_subscriptions[0]
+wrapper = node._direct_cpp_subscriptions[0]._native
 assert wrapper.creation_route == "rclcpp_unique_ptr_subscription_lease"
 assert wrapper.owning_cpp_copy_count == 0
 assert wrapper.lease_count == 1

@@ -515,7 +515,7 @@ def _run_python_relay(
 
         executor = runtime.executor
         executor_thread = threading.Thread(target=spin_direct_cpp, daemon=False)
-        direct_subscription = node._direct_cpp_subscriptions[-1]
+        direct_subscription = subscription._native
         expected_creation_route = (
             "rclcpp_unique_ptr_subscription_lease"
             if use_subscription_lease else "prebuilt_subscription_trampoline"
@@ -565,8 +565,8 @@ def _run_python_relay(
     if use_direct_cpp:
         entity_types = {
             "node": _cpp_name(node._direct_cpp_node),
-            "publisher": _cpp_name(publisher),
-            "subscription": _cpp_name(subscription),
+            "publisher": _cpp_name(publisher.native_entity),
+            "subscription": _cpp_name(subscription.native_entity),
             "executor": _cpp_name(executor),
         }
         direct_cpp_proof = {

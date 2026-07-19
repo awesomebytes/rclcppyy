@@ -3,6 +3,7 @@
 
 import gc
 import importlib
+import inspect
 import os
 import time
 
@@ -14,7 +15,12 @@ rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
 import cppyy  # noqa: E402
 import rclpy  # noqa: E402
 from rclcppyy.policy import BackendUnavailableError  # noqa: E402
+from rclpy.duration import Duration  # noqa: E402
+from rclpy.exceptions import InvalidHandle  # noqa: E402
 from rclpy.node import Node  # noqa: E402
+from rclpy.publisher import Publisher  # noqa: E402
+from rclpy.qos import QoSProfile  # noqa: E402
+from rclpy.subscription import Subscription  # noqa: E402
 from std_msgs.msg import Float64, String, UInt64  # noqa: E402
 
 
@@ -60,17 +66,18 @@ def spin_until(node, condition):
 
 
 def assert_rejected_without_entity(node, operation):
-    before = (len(node.publishers), len(node.subscriptions))
+    before = (len(tuple(node.publishers)), len(tuple(node.subscriptions)))
     try:
         operation()
     except (BackendUnavailableError, TypeError):
         pass
     else:
         raise AssertionError("unsupported direct_cpp entity request succeeded")
-    assert (len(node.publishers), len(node.subscriptions)) == before
+    assert (
+        len(tuple(node.publishers)), len(tuple(node.subscriptions))) == before
 
 
-rclpy.init(args=[])
+rclpy.init(args=["--ros-args", "-r", "remap_from:=remap_to"])
 node = DirectPair()
 
 direct_module = importlib.import_module("rclcppyy.direct_cpp")
@@ -78,6 +85,8 @@ runtime = direct_module._runtime()
 assert runtime.nodes == [node]
 assert runtime.session.nodes == (node._direct_cpp_node,)
 assert node.context is runtime.context
+assert Publisher is direct_module.DirectPublisher
+assert Subscription is direct_module.DirectSubscription
 try:
     Node("rejected_options", cli_args=[])
 except BackendUnavailableError:
@@ -127,7 +136,66 @@ assert_rejected_without_entity(
         content_filter_options=object(),
     ),
 )
+
+
+async def coroutine_callback(_message):
+    return None
+
+
+assert_rejected_without_entity(
+    node,
+    lambda: node.create_subscription(
+        String, prefix + "/coroutine", coroutine_callback, 10),
+)
+assert_rejected_without_entity(
+    node,
+    lambda: node.create_subscription(
+        String, prefix + "/message_info", lambda _message, _info: None, 10),
+)
 print("DIRECT_CPP_FAIL_CLOSED_OK")
+
+assert isinstance(node.string_publisher, Publisher)
+assert isinstance(node.string_subscription, Subscription)
+assert tuple(node.publishers) == (
+    node.string_publisher, node.uint64_publisher)
+assert tuple(node.subscriptions) == (
+    node.string_subscription, node.uint64_subscription)
+assert node.string_publisher.msg_type is String
+assert node.string_subscription.msg_type is String
+assert node.string_publisher.topic == node.string_publisher.topic_name
+assert node.string_subscription.topic == node.string_subscription.topic_name
+assert node.string_publisher.logger_name == node.get_name()
+assert node.string_subscription.logger_name == node.get_name()
+assert isinstance(node.string_publisher.qos_profile, QoSProfile)
+assert node.string_publisher.qos_profile.depth == 10
+assert isinstance(node.string_subscription.qos_profile, QoSProfile)
+assert node.string_subscription.qos_profile.depth == 10
+assert node.string_publisher.event_handlers == []
+assert node.string_subscription.event_handlers == []
+assert node.string_subscription.callback == node.strings.append
+assert node.string_subscription.callback_group is None
+assert node.string_subscription.raw is False
+assert node.string_subscription._callback_type is (
+    Subscription.CallbackType.MessageOnly)
+assert "rclcpp::Publisher" in str(
+    getattr(type(node.string_publisher.native_entity), "__cpp_name__", ""))
+assert "rclcpp::Subscription" in str(
+    getattr(type(node.string_subscription.native_entity), "__cpp_name__", ""))
+assert not inspect.ismethod(node.string_publisher.publish)
+for entity in (node.string_publisher, node.string_subscription):
+    try:
+        entity.handle
+    except BackendUnavailableError:
+        pass
+    else:
+        raise AssertionError("direct facade exposed a stock rclpy handle")
+try:
+    node.string_subscription.callback = lambda _message: None
+except BackendUnavailableError:
+    pass
+else:
+    raise AssertionError("direct subscription callback replacement succeeded")
+print("DIRECT_CPP_FACADES_OK")
 
 assert not hasattr(node.string_publisher, "_rclcppyy_publish_route")
 assert not hasattr(node.string_subscription, "_rclcppyy_take_route")
@@ -144,6 +212,9 @@ node.string_publisher.publish(String(data="second"))
 node.uint64_publisher.publish(UInt64(data=7))
 node.uint64_publisher.publish(UInt64(data=2**63 + 9))
 spin_until(node, lambda: len(node.strings) == 2 and len(node.integers) == 2)
+assert node.string_subscription.get_publisher_count() == 1
+assert node.string_publisher.assert_liveliness() is None
+assert node.string_publisher.wait_for_all_acked(Duration(seconds=2))
 
 assert all(type(message) is String for message in node.strings)
 assert all(type(message) is UInt64 for message in node.integers)
@@ -179,6 +250,72 @@ assert all(
     for item in subscription_records
 )
 
+namespaced = Node(
+    "direct_namespaced_%d" % os.getpid(), namespace="/facade_namespace")
+remapped_messages = []
+remapped_publisher = namespaced.create_publisher(String, "remap_from", 10)
+remapped_subscription = namespaced.create_subscription(
+    String, "remap_from", remapped_messages.append, 10)
+assert remapped_publisher.topic == "/facade_namespace/remap_to"
+assert remapped_publisher.topic_name == "/facade_namespace/remap_to"
+assert remapped_subscription.topic == "/facade_namespace/remap_to"
+assert remapped_subscription.topic_name == "/facade_namespace/remap_to"
+assert remapped_publisher.logger_name == namespaced.get_logger().name
+assert remapped_subscription.logger_name == namespaced.get_logger().name
+spin_until(namespaced, lambda: remapped_publisher.get_subscription_count() == 1)
+remapped_publisher.publish(String(data="remapped-cpp"))
+spin_until(namespaced, lambda: len(remapped_messages) == 1)
+assert type(remapped_messages[0]) is String
+assert str(remapped_messages[0].data) == "remapped-cpp"
+namespaced.destroy_node()
+assert runtime.session.nodes == (node._direct_cpp_node,)
+print("DIRECT_CPP_NAMESPACED_REMAP_OK")
+
+foreign = Node("direct_foreign_%d" % os.getpid())
+assert not foreign.destroy_publisher(node.string_publisher)
+assert not foreign.destroy_subscription(node.string_subscription)
+foreign.destroy_node()
+assert runtime.session.nodes == (node._direct_cpp_node,)
+
+assert node.destroy_publisher(node.string_publisher)
+assert not node.destroy_publisher(node.string_publisher)
+assert tuple(node.publishers) == (node.uint64_publisher,)
+spin_until(node, lambda: node.string_subscription.get_publisher_count() == 0)
+try:
+    node.string_publisher.native_entity
+except InvalidHandle:
+    pass
+else:
+    raise AssertionError("destroyed publisher exposed its native entity")
+try:
+    node.string_publisher.publish(String(data="destroyed"))
+except Exception as exc:
+    assert "destroyed" in str(exc)
+else:
+    raise AssertionError("destroyed publisher still published")
+
+assert node.destroy_subscription(node.string_subscription)
+assert not node.destroy_subscription(node.string_subscription)
+assert tuple(node.subscriptions) == (node.uint64_subscription,)
+try:
+    node.string_subscription.native_entity
+except InvalidHandle:
+    pass
+else:
+    raise AssertionError("destroyed subscription exposed its native entity")
+
+assert node.uint64_subscription.destroy() is None
+assert tuple(node.subscriptions) == (node.uint64_subscription,)
+spin_until(node, lambda: node.uint64_publisher.get_subscription_count() == 0)
+assert not node.destroy_subscription(node.uint64_subscription)
+assert tuple(node.subscriptions) == ()
+assert node.uint64_publisher.destroy() is None
+assert tuple(node.publishers) == (node.uint64_publisher,)
+assert not node.destroy_publisher(node.uint64_publisher)
+assert tuple(node.publishers) == ()
+print("DIRECT_CPP_LIFECYCLE_OK")
+
+node.destroy_node()
 node.destroy_node()
 assert runtime.nodes == []
 assert runtime.session.nodes == ()
