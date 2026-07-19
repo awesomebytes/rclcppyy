@@ -355,7 +355,7 @@
       "fallback": "none",
       "default": false,
       "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_executor_helper.py", "rclcppyy/direct_executors.py", "rclcppyy/direct_cpp.py", "scripts/benchmarks/timer_executor_worker.py", "scripts/benchmarks/_timer_executor_protocol.py", "test/test_timer_executor_benchmark.py", "docs/backend-selection.md", "docs/timer-executor-benchmark.md"],
-      "notes": "On Jazzy/Cyclone, direct nodes start unowned and can be added, removed, or transferred between public SingleThreadedExecutor facades backed by exact rclcpp executors. Top-level spin, spin_once, spin_until_future_complete, blocked-wait wake, context-manager shutdown, callback exceptions, node destruction, and generated-C++ pub/sub and Future completion are covered. Repeated global spin_once retains native membership without exposing logical membership, avoiding per-call executor guard churn. The corrected ten-repetition characterization records 0.260x stock CPU for explicit ownership and 0.322x for the source-compatible global route, but the explicit facade remains 1.279x its raw rclcpp control and therefore has no raw-parity claim. MultiThreadedExecutor and create_task fail closed."
+      "notes": "On Jazzy/Cyclone, direct nodes start unowned and can be added, removed, or transferred between public SingleThreadedExecutor facades backed by exact rclcpp executors. Top-level spin, spin_once, spin_until_future_complete, blocked-wait wake, context-manager shutdown, callback exceptions, node destruction, and generated-C++ pub/sub and Future completion are covered. Repeated global spin_once retains native membership without exposing logical membership, avoiding per-call executor guard churn. The corrected ten-repetition characterization records 0.260x stock CPU for explicit ownership and 0.322x for the source-compatible global route, but the explicit facade remains 1.279x its raw rclcpp control and therefore has no raw-parity claim. MultiThreadedExecutor construction stays fail-closed; create_task no longer fails closed (see executor.direct_cpp_tasks)."
     },
     {
       "id": "executor.direct_cpp_callback_groups",
@@ -367,6 +367,17 @@
       "default": false,
       "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_callback_group_helper.py", "rclcppyy/direct_callback_groups.py", "rclcppyy/direct_cpp.py", "rclcppyy/direct_actions.py", "docs/backend-selection.md"],
       "notes": "The direct Node exposes its real rclcpp default group and lazily binds explicit mutually-exclusive or reentrant facades to their first native node. Publishers, subscriptions including lease and MessageInfo routes, timers, services, clients, and action clients pass the exact native group through rclcpp options or overloads. Cross-node reuse fails before entity creation and group/entity lifetimes are retained through teardown. Single-threaded execution is covered; concurrent callback-group behavior remains unclaimed while MultiThreadedExecutor is fail-closed."
+    },
+    {
+      "id": "executor.direct_cpp_tasks",
+      "area": "executor",
+      "api": "profile=direct_cpp Executor.create_task/Task/coroutine driving over create_future",
+      "support": "experimental",
+      "backend": "cpp",
+      "fallback": "none",
+      "default": false,
+      "evidence": ["test/test_direct_executor.py", "test/_direct_cpp_executor_tasks_helper.py", "rclcppyy/direct_executors.py", "docs/backend-selection.md"],
+      "notes": "create_task() is no longer fail-closed: a plain callable or a coroutine handed to the direct SingleThreadedExecutor runs to completion (or suspends on an awaited Future and resumes through the Future's own done-callback machinery), driven by _drive_tasks() ahead of each native spin step. A raising task re-raises on the calling thread from spin()/spin_once(), matching stock's own re-raise-after-run behavior, not just via future.result(). spin_until_future_complete() ends cleanly on a future a task itself resolves. A differential test runs the identical coroutines under a genuine stock SingleThreadedExecutor and the direct one and requires identical result/exception/suspend outcomes. One scenario -- cancelling a task before its first drive -- is proven direct-only, not in the differential: stock rclpy 7.1.11 itself raises a KeyError from its own _wait_for_ready_callbacks bookkeeping in that exact scenario (a pre-existing stock limitation, reproducible with zero direct_cpp involvement), which this facade's simpler task-queue design does not share. MultiThreadedExecutor construction stays fail-closed."
     },
     {
       "id": "executor.multi_threaded",

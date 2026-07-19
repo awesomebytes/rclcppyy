@@ -68,6 +68,12 @@ class DirectExecutor(metaclass=_DirectSurface):
         self._is_shutdown = False
         self._is_spinning = False
         self._spin_thread_id = None
+        self._tasks_lock = threading.Lock()
+        self._ready_tasks: list[Any] = []
+        # Set by wake() and cleared by _drive_tasks(); a blocked native wait
+        # is interrupted by cancel() below, but a background pump (the
+        # multi-threaded executor) waits on this instead of a native call.
+        self._wake_event = threading.Event()
         runtime.register_executor(self)
 
     @property
@@ -181,6 +187,7 @@ class DirectExecutor(metaclass=_DirectSurface):
             return list(self._nodes)
 
     def wake(self) -> None:
+        self._wake_event.set()
         if not self._is_shutdown:
             self._native.cancel()
 
@@ -190,7 +197,51 @@ class DirectExecutor(metaclass=_DirectSurface):
         return Future(executor=self)
 
     def create_task(self, callback, *args, **kwargs):
-        _unsupported("direct_cpp executors do not yet support create_task()")
+        from rclpy.task import Task
+
+        task = Task(callback, args, kwargs, executor=self)
+        self._call_task_in_next_spin(task)
+        return task
+
+    def _call_task_in_next_spin(self, task) -> None:
+        """Enqueue ``task`` to run on the next drive and wake a blocked spin.
+
+        ``rclpy.task.Task`` (stock, unmodified) calls this exact private
+        method by name when a coroutine yields plain ``None`` (see
+        ``Task._execute_coroutine_step``), so the name and single-``task``
+        signature are load-bearing, not just an internal convenience.
+        """
+        with self._tasks_lock:
+            self._ready_tasks.append(task)
+        self.wake()
+
+    def _drive_tasks(self) -> None:
+        """Step every task that was ready at the start of this call, once.
+
+        A plain-callable task always finishes in a single step. A coroutine
+        task that suspends on a Future re-arms itself through the Future's
+        own done-callback machinery, which resolves back into this
+        executor's ``create_task``/``_call_task_in_next_spin`` -- so nothing
+        here needs to know which kind of handler it is stepping.
+
+        Stock's SingleThreadedExecutor re-raises a handler's exception on
+        the calling thread immediately after running it (see
+        ``_spin_once_impl``); matched here so a raising task is stock-parity
+        visible to a `spin()`/`spin_once()` caller, not just to
+        ``future.result()``. Any tasks not yet stepped in this batch are
+        preserved (put back ahead of anything newly enqueued meanwhile) so a
+        mid-batch exception never drops pending work.
+        """
+        self._wake_event.clear()
+        with self._tasks_lock:
+            ready = self._ready_tasks
+            self._ready_tasks = []
+        for index, task in enumerate(ready):
+            task()
+            if task.exception() is not None:
+                with self._tasks_lock:
+                    self._ready_tasks = ready[index + 1:] + self._ready_tasks
+                raise task.exception()
 
     def _enter_spin(self) -> None:
         if not self._spin_lock.acquire(blocking=False):
@@ -210,6 +261,10 @@ class DirectExecutor(metaclass=_DirectSurface):
             # Direct calls on an otherwise empty global executor must not run a
             # node that was only cached between top-level spin_once calls.
             self.remove_node(self._parked_node)
+        # Ready tasks are driven before the native step: a task that resolves
+        # the future a spin_until_future_complete() caller is waiting on
+        # should end that loop without waiting on an unrelated native event.
+        self._drive_tasks()
         timeout = _timeout_seconds(timeout_sec)
         if timeout is None or timeout < 0:
             self._native.spin_once()
