@@ -221,8 +221,18 @@ runtime or native session records a node. Live Jazzy/Cyclone tests prove local a
 global remaps, CLI parameter overrides, deferred and automatic override
 declaration, implicit declaration, and the requested rosout/parameter/logger graph
 state with conversion and serialization paths poisoned. Undeclare, descriptor
-mutation, graph-event waiting, and remote parameter clients remain fail-closed or
-uncovered. The stock/direct/raw CPU benchmark exists, but its repeated
+mutation, and graph-event waiting remain fail-closed or uncovered.
+
+When its six canonical `rcl_interfaces` services and `ParameterEvent` are explicitly
+registered before imports, the installed Jazzy `AsyncParameterClient` source runs
+unchanged over direct nodes. Its requests, responses, Parameter messages and values,
+descriptors, results, and events are exact generated C++ objects. Default-QoS
+readiness, set/get/types/describe/list, atomic mutation, dynamic deletion,
+parameter-event observation, Future completion on the direct executor, retained
+values, and explicit teardown pass on Cyclone DDS with converter, serializer, and
+CDR byte helpers poisoned. Importing the client before activation rejects the whole
+direct profile. YAML loading, custom service QoS, and non-default event options are
+not claimed. The stock/direct/raw local CPU benchmark exists, but its repeated
 characterization has not yet been run, so no parameter performance result is
 claimed.
 
