@@ -1858,6 +1858,30 @@
     },
     {
       "manifest_entry_ids": [
+        "lifecycle.direct_cpp_fail_closed"
+      ],
+      "path": "rclpy.lifecycle.LifecycleNode.__init__",
+      "rationale": "activate() imports rclpy.lifecycle only after rebinding rclpy.node.Node to DirectNode, then replaces LifecycleNode.__init__ with a guard (signature borrowed from the stock function so this row compares byte-for-byte) that raises BackendUnavailableError('lifecycle nodes are not yet supported under the direct_cpp profile') before any node work -- never AttributeError, never the type-support crash the metadata mirror fixes for the four lifecycle service types. Verified live in both process-relative import orders the guard can observe (rclpy.lifecycle imported during activate() itself, and by application code afterward): the same already-patched class is returned either way. This is an explicit, reviewed fail-closed boundary, not partial or accidental parity; full lifecycle construction remains a separate, later lane.",
+      "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_fail_closed"
+      ],
+      "path": "rclpy.lifecycle.Node.__init__",
+      "rationale": "rclpy.lifecycle.Node is a bare re-export alias of LifecycleNode (rclpy/lifecycle/__init__.py: Node = LifecycleNode); the same guarded __init__ is reached through this path with identical behavior and identical borrowed-signature comparison as rclpy.lifecycle.LifecycleNode.__init__.",
+      "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_fail_closed"
+      ],
+      "path": "rclpy.lifecycle.node.LifecycleNode.__init__",
+      "rationale": "rclpy.lifecycle.node.LifecycleNode is the same class object as rclpy.lifecycle.LifecycleNode, reached through the submodule rather than the package's re-export; the same guarded __init__ is reached through this path with identical behavior and identical borrowed-signature comparison.",
+      "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
         "logging.stock_surface"
       ],
       "path": "rclpy.logging.LoggingSeverity",

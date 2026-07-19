@@ -55170,6 +55170,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55214,6 +55215,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55251,25 +55253,28 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_fail_closed"
+        ],
+        "rationale": "activate() imports rclpy.lifecycle only after rebinding rclpy.node.Node to DirectNode, then replaces LifecycleNode.__init__ with a guard (signature borrowed from the stock function so this row compares byte-for-byte) that raises BackendUnavailableError('lifecycle nodes are not yet supported under the direct_cpp profile') before any node work -- never AttributeError, never the type-support crash the metadata mirror fixes for the four lifecycle service types. Verified live in both process-relative import orders the guard can observe (rclpy.lifecycle imported during activate() itself, and by application code afterward): the same already-patched class is returned either way. This is an explicit, reviewed fail-closed boundary, not partial or accidental parity; full lifecycle construction remains a separate, later lane."
       },
       "area": "lifecycle",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.lifecycle.node",
+        "origin": "rclcppyy.direct_cpp",
         "owner": "rclpy.lifecycle.node.LifecycleNode",
         "signature": {
           "state": "inspectable",
@@ -55278,7 +55283,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNode.__init__",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -55295,6 +55300,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55339,6 +55345,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55383,6 +55390,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55427,6 +55435,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55471,6 +55480,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55505,6 +55515,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55549,6 +55560,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55593,6 +55605,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55637,6 +55650,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55681,6 +55695,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55725,6 +55740,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55769,6 +55785,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55813,6 +55830,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55847,6 +55865,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55891,6 +55910,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55935,6 +55955,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -55969,6 +55990,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56013,6 +56035,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56057,6 +56080,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56101,6 +56125,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56145,6 +56170,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56189,6 +56215,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56233,6 +56260,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56277,6 +56305,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56321,6 +56350,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56365,6 +56395,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56399,6 +56430,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56443,6 +56475,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56487,6 +56520,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56531,6 +56565,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56565,6 +56600,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56609,6 +56645,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56653,6 +56690,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56697,6 +56735,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56741,6 +56780,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56785,6 +56825,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56829,6 +56870,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56873,6 +56915,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56917,6 +56960,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -56961,6 +57005,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57005,6 +57050,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57049,6 +57095,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57093,6 +57140,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57137,6 +57185,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57181,6 +57230,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57225,6 +57275,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57269,6 +57320,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57313,6 +57365,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57357,6 +57410,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57401,6 +57455,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57435,6 +57490,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57479,6 +57535,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57523,6 +57580,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57567,6 +57625,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57611,6 +57670,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57655,6 +57715,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57699,6 +57760,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57743,6 +57805,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57777,6 +57840,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57811,6 +57875,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57855,6 +57920,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57899,6 +57965,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57943,6 +58010,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -57987,6 +58055,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58031,6 +58100,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58075,6 +58145,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58119,6 +58190,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58163,6 +58235,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58207,6 +58280,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58251,6 +58325,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58295,6 +58370,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58339,6 +58415,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58373,6 +58450,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58417,6 +58495,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58461,6 +58540,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58505,6 +58585,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58549,6 +58630,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58593,6 +58675,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58637,6 +58720,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58681,6 +58765,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58725,6 +58810,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58769,6 +58855,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58813,6 +58900,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58857,6 +58945,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58901,6 +58990,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58945,6 +59035,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -58989,6 +59080,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59033,6 +59125,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59067,6 +59160,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59111,6 +59205,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59155,6 +59250,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59199,6 +59295,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59243,6 +59340,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59287,6 +59385,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59331,6 +59430,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59375,6 +59475,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59419,6 +59520,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59463,6 +59565,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59507,6 +59610,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59551,6 +59655,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59595,6 +59700,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59639,6 +59745,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59683,6 +59790,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59727,6 +59835,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59771,6 +59880,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59815,6 +59925,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59859,6 +59970,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59903,6 +60015,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59947,6 +60060,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -59991,6 +60105,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60035,6 +60150,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60079,6 +60195,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60123,6 +60240,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60167,6 +60285,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60211,6 +60330,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60255,6 +60375,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60299,6 +60420,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60343,6 +60465,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60387,6 +60510,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60431,6 +60555,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60475,6 +60600,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60519,6 +60645,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60563,6 +60690,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60607,6 +60735,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60651,6 +60780,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60695,6 +60825,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60739,6 +60870,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60781,6 +60913,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60823,6 +60956,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60867,6 +61001,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60911,6 +61046,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60955,6 +61091,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -60999,6 +61136,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61043,6 +61181,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61087,6 +61226,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61131,6 +61271,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61175,6 +61316,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61212,25 +61354,28 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_fail_closed"
+        ],
+        "rationale": "rclpy.lifecycle.Node is a bare re-export alias of LifecycleNode (rclpy/lifecycle/__init__.py: Node = LifecycleNode); the same guarded __init__ is reached through this path with identical behavior and identical borrowed-signature comparison as rclpy.lifecycle.LifecycleNode.__init__."
       },
       "area": "lifecycle",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.lifecycle.node",
+        "origin": "rclcppyy.direct_cpp",
         "owner": "rclpy.lifecycle.node.LifecycleNode",
         "signature": {
           "state": "inspectable",
@@ -61239,7 +61384,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.Node.__init__",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -61256,6 +61401,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61300,6 +61446,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61344,6 +61491,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61388,6 +61536,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61432,6 +61581,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61466,6 +61616,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61510,6 +61661,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61554,6 +61706,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61598,6 +61751,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61642,6 +61796,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61686,6 +61841,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61730,6 +61886,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61774,6 +61931,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61808,6 +61966,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61852,6 +62011,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61896,6 +62056,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61930,6 +62091,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -61974,6 +62136,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62018,6 +62181,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62062,6 +62226,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62106,6 +62271,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62150,6 +62316,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62194,6 +62361,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62238,6 +62406,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62282,6 +62451,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62326,6 +62496,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62360,6 +62531,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62404,6 +62576,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62448,6 +62621,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62492,6 +62666,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62526,6 +62701,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62570,6 +62746,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62614,6 +62791,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62658,6 +62836,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62702,6 +62881,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62746,6 +62926,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62790,6 +62971,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62834,6 +63016,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62878,6 +63061,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62922,6 +63106,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -62966,6 +63151,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63010,6 +63196,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63054,6 +63241,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63098,6 +63286,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63142,6 +63331,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63186,6 +63376,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63230,6 +63421,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63274,6 +63466,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63318,6 +63511,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63362,6 +63556,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63396,6 +63591,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63440,6 +63636,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63484,6 +63681,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63528,6 +63726,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63572,6 +63771,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63616,6 +63816,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63660,6 +63861,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63704,6 +63906,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63738,6 +63941,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63772,6 +63976,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63816,6 +64021,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63860,6 +64066,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63904,6 +64111,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63948,6 +64156,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -63992,6 +64201,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64036,6 +64246,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64080,6 +64291,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64124,6 +64336,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64168,6 +64381,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64212,6 +64426,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64256,6 +64471,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64300,6 +64516,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64334,6 +64551,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64378,6 +64596,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64422,6 +64641,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64466,6 +64686,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64510,6 +64731,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64554,6 +64776,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64598,6 +64821,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64642,6 +64866,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64686,6 +64911,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64730,6 +64956,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64774,6 +65001,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64818,6 +65046,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64862,6 +65091,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64906,6 +65136,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64950,6 +65181,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -64994,6 +65226,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65028,6 +65261,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65072,6 +65306,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65116,6 +65351,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65160,6 +65396,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65204,6 +65441,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65248,6 +65486,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65292,6 +65531,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65336,6 +65576,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65380,6 +65621,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65424,6 +65666,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65468,6 +65711,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65512,6 +65756,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65556,6 +65801,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65600,6 +65846,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65644,6 +65891,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65688,6 +65936,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65732,6 +65981,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65776,6 +66026,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65820,6 +66071,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65864,6 +66116,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65908,6 +66161,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65952,6 +66206,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -65996,6 +66251,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66040,6 +66296,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66084,6 +66341,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66128,6 +66386,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66172,6 +66431,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66216,6 +66476,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66260,6 +66521,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66304,6 +66566,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66348,6 +66611,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66392,6 +66656,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66436,6 +66701,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66480,6 +66746,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66524,6 +66791,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66568,6 +66836,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66612,6 +66881,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66656,6 +66926,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66700,6 +66971,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66744,6 +67016,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66788,6 +67061,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66832,6 +67106,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66876,6 +67151,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66920,6 +67196,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -66964,6 +67241,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67008,6 +67286,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67052,6 +67331,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67096,6 +67376,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67140,6 +67421,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67182,6 +67464,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67224,6 +67507,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67268,6 +67552,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67318,6 +67603,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67368,6 +67654,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67418,6 +67705,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67462,6 +67750,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67506,6 +67795,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67550,6 +67840,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67594,6 +67885,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67638,6 +67930,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67682,6 +67975,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67726,6 +68020,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67770,6 +68065,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67814,6 +68110,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67858,6 +68155,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67902,6 +68200,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67946,6 +68245,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -67990,6 +68290,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68034,6 +68335,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68078,6 +68380,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68122,6 +68425,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68166,6 +68470,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68210,6 +68515,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68254,6 +68560,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68298,6 +68605,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68342,6 +68650,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68386,6 +68695,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68430,6 +68740,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68474,6 +68785,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68518,6 +68830,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68562,6 +68875,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68606,6 +68920,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68656,6 +68971,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68706,6 +69022,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68756,6 +69073,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68800,6 +69118,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68844,6 +69163,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68888,6 +69208,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68932,6 +69253,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -68976,6 +69298,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69020,6 +69343,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69064,6 +69388,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69108,6 +69433,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69152,6 +69478,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69196,6 +69523,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69240,6 +69568,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69284,6 +69613,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69328,6 +69658,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69372,6 +69703,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69406,6 +69738,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69450,6 +69783,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69494,6 +69828,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69528,6 +69863,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69562,6 +69898,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69606,6 +69943,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69643,25 +69981,28 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_fail_closed"
+        ],
+        "rationale": "rclpy.lifecycle.node.LifecycleNode is the same class object as rclpy.lifecycle.LifecycleNode, reached through the submodule rather than the package's re-export; the same guarded __init__ is reached through this path with identical behavior and identical borrowed-signature comparison."
       },
       "area": "lifecycle",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.lifecycle.node",
+        "origin": "rclcppyy.direct_cpp",
         "owner": "rclpy.lifecycle.node.LifecycleNode",
         "signature": {
           "state": "inspectable",
@@ -69670,7 +70011,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNode.__init__",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -69687,6 +70028,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69731,6 +70073,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69775,6 +70118,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69819,6 +70163,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69863,6 +70208,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69897,6 +70243,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69941,6 +70288,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -69985,6 +70333,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70029,6 +70378,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70073,6 +70423,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70117,6 +70468,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70161,6 +70513,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70205,6 +70558,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70239,6 +70593,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70283,6 +70638,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70327,6 +70683,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70361,6 +70718,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70405,6 +70763,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70449,6 +70808,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70493,6 +70853,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70537,6 +70898,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70581,6 +70943,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70625,6 +70988,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70669,6 +71033,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70713,6 +71078,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70757,6 +71123,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70791,6 +71158,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70835,6 +71203,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70879,6 +71248,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70923,6 +71293,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -70957,6 +71328,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71001,6 +71373,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71045,6 +71418,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71089,6 +71463,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71133,6 +71508,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71177,6 +71553,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71221,6 +71598,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71265,6 +71643,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71309,6 +71688,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71353,6 +71733,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71397,6 +71778,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71441,6 +71823,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71485,6 +71868,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71529,6 +71913,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71573,6 +71958,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71617,6 +72003,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71661,6 +72048,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71705,6 +72093,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71749,6 +72138,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71793,6 +72183,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71827,6 +72218,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71871,6 +72263,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71915,6 +72308,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -71959,6 +72353,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72003,6 +72398,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72047,6 +72443,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72091,6 +72488,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72135,6 +72533,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72169,6 +72568,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72203,6 +72603,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72247,6 +72648,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72291,6 +72693,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72335,6 +72738,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72379,6 +72783,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72423,6 +72828,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72467,6 +72873,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72511,6 +72918,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72555,6 +72963,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72599,6 +73008,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72643,6 +73053,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72687,6 +73098,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72731,6 +73143,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72765,6 +73178,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72809,6 +73223,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72853,6 +73268,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72897,6 +73313,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72941,6 +73358,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -72985,6 +73403,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73029,6 +73448,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73073,6 +73493,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73117,6 +73538,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73161,6 +73583,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73205,6 +73628,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73249,6 +73673,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73293,6 +73718,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73337,6 +73763,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73381,6 +73808,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73425,6 +73853,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73459,6 +73888,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73503,6 +73933,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73547,6 +73978,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73591,6 +74023,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73635,6 +74068,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73679,6 +74113,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73723,6 +74158,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73767,6 +74203,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73811,6 +74248,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73855,6 +74293,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73899,6 +74338,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73943,6 +74383,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -73987,6 +74428,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74031,6 +74473,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74075,6 +74518,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74119,6 +74563,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74163,6 +74608,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74207,6 +74653,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74251,6 +74698,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74295,6 +74743,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74339,6 +74788,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74383,6 +74833,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74427,6 +74878,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74471,6 +74923,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74515,6 +74968,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74559,6 +75013,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74603,6 +75058,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74647,6 +75103,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74691,6 +75148,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74735,6 +75193,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74779,6 +75238,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74823,6 +75283,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74867,6 +75328,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74911,6 +75373,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74955,6 +75418,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -74999,6 +75463,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75043,6 +75508,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75087,6 +75553,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75131,6 +75598,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75173,6 +75641,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75215,6 +75684,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75259,6 +75729,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75303,6 +75774,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75347,6 +75819,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75391,6 +75864,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75435,6 +75909,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75479,6 +75954,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75523,6 +75999,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75567,6 +76044,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75604,6 +76082,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75648,6 +76127,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75692,6 +76172,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75736,6 +76217,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75780,6 +76262,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75814,6 +76297,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75858,6 +76342,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75902,6 +76387,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75946,6 +76432,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -75990,6 +76477,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76034,6 +76522,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76078,6 +76567,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76122,6 +76612,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76156,6 +76647,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76200,6 +76692,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76234,6 +76727,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76278,6 +76772,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76322,6 +76817,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76366,6 +76862,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76410,6 +76907,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76454,6 +76952,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76498,6 +76997,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76542,6 +77042,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76586,6 +77087,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76630,6 +77132,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76664,6 +77167,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76708,6 +77212,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76752,6 +77257,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76786,6 +77292,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76830,6 +77337,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76874,6 +77382,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76918,6 +77427,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -76962,6 +77472,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77006,6 +77517,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77050,6 +77562,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77094,6 +77607,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77138,6 +77652,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77182,6 +77697,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77226,6 +77742,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77270,6 +77787,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77314,6 +77832,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77358,6 +77877,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77402,6 +77922,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77446,6 +77967,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77490,6 +78012,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77534,6 +78057,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77578,6 +78102,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77622,6 +78147,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77656,6 +78182,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77700,6 +78227,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77744,6 +78272,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77788,6 +78317,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77832,6 +78362,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77876,6 +78407,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77920,6 +78452,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77964,6 +78497,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -77998,6 +78532,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78032,6 +78567,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78076,6 +78612,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78120,6 +78657,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78164,6 +78702,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78208,6 +78747,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78252,6 +78792,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78296,6 +78837,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78330,6 +78872,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78374,6 +78917,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78418,6 +78962,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78462,6 +79007,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78506,6 +79052,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78550,6 +79097,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78594,6 +79142,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78638,6 +79187,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78682,6 +79232,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78726,6 +79277,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78770,6 +79322,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78804,6 +79357,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78848,6 +79402,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78892,6 +79447,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78942,6 +79498,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -78986,6 +79543,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79030,6 +79588,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79074,6 +79633,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79118,6 +79678,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79162,6 +79723,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79206,6 +79768,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79250,6 +79813,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79294,6 +79858,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79338,6 +79903,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79382,6 +79948,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79426,6 +79993,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79470,6 +80038,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79514,6 +80083,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79558,6 +80128,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79602,6 +80173,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79646,6 +80218,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79690,6 +80263,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79734,6 +80308,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79778,6 +80353,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79822,6 +80398,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79866,6 +80443,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79916,6 +80494,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -79966,6 +80545,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80016,6 +80596,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80060,6 +80641,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80104,6 +80686,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80148,6 +80731,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80192,6 +80776,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80236,6 +80821,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80280,6 +80866,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80324,6 +80911,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80368,6 +80956,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80412,6 +81001,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80456,6 +81046,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80500,6 +81091,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80544,6 +81136,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80588,6 +81181,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80632,6 +81226,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80676,6 +81271,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80720,6 +81316,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80764,6 +81361,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80808,6 +81406,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80852,6 +81451,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80896,6 +81496,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80940,6 +81541,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -80984,6 +81586,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81028,6 +81631,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81072,6 +81676,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81116,6 +81721,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81160,6 +81766,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81204,6 +81811,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81248,6 +81856,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81292,6 +81901,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81336,6 +81946,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81380,6 +81991,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81424,6 +82036,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81468,6 +82081,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81512,6 +82126,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81556,6 +82171,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81590,6 +82206,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81634,6 +82251,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81678,6 +82296,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81722,6 +82341,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81766,6 +82386,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81810,6 +82431,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81854,6 +82476,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81898,6 +82521,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81942,6 +82566,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -81986,6 +82611,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -82030,6 +82656,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -82074,6 +82701,7 @@
       "annotation": {
         "area_manifest_entry_ids": [
           "lifecycle.communication_interface",
+          "lifecycle.direct_cpp_fail_closed",
           "lifecycle.error_processing",
           "lifecycle.node",
           "lifecycle.publisher"
@@ -180166,7 +180794,7 @@
     "ros_distribution": "jazzy"
   },
   "summary": {
-    "direct_backend_entries": 884,
+    "direct_backend_entries": 887,
     "direct_only_entries": 261,
     "generated_interface_aliases": 21,
     "ledger_entries": 4061,
@@ -180174,10 +180802,10 @@
     "signature_mismatches": 665,
     "statuses": {
       "exact_direct_cpp_authority": 0,
-      "explicit_fail_closed": 0,
+      "explicit_fail_closed": 3,
       "missing_mismatch": 1054,
       "mixed_control_direct_data": 0,
-      "unassessed": 2210,
+      "unassessed": 2207,
       "unchanged_stock_fallback": 797
     },
     "stock_only_entries": 128,

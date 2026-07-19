@@ -2362,6 +2362,24 @@ def _prepare_check_is_valid_msg_type(original, check_for_type_support):
     return check_is_valid_msg_type
 
 
+def _direct_lifecycle_node_init(
+    self, node_name, *, enable_communication_interface: bool = True, **kwargs
+):
+    """Block LifecycleNode construction under direct_cpp, fail-closed.
+
+    LifecycleNode(LifecycleNodeMixin, Node) subclasses whatever Node
+    currently is; direct_cpp rebinds rclpy.node.Node to DirectNode, which
+    owns a native rclcpp node and has no ``handle`` attribute at all.
+    LifecycleNodeMixin.__init__ needs ``self.handle`` to construct
+    ``_rclpy.LifecycleStateMachine`` -- a stock pybind node handle the direct
+    backend does not and cannot own. Raising here, before any node work,
+    converts that cryptic AttributeError into a precise error. Lifecycle
+    FULL parity needs a native lifecycle state machine over the rclcpp node
+    -- a large, separate lane -- and remains explicitly out of scope here.
+    """
+    _unsupported("lifecycle nodes are not yet supported under the direct_cpp profile")
+
+
 def activate(*, optimizations=(), interfaces=()) -> bool:
     """Install the complete first-slice surface, rolling back on any failure."""
     global _ACTION_INSTALLATION, _ACTIVE, _ACTIVE_INTERFACES
@@ -2513,6 +2531,27 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
             original = getattr(module, name)
             setattr(module, name, replacement)
             patches.append((module, name, original, replacement))
+
+        # Import rclpy.lifecycle only after Node is already rebound to
+        # DirectNode above: LifecycleNode(LifecycleNodeMixin, Node) resolves
+        # its base class at import time, and importing it any earlier would
+        # build LifecycleNode on stock Node even under direct_cpp (R5).
+        import rclpy.lifecycle as lifecycle_module
+
+        lifecycle_original_init = lifecycle_module.LifecycleNode.__init__
+        # direct_cpp.py's module-level `from __future__ import annotations`
+        # would otherwise stringify the guard's own `bool` annotation
+        # (rendering as "'bool'"), diverging from stock's signature text for
+        # no functional reason; borrow the stock signature object directly.
+        _direct_lifecycle_node_init.__signature__ = inspect.signature(
+            lifecycle_original_init)
+        lifecycle_module.LifecycleNode.__init__ = _direct_lifecycle_node_init
+        patches.append((
+            lifecycle_module.LifecycleNode,
+            "__init__",
+            lifecycle_original_init,
+            _direct_lifecycle_node_init,
+        ))
         _RUNTIME = runtime
     except Exception:
         for module, name, original, replacement in reversed(patches):

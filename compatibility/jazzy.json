@@ -884,6 +884,17 @@
       "default": false,
       "evidence": ["compatibility/upstream-rclpy-contract.json", "docs/upstream-rclpy-contract.md"],
       "notes": "The excluded test requires the upstream repository's separately built test extension. Installed generated types are covered on the happy path, but these negative and mock-type contracts remain unassessed."
+    },
+    {
+      "id": "lifecycle.direct_cpp_fail_closed",
+      "area": "lifecycle",
+      "api": "profile=direct_cpp LifecycleNode construction",
+      "support": "unsupported",
+      "backend": "none",
+      "fallback": "not_applicable",
+      "default": false,
+      "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_lifecycle_block_helper.py", "rclcppyy/direct_cpp.py"],
+      "notes": "This is a reviewed, deliberately fail-closed block, not an omission: LifecycleNode(LifecycleNodeMixin, Node) subclasses whatever Node currently is, and direct_cpp rebinds rclpy.node.Node to DirectNode, which owns a native rclcpp node and has no handle attribute at all. LifecycleNodeMixin.__init__ needs self.handle to construct _rclpy.LifecycleStateMachine -- a stock pybind node handle the direct backend does not and cannot own -- so even after type-support validation over the four lifecycle service types is fixed (type_support.direct_rebound_validation), construction hits a second, deeper wall: a raw AttributeError at self.handle. LifecycleNode.__init__ is patched under direct_cpp to raise a precise BackendUnavailableError('lifecycle nodes are not yet supported under the direct_cpp profile') before any node work, converting that cryptic AttributeError into an honest, fail-closed block. Verified live: construction raises exactly that error -- never AttributeError, never the type-support crash -- and no partial node, publisher, or runtime registration occurs; the guard fires regardless of whether rclpy.lifecycle was imported before or after activation and is removed cleanly on deactivate. This is the manifest's first entry recorded as unsupported: full lifecycle parity needs a native lifecycle state machine over the rclcpp node and a real node-handle surface -- a large, separate lane -- and is explicitly planned future work, not a gap that went unreviewed."
     }
   ]
 }
