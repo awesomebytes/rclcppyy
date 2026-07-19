@@ -253,7 +253,10 @@ CPU by 73.5%, but get and explicit value snapshot still used 10.316x and 8.712x 
 CPU. The clean Phase-2 artifact records direct/stock CPU ratios of 0.6857 for declare,
 0.5633 for cached get, 1.3433 for explicit value snapshot, and 0.5205 for atomic set.
 Snapshot CPU remains slower at 207 ns/op versus 157 ns/op stock. Performance claims
-remain disabled pending a repeated matrix after the type-metadata change.
+remain disabled. The clean Phase-3 artifact after caching only immutable type metadata
+records 0.6943 for declare, 0.6090 for cached get, 1.1073 for explicit value snapshot,
+and 0.5148 for atomic set. Snapshot CPU improved to 167 ns/op versus 152 ns/op stock,
+but still misses the CPU priority; no Python scalar or message payload is cached.
 
 Common graph queries use the same native node authority: topic/service names and
 types, node names/namespaces/enclaves, per-node endpoint types, publisher/

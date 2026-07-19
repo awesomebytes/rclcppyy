@@ -61,7 +61,7 @@ def test_every_supported_entry_references_existing_evidence():
         assert all((REPO_ROOT / path).exists() for path in entry["evidence"]), entry["id"]
 
 
-def test_direct_parameter_note_locks_pre_through_phase_two_cpu_evidence():
+def test_direct_parameter_note_locks_pre_through_phase_three_cpu_evidence():
     entry = next(
         item for item in _manifest()["entries"]
         if item["id"] == "parameter.direct_cpp_local_first_slice"
@@ -84,9 +84,14 @@ def test_direct_parameter_note_locks_pre_through_phase_two_cpu_evidence():
         "get-value-snapshot, and 0.5205 for atomic set; snapshot median CPU is "
         "207 ns/op versus 157 ns/op stock."
     ) in entry["notes"]
+    assert (
+        "The clean Phase-3 artifact at product 0faa435 with suite 941d6ce records "
+        "0.6943 for declare, 0.6090 for get-native, 1.1073 for "
+        "get-value-snapshot, and 0.5148 for atomic set; snapshot median CPU is "
+        "167 ns/op versus 152 ns/op stock."
+    ) in entry["notes"]
     assert "Performance claims remain disabled" in entry["notes"]
-    assert "bounded Phase-3 timings must not replace a full post-change matrix" in (
-        entry["notes"])
+    assert "explicit snapshot CPU still misses the stock priority" in entry["notes"]
 
 
 def test_duplicate_ids_are_rejected():
