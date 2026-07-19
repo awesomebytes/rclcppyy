@@ -173,7 +173,13 @@ Python import alias. For example, requesting `std_msgs/msg/Header` also aliases 
 `builtin_interfaces/msg/Time` field to the generated C++ class. Publish uses that
 object directly, with no Python-message conversion or serialization path.
 `rclpy.spin_once(node, timeout_sec=...)` drives the session-owned native
-single-threaded executor.
+single-threaded executor. The patched public `Executor` and
+`SingleThreadedExecutor` support explicit add/remove/transfer ownership, top-level
+spin APIs, blocked-wait wake, and shutdown; `MultiThreadedExecutor` remains
+fail-closed pending concurrent Python-callback evidence. Subscription callbacks may
+accept either the generated C++ message alone or that message plus native
+`rclcpp::MessageInfo` fields. The baseline owning-copy and opt-in shared-lease forms
+are both supported.
 
 The same profile supports `std_srvs/srv/SetBool` by default and explicitly
 registered installed services such as `std_srvs/srv/Trigger` through the common
@@ -194,7 +200,7 @@ Result, Feedback, UUID, SendGoal/GetResult, feedback-message, and CancelGoal ali
 are validated before activation and then replaced transactionally with their exact
 generated C++ classes. Nested action payload messages are included in the same
 dependency closure. Direct action servers, custom goal UUIDs, non-default action
-QoS, synchronous convenience calls, callback groups, and introspection remain
+QoS, synchronous convenience calls, and introspection remain
 fail-closed.
 
 `std_msgs/msg/String` and `std_msgs/msg/UInt64` remain the default message registry.
@@ -206,11 +212,13 @@ dependencies are resolved before any alias changes. Generated Python message
 classes are never accepted by direct entity factories. Topic QoS accepts a
 positive integer depth or a validated Jazzy `QoSProfile`; services use only the
 default service QoS. Activation must precede
-`rclpy.node`, `rclpy.executors`, and every generated message import. Callback groups,
-events, QoS overrides, raw/content-filter subscriptions, custom publisher classes,
-public executors, coroutine service callbacks, synchronous client `call`, service
-introspection, parameters, and the rest of the uncovered `rclpy` surface are
-rejected rather than falling back onto a second authority.
+`rclpy.node`, `rclpy.executors`, and every generated message import. The real native
+default callback group plus explicit mutually-exclusive and reentrant groups work
+for publishers, subscriptions, timers, services, clients, and action clients.
+Events, QoS overrides, raw/content-filter subscriptions, custom publisher classes,
+coroutine service callbacks, synchronous client `call`, service introspection,
+parameters, multi-threaded execution, and the rest of the uncovered `rclpy` surface
+are rejected rather than falling back onto a second authority.
 
 cppyy's callback argument is borrowed for the duration of the shared-pointer
 call. To preserve the `rclpy` expectation that a callback may retain its message,
