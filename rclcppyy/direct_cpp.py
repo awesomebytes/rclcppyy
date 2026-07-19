@@ -1060,10 +1060,11 @@ class DirectNode:
     ):
         requested = {
             "clock": clock is not None,
-            "autostart": autostart is not True,
             **{str(name): True for name in options},
         }
         self._reject_entity_options("timer", requested)
+        if not isinstance(autostart, bool):
+            raise TypeError("timer autostart must be a bool")
         if not callable(callback):
             raise TypeError("timer callback must be callable")
         if (
@@ -1086,6 +1087,7 @@ class DirectNode:
             period_ns,
             callback,
             callback_group=native_group,
+            autostart=autostart,
         )
         timer.callback_group = group
         group.add_entity(timer)
@@ -1098,6 +1100,7 @@ class DirectNode:
             metadata={
                 "entity_type": "timer",
                 "period_ns": period_ns,
+                "autostart": autostart,
                 "clock": "steady",
                 "callback_handoff": "direct_std_function",
                 "creation_route": timer.creation_route,

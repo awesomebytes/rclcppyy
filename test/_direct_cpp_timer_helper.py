@@ -36,7 +36,7 @@ runtime = importlib.import_module("rclcppyy.direct_cpp")._runtime()
 
 expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, callback_group=object()))
 expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, clock=object()))
-expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, autostart=False))
+expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, autostart=object()))
 expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, oneshot=False))
 expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, options=object()))
 expect_rejected(node, lambda: node.create_timer(0.0, lambda: None))
@@ -64,13 +64,19 @@ class RetainedCallback:
 
 callback = RetainedCallback()
 callback_ref = weakref.ref(callback)
-timer = node.create_timer(0.001, callback)
+timer = node.create_timer(0.001, callback, autostart=False)
 del callback
 gc.collect()
 assert callback_ref() is not None
 assert timer.timer_period_ns == 1_000_000
 assert "rclcpp::WallTimer" in timer.__cpp_name__
 assert timer.creation_route == "rclcpp_wall_timer"
+assert timer.is_canceled()
+for _ in range(3):
+    rclpy.spin_once(node, timeout_sec=0.002)
+assert callback_ref().count == 0
+timer.reset()
+assert not timer.is_canceled()
 deadline = time.monotonic() + 5.0
 while callback_ref().count < 3 and time.monotonic() < deadline:
     rclpy.spin_once(node, timeout_sec=0.05)
@@ -129,6 +135,7 @@ assert all("native_timer_authority" in item["policies"] for item in records)
 assert all("no_conversion" in item["policies"] for item in records)
 assert all(item["metadata"]["callback_handoff"] == "direct_std_function" for item in records)
 assert all("rclcpp::WallTimer" in item["metadata"]["native_type"] for item in records)
+assert [item["metadata"]["autostart"] for item in records] == [False, True]
 
 spin_done = threading.Event()
 spin_errors = []
