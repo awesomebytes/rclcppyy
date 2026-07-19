@@ -30,6 +30,8 @@ kit.convert_python_msg_to_cpp = forbidden_boundary
 bringup.convert_python_msg_to_cpp = forbidden_boundary
 serialization.serialize_message = forbidden_boundary
 serialization.deserialize_message = forbidden_boundary
+serialization.serialized_message_from_bytes = forbidden_boundary
+serialization.serialized_message_to_bytes = forbidden_boundary
 rclpy_serialization.serialize_message = forbidden_boundary
 rclpy_serialization.deserialize_message = forbidden_boundary
 
