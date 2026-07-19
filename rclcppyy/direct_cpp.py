@@ -20,6 +20,7 @@ _RUNTIME = None
 _PATCHES = ()
 _MESSAGE_INSTALLATION = None
 _SERVICE_INSTALLATION = None
+_ACTION_INSTALLATION = None
 _DEFAULT_SERVICE_QOS = object()
 
 
@@ -357,6 +358,7 @@ class DirectNode:
         self._direct_cpp_timers = []
         self._direct_cpp_clients = []
         self._direct_cpp_services = []
+        self._direct_cpp_action_clients = []
         _runtime().attach(self, self._direct_cpp_node)
         record_decision(
             "nodes",
@@ -389,6 +391,10 @@ class DirectNode:
     @property
     def services(self):
         return list(self._direct_cpp_services)
+
+    @property
+    def action_clients(self):
+        return list(self._direct_cpp_action_clients)
 
     def get_name(self):
         return str(self._require_node().get_name())
@@ -596,6 +602,12 @@ class DirectNode:
                 return True
         return False
 
+    def _discard_direct_action_client(self, action_client):
+        try:
+            self._direct_cpp_action_clients.remove(action_client)
+        except ValueError:
+            pass
+
     def destroy_node(self):
         node = self._direct_cpp_node
         if node is None:
@@ -606,9 +618,12 @@ class DirectNode:
             client.close()
         for service in tuple(self._direct_cpp_services):
             service.close()
+        for action_client in tuple(self._direct_cpp_action_clients):
+            action_client.close()
         self._direct_cpp_timers.clear()
         self._direct_cpp_clients.clear()
         self._direct_cpp_services.clear()
+        self._direct_cpp_action_clients.clear()
         self._direct_cpp_publishers.clear()
         self._direct_cpp_subscriptions.clear()
         _runtime().detach(self, node)
@@ -621,9 +636,12 @@ class DirectNode:
             client.close()
         for service in tuple(self._direct_cpp_services):
             service.close()
+        for action_client in tuple(self._direct_cpp_action_clients):
+            action_client.close()
         self._direct_cpp_timers.clear()
         self._direct_cpp_clients.clear()
         self._direct_cpp_services.clear()
+        self._direct_cpp_action_clients.clear()
         self._direct_cpp_publishers.clear()
         self._direct_cpp_subscriptions.clear()
         self._direct_cpp_node = None
@@ -656,6 +674,8 @@ class DirectNode:
     def _poll_direct_clients(self):
         for client in tuple(self._direct_cpp_clients):
             client._poll_ready()
+        for action_client in tuple(self._direct_cpp_action_clients):
+            action_client._poll_ready()
 
     def _record_service_entity(self, entity_type, service_name, srv_type, entity):
         if entity_type == "client":
@@ -745,9 +765,11 @@ def _check_early_activation() -> None:
             "direct_cpp must be enabled before importing: %s" % ", ".join(stale))
     from rclcppyy.direct_messages import assert_early_imports
     from rclcppyy.direct_services import assert_early_imports as assert_service_imports
+    from rclcppyy.direct_actions import assert_early_imports as assert_action_imports
 
     assert_early_imports()
     assert_service_imports()
+    assert_action_imports()
 
 
 def _direct_init(
@@ -814,26 +836,40 @@ def _direct_spin_until_future_complete(
 
 def activate() -> bool:
     """Install the complete first-slice surface, rolling back on any failure."""
-    global _ACTIVE, _MESSAGE_INSTALLATION, _PATCHES, _RUNTIME
+    global _ACTION_INSTALLATION, _ACTIVE, _MESSAGE_INSTALLATION, _PATCHES, _RUNTIME
     global _SERVICE_INSTALLATION
     if _ACTIVE:
         return True
     _check_early_activation()
     _check_runtime()
 
-    from rclcppyy import direct_messages, direct_services
+    from rclcppyy import direct_actions, direct_messages, direct_services
 
     installation = direct_messages.install()
     service_installation = None
+    action_installation = None
     patches = []
     try:
         service_installation = direct_services.install()
+        action_installation = direct_actions.install()
         import rclpy
+        import rclpy.action as action_module
+        import rclpy.action.client as action_client_module
+        import rclpy.action.server as action_server_module
         import rclpy.node as node_module
 
         runtime = _DirectRuntime()
         replacements = (
             (node_module, "Node", DirectNode),
+            (action_module, "ActionClient", direct_actions.DirectActionClient),
+            (action_client_module, "ActionClient", direct_actions.DirectActionClient),
+            (
+                action_client_module,
+                "ClientGoalHandle",
+                direct_actions.DirectClientGoalHandle,
+            ),
+            (action_module, "ActionServer", direct_actions.DirectActionServer),
+            (action_server_module, "ActionServer", direct_actions.DirectActionServer),
             (rclpy, "init", _direct_init),
             (rclpy, "ok", _direct_ok),
             (rclpy, "shutdown", _direct_shutdown),
@@ -851,12 +887,15 @@ def activate() -> bool:
         for module, name, original, replacement in reversed(patches):
             if getattr(module, name, None) is replacement:
                 setattr(module, name, original)
+        if action_installation is not None:
+            action_installation.restore()
         if service_installation is not None:
             service_installation.restore()
         installation.restore()
         raise
     _MESSAGE_INSTALLATION = installation
     _SERVICE_INSTALLATION = service_installation
+    _ACTION_INSTALLATION = action_installation
     _PATCHES = tuple(patches)
     _ACTIVE = True
     record_decision(
@@ -869,6 +908,7 @@ def activate() -> bool:
             "profile": "direct_cpp",
             "message_types": [binding.cpp_type_name for binding in installation.bindings],
             "service_types": [service_installation.binding.cpp_type_name],
+            "action_types": [action_installation.binding.cpp_types.cpp_name],
         },
     )
     return True
