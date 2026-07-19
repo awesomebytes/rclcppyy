@@ -191,6 +191,7 @@ def test_direct_cpp_native_timer_and_bounded_spin():
     assert process.returncode == 0, format_output(process)
     assert "DIRECT_CPP_TIMER_FAIL_CLOSED_OK" in process.stdout
     assert "DIRECT_CPP_TIMER_CONTROL_OK" in process.stdout
+    assert "DIRECT_CPP_TIMER_INSPECTION_OK" in process.stdout
     assert "DIRECT_CPP_TIMER_EXCEPTION_OK" in process.stdout
     assert "DIRECT_CPP_SPIN_INTERRUPT_OK" in process.stdout
 

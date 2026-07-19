@@ -183,6 +183,14 @@ accept either the generated C++ message alone or that message plus native
 `rclcpp::MessageInfo` fields. The baseline owning-copy and opt-in shared-lease forms
 are both supported.
 
+Direct wall timers expose the stock-shaped `is_ready()`,
+`time_until_next_call()`, and `time_since_last_call()` inspection methods from
+their exact native timer. The first two delegate to `rclcpp::TimerBase`; the
+last reads `rcl_timer_get_time_since_last_call` through the native timer handle.
+A canceled timer maps the native maximum-duration sentinel to `None`, matching
+`rclpy`, and destroyed timers reject inspection while retaining
+`timer_period_ns`.
+
 The same profile supports `std_srvs/srv/SetBool` by default and explicitly
 registered installed services such as `std_srvs/srv/Trigger` through the common
 `create_service`, `create_client`, request construction, `call_async`, blocking

@@ -19,6 +19,22 @@ from rclcppyy.policy import BackendUnavailableError  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 
 
+def forbidden_boundary(*_args, **_kwargs):
+    raise AssertionError("conversion or serialization entered timer inspection")
+
+
+kit = importlib.import_module("rclcpp_kit")
+bringup = importlib.import_module("rclcpp_kit.bringup_rclcpp")
+serialization = importlib.import_module("rclcpp_kit.serialization")
+rclpy_serialization = importlib.import_module("rclpy.serialization")
+kit.convert_python_msg_to_cpp = forbidden_boundary
+bringup.convert_python_msg_to_cpp = forbidden_boundary
+serialization.serialize_message = forbidden_boundary
+serialization.deserialize_message = forbidden_boundary
+rclpy_serialization.serialize_message = forbidden_boundary
+rclpy_serialization.deserialize_message = forbidden_boundary
+
+
 def expect_rejected(node, operation):
     before = len(node.timers)
     try:
@@ -64,31 +80,57 @@ class RetainedCallback:
 
 callback = RetainedCallback()
 callback_ref = weakref.ref(callback)
-timer = node.create_timer(0.001, callback, autostart=False)
+timer = node.create_timer(0.05, callback, autostart=False)
 del callback
 gc.collect()
 assert callback_ref() is not None
-assert timer.timer_period_ns == 1_000_000
+assert timer.timer_period_ns == 50_000_000
 assert "rclcpp::WallTimer" in timer.__cpp_name__
 assert timer.creation_route == "rclcpp_wall_timer"
 assert timer.is_canceled()
+assert not timer.is_ready()
+assert timer.time_until_next_call() is None
+assert timer.time_since_last_call() >= 0
 for _ in range(3):
     rclpy.spin_once(node, timeout_sec=0.002)
 assert callback_ref().count == 0
 timer.reset()
 assert not timer.is_canceled()
+reset_until = timer.time_until_next_call()
+assert isinstance(reset_until, int) and 0 < reset_until <= timer.timer_period_ns
+assert not timer.is_ready()
+deadline = time.monotonic() + 5.0
+while not timer.is_ready() and time.monotonic() < deadline:
+    time.sleep(0.001)
+assert timer.is_ready()
+assert timer.time_until_next_call() <= 0
+rclpy.spin_once(node, timeout_sec=0.05)
+assert callback_ref().count == 1
+post_until = timer.time_until_next_call()
+post_since = timer.time_since_last_call()
+assert isinstance(post_until, int) and post_until <= timer.timer_period_ns
+assert isinstance(post_since, int) and post_since >= 0
 deadline = time.monotonic() + 5.0
 while callback_ref().count < 3 and time.monotonic() < deadline:
     rclpy.spin_once(node, timeout_sec=0.05)
 assert callback_ref().count >= 3
 timer.cancel()
 assert timer.is_canceled()
+assert not timer.is_ready()
+assert timer.time_until_next_call() is None
+canceled_since = timer.time_since_last_call()
+assert canceled_since >= 0
 canceled_count = callback_ref().count
 for _ in range(3):
     rclpy.spin_once(node, timeout_sec=0.002)
 assert callback_ref().count == canceled_count
+assert timer.time_since_last_call() >= canceled_since
 timer.reset()
 assert not timer.is_canceled()
+reset_until = timer.time_until_next_call()
+assert isinstance(reset_until, int) and 0 < reset_until <= timer.timer_period_ns
+assert not timer.is_ready()
+deadline = time.monotonic() + 5.0
 while callback_ref().count == canceled_count and time.monotonic() < deadline:
     rclpy.spin_once(node, timeout_sec=0.05)
 assert callback_ref().count == canceled_count + 1
@@ -102,10 +144,23 @@ except RuntimeError as exc:
     assert "destroyed" in str(exc)
 else:
     raise AssertionError("destroyed direct timer was reset")
+for method in (
+    timer.is_ready,
+    timer.time_until_next_call,
+    timer.time_since_last_call,
+):
+    try:
+        method()
+    except RuntimeError as exc:
+        assert "destroyed" in str(exc)
+    else:
+        raise AssertionError("destroyed direct timer inspection succeeded")
+assert timer.timer_period_ns == 50_000_000
 for _ in range(3):
     rclpy.spin_once(node, timeout_sec=0.002)
 assert retained_callback.count == canceled_count + 1
 print("DIRECT_CPP_TIMER_CONTROL_OK")
+print("DIRECT_CPP_TIMER_INSPECTION_OK")
 
 
 def fail_callback():
