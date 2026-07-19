@@ -116,10 +116,10 @@ def _sample(variant, repetition=1, index=0):
             "profile": "direct_cpp",
             "timer_status_backend": "cpp",
             "timer_decision_id": "entity-00000003",
-            "timer_creation_route": "rclcpp_wall_timer",
+            "timer_creation_route": "rclcpp_clock_timer",
             "callback_handoff": "direct_std_function",
             "executor_session_owned": True,
-            "native_timer_type": "rclcpp::WallTimer<std::function<void()>>",
+            "native_timer_type": "rclcpp::GenericTimer<std::function<void()>,nullptr>",
             "native_executor_type": "rclcpp::executors::SingleThreadedExecutor",
             "executor_surface": spec["executor_surface"],
         }
@@ -171,7 +171,8 @@ def _sample(variant, repetition=1, index=0):
     }
     if variant in protocol.DIRECT_VARIANTS:
         ready["timer_marker"]["implementation"] = (
-            "rclcpp::WallTimer<std::function<void()>>")
+            "rclcpp::GenericTimer<std::function<void()>,nullptr>")
+        ready["timer_marker"]["clock"] = "ros"
         ready["executor_marker"]["implementation"] = (
             "rclcpp::executors::SingleThreadedExecutor")
     if activation is not None:
@@ -659,7 +660,7 @@ def test_live_cyclone_python_timer_graph_and_protocol(monkeypatch, variant):
                     "profile": "direct_cpp",
                     "timer_status_backend": "cpp",
                     "timer_decision_id": ready["activation"]["timer_decision_id"],
-                    "timer_creation_route": "rclcpp_wall_timer",
+                    "timer_creation_route": "rclcpp_clock_timer",
                     "callback_handoff": "direct_std_function",
                     "executor_session_owned": True,
                     "native_timer_type": ready["timer_marker"]["implementation"],
@@ -667,7 +668,8 @@ def test_live_cyclone_python_timer_graph_and_protocol(monkeypatch, variant):
                     "executor_surface": protocol.VARIANTS[variant][
                         "executor_surface"],
                 }
-                assert "rclcpp::WallTimer" in ready[
+                assert ready["timer_marker"]["clock"] == "ros"
+                assert "rclcpp::GenericTimer" in ready[
                     "timer_marker"]["implementation"]
                 assert "rclcpp::executors::SingleThreadedExecutor" in ready[
                     "executor_marker"]["implementation"]

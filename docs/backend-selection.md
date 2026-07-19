@@ -183,10 +183,12 @@ accept either the generated C++ message alone or that message plus native
 `rclcpp::MessageInfo` fields. The baseline owning-copy and opt-in shared-lease forms
 are both supported.
 
-Direct wall timers expose the stock-shaped `is_ready()`,
-`time_until_next_call()`, and `time_since_last_call()` inspection methods from
-their exact native timer. The first two delegate to `rclcpp::TimerBase`; the
-last reads `rcl_timer_get_time_since_last_call` through the native timer handle.
+Direct timers -- a real `rclcpp::GenericTimer` on the node's own ROS clock,
+sim-time-aware exactly like stock's `create_timer(clock=None)` default --
+expose the stock-shaped `is_ready()`, `time_until_next_call()`, and
+`time_since_last_call()` inspection methods from their exact native timer.
+The first two delegate to `rclcpp::TimerBase`; the last reads
+`rcl_timer_get_time_since_last_call` through the native timer handle.
 A canceled timer maps the native maximum-duration sentinel to `None`, matching
 `rclpy`, and destroyed timers reject inspection while retaining
 `timer_period_ns`.

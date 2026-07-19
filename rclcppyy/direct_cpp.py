@@ -1824,13 +1824,11 @@ class DirectNode:
         callback_group=None,
         clock=None,
         autostart=True,
-        **options,
     ):
-        requested = {
-            "clock": clock is not None,
-            **{str(name): True for name in options},
-        }
-        self._reject_entity_options("timer", requested)
+        if clock is not None and clock is not self.get_clock():
+            _unsupported(
+                "create_timer honors only the node's own clock or None; "
+                "standalone/foreign clocks are not supported")
         if not isinstance(autostart, bool):
             raise TypeError("timer autostart must be a bool")
         if not callable(callback):
@@ -1850,7 +1848,7 @@ class DirectNode:
         from rclcpp_kit import direct_entities
 
         group, native_group = self._resolve_callback_group(callback_group)
-        timer = direct_entities.create_wall_timer(
+        timer = direct_entities.create_clock_timer(
             self._require_node(),
             period_ns,
             callback,
@@ -1863,16 +1861,16 @@ class DirectNode:
         record_decision(
             "entities",
             "cpp",
-            "direct rclcpp wall timer with Python callback; steady clock only "
-            "-- ROS-clock/sim-time timers are fail-closed pending a suite "
-            "clock-parameterized timer primitive, not implied by this route",
+            "direct rclcpp GenericTimer with Python callback on the node's own "
+            "ROS clock -- sim-time-aware, matching stock's create_timer(clock="
+            "None) default; standalone/foreign clocks are not supported",
             policies=("direct_cpp", "native_timer_authority", "no_conversion"),
             metadata={
                 "entity_type": "timer",
                 "period_ns": period_ns,
                 "autostart": autostart,
-                "clock": "steady",
-                "ros_clock_support": "fail_closed_pending_suite_primitive",
+                "clock": "ros",
+                "ros_clock_support": "managed_clock_timers",
                 "callback_handoff": "direct_std_function",
                 "creation_route": timer.creation_route,
                 "native_type": timer.native_type_name,

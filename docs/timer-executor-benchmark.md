@@ -1,16 +1,19 @@
 # Controlled timer-executor benchmark
 
 This benchmark characterizes process CPU and scheduling behavior for a fixed
-1 ms steady timer on ROS 2 Jazzy with Cyclone DDS. It produces raw evidence with
-performance claims disabled.
+1 ms timer on ROS 2 Jazzy with Cyclone DDS: a steady clock for the
+stock/compatible/native/AOT lanes, and the node's own ROS clock (sim-time-aware,
+matching stock's `create_timer(clock=None)` default) for the direct-cpp lanes.
+It produces raw evidence with performance claims disabled.
 
 ## Variants
 
 1. `stock-rclpy`: stock timer, executor, and Python callback.
 2. `compatible-rclcppyy`: activation-only control with the same stock authority.
 3. `direct-cpp-rclcppyy`: the source-compatible `Node.create_timer` and
-   `rclpy.spin_once` surface backed by a session-owned `rclcpp` timer and executor,
-   entering Python once per firing.
+   `rclpy.spin_once` surface backed by a session-owned `rclcpp::GenericTimer` on
+   the node's own ROS clock and a session-owned executor, entering Python once
+   per firing.
 4. `direct-public-ste`: the same direct timer and callback driven by an explicit
    patched `rclpy.executors.SingleThreadedExecutor` using
    `add_node`/`spin_once`/`remove_node`.

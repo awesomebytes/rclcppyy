@@ -53803,14 +53803,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -53820,12 +53820,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, timer_period_sec, callback, callback_group=None, clock=None, autostart=True, **options)"
+          "value": "(self, timer_period_sec: float, callback: Callable, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None, clock: Optional[rclpy.clock.Clock] = None, autostart: bool = True) -> rclpy.timer.Timer"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNode.create_timer",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -59924,14 +59924,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -59941,12 +59941,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, timer_period_sec, callback, callback_group=None, clock=None, autostart=True, **options)"
+          "value": "(self, timer_period_sec: float, callback: Callable, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None, clock: Optional[rclpy.clock.Clock] = None, autostart: bool = True) -> rclpy.timer.Timer"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.Node.create_timer",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -68466,14 +68466,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -68483,12 +68483,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, timer_period_sec, callback, callback_group=None, clock=None, autostart=True, **options)"
+          "value": "(self, timer_period_sec: float, callback: Callable, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None, clock: Optional[rclpy.clock.Clock] = None, autostart: bool = True) -> rclpy.timer.Timer"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNode.create_timer",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -74495,14 +74495,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -74512,12 +74512,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, timer_period_sec, callback, callback_group=None, clock=None, autostart=True, **options)"
+          "value": "(self, timer_period_sec: float, callback: Callable, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None, clock: Optional[rclpy.clock.Clock] = None, autostart: bool = True) -> rclpy.timer.Timer"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.Node.create_timer",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -88903,14 +88903,14 @@
           "node.subclass_existing_alias"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -88920,12 +88920,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, timer_period_sec, callback, callback_group=None, clock=None, autostart=True, **options)"
+          "value": "(self, timer_period_sec: float, callback: Callable, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None, clock: Optional[rclpy.clock.Clock] = None, autostart: bool = True) -> rclpy.timer.Timer"
         }
       },
       "level": "member",
       "path": "rclpy.node.Node.create_timer",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -103186,14 +103186,14 @@
           "parameter.value_and_event_helpers"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -103203,12 +103203,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, timer_period_sec, callback, callback_group=None, clock=None, autostart=True, **options)"
+          "value": "(self, timer_period_sec: float, callback: Callable, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None, clock: Optional[rclpy.clock.Clock] = None, autostart: bool = True) -> rclpy.timer.Timer"
         }
       },
       "level": "member",
       "path": "rclpy.parameter_client.Node.create_timer",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -109071,14 +109071,14 @@
           "parameter.value_and_event_helpers"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -109088,12 +109088,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, timer_period_sec, callback, callback_group=None, clock=None, autostart=True, **options)"
+          "value": "(self, timer_period_sec: float, callback: Callable, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None, clock: Optional[rclpy.clock.Clock] = None, autostart: bool = True) -> rclpy.timer.Timer"
         }
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Node.create_timer",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -172271,13 +172271,13 @@
     "generated_interface_aliases": 21,
     "ledger_entries": 3800,
     "modules": 58,
-    "signature_mismatches": 194,
+    "signature_mismatches": 187,
     "statuses": {
       "exact_direct_cpp_authority": 93,
       "explicit_fail_closed": 3,
-      "missing_mismatch": 295,
+      "missing_mismatch": 288,
       "mixed_control_direct_data": 0,
-      "unassessed": 2612,
+      "unassessed": 2619,
       "unchanged_stock_fallback": 797
     },
     "stock_only_entries": 101,

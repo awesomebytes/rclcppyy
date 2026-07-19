@@ -314,7 +314,7 @@
       "properties": {
         "authority": {"enum": ["python", "cpp"]},
         "implementation": {"type": "string", "minLength": 1},
-        "clock": {"const": "steady"},
+        "clock": {"enum": ["steady", "ros"]},
         "period_ns": {"const": 1000000},
         "callback_language": {"enum": ["python", "cpp"]},
         "kind": {"const": "single_threaded"},
@@ -343,12 +343,12 @@
           "minLength": 1,
           "pattern": "^entity-[0-9]{8}$"
         },
-        "timer_creation_route": {"const": "rclcpp_wall_timer"},
+        "timer_creation_route": {"const": "rclcpp_clock_timer"},
         "callback_handoff": {"const": "direct_std_function"},
         "executor_session_owned": {"const": true},
         "native_timer_type": {
           "type": "string",
-          "pattern": "^rclcpp::WallTimer<"
+          "pattern": "^rclcpp::GenericTimer<"
         },
         "native_executor_type": {
           "type": "string",

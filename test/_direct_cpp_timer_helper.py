@@ -35,11 +35,11 @@ rclpy_serialization.serialize_message = forbidden_boundary
 rclpy_serialization.deserialize_message = forbidden_boundary
 
 
-def expect_rejected(node, operation):
+def expect_rejected(node, operation, exceptions=(BackendUnavailableError, TypeError, ValueError)):
     before = len(node.timers)
     try:
         operation()
-    except (BackendUnavailableError, TypeError, ValueError):
+    except exceptions:
         pass
     else:
         raise AssertionError("unsupported direct timer request succeeded")
@@ -52,16 +52,27 @@ runtime = importlib.import_module("rclcppyy.direct_cpp")._runtime()
 
 expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, callback_group=object()))
 expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, clock=object()))
-# The suite provides only a steady rclcpp::WallTimer -- there is no ROS-clock
-# / sim-time-aware timer primitive to build a real clock=... timer on, so a
-# genuine DirectClock argument (not just an arbitrary object()) must be
-# rejected the same way, not silently accepted because it happens to be the
-# "real" clock type.
-expect_rejected(
-    node, lambda: node.create_timer(0.001, lambda: None, clock=node.get_clock()))
+# node.get_clock() -- the node's own clock -- is the one non-None clock=
+# create_timer accepts: it routes to the same node-ROS-clock GenericTimer the
+# default (clock=None) uses, so this is a normal, ticking timer, not a
+# rejection. Standalone/foreign clocks (clock=object() above) still fail
+# closed -- a clock this node cannot ever produce is out of scope, not just
+# unimplemented.
+clock_timer_ticks = []
+clock_timer = node.create_timer(
+    0.01, lambda: clock_timer_ticks.append(1), clock=node.get_clock())
+assert "GenericTimer" in clock_timer.native_type_name
+assert clock_timer.creation_route == "rclcpp_clock_timer"
+clock_timer_deadline = time.monotonic() + 5.0
+while not clock_timer_ticks and time.monotonic() < clock_timer_deadline:
+    rclpy.spin_once(node, timeout_sec=0.05)
+assert clock_timer_ticks
+assert node.destroy_timer(clock_timer)
 expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, autostart=object()))
-expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, oneshot=False))
-expect_rejected(node, lambda: node.create_timer(0.001, lambda: None, options=object()))
+expect_rejected(
+    node, lambda: node.create_timer(0.001, lambda: None, oneshot=False), TypeError)
+expect_rejected(
+    node, lambda: node.create_timer(0.001, lambda: None, options=object()), TypeError)
 expect_rejected(node, lambda: node.create_timer(0.0, lambda: None))
 expect_rejected(node, lambda: node.create_timer(-1.0, lambda: None))
 expect_rejected(node, lambda: node.create_timer(math.inf, lambda: None))
@@ -92,8 +103,8 @@ del callback
 gc.collect()
 assert callback_ref() is not None
 assert timer.timer_period_ns == 50_000_000
-assert "rclcpp::WallTimer" in timer.__cpp_name__
-assert timer.creation_route == "rclcpp_wall_timer"
+assert "GenericTimer" in timer.__cpp_name__
+assert timer.creation_route == "rclcpp_clock_timer"
 assert timer.is_canceled()
 assert not timer.is_ready()
 assert timer.time_until_next_call() is None
@@ -191,16 +202,19 @@ records = [
     item for item in rclcppyy.status()["entities"]
     if item["metadata"].get("entity_type") == "timer"
 ]
-assert len(records) == 2
+# Three timers were created above: the destroyed clock=node.get_clock() proof,
+# then timer, then failing_timer -- record_decision logs at creation time and
+# is never retracted on destroy, so the destroyed one still appears.
+assert len(records) == 3
 assert all(item["backend"] == "cpp" for item in records)
 assert all("native_timer_authority" in item["policies"] for item in records)
 assert all("no_conversion" in item["policies"] for item in records)
 assert all(item["metadata"]["callback_handoff"] == "direct_std_function" for item in records)
-assert all("rclcpp::WallTimer" in item["metadata"]["native_type"] for item in records)
-assert [item["metadata"]["autostart"] for item in records] == [False, True]
-assert all(item["metadata"]["clock"] == "steady" for item in records)
+assert all("GenericTimer" in item["metadata"]["native_type"] for item in records)
+assert [item["metadata"]["autostart"] for item in records] == [True, False, True]
+assert all(item["metadata"]["clock"] == "ros" for item in records)
 assert all(
-    item["metadata"]["ros_clock_support"] == "fail_closed_pending_suite_primitive"
+    item["metadata"]["ros_clock_support"] == "managed_clock_timers"
     for item in records
 )
 

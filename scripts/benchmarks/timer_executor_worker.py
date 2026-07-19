@@ -408,7 +408,7 @@ def _direct_cpp_python_callback(args) -> int:
         timer_marker={
             "authority": "cpp",
             "implementation": timer.__cpp_name__,
-            "clock": "steady",
+            "clock": timer_record["metadata"]["clock"],
             "period_ns": timer.timer_period_ns,
             "callback_language": "python",
         },

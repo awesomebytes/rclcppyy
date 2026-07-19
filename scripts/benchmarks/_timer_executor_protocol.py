@@ -250,13 +250,14 @@ def validate_build(build: dict) -> None:
         raise ValueError("timer AOT build duration is invalid")
 
 
-def _validate_marker(marker: dict, *, authority: str, kind: str) -> None:
+def _validate_marker(
+        marker: dict, *, authority: str, kind: str, expected_clock: str = "steady") -> None:
     if not isinstance(marker, dict) or marker.get("authority") != authority:
         raise ValueError("timer/executor authority marker is invalid")
     if not isinstance(marker.get("implementation"), str) or not marker["implementation"]:
         raise ValueError("timer/executor implementation marker is required")
     if kind == "timer":
-        if marker.get("clock") != "steady" or marker.get("period_ns") != PERIOD_NS:
+        if marker.get("clock") != expected_clock or marker.get("period_ns") != PERIOD_NS:
             raise ValueError("timer clock or period marker is invalid")
     elif marker.get("kind") != "single_threaded" or marker.get("threads") != 1:
         raise ValueError("executor must be single-threaded")
@@ -281,7 +282,9 @@ def _validate_ready(ready: dict, sample: dict, cache: dict) -> None:
     if ready.get("warmup_firings") != WARMUP_FIRINGS or ready.get(
             "timer_canceled") is not True:
         raise ValueError("timer warmup did not self-cancel exactly")
-    _validate_marker(ready.get("timer_marker"), authority=spec["timer_authority"], kind="timer")
+    _validate_marker(
+        ready.get("timer_marker"), authority=spec["timer_authority"], kind="timer",
+        expected_clock="ros" if variant in DIRECT_VARIANTS else "steady")
     _validate_marker(
         ready.get("executor_marker"), authority=spec["executor_authority"], kind="executor")
     if ready["timer_marker"].get("callback_language") != spec["callback_language"]:
@@ -312,7 +315,7 @@ def _validate_ready(ready: dict, sample: dict, cache: dict) -> None:
             "timer_status_backend": "cpp",
             "timer_decision_id": activation.get("timer_decision_id")
             if isinstance(activation, dict) else None,
-            "timer_creation_route": "rclcpp_wall_timer",
+            "timer_creation_route": "rclcpp_clock_timer",
             "callback_handoff": "direct_std_function",
             "executor_session_owned": True,
             "native_timer_type": ready["timer_marker"]["implementation"],
@@ -332,8 +335,8 @@ def _validate_ready(ready: dict, sample: dict, cache: dict) -> None:
         ):
             raise ValueError("direct timer did not prove its source-compatible route")
         if not ready["timer_marker"]["implementation"].startswith(
-                "rclcpp::WallTimer<"):
-            raise ValueError("direct timer marker is not a native rclcpp wall timer")
+                "rclcpp::GenericTimer<"):
+            raise ValueError("direct timer marker is not a native rclcpp clock timer")
         if not ready[
                 "executor_marker"]["implementation"].startswith(
                 "rclcpp::executors::SingleThreadedExecutor"):
