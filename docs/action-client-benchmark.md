@@ -35,19 +35,21 @@ for all lanes and are included in latency characterization.
 | --- | --- |
 | `stock-rclpy` | Ordinary `rclpy.action.ActionClient` with Python messages. |
 | `compatible-rclcppyy` | Compatible activation only; the same Python action authority remains in control. |
+| `direct-source-compatible` | Public `ActionClient`/Future/goal-handle shape over a real `rclcpp_action` client and generated C++ Goal, feedback, result, UUID, and response values. Conversion and serialization bridges are poisoned. |
 | `native-python-orchestrated` | `NativeSession.create_native_action_client`, direct C++ goal objects, C++-owned futures and queues, and Python orchestration. |
 | `native-cpp-state-machine` | Benchmark-private content-addressed C++ loop; goal, feedback, result, latency, and checksum state remain in C++. |
 | `aot-staged` | Conventional Release AOT `rclcpp_action` client. |
 
-The compatible lane is a contract/control lane, not an acceleration claim. Only
-the native lanes are conversion-free: application goals, feedback, results, and
-associated state remain in their generated C++ representations throughout.
+The compatible lane is a contract/control lane, not an acceleration claim. The
+direct and native lanes are conversion-free: application goals, feedback,
+results, and associated state remain in generated C++ representations.
 
 The crossing counters cover typed goal, feedback, and result transfers across the
-Python/C++ boundary. The managed Python lane therefore reports one goal, three
-feedback, and one result crossing per goal. State-query polling is not a typed data
-transfer and is reported separately as `orchestration_poll_count`. The native C++
-state-machine and AOT lanes perform no per-goal Python work and report zero.
+Python/C++ boundary. The source-compatible direct and managed Python lanes report
+one goal, three feedback, and one result crossing per goal. State-query polling is
+not a typed data transfer and is reported separately as
+`orchestration_poll_count`. The native C++ state-machine and AOT lanes perform no
+per-goal Python work and report zero.
 
 ## Metrics
 
@@ -79,4 +81,4 @@ pixi run action-client-bench \
 ```
 
 The runner exits nonzero if any sample fails. It still records the failed case so
-the document must cover the exact 25-case matrix.
+the document must cover the exact 30-case matrix.

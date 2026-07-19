@@ -73,6 +73,17 @@ VARIANTS = {
         "python_result_crossings_per_goal": 1,
         "no_python_message_conversion": False,
     },
+    "direct-source-compatible": {
+        "execution_model": "direct-rclcpp-action-client-source-compatible-control",
+        "action_authority": "cpp",
+        "action_implementation": "rclcppyy.direct_actions.DirectActionClient",
+        "goal_representation": "cpp-message",
+        "cache_kind": "native-action-client-shared-library",
+        "python_goal_crossings_per_goal": 1,
+        "python_feedback_crossings_per_goal": FEEDBACK_PER_GOAL,
+        "python_result_crossings_per_goal": 1,
+        "no_python_message_conversion": True,
+    },
     "native-python-orchestrated": {
         "execution_model": "managed-rclcpp-action-client-python-orchestration",
         "action_authority": "cpp",
@@ -340,6 +351,15 @@ def _validate_client_ready(event: dict, sample: dict, cache: dict) -> None:
         if route_cache != {"kind": "activation-only", "state": "activation-only"} or event.get(
                 "activation") != {"profile": "compatible", "action_authority": "python"}:
             raise ValueError("compatible action lane must remain activation-only")
+    elif variant == "direct-source-compatible":
+        expected = cache["phases"]["warm"]["artifacts"]["native_action_client"]
+        _validate_route_artifact(route_cache, expected)
+        if event.get("activation") != {
+            "profile": "direct_cpp",
+            "action_authority": "cpp",
+            "representations": "actual_cpp",
+        }:
+            raise ValueError("direct action lane activation marker is invalid")
     elif variant == "native-python-orchestrated":
         expected = cache["phases"]["warm"]["artifacts"]["native_action_client"]
         _validate_route_artifact(route_cache, expected)

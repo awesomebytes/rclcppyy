@@ -46,6 +46,7 @@
           "const": [
             "stock-rclpy",
             "compatible-rclcppyy",
+            "direct-source-compatible",
             "native-python-orchestrated",
             "native-cpp-state-machine",
             "aot-staged"
@@ -61,8 +62,8 @@
         "qos": {"$ref": "#/$defs/qos"},
         "execution_order": {
           "type": "array",
-          "minItems": 25,
-          "maxItems": 25,
+          "minItems": 30,
+          "maxItems": 30,
           "uniqueItems": true,
           "items": {"type": "string"}
         }
@@ -128,6 +129,7 @@
       "enum": [
         "stock-rclpy",
         "compatible-rclcppyy",
+        "direct-source-compatible",
         "native-python-orchestrated",
         "native-cpp-state-machine",
         "aot-staged"
@@ -580,6 +582,28 @@
         },
         {
           "if": {
+            "properties": {"variant": {"const": "direct-source-compatible"}},
+            "required": ["variant"]
+          },
+          "then": {
+            "properties": {
+              "client_ready": {
+                "properties": {
+                  "execution_model": {
+                    "const": "direct-rclcpp-action-client-source-compatible-control"
+                  },
+                  "action_authority": {"const": "cpp"},
+                  "action_implementation": {
+                    "const": "rclcppyy.direct_actions.DirectActionClient"
+                  },
+                  "goal_representation": {"const": "cpp-message"}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
             "properties": {"variant": {"const": "native-python-orchestrated"}},
             "required": ["variant"]
           },
@@ -644,7 +668,8 @@
             "properties": {
               "variant": {
                 "enum": [
-                  "stock-rclpy", "compatible-rclcppyy", "native-python-orchestrated"
+                  "stock-rclpy", "compatible-rclcppyy", "direct-source-compatible",
+                  "native-python-orchestrated"
                 ]
               }
             },
@@ -684,7 +709,8 @@
             "properties": {
               "variant": {
                 "enum": [
-                  "native-python-orchestrated", "native-cpp-state-machine", "aot-staged"
+                  "direct-source-compatible", "native-python-orchestrated",
+                  "native-cpp-state-machine", "aot-staged"
                 ]
               }
             },

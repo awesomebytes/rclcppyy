@@ -117,7 +117,7 @@ def _sample(variant, repetition=1, index=0):
     if variant == "compatible-rclcppyy":
         route_cache = {"kind": "activation-only", "state": "activation-only"}
         activation = {"profile": "compatible", "action_authority": "python"}
-    elif variant == "native-python-orchestrated":
+    elif variant in ("direct-source-compatible", "native-python-orchestrated"):
         artifact = _cache()["phases"]["warm"]["artifacts"]["native_action_client"]
         route_cache = {
             "kind": spec["cache_kind"],
@@ -127,6 +127,12 @@ def _sample(variant, repetition=1, index=0):
             "sha256": artifact["sha256"],
             "size_bytes": artifact["size_bytes"],
         }
+        if variant == "direct-source-compatible":
+            activation = {
+                "profile": "direct_cpp",
+                "action_authority": "cpp",
+                "representations": "actual_cpp",
+            }
     elif variant == "native-cpp-state-machine":
         artifact = _cache()["phases"]["warm"]["artifacts"]["state_machine"]
         route_cache = {
@@ -468,8 +474,8 @@ def test_action_aot_build_requires_both_release_commands():
 def test_complete_action_document_and_rotating_order_validate():
     document = _document()
     protocol.validate_document(document)
-    assert len(document["results"]) == 25
-    assert document["parameters"]["execution_order"][5] == (
+    assert len(document["results"]) == 30
+    assert document["parameters"]["execution_order"][6] == (
         "compatible-rclcppyy__rep_2")
 
 
@@ -600,7 +606,7 @@ def test_live_cyclone_all_action_lanes(tmp_path, monkeypatch):
                     assert report["feedback_received"] == 9
                     assert report["sequence_checksum"] == 3
                     assert report["terminal_succeeded"] == 3
-                    expected = 15 if index < 3 else 0
+                    expected = protocol.expected_crossings(variant, 3)["total"]
                     assert report["python_crossings"]["total"] == expected
                     assert report["active_goals"] == 0
                     assert report["feedback_dropped"] == 0
