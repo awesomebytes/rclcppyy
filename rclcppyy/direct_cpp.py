@@ -320,8 +320,18 @@ def _direct_node_options(
     return options, len(native_overrides)
 
 
-class DirectPublisher:
+class _DirectSurface(type):
+    """Curate the introspected public surface of direct entity classes."""
+
+    def __dir__(cls):
+        hidden = frozenset(getattr(cls, "_PARITY_HIDDEN", ()))
+        return [name for name in super().__dir__() if name not in hidden]
+
+
+class DirectPublisher(metaclass=_DirectSurface):
     """rclpy-shaped metadata and lifetime around a typed C++ publisher."""
+
+    _PARITY_HIDDEN = frozenset({"closed", "native_entity"})
 
     def __init__(
         self, msg_type, topic, qos_profile, logger_name, native, callback_group
@@ -850,7 +860,7 @@ class DirectNode:
         return self._default_callback_group
 
     @property
-    def callback_groups(self):
+    def _callback_groups(self):
         return tuple(self._direct_cpp_callback_groups)
 
     def _retain_callback_group(self, callback_group):
@@ -898,11 +908,11 @@ class DirectNode:
         return list(self._direct_cpp_services)
 
     @property
-    def action_clients(self):
+    def _action_clients(self):
         return list(self._direct_cpp_action_clients)
 
     @property
-    def action_servers(self):
+    def _action_servers(self):
         return list(self._direct_cpp_action_servers)
 
     def get_name(self):
@@ -996,7 +1006,7 @@ class DirectNode:
         elif not enabled and isinstance(cache, _TrackingParameterCache):
             self._direct_cpp_parameter_cache = dict(cache)
 
-    def direct_cpp_parameter_cache_stats(self):
+    def _direct_cpp_parameter_cache_stats(self):
         cache = self._direct_cpp_parameter_cache
         tracking = isinstance(cache, _TrackingParameterCache)
         reason = self._direct_cpp_parameter_cache_disabled_reason

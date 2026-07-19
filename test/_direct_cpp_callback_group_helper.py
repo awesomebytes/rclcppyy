@@ -57,7 +57,7 @@ native_default = (
 )
 assert "rclcpp::CallbackGroup" in cpp_name(default_group.native_group)
 assert default_group.native_group.__smartptr__() == native_default.__smartptr__()
-assert node.callback_groups == (default_group,)
+assert node._callback_groups == (default_group,)
 
 reentrant = ReentrantCallbackGroup()
 exclusive = MutuallyExclusiveCallbackGroup()
@@ -105,7 +105,7 @@ for entity, group in (
 ):
     assert entity.callback_group is group
     assert group.has_entity(entity)
-assert node.callback_groups == (default_group, reentrant, exclusive)
+assert node._callback_groups == (default_group, reentrant, exclusive)
 assert "rclcpp::CallbackGroup" in cpp_name(reentrant.native_group)
 assert "rclcpp::CallbackGroup" in cpp_name(exclusive.native_group)
 print("DIRECT_CPP_CALLBACK_GROUP_NATIVE_OWNERSHIP_OK", flush=True)
@@ -119,7 +119,7 @@ except BackendUnavailableError:
 else:
     raise AssertionError("a native callback group was shared across nodes")
 assert len(tuple(peer.publishers)) == before
-assert peer.callback_groups == (peer.default_callback_group,)
+assert peer._callback_groups == (peer.default_callback_group,)
 print("DIRECT_CPP_CALLBACK_GROUP_CROSS_NODE_FAIL_CLOSED_OK", flush=True)
 
 deadline = time.monotonic() + 10.0

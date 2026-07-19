@@ -198,7 +198,7 @@ print("DIRECT_CPP_PARAMETERS_NATIVE_NODE_API_OK")
 
 
 node._set_direct_parameter_cache_hit_tracking(True)
-cache_stats_before_gets = node.direct_cpp_parameter_cache_stats()
+cache_stats_before_gets = node._direct_cpp_parameter_cache_stats()
 native_parameters.reset_checked_parameter_stats()
 optimized_get = node.get_parameter("group.count")
 assert optimized_get.value == 3
@@ -232,7 +232,7 @@ assert checked_get_stats.to_dict() == {
     "node_value_copies": 1,
     "result_copies": 0,
 }
-cache_stats_after_gets = node.direct_cpp_parameter_cache_stats()
+cache_stats_after_gets = node._direct_cpp_parameter_cache_stats()
 assert cache_stats_after_gets["hit_tracking_enabled"] is True
 assert cache_stats_after_gets["hits"] == 3
 assert cache_stats_after_gets["misses"] == (

@@ -99,9 +99,9 @@ def post_callback(parameters):
 node.add_pre_set_parameters_callback(pre_callback)
 node.add_on_set_parameters_callback(on_callback)
 node.add_post_set_parameters_callback(post_callback)
-before_undeclare = node.direct_cpp_parameter_cache_stats()
+before_undeclare = node._direct_cpp_parameter_cache_stats()
 node.undeclare_parameter("removable")
-after_undeclare = node.direct_cpp_parameter_cache_stats()
+after_undeclare = node._direct_cpp_parameter_cache_stats()
 assert callback_events == []
 assert not node.has_parameter("removable")
 assert "removable" not in {str(name) for name in node.list_parameters([], 0).names}
@@ -130,7 +130,7 @@ else:
 assert node.get_parameter("read_only") is read_only
 
 static = node.declare_parameter("static", 13)
-before_static = node.direct_cpp_parameter_cache_stats()
+before_static = node._direct_cpp_parameter_cache_stats()
 try:
     node.undeclare_parameter("static")
 except BackendUnavailableError as exception:
@@ -139,7 +139,7 @@ except BackendUnavailableError as exception:
 else:
     raise AssertionError("Jazzy rclcpp unexpectedly undeclared a static parameter")
 assert node.get_parameter("static") is static
-assert node.direct_cpp_parameter_cache_stats() == before_static
+assert node._direct_cpp_parameter_cache_stats() == before_static
 
 try:
     node.undeclare_parameter("missing")

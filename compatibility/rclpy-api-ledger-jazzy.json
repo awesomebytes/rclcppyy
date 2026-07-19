@@ -47008,70 +47008,6 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectNode",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.LifecycleNode.action_clients",
-      "status": "missing_mismatch",
-      "stock": null
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectNode",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.LifecycleNode.action_servers",
-      "status": "missing_mismatch",
-      "stock": null
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
@@ -47258,38 +47194,6 @@
           "value": "(self, waitable: rclpy.waitable.Waitable) -> None"
         }
       }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectNode",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.LifecycleNode.callback_groups",
-      "status": "missing_mismatch",
-      "stock": null
     },
     {
       "annotation": {
@@ -48402,38 +48306,6 @@
           "value": "(self, timer: rclpy.timer.Timer) -> bool"
         }
       }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "method",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectNode",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.LifecycleNode.direct_cpp_parameter_cache_stats",
-      "status": "missing_mismatch",
-      "stock": null
     },
     {
       "annotation": {
@@ -51424,38 +51296,6 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectPublisher",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.LifecyclePublisher.closed",
-      "status": "missing_mismatch",
-      "stock": null
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
@@ -51651,38 +51491,6 @@
           "value": "(self) -> str"
         }
       }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectPublisher",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.LifecyclePublisher.native_entity",
-      "status": "missing_mismatch",
-      "stock": null
     },
     {
       "annotation": {
@@ -52749,70 +52557,6 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectNode",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.Node.action_clients",
-      "status": "missing_mismatch",
-      "stock": null
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectNode",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.Node.action_servers",
-      "status": "missing_mismatch",
-      "stock": null
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
@@ -52999,38 +52743,6 @@
           "value": "(self, waitable: rclpy.waitable.Waitable) -> None"
         }
       }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectNode",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.Node.callback_groups",
-      "status": "missing_mismatch",
-      "stock": null
     },
     {
       "annotation": {
@@ -54143,38 +53855,6 @@
           "value": "(self, timer: rclpy.timer.Timer) -> bool"
         }
       }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "method",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectNode",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.Node.direct_cpp_parameter_cache_stats",
-      "status": "missing_mismatch",
-      "stock": null
     },
     {
       "annotation": {
@@ -57165,38 +56845,6 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectPublisher",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.Publisher.closed",
-      "status": "missing_mismatch",
-      "stock": null
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
@@ -57392,38 +57040,6 @@
           "value": "(self) -> str"
         }
       }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectPublisher",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.Publisher.native_entity",
-      "status": "missing_mismatch",
-      "stock": null
     },
     {
       "annotation": {
@@ -60636,70 +60252,6 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectNode",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.node.LifecycleNode.action_clients",
-      "status": "missing_mismatch",
-      "stock": null
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectNode",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.node.LifecycleNode.action_servers",
-      "status": "missing_mismatch",
-      "stock": null
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
@@ -60886,38 +60438,6 @@
           "value": "(self, waitable: rclpy.waitable.Waitable) -> None"
         }
       }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectNode",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.node.LifecycleNode.callback_groups",
-      "status": "missing_mismatch",
-      "stock": null
     },
     {
       "annotation": {
@@ -62030,38 +61550,6 @@
           "value": "(self, timer: rclpy.timer.Timer) -> bool"
         }
       }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "method",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectNode",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.node.LifecycleNode.direct_cpp_parameter_cache_stats",
-      "status": "missing_mismatch",
-      "stock": null
     },
     {
       "annotation": {
@@ -65052,38 +64540,6 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectPublisher",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.node.LifecyclePublisher.closed",
-      "status": "missing_mismatch",
-      "stock": null
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
@@ -65279,38 +64735,6 @@
           "value": "(self) -> str"
         }
       }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectPublisher",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.node.LifecyclePublisher.native_entity",
-      "status": "missing_mismatch",
-      "stock": null
     },
     {
       "annotation": {
@@ -70391,38 +69815,6 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectPublisher",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.publisher.LifecyclePublisher.closed",
-      "status": "missing_mismatch",
-      "stock": null
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
@@ -70618,38 +70010,6 @@
           "value": "(self) -> str"
         }
       }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
-      },
-      "area": "lifecycle",
-      "comparison": {
-        "kind_match": false,
-        "presence": "direct_only",
-        "signature": "missing"
-      },
-      "direct": {
-        "implementation": "python",
-        "kind": "property",
-        "origin": "rclcppyy.direct_cpp",
-        "owner": "rclcppyy.direct_cpp.DirectPublisher",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.publisher.LifecyclePublisher.native_entity",
-      "status": "missing_mismatch",
-      "stock": null
     },
     {
       "annotation": {
@@ -153385,15 +152745,15 @@
     "ros_distribution": "jazzy"
   },
   "summary": {
-    "direct_only_entries": 20,
+    "direct_only_entries": 0,
     "generated_interface_aliases": 21,
-    "ledger_entries": 3820,
+    "ledger_entries": 3800,
     "modules": 58,
     "signature_mismatches": 272,
     "statuses": {
       "exact_direct_cpp_authority": 0,
       "explicit_fail_closed": 0,
-      "missing_mismatch": 888,
+      "missing_mismatch": 868,
       "mixed_control_direct_data": 0,
       "unassessed": 2932,
       "unchanged_stock_fallback": 0

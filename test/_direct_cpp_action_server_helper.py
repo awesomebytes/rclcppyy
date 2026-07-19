@@ -110,7 +110,7 @@ def main():
         "default QoS",
     )
     expect_failure(MultiThreadedExecutor, "MultiThreadedExecutor")
-    assert node.action_servers == []
+    assert node._action_servers == []
     print("DIRECT_CPP_ACTION_SERVER_P0_FAIL_CLOSED_OK")
 
     def goal_callback(goal):
@@ -122,7 +122,7 @@ def main():
             assert server.close() is False
             assert server.close_pending
             assert not server.closed
-            assert node.action_servers == [server]
+            assert node._action_servers == [server]
             return GoalResponse.REJECT
         if target in ("destroy-node", "shutdown"):
             native_node = node._direct_cpp_node
@@ -136,7 +136,7 @@ def main():
                 raise AssertionError("%s inside callback was accepted" % target)
             assert node._direct_cpp_node is native_node
             assert node.executor is active_executor
-            assert node.action_servers == [server]
+            assert node._action_servers == [server]
             assert rclpy.ok()
             return GoalResponse.REJECT
         if target == "goal-error":
@@ -194,8 +194,8 @@ def main():
     assert type(server) is ActionServer
     assert server.action_type is LookupTransform
     assert server.action_name == action_name
-    assert node.action_servers == [server]
-    assert node.action_clients == [client]
+    assert node._action_servers == [server]
+    assert node._action_clients == [client]
     assert client.wait_for_server(timeout_sec=10.0)
 
     def spin_until(predicate, label, timeout=15.0):
@@ -374,14 +374,14 @@ def main():
     assert not close_rejected.accepted
     assert server.closed
     assert not server.close_pending
-    assert node.action_servers == []
+    assert node._action_servers == []
     print("DIRECT_CPP_ACTION_SERVER_DEFERRED_CLOSE_OK")
 
     assert client.destroy() is None
     assert server.destroy() is None
     assert server.closed
-    assert node.action_clients == []
-    assert node.action_servers == []
+    assert node._action_clients == []
+    assert node._action_servers == []
     node.destroy_node()
     rclpy.shutdown()
     gc.collect()

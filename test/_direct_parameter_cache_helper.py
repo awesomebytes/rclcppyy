@@ -59,7 +59,7 @@ assert native_parameters.checked_parameter_stats().to_dict() == {
     "node_value_copies": 2,
     "result_copies": 0,
 }
-capacity_stats = capacity_node.direct_cpp_parameter_cache_stats()
+capacity_stats = capacity_node._direct_cpp_parameter_cache_stats()
 assert capacity_stats["enabled"] is True
 assert capacity_stats["capacity"] == 2
 assert capacity_stats["size"] == 2
@@ -107,12 +107,12 @@ def reject(_parameters):
 
 
 capacity_node.add_on_set_parameters_callback(reject)
-updates_before_reject = capacity_node.direct_cpp_parameter_cache_stats()["updates"]
+updates_before_reject = capacity_node._direct_cpp_parameter_cache_stats()["updates"]
 rejected = capacity_node.set_parameters_atomically([
     Parameter("a", value=20)])
 assert not rejected.successful
 assert capacity_node.get_parameter("a") is retained_a_ten
-assert capacity_node.direct_cpp_parameter_cache_stats()["updates"] == (
+assert capacity_node._direct_cpp_parameter_cache_stats()["updates"] == (
     updates_before_reject)
 capacity_node.remove_on_set_parameters_callback(reject)
 
@@ -138,7 +138,7 @@ override_node._set_direct_parameter_cache_hit_tracking(True)
 override_first = override_node.get_parameter("override")
 assert override_first.value == 5
 assert override_node.get_parameter("override") is override_first
-override_stats = override_node.direct_cpp_parameter_cache_stats()
+override_stats = override_node._direct_cpp_parameter_cache_stats()
 assert override_stats["misses"] == 1
 assert override_stats["hits"] == 1
 assert override_stats["size"] == 1
@@ -160,7 +160,7 @@ failure_result = failure_node.set_parameters_atomically([
     Parameter("value", value=2)])
 assert failure_result.successful
 assert user_post_values == [2]
-failure_stats = failure_node.direct_cpp_parameter_cache_stats()
+failure_stats = failure_node._direct_cpp_parameter_cache_stats()
 assert failure_stats["enabled"] is False
 assert failure_stats["disabled_reason"] == "post_update_failure"
 assert failure_stats["size"] == 0
@@ -172,7 +172,7 @@ print("DIRECT_PARAMETER_CACHE_FAILURE_ISOLATED_OK")
 
 os.environ[CACHE_ENV] = "0"
 disabled_node = Node("direct_parameter_cache_disabled_%d" % os.getpid())
-disabled_stats = disabled_node.direct_cpp_parameter_cache_stats()
+disabled_stats = disabled_node._direct_cpp_parameter_cache_stats()
 assert disabled_stats["enabled"] is False
 assert disabled_stats["disabled_reason"] == "capacity_zero"
 assert disabled_stats["capacity"] == 0
@@ -180,7 +180,7 @@ assert disabled_stats["size"] == 0
 assert disabled_node._direct_cpp_parameter_callback_bridges["post"] is None
 disabled_node.declare_parameter("value", 4)
 assert disabled_node.get_parameter("value").value == 4
-assert disabled_node.direct_cpp_parameter_cache_stats()["size"] == 0
+assert disabled_node._direct_cpp_parameter_cache_stats()["size"] == 0
 print("DIRECT_PARAMETER_CACHE_DISABLED_OK")
 
 nodes_before_invalid = len(runtime.nodes)
@@ -203,13 +203,13 @@ assert retained_b_two.type_ is Parameter.Type.INTEGER
 assert retained_b_two.value == 2
 assert retained_b_string.type_ is Parameter.Type.STRING
 assert retained_b_string.value == "two"
-assert capacity_node.direct_cpp_parameter_cache_stats()["disabled_reason"] == (
+assert capacity_node._direct_cpp_parameter_cache_stats()["disabled_reason"] == (
     "destroyed")
 rclpy.shutdown()
 
 rclpy.init(args=[])
 restart_node = Node("direct_parameter_cache_restart_%d" % os.getpid())
-assert restart_node.direct_cpp_parameter_cache_stats()["enabled"] is True
+assert restart_node._direct_cpp_parameter_cache_stats()["enabled"] is True
 restart_node.declare_parameter("value", 8)
 restart_value = restart_node.get_parameter("value")
 restart_node.destroy_node()

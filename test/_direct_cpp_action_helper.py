@@ -119,8 +119,8 @@ try:
     rclpy.init(args=[])
     node = Node("direct_action_%d" % os.getpid())
 
-    before = len(node.action_clients)
-    assert len(node.action_servers) == 0
+    before = len(node._action_clients)
+    assert len(node._action_servers) == 0
     expect_failure(
         lambda: ActionClient(
             node, LookupTransform, action_name, callback_group=object()))
@@ -131,11 +131,11 @@ try:
             action_name,
             feedback_sub_qos_profile=QoSProfile(depth=1),
         ))
-    assert len(node.action_clients) == before
+    assert len(node._action_clients) == before
     print("DIRECT_CPP_ACTION_FAIL_CLOSED_OK")
 
     client = ActionClient(node, LookupTransform, action_name)
-    assert len(node.action_clients) == 1
+    assert len(node._action_clients) == 1
     assert client.action_name == action_name
     assert client.wait_for_server(timeout_sec=15.0)
     assert server.poll() is None
@@ -281,7 +281,7 @@ try:
 
     assert client.destroy() is None
     assert client.closed
-    assert len(node.action_clients) == 0
+    assert len(node._action_clients) == 0
     node.destroy_node()
     rclpy.shutdown()
     assert not rclpy.ok()

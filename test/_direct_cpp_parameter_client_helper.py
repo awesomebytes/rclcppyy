@@ -326,7 +326,7 @@ assert post_observations[-1] == {
     "name": "dynamic", "callback_value": None, "cache_value": None,
     "same_facade": False, "missing": True,
 }
-cache_stats = server.direct_cpp_parameter_cache_stats()
+cache_stats = server._direct_cpp_parameter_cache_stats()
 assert cache_stats["enabled"] is True
 assert cache_stats["hits"] > 0
 assert cache_stats["invalidations"] >= 1
@@ -370,7 +370,7 @@ finally:
 assert not spin_thread.is_alive()
 assert spin_failures == []
 assert retained_race_zero.value == 0
-assert server.direct_cpp_parameter_cache_stats()["pending_invalidations"] == 0
+assert server._direct_cpp_parameter_cache_stats()["pending_invalidations"] == 0
 print("DIRECT_CPP_PARAMETER_CLIENT_CONCURRENT_CACHE_OK")
 
 retained_response = get_response
