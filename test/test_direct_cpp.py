@@ -48,6 +48,19 @@ def test_direct_cpp_source_compatible_pubsub_and_lifetime():
     assert "DIRECT_CPP_TEARDOWN_OK" in process.stdout
 
 
+def test_direct_cpp_public_single_threaded_executor_owns_exact_cpp_nodes():
+    process = run_helper("_direct_cpp_executor_helper.py", timeout=240)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_PUBLIC_EXECUTOR_OWNERSHIP_OK" in process.stdout
+    assert "DIRECT_CPP_PUBLIC_EXECUTOR_CPP_DATA_OK" in process.stdout
+    assert "DIRECT_CPP_PUBLIC_EXECUTOR_TRANSFER_OK" in process.stdout
+    assert "DIRECT_CPP_PUBLIC_EXECUTOR_FAIL_CLOSED_OK" in process.stdout
+    assert "DIRECT_CPP_PUBLIC_EXECUTOR_CONTEXT_OK" in process.stdout
+    assert "DIRECT_CPP_PUBLIC_EXECUTOR_SHUTDOWN_WAKE_OK" in process.stdout
+    assert "DIRECT_CPP_PUBLIC_EXECUTOR_NODE_DESTROY_OK" in process.stdout
+    assert "DIRECT_CPP_PUBLIC_EXECUTOR_TEARDOWN_OK" in process.stdout
+
+
 def test_direct_cpp_qos_profiles_reach_native_endpoints_without_message_conversion():
     process = run_helper("_direct_cpp_qos_helper.py", timeout=240)
     assert process.returncode == 0, format_output(process)
