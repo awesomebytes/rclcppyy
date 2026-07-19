@@ -191,9 +191,12 @@ else:
 print("DIRECT_CPP_PARAMETERS_NATIVE_NODE_API_OK")
 
 
+node._set_direct_parameter_cache_hit_tracking(True)
+cache_stats_before_gets = node.direct_cpp_parameter_cache_stats()
 native_parameters.reset_checked_parameter_stats()
 optimized_get = node.get_parameter("group.count")
 assert optimized_get.value == 3
+assert node.get_parameter("group.count") is optimized_get
 try:
     node.get_parameter("typed")
 except ParameterUninitializedException:
@@ -216,19 +219,25 @@ assert permissive_missing.type_ is Parameter.Type.NOT_SET
 assert permissive_missing.value is None
 assert not permissive.has_parameter("missing")
 optimized_native = optimized_get._rclcppyy_native_parameter
-assert cppyy.addressof(optimized_native.native) == int(
-    optimized_native._owner.parameter_address())
+assert type(optimized_native.native) is cppyy.gbl.rclcpp.Parameter
 checked_get_stats = native_parameters.checked_parameter_stats()
 assert checked_get_stats.to_dict() == {
-    "calls": 5,
-    "node_value_copies": 3,
+    "calls": 3,
+    "node_value_copies": 1,
     "result_copies": 0,
 }
+cache_stats_after_gets = node.direct_cpp_parameter_cache_stats()
+assert cache_stats_after_gets["hit_tracking_enabled"] is True
+assert cache_stats_after_gets["hits"] == 3
+assert cache_stats_after_gets["misses"] == (
+    cache_stats_before_gets["misses"] + 2)
+assert cache_stats_after_gets["size"] <= cache_stats_after_gets["capacity"]
 print("DIRECT_CPP_PARAMETERS_CHECKED_GET_OK")
 
 
 retained_callback_parameter = []
 events = []
+post_cache_values = []
 
 
 def pre_callback(parameters):
@@ -243,6 +252,8 @@ def on_callback(parameters):
 
 
 def post_callback(parameters):
+    post_cache_values.extend(
+        node.get_parameter(parameter.name).value for parameter in parameters)
     events.append(("post", [parameter.value for parameter in parameters]))
 
 
@@ -253,6 +264,7 @@ result = node.set_parameters([Parameter("group.count", value=10)])
 assert bool(result[0].successful)
 assert node.get_parameter("group.count").value == 11
 assert events == [("pre", [10]), ("on", [11]), ("post", [11])]
+assert post_cache_values == [11]
 
 
 def reject_callback(_parameters):
@@ -314,10 +326,10 @@ node.remove_post_set_parameters_callback(post_exception)
 node.remove_pre_set_parameters_callback(pre_callback)
 node.remove_on_set_parameters_callback(on_callback)
 node.remove_post_set_parameters_callback(post_callback)
-assert all(
-    bridge is None
-    for bridge in node._direct_cpp_parameter_callback_bridges.values()
-)
+assert node._direct_cpp_parameter_callback_bridges["pre"] is None
+assert node._direct_cpp_parameter_callback_bridges["on"] is None
+assert node._direct_cpp_parameter_callback_bridges["post"] is not None
+assert node._post_set_parameters_callbacks == []
 print("DIRECT_CPP_PARAMETERS_CALLBACKS_OK")
 
 

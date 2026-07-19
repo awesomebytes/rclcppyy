@@ -101,9 +101,7 @@ def main():
             native = initialized._rclcppyy_native_parameter
             exact_cpp = (
                 isinstance(native, NativeParameter) and
-                isinstance(native.native, cppyy.gbl.rclcpp.Parameter) and
-                cppyy.addressof(native.native) == int(
-                    native._owner.parameter_address())
+                type(native.native) is cppyy.gbl.rclcpp.Parameter
             )
     finally:
         node.destroy_node()

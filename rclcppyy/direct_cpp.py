@@ -28,6 +28,43 @@ _ACTION_INSTALLATION = None
 _ACTIVE_OPTIMIZATIONS = ()
 _ACTIVE_INTERFACES = ()
 _DEFAULT_SERVICE_QOS = object()
+_PARAMETER_CACHE_CAPACITY_ENV = "RCLCPPYY_DIRECT_PARAMETER_CACHE_CAPACITY"
+_PARAMETER_CACHE_DEFAULT_CAPACITY = 1024
+_PARAMETER_CACHE_MISSING = object()
+
+
+class _TrackingParameterCache(dict):
+    """Test-only hit accounting; production nodes use an exact plain dict."""
+
+    __slots__ = ("hits",)
+
+    def __init__(self, values=()):
+        super().__init__(values)
+        self.hits = 0
+
+    def __getitem__(self, name):
+        value = super().__getitem__(name)
+        self.hits += 1
+        return value
+
+
+def _parameter_cache_capacity():
+    raw_value = os.environ.get(
+        _PARAMETER_CACHE_CAPACITY_ENV,
+        str(_PARAMETER_CACHE_DEFAULT_CAPACITY),
+    )
+    try:
+        capacity = int(raw_value)
+    except ValueError as exception:
+        raise ValueError(
+            "%s must be a non-negative integer" %
+            _PARAMETER_CACHE_CAPACITY_ENV
+        ) from exception
+    if capacity < 0:
+        raise ValueError(
+            "%s must be a non-negative integer" %
+            _PARAMETER_CACHE_CAPACITY_ENV)
+    return capacity
 
 
 class _DirectParameterCallbackError(Exception):
@@ -690,6 +727,7 @@ class DirectNode:
         automatically_declare_parameters_from_overrides=False,
         enable_logger_service=False,
     ):
+        parameter_cache_capacity = _parameter_cache_capacity()
         runtime = _runtime()
         if context is not None and context is not runtime.context:
             _unsupported("direct_cpp node requires its active runtime context")
@@ -734,6 +772,21 @@ class DirectNode:
             "on": None,
             "post": None,
         }
+        self._direct_cpp_parameter_cache = {}
+        self._direct_cpp_parameter_cache_capacity = parameter_cache_capacity
+        self._direct_cpp_parameter_cache_misses = 0
+        self._direct_cpp_parameter_cache_updates = 0
+        self._direct_cpp_parameter_cache_invalidations = 0
+        self._direct_cpp_parameter_cache_capacity_skips = 0
+        self._direct_cpp_parameter_cache_max_size = 0
+        self._direct_cpp_parameter_cache_pending_invalidations = {}
+        self._direct_cpp_parameter_cache_declarations = {}
+        self._direct_cpp_parameter_cache_disabled_reason = (
+            None if parameter_cache_capacity else "capacity_zero")
+        self._direct_cpp_parameter_cache_bridge_required = bool(
+            parameter_cache_capacity)
+        if self._direct_cpp_parameter_cache_bridge_required:
+            self._install_parameter_callback_bridge("post")
         _runtime().attach(self, self._direct_cpp_node)
         record_decision(
             "nodes",
@@ -753,6 +806,7 @@ class DirectNode:
                 "automatically_declare_parameters_from_overrides": (
                     automatically_declare_parameters_from_overrides),
                 "enable_logger_service": enable_logger_service,
+                "parameter_cache_capacity": parameter_cache_capacity,
             },
         )
 
@@ -861,6 +915,102 @@ class DirectNode:
 
     def _parameter_modules(self):
         return _native_parameters, _direct_parameters
+
+    def _store_direct_parameter_cache(self, name, facade):
+        if self._direct_cpp_parameter_cache_disabled_reason is not None:
+            return
+        cache = self._direct_cpp_parameter_cache
+        if name not in cache and len(cache) >= self._direct_cpp_parameter_cache_capacity:
+            self._direct_cpp_parameter_cache_capacity_skips += 1
+            return
+        cache[name] = facade
+        self._direct_cpp_parameter_cache_updates += 1
+        self._direct_cpp_parameter_cache_max_size = max(
+            self._direct_cpp_parameter_cache_max_size, len(cache))
+
+    def _invalidate_direct_parameter_cache(self, name):
+        removed = self._direct_cpp_parameter_cache.pop(
+            name, _PARAMETER_CACHE_MISSING)
+        if removed is not _PARAMETER_CACHE_MISSING:
+            self._direct_cpp_parameter_cache_invalidations += 1
+
+    def _disable_direct_parameter_cache(self, reason):
+        cache = self._direct_cpp_parameter_cache
+        self._direct_cpp_parameter_cache_invalidations += len(cache)
+        cache.clear()
+        self._direct_cpp_parameter_cache_disabled_reason = reason
+
+    def _mark_direct_parameter_cache_invalidation(self, name):
+        pending = self._direct_cpp_parameter_cache_pending_invalidations
+        pending[name] = pending.get(name, 0) + 1
+
+    def _unmark_direct_parameter_cache_invalidations(self, names):
+        pending = self._direct_cpp_parameter_cache_pending_invalidations
+        for name in names:
+            count = pending.get(name)
+            if count is None:
+                continue
+            remaining = count - 1
+            if remaining:
+                pending[name] = remaining
+            else:
+                del pending[name]
+
+    def _update_direct_parameter_cache(self, parameter_list, invalidated_names):
+        if self._direct_cpp_parameter_cache_disabled_reason is not None:
+            return
+        native_parameters, direct_parameters = self._parameter_modules()
+        actions = []
+        for facade in parameter_list:
+            native = direct_parameters.native_parameter(facade)
+            name = native.name
+            if native.type_code != native_parameters.PARAMETER_NOT_SET:
+                actions.append(("store", name, facade))
+                continue
+            declaration_kind = self._direct_cpp_parameter_cache_declarations.get(
+                name)
+            if declaration_kind == "value":
+                actions.append(("store", name, facade))
+                continue
+            actions.append(("invalidate", name, None))
+
+        for action, name, facade in actions:
+            if action == "store":
+                self._store_direct_parameter_cache(name, facade)
+            else:
+                if name not in self._direct_cpp_parameter_cache_declarations:
+                    invalidated_names.append(name)
+                    self._mark_direct_parameter_cache_invalidation(name)
+                self._invalidate_direct_parameter_cache(name)
+
+    def _set_direct_parameter_cache_hit_tracking(self, enabled):
+        if not isinstance(enabled, bool):
+            raise TypeError("parameter cache hit tracking must be a bool")
+        cache = self._direct_cpp_parameter_cache
+        if enabled and type(cache) is dict:
+            self._direct_cpp_parameter_cache = _TrackingParameterCache(cache)
+        elif not enabled and isinstance(cache, _TrackingParameterCache):
+            self._direct_cpp_parameter_cache = dict(cache)
+
+    def direct_cpp_parameter_cache_stats(self):
+        cache = self._direct_cpp_parameter_cache
+        tracking = isinstance(cache, _TrackingParameterCache)
+        reason = self._direct_cpp_parameter_cache_disabled_reason
+        return {
+            "enabled": reason is None,
+            "disabled_reason": reason,
+            "hit_tracking_enabled": tracking,
+            "hits": cache.hits if tracking else None,
+            "misses": self._direct_cpp_parameter_cache_misses,
+            "updates": self._direct_cpp_parameter_cache_updates,
+            "invalidations": self._direct_cpp_parameter_cache_invalidations,
+            "capacity_skips": self._direct_cpp_parameter_cache_capacity_skips,
+            "size": len(cache),
+            "max_size": self._direct_cpp_parameter_cache_max_size,
+            "capacity": self._direct_cpp_parameter_cache_capacity,
+            "pending_invalidations": len(
+                self._direct_cpp_parameter_cache_pending_invalidations),
+        }
 
     def _raise_parameter_callback_exception(self):
         for kind in ("pre", "on", "post"):
@@ -999,6 +1149,7 @@ class DirectNode:
                         direct_parameters.native_parameter(v),
                         d,
                         ignore_override=ignore_override)
+            self._direct_cpp_parameter_cache_declarations[name] = kind
             try:
                 declared = self._run_parameter_operation(
                     operation, unwrap_callback=False)
@@ -1014,7 +1165,18 @@ class DirectNode:
                     None if kind == "type" else value.value,
                     str(exception),
                 ) from exception
-            result.append(direct_parameters.wrap_native(declared))
+            finally:
+                self._direct_cpp_parameter_cache_declarations.pop(name, None)
+            facade = direct_parameters.wrap_native(declared)
+            try:
+                if kind == "type":
+                    self._invalidate_direct_parameter_cache(name)
+                else:
+                    self._store_direct_parameter_cache(name, facade)
+            except BaseException:
+                self._disable_direct_parameter_cache(
+                    "declare_update_failure")
+            result.append(facade)
         return result
 
     def has_parameter(self, name):
@@ -1022,6 +1184,21 @@ class DirectNode:
         return native_parameters.has_parameter(self._require_node(), name)
 
     def get_parameter(self, name):
+        try:
+            return self._direct_cpp_parameter_cache[name]
+        except KeyError:
+            self._direct_cpp_parameter_cache_misses += 1
+        declaration_kind = self._direct_cpp_parameter_cache_declarations.get(name)
+        if declaration_kind == "type":
+            from rclpy.exceptions import ParameterUninitializedException
+
+            raise ParameterUninitializedException(name)
+        if name in self._direct_cpp_parameter_cache_pending_invalidations:
+            if self._allow_undeclared_parameters:
+                return _direct_parameters.parameter_class()(name)
+            from rclpy.exceptions import ParameterNotDeclaredException
+
+            raise ParameterNotDeclaredException(name)
         native_parameters, direct_parameters = self._parameter_modules()
         status, parameter = native_parameters.get_parameter_checked(
             self._require_node(), name)
@@ -1037,7 +1214,15 @@ class DirectNode:
             raise ParameterUninitializedException(name)
         if parameter is None:
             raise RuntimeError("checked native parameter result has no value")
-        return direct_parameters.wrap_native(parameter)
+        facade = direct_parameters.wrap_native(parameter)
+        try:
+            if name not in (
+                self._direct_cpp_parameter_cache_pending_invalidations
+            ):
+                self._store_direct_parameter_cache(name, facade)
+        except BaseException:
+            self._disable_direct_parameter_cache("get_update_failure")
+        return facade
 
     def get_parameters(self, names):
         if not isinstance(names, list):
@@ -1177,8 +1362,19 @@ class DirectNode:
         else:
             def dispatch(values):
                 parameter_list = facades(values)
-                for callback in self._post_set_parameters_callbacks:
-                    callback(parameter_list)
+                invalidated_names = []
+                try:
+                    self._update_direct_parameter_cache(
+                        parameter_list, invalidated_names)
+                except BaseException:
+                    self._disable_direct_parameter_cache(
+                        "post_update_failure")
+                try:
+                    for callback in self._post_set_parameters_callbacks:
+                        callback(parameter_list)
+                finally:
+                    self._unmark_direct_parameter_cache_invalidations(
+                        invalidated_names)
 
             bridge = native_parameters.add_post_set_parameters_callback(
                 self._require_node(), dispatch)
@@ -1205,6 +1401,11 @@ class DirectNode:
     def _remove_parameter_callback(self, kind, callbacks, callback):
         callbacks.remove(callback)
         if not callbacks:
+            if (
+                kind == "post" and
+                self._direct_cpp_parameter_cache_bridge_required
+            ):
+                return
             bridge = self._direct_cpp_parameter_callback_bridges[kind]
             if bridge is not None:
                 bridge.close()
@@ -1230,6 +1431,7 @@ class DirectNode:
         self._pre_set_parameters_callbacks.clear()
         self._on_set_parameters_callbacks.clear()
         self._post_set_parameters_callbacks.clear()
+        self._disable_direct_parameter_cache("destroyed")
 
     def undeclare_parameter(self, name):
         _unsupported("direct_cpp does not support undeclare_parameter")

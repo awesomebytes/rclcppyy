@@ -61,18 +61,25 @@ def test_every_supported_entry_references_existing_evidence():
         assert all((REPO_ROOT / path).exists() for path in entry["evidence"]), entry["id"]
 
 
-def test_direct_parameter_note_locks_preoptimization_cpu_baseline():
+def test_direct_parameter_note_locks_pre_and_phase_one_cpu_evidence():
     entry = next(
         item for item in _manifest()["entries"]
         if item["id"] == "parameter.direct_cpp_local_first_slice"
     )
     assert (
-        "The clean pre-optimization baseline at product commit a8c2cb6 records "
+        "The clean pre-optimization artifact at product a8c2cb6 with suite 852e48b "
+        "records "
         "direct/stock process-CPU ratios of 0.580 for declare, 38.682 for "
         "get-native, 30.950 for get-value-snapshot, and 0.446 for atomic set."
     ) in entry["notes"]
+    assert (
+        "The clean Phase-1 artifact at product 6da8193 with suite 0518f37 records "
+        "0.474 for declare, 10.316 for get-native, 8.712 for get-value-snapshot, "
+        "and 0.349 for atomic set; direct get CPU fell 73.5% to 1,223 ns/op but "
+        "still failed the stock CPU priority."
+    ) in entry["notes"]
     assert "Performance claims remain disabled" in entry["notes"]
-    assert "bounded post-change tests must not replace a full post-change matrix" in (
+    assert "bounded Phase-2 timings must not replace a full post-change matrix" in (
         entry["notes"])
 
 

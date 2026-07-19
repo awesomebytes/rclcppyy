@@ -16,6 +16,7 @@ def test_async_parameter_client_reuses_stock_source_with_cpp_values():
         in process.stdout
     )
     assert "DIRECT_CPP_PARAMETER_CLIENT_ATOMIC_DELETE_EVENTS_OK" in process.stdout
+    assert "DIRECT_CPP_PARAMETER_CLIENT_CONCURRENT_CACHE_OK" in process.stdout
     assert (
         "DIRECT_CPP_PARAMETER_CLIENT_NO_CONVERSION_TEARDOWN_OK"
         in process.stdout

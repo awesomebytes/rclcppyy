@@ -4,6 +4,7 @@
 import importlib
 import inspect
 import os
+import threading
 import time
 import warnings
 
@@ -41,6 +42,7 @@ from rcl_interfaces.srv import (  # noqa: E402
     SetParametersAtomically,
 )
 from rclpy.executors import SingleThreadedExecutor  # noqa: E402
+from rclpy.exceptions import ParameterNotDeclaredException  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from rclpy.parameter import Parameter  # noqa: E402
 from rclpy.parameter_client import AsyncParameterClient  # noqa: E402
@@ -126,6 +128,33 @@ server.declare_parameter("atomic", 2)
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     server.declare_parameter("dynamic")
+server._set_direct_parameter_cache_hit_tracking(True)
+retained_stable_one = server.get_parameter("stable")
+retained_dynamic_none = server.get_parameter("dynamic")
+
+post_observations = []
+
+
+def observe_post_cache(parameters):
+    for parameter in parameters:
+        assert isinstance(
+            parameter._rclcppyy_native_parameter.native,
+            cppyy.gbl.rclcpp.Parameter,
+        )
+        try:
+            current = server.get_parameter(parameter.name)
+        except ParameterNotDeclaredException:
+            current = None
+        post_observations.append({
+            "name": parameter.name,
+            "callback_value": parameter.value,
+            "cache_value": None if current is None else current.value,
+            "same_facade": current is parameter,
+            "missing": current is None,
+        })
+
+
+server.add_post_set_parameters_callback(observe_post_cache)
 
 events = []
 
@@ -193,6 +222,20 @@ assert all(
     type(result) is SetParametersResult and result.successful
     for result in set_response.results
 )
+assert server.get_parameter("stable").value == 11
+assert server.get_parameter("dynamic").value == 42
+assert retained_stable_one.value == 1
+assert retained_dynamic_none.value is None
+assert post_observations[-2:] == [
+    {
+        "name": "stable", "callback_value": 11, "cache_value": 11,
+        "same_facade": True, "missing": False,
+    },
+    {
+        "name": "dynamic", "callback_value": 42, "cache_value": 42,
+        "same_facade": True, "missing": False,
+    },
+]
 
 get_done = []
 get_future = client.get_parameters(
@@ -232,6 +275,7 @@ listed_names = {str(name) for name in list_response.result.names}
 assert {"stable", "atomic", "dynamic"} <= listed_names
 print("DIRECT_CPP_PARAMETER_CLIENT_SET_GET_TYPES_DESCRIBE_LIST_OK")
 
+retained_stable_eleven = server.get_parameter("stable")
 atomic_future = client.set_parameters_atomically([
     Parameter("stable", value=21),
     Parameter("atomic", value=22),
@@ -243,7 +287,19 @@ assert type(atomic_response.result) is SetParametersResult
 assert atomic_response.result.successful
 assert server.get_parameter("stable").value == 21
 assert server.get_parameter("atomic").value == 22
+assert retained_stable_eleven.value == 11
+assert post_observations[-2:] == [
+    {
+        "name": "stable", "callback_value": 21, "cache_value": 21,
+        "same_facade": True, "missing": False,
+    },
+    {
+        "name": "atomic", "callback_value": 22, "cache_value": 22,
+        "same_facade": True, "missing": False,
+    },
+]
 
+retained_dynamic_42 = server.get_parameter("dynamic")
 delete_future = client.delete_parameters(["dynamic"])
 executor.spin_until_future_complete(delete_future, timeout_sec=10.0)
 spin_until(
@@ -259,7 +315,63 @@ assert len(delete_response.results) == 1
 assert type(delete_response.results[0]) is SetParametersResult
 assert delete_response.results[0].successful
 assert not server.has_parameter("dynamic")
+try:
+    server.get_parameter("dynamic")
+except ParameterNotDeclaredException:
+    pass
+else:
+    raise AssertionError("remote deletion left a stale parameter cache entry")
+assert retained_dynamic_42.value == 42
+assert post_observations[-1] == {
+    "name": "dynamic", "callback_value": None, "cache_value": None,
+    "same_facade": False, "missing": True,
+}
+cache_stats = server.direct_cpp_parameter_cache_stats()
+assert cache_stats["enabled"] is True
+assert cache_stats["hits"] > 0
+assert cache_stats["invalidations"] >= 1
+assert cache_stats["size"] <= cache_stats["capacity"]
+assert cache_stats["pending_invalidations"] == 0
 print("DIRECT_CPP_PARAMETER_CLIENT_ATOMIC_DELETE_EVENTS_OK")
+
+server.declare_parameter("race", 0)
+retained_race_zero = server.get_parameter("race")
+spin_stop = threading.Event()
+spin_failures = []
+
+
+def spin_in_thread():
+    try:
+        while not spin_stop.is_set():
+            executor.spin_once(timeout_sec=0.01)
+    except BaseException as exception:
+        spin_failures.append(exception)
+
+
+spin_thread = threading.Thread(
+    target=spin_in_thread, name="direct-parameter-cache-spin")
+spin_thread.start()
+try:
+    for value in range(1, 21):
+        future = client.set_parameters_atomically([
+            Parameter("race", value=value)])
+        deadline = time.monotonic() + 5.0
+        observed = []
+        while not future.done() and time.monotonic() < deadline:
+            observed.append(server.get_parameter("race").value)
+            time.sleep(0.0005)
+        assert future.done()
+        assert future.result().result.successful
+        assert set(observed) <= {value - 1, value}
+        assert server.get_parameter("race").value == value
+finally:
+    spin_stop.set()
+    spin_thread.join(timeout=5.0)
+assert not spin_thread.is_alive()
+assert spin_failures == []
+assert retained_race_zero.value == 0
+assert server.direct_cpp_parameter_cache_stats()["pending_invalidations"] == 0
+print("DIRECT_CPP_PARAMETER_CLIENT_CONCURRENT_CACHE_OK")
 
 retained_response = get_response
 retained_event = events[-1]
@@ -271,6 +383,7 @@ for attribute in client_attributes:
 assert client_node.clients == []
 assert list(client_node.subscriptions) == []
 executor.shutdown()
+server.remove_post_set_parameters_callback(observe_post_cache)
 client_node.destroy_node()
 server.destroy_node()
 assert parameter_integer(retained_response.values[1]) == 42

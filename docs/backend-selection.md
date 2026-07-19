@@ -211,7 +211,18 @@ through `rclcpp`. `Parameter`, `ParameterValue`, descriptors, ranges, list resul
 and set results are actual generated C++ aliases. Non-C++ control messages,
 descriptors, callback results, and parameter objects fail before mutation. The
 public `.value` property is the explicit Python snapshot boundary. Parameter
-overrides passed to `DirectNode` must likewise be exact direct/native Parameter
+gets use a bounded mirror whose values are only these owning C++ facades; no Python
+scalar or message value is cached. The default cache capacity is 1024 names and can
+be changed, or set to zero to disable the optimization, with
+`RCLCPPYY_DIRECT_PARAMETER_CACHE_CAPACITY` before node construction. A common hit is
+a plain dictionary lookup with no lock, cppyy call, or enabled hit counter. Successful
+local and remote mutations replace the immutable snapshot before user post callbacks;
+rejection leaves it unchanged, deletion invalidates it, and a coherence failure clears
+and disables only the optimization. `node.direct_cpp_parameter_cache_stats()` reports
+capacity, size, misses, updates, invalidations, capacity skips, and disabled state.
+Hit counting is deliberately test-only and disabled on the production hot path.
+Previously returned facades keep their old owning C++ snapshot. Parameter overrides
+passed to `DirectNode` must likewise be exact direct/native Parameter
 objects. They are lowered without a value snapshot into `rclcpp::NodeOptions`,
 together with local CLI arguments and the global-arguments, rosout, parameter
 service, logger service, undeclared-parameter, and automatic-declaration flags.
@@ -232,9 +243,10 @@ parameter-event observation, Future completion on the direct executor, retained
 values, and explicit teardown pass on Cyclone DDS with converter, serializer, and
 CDR byte helpers poisoned. Importing the client before activation rejects the whole
 direct profile. YAML loading, custom service QoS, and non-default event options are
-not claimed. The stock/direct/raw local CPU benchmark exists, but its repeated
-characterization has not yet been run, so no parameter performance result is
-claimed.
+not claimed. The stock/direct/native-Python local CPU benchmark retains both the
+clean pre-optimization and Phase-1 repeated artifacts. Phase 1 reduced direct get
+CPU by 73.5%, but get and explicit value snapshot still used 10.316x and 8.712x stock
+CPU. Performance claims remain disabled pending the repeated mirror-cache matrix.
 
 Common graph queries use the same native node authority: topic/service names and
 types, node names/namespaces/enclaves, per-node endpoint types, publisher/
