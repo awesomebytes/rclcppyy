@@ -68,12 +68,14 @@ with event callbacks or content filters, and custom publisher classes remain
 stock and are reported as such.
 
 The experimental `profile="direct_cpp"` first slice goes further: on Jazzy with
-Cyclone DDS, unchanged `Node` subclasses using integer-depth `create_publisher`,
-`create_subscription`, and `rclpy.spin_once` can use actual `rclcpp` nodes,
-entities, and `String`/`UInt64` messages. It must be enabled before importing
-`rclpy.node` or either supported message. Unsupported options fail before entity
-creation. Subscription callbacks receive one owning native C++ copy; there is no
-generated Python message, representation conversion, or serialization boundary.
+Cyclone DDS, unchanged `Node` subclasses can use actual `rclcpp` nodes, entities,
+and `String`/`UInt64` messages. The same profile supports the common synchronous
+`std_srvs/SetBool` `create_service`, `create_client`, `call_async`, and top-level
+`spin_until_future_complete` call shape with actual C++ request and response
+classes. It must be enabled before importing `rclpy.node` or any supported
+interface. Unsupported options fail before entity creation. Subscription and
+service callbacks receive owning native C++ values; there is no generated Python
+message, representation conversion, or serialization boundary.
 
 ## What you get
 
@@ -219,11 +221,14 @@ backend fact; a benefit requires separate, repeated, architecture-specific evide
   invalid Context blocked indefinitely, at the cost of periodic idle wake-ups.
   It is a reliability mitigation, not a C++ route or performance claim.
 - `profile="direct_cpp"` currently covers only `std_msgs/String` and `UInt64`,
-  positive integer depth, the common node/publisher/subscription call pattern,
-  and `rclpy.spin_once`. It is not yet a general `rclpy` replacement. Its one
-  native C++ callback copy is measured only by the dedicated
-  `direct-cpp-rclcppyy` controlled relay lane, separately from borrowed-handle
-  and native-only results.
+  `std_srvs/SetBool`, the common node/entity call patterns, native timers,
+  top-level spin functions, and default service QoS. Service clients support
+  `call_async`, not synchronous `call`; service callbacks must be synchronous and
+  accept `(request, response)`. Callback groups, service introspection, and public
+  executors remain unsupported. It is not yet a general `rclpy` replacement. The
+  subscription callback copy is measured by the dedicated `direct-cpp-rclcppyy`
+  controlled relay lane. Service/client copy and crossing counts are exposed as
+  correctness evidence; no service performance benefit is claimed yet.
 - `rclcppyy.Node` remains the legacy companion-node prototype. It is not the
   transparent compatibility architecture and should not be used for new
   compatibility work.

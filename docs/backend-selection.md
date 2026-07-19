@@ -164,13 +164,25 @@ cppyy C++ classes. Publish uses that object directly, with no Python-message
 conversion or serialization path. `rclpy.spin_once(node, timeout_sec=...)` drives
 the session-owned native single-threaded executor.
 
-The supported message set is exactly `std_msgs/msg/String` and
-`std_msgs/msg/UInt64`, and QoS is exactly a positive integer depth. Activation
-must precede `rclpy.node`, `rclpy.executors`, and supported message imports.
-Callback groups, events, QoS overrides, raw/content-filter subscriptions, custom
-publisher classes, public executors, continuous `spin`, timers, services,
-actions, parameters, and the rest of the `rclpy` surface are rejected rather than
-falling back onto a second authority.
+The same profile supports `std_srvs/srv/SetBool` through the common
+`create_service`, `create_client`, `SetBool.Request(data=...)`, `call_async`, and
+top-level `rclpy.spin_until_future_complete` surface. `SetBool.Request` and
+`SetBool.Response` are actual generated C++ classes. Each call uses one C++ copy
+to transfer the constructed request value into shared native ownership; the
+returned `rclpy.task.Future` is per-operation Python control state whose result is
+the shared C++ response. A service callback receives owning C++ request/response
+values and returns a C++ response, with one request copy and one response
+assignment. These copies and Python crossings are explicit status evidence; no
+Python message conversion is involved.
+
+The supported interface set is exactly `std_msgs/msg/String`,
+`std_msgs/msg/UInt64`, and `std_srvs/srv/SetBool`. Topic QoS is a positive integer
+depth; services use only the default service QoS. Activation must precede
+`rclpy.node`, `rclpy.executors`, and supported interface imports. Callback groups,
+events, QoS overrides, raw/content-filter subscriptions, custom publisher classes,
+public executors, coroutine service callbacks, synchronous client `call`, service
+introspection, actions, parameters, and the rest of the `rclpy` surface are
+rejected rather than falling back onto a second authority.
 
 cppyy's callback argument is borrowed for the duration of the shared-pointer
 call. To preserve the `rclpy` expectation that a callback may retain its message,

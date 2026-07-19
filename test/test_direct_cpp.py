@@ -23,10 +23,28 @@ def test_direct_cpp_native_timer_and_bounded_spin():
     assert "DIRECT_CPP_SPIN_INTERRUPT_OK" in process.stdout
 
 
+def test_direct_cpp_setbool_service_client_and_future_control():
+    process = run_helper("_direct_cpp_service_helper.py", timeout=300)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_SERVICE_CONSTRUCTORS_OK" in process.stdout
+    assert "DIRECT_CPP_SERVICE_FAIL_CLOSED_OK" in process.stdout
+    assert "DIRECT_CPP_SERVICE_CALL_OK" in process.stdout
+    assert "DIRECT_CPP_SERVICE_EXCEPTION_OK" in process.stdout
+    assert "DIRECT_CPP_SERVICE_FUTURE_CONTROL_OK" in process.stdout
+    assert "DIRECT_CPP_SERVICE_EVIDENCE_OK" in process.stdout
+    assert "DIRECT_CPP_SERVICE_REINIT_TEARDOWN_OK" in process.stdout
+
+
 def test_direct_cpp_rejects_supported_message_imported_before_activation():
     process = run_helper("_direct_cpp_stale_import_helper.py", timeout=180)
     assert process.returncode == 0, format_output(process)
     assert "DIRECT_CPP_STALE_IMPORT_OK" in process.stdout
+
+
+def test_direct_cpp_rejects_setbool_imported_before_activation():
+    process = run_helper("_direct_cpp_service_stale_import_helper.py", timeout=180)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_SERVICE_STALE_IMPORT_OK" in process.stdout
 
 
 def test_direct_cpp_profile_is_jazzy_cyclone_only():

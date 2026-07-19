@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import math
+import inspect
 import os
 import sys
+import threading
+import time
 
 import cppyy
 
@@ -16,6 +19,8 @@ _ACTIVE = False
 _RUNTIME = None
 _PATCHES = ()
 _MESSAGE_INSTALLATION = None
+_SERVICE_INSTALLATION = None
+_DEFAULT_SERVICE_QOS = object()
 
 
 def _unsupported(reason: str):
@@ -82,6 +87,8 @@ class _DirectRuntime:
         else:
             duration = cppyy.gbl.std.chrono.nanoseconds(int(timeout_sec * 1e9))
             executor.spin_once(duration)
+        for facade in tuple(self.nodes):
+            facade._poll_direct_clients()
 
     def spin(self, node) -> None:
         if node not in self.nodes or node._direct_cpp_node is None:
@@ -106,6 +113,204 @@ class _DirectRuntime:
         self.session.close("rclcppyy direct_cpp shutdown")
         self.executor = None
         self.session = None
+
+
+class DirectClient:
+    """Small rclpy-style facade over one managed typed ``rclcpp`` client."""
+
+    def __init__(self, node, service_type, service_name, qos_profile, native_client):
+        self._node = node
+        self._native = native_client
+        self._pending = {}
+        self._lock = threading.RLock()
+        self._closed = False
+        self.context = node.context
+        self.srv_type = service_type
+        self.srv_name = str(native_client.raw_client.get_service_name())
+        self.qos_profile = qos_profile
+        self.callback_group = None
+
+    @property
+    def service_name(self):
+        return self.srv_name
+
+    @property
+    def closed(self):
+        return self._closed
+
+    @property
+    def compile_result(self):
+        return dict(self._native.compile_result)
+
+    @property
+    def source_id(self):
+        return self._native.source_id
+
+    @property
+    def handle(self):
+        _unsupported("direct_cpp clients do not expose a stock rclpy handle")
+
+    def call(self, request, timeout_sec=None):
+        _unsupported("direct_cpp first service slice supports call_async(), not call()")
+
+    def call_async(self, request):
+        if self._closed:
+            raise RuntimeError("direct_cpp client is destroyed")
+        if not isinstance(request, self.srv_type.Request):
+            raise TypeError("request must be an actual direct_cpp C++ SetBool.Request")
+        token = int(self._native.send_cpp_value(request))
+        from rclpy.task import Future
+
+        future = Future()
+        future._rclcppyy_direct_runtime = _runtime()
+        future._rclcppyy_direct_client = self
+        future._rclcppyy_direct_token = token
+        with self._lock:
+            self._pending[token] = future
+        future.add_done_callback(self._retire_finished_future)
+        return future
+
+    def _retire_finished_future(self, future):
+        token = getattr(future, "_rclcppyy_direct_token", None)
+        if token is None:
+            return
+        with self._lock:
+            current = self._pending.get(token)
+            if current is not future:
+                return
+            del self._pending[token]
+        if future.cancelled():
+            self._native.cancel(token)
+
+    def _poll_ready(self):
+        if self._closed:
+            return
+        with self._lock:
+            pending = tuple(self._pending.items())
+        for token, future in pending:
+            if future.cancelled():
+                self._retire_finished_future(future)
+                continue
+            with self._lock:
+                if self._pending.get(token) is not future:
+                    continue
+            try:
+                if not self._native.ready(token):
+                    continue
+                response = self._native.take(token)
+            except Exception as exc:
+                if not future.cancelled() and not future.done():
+                    future.set_exception(exc)
+            else:
+                if not future.cancelled() and not future.done():
+                    future.set_result(response)
+
+    def get_pending_request(self, sequence_number):
+        with self._lock:
+            return self._pending[int(sequence_number)]
+
+    def remove_pending_request(self, future):
+        with self._lock:
+            match = next(
+                ((token, item) for token, item in self._pending.items()
+                 if item is future),
+                None,
+            )
+            if match is None:
+                return
+            token, _ = match
+            del self._pending[token]
+        self._native.cancel(token)
+
+    def service_is_ready(self):
+        return False if self._closed else self._native.service_is_ready()
+
+    def wait_for_service(self, timeout_sec=None):
+        if self._closed:
+            return False
+        if timeout_sec is None:
+            while self.context.ok() and not self.service_is_ready():
+                self._native.wait_for_service(0.25)
+            return self.service_is_ready()
+        timeout = float(timeout_sec)
+        if not math.isfinite(timeout) or timeout < 0:
+            raise ValueError("timeout_sec must be a finite non-negative number or None")
+        return self._native.wait_for_service(timeout)
+
+    def configure_introspection(self, *args, **kwargs):
+        _unsupported("direct_cpp clients do not support service introspection")
+
+    def stats(self):
+        return self._native.stats()
+
+    def destroy(self):
+        return self.close()
+
+    def close(self):
+        if self._closed:
+            return False
+        with self._lock:
+            futures = tuple(self._pending.values())
+        for future in futures:
+            future.cancel()
+        self._native.close()
+        self._closed = True
+        return True
+
+
+class DirectService:
+    """Small rclpy-style facade over one typed C++ service callback bridge."""
+
+    def __init__(
+        self, service_type, callback, qos_profile, native_service
+    ):
+        self._native = native_service
+        self._closed = False
+        self.srv_type = service_type
+        self.srv_name = str(native_service.raw_service.get_service_name())
+        self.callback = callback
+        self.callback_group = None
+        self.qos_profile = qos_profile
+
+    @property
+    def service_name(self):
+        return self.srv_name
+
+    @property
+    def closed(self):
+        return self._closed
+
+    @property
+    def compile_result(self):
+        return dict(self._native.compile_result)
+
+    @property
+    def source_id(self):
+        return self._native.source_id
+
+    @property
+    def handle(self):
+        _unsupported("direct_cpp services do not expose a stock rclpy handle")
+
+    def send_response(self, *args, **kwargs):
+        _unsupported("direct_cpp services send only the callback return value")
+
+    def configure_introspection(self, *args, **kwargs):
+        _unsupported("direct_cpp services do not support service introspection")
+
+    def stats(self):
+        return self._native.stats()
+
+    def destroy(self):
+        return self.close()
+
+    def close(self):
+        if self._closed:
+            return False
+        self._native.close()
+        self._closed = True
+        self.callback = None
+        return True
 
 
 class DirectNode:
@@ -150,6 +355,8 @@ class DirectNode:
         self._direct_cpp_publishers = []
         self._direct_cpp_subscriptions = []
         self._direct_cpp_timers = []
+        self._direct_cpp_clients = []
+        self._direct_cpp_services = []
         _runtime().attach(self, self._direct_cpp_node)
         record_decision(
             "nodes",
@@ -174,6 +381,14 @@ class DirectNode:
     @property
     def timers(self):
         return list(self._direct_cpp_timers)
+
+    @property
+    def clients(self):
+        return list(self._direct_cpp_clients)
+
+    @property
+    def services(self):
+        return list(self._direct_cpp_services)
 
     def get_name(self):
         return str(self._require_node().get_name())
@@ -301,11 +516,83 @@ class DirectNode:
         )
         return timer
 
+    def create_client(
+        self,
+        srv_type,
+        srv_name,
+        *,
+        qos_profile=_DEFAULT_SERVICE_QOS,
+        callback_group=None,
+    ):
+        from rclcppyy import direct_services
+
+        direct_services.resolve_supported_type(srv_type, _SERVICE_INSTALLATION)
+        if callback_group is not None:
+            _unsupported("direct_cpp clients do not support callback_group")
+        qos = self._require_default_service_qos(qos_profile)
+        native_client = _runtime().require_session().create_native_client(
+            self._require_node(), srv_type, str(srv_name))
+        client = DirectClient(self, srv_type, str(srv_name), qos, native_client)
+        self._direct_cpp_clients.append(client)
+        self._record_service_entity("client", client.srv_name, srv_type, client)
+        return client
+
+    def create_service(
+        self,
+        srv_type,
+        srv_name,
+        callback,
+        *,
+        qos_profile=_DEFAULT_SERVICE_QOS,
+        callback_group=None,
+    ):
+        from rclcppyy import direct_services
+
+        direct_services.resolve_supported_type(srv_type, _SERVICE_INSTALLATION)
+        if callback_group is not None:
+            _unsupported("direct_cpp services do not support callback_group")
+        qos = self._require_default_service_qos(qos_profile)
+        if not callable(callback):
+            raise TypeError("service callback must be callable")
+        callback_target = getattr(callback, "__call__", callback)
+        if inspect.iscoroutinefunction(callback) or inspect.iscoroutinefunction(
+            callback_target
+        ):
+            _unsupported("direct_cpp services require a synchronous callback")
+        try:
+            inspect.signature(callback).bind(object(), object())
+        except (TypeError, ValueError) as exc:
+            raise TypeError(
+                "direct_cpp service callback must accept request and response") from exc
+        native_service = _runtime().require_session().create_python_service(
+            self._require_node(), srv_type, str(srv_name), callback)
+        service = DirectService(
+            srv_type, callback, qos, native_service)
+        self._direct_cpp_services.append(service)
+        self._record_service_entity("service", service.srv_name, srv_type, service)
+        return service
+
     def destroy_timer(self, timer):
         for index, candidate in enumerate(self._direct_cpp_timers):
             if timer is candidate:
                 candidate.destroy()
                 del self._direct_cpp_timers[index]
+                return True
+        return False
+
+    def destroy_client(self, client):
+        for index, candidate in enumerate(self._direct_cpp_clients):
+            if client is candidate:
+                candidate.close()
+                del self._direct_cpp_clients[index]
+                return True
+        return False
+
+    def destroy_service(self, service):
+        for index, candidate in enumerate(self._direct_cpp_services):
+            if service is candidate:
+                candidate.close()
+                del self._direct_cpp_services[index]
                 return True
         return False
 
@@ -315,7 +602,13 @@ class DirectNode:
             return
         for timer in tuple(self._direct_cpp_timers):
             timer.destroy()
+        for client in tuple(self._direct_cpp_clients):
+            client.close()
+        for service in tuple(self._direct_cpp_services):
+            service.close()
         self._direct_cpp_timers.clear()
+        self._direct_cpp_clients.clear()
+        self._direct_cpp_services.clear()
         self._direct_cpp_publishers.clear()
         self._direct_cpp_subscriptions.clear()
         _runtime().detach(self, node)
@@ -324,7 +617,13 @@ class DirectNode:
     def _mark_runtime_shutdown(self):
         for timer in tuple(self._direct_cpp_timers):
             timer.destroy()
+        for client in tuple(self._direct_cpp_clients):
+            client.close()
+        for service in tuple(self._direct_cpp_services):
+            service.close()
         self._direct_cpp_timers.clear()
+        self._direct_cpp_clients.clear()
+        self._direct_cpp_services.clear()
         self._direct_cpp_publishers.clear()
         self._direct_cpp_subscriptions.clear()
         self._direct_cpp_node = None
@@ -341,6 +640,66 @@ class DirectNode:
                 "direct_cpp %s does not support option(s): %s" %
                 (entity_type, ", ".join(selected))
             )
+
+    def _require_default_service_qos(self, qos_profile):
+        from rclpy.qos import qos_profile_services_default
+
+        value = (
+            qos_profile_services_default
+            if qos_profile is _DEFAULT_SERVICE_QOS
+            else qos_profile
+        )
+        if value != qos_profile_services_default:
+            _unsupported("direct_cpp services and clients require default service QoS")
+        return value
+
+    def _poll_direct_clients(self):
+        for client in tuple(self._direct_cpp_clients):
+            client._poll_ready()
+
+    def _record_service_entity(self, entity_type, service_name, srv_type, entity):
+        if entity_type == "client":
+            policies = (
+                "direct_cpp", "direct_cpp_service", "no_conversion",
+                "per_operation_future", "cpp_pending_state",
+            )
+            handoff = {
+                "request_handoff": "one_native_cpp_value_copy",
+                "response_handoff": "shared_cpp_response",
+                "future_control": "per_operation_rclpy_task_future",
+                "python_request_crossings_per_call": 1,
+                "python_response_crossings_per_call": 1,
+                "cpp_request_copies_per_call": 1,
+            }
+        else:
+            policies = (
+                "direct_cpp", "direct_cpp_service", "no_conversion",
+                "python_callback", "owning_cpp_callback_values",
+            )
+            handoff = {
+                "callback_handoff": "one_python_callback_crossing",
+                "request_handoff": "one_owning_native_cpp_copy",
+                "response_handoff": "one_native_cpp_assignment",
+                "python_callback_crossings_per_request": 1,
+                "cpp_request_copies_per_request": 1,
+                "cpp_response_copies_per_request": 1,
+            }
+        record_decision(
+            "entities",
+            "cpp",
+            "direct typed rclcpp %s with C++ service messages" % entity_type,
+            policies=policies,
+            metadata={
+                "entity_type": entity_type,
+                "service_name": str(service_name),
+                "service_type": "std_srvs::srv::SetBool",
+                "request_representation": "actual_cpp",
+                "response_representation": "actual_cpp",
+                "python_message_conversions": 0,
+                "source_id": entity.source_id,
+                **handoff,
+            },
+        )
 
     def _record_entity(self, entity_type, topic, msg_type):
         policies = ["direct_cpp", "direct_cpp_message", "no_conversion"]
@@ -385,8 +744,10 @@ def _check_early_activation() -> None:
         raise RuntimeError(
             "direct_cpp must be enabled before importing: %s" % ", ".join(stale))
     from rclcppyy.direct_messages import assert_early_imports
+    from rclcppyy.direct_services import assert_early_imports as assert_service_imports
 
     assert_early_imports()
+    assert_service_imports()
 
 
 def _direct_init(
@@ -428,19 +789,45 @@ def _direct_spin(node, executor=None):
     _runtime().spin(node)
 
 
+def _direct_spin_until_future_complete(
+    node, future, executor=None, timeout_sec=None
+):
+    if executor is not None:
+        _unsupported("direct_cpp does not accept a public executor")
+    runtime = _runtime()
+    if getattr(future, "_rclcppyy_direct_runtime", None) is not runtime:
+        _unsupported("direct_cpp can spin only a Future returned by a direct client")
+    if timeout_sec is None or timeout_sec < 0:
+        while runtime.ok() and not future.done() and not future.cancelled():
+            runtime.spin_once(node, None)
+        return
+    timeout = float(timeout_sec)
+    if not math.isfinite(timeout) or timeout < 0:
+        raise ValueError("timeout_sec must be finite, non-negative, or None")
+    deadline = time.monotonic() + timeout
+    while runtime.ok() and not future.done() and not future.cancelled():
+        remaining = max(0.0, deadline - time.monotonic())
+        runtime.spin_once(node, remaining)
+        if time.monotonic() >= deadline:
+            return
+
+
 def activate() -> bool:
     """Install the complete first-slice surface, rolling back on any failure."""
     global _ACTIVE, _MESSAGE_INSTALLATION, _PATCHES, _RUNTIME
+    global _SERVICE_INSTALLATION
     if _ACTIVE:
         return True
     _check_early_activation()
     _check_runtime()
 
-    from rclcppyy import direct_messages
+    from rclcppyy import direct_messages, direct_services
 
     installation = direct_messages.install()
+    service_installation = None
     patches = []
     try:
+        service_installation = direct_services.install()
         import rclpy
         import rclpy.node as node_module
 
@@ -453,6 +840,7 @@ def activate() -> bool:
             (rclpy, "try_shutdown", _direct_try_shutdown),
             (rclpy, "spin_once", _direct_spin_once),
             (rclpy, "spin", _direct_spin),
+            (rclpy, "spin_until_future_complete", _direct_spin_until_future_complete),
         )
         for module, name, replacement in replacements:
             original = getattr(module, name)
@@ -463,9 +851,12 @@ def activate() -> bool:
         for module, name, original, replacement in reversed(patches):
             if getattr(module, name, None) is replacement:
                 setattr(module, name, original)
+        if service_installation is not None:
+            service_installation.restore()
         installation.restore()
         raise
     _MESSAGE_INSTALLATION = installation
+    _SERVICE_INSTALLATION = service_installation
     _PATCHES = tuple(patches)
     _ACTIVE = True
     record_decision(
@@ -477,9 +868,10 @@ def activate() -> bool:
             "operation": "enable_cpp_acceleration",
             "profile": "direct_cpp",
             "message_types": [binding.cpp_type_name for binding in installation.bindings],
+            "service_types": [service_installation.binding.cpp_type_name],
         },
     )
     return True
 
 
-__all__ = ["DirectNode", "activate"]
+__all__ = ["DirectClient", "DirectNode", "DirectService", "activate"]
