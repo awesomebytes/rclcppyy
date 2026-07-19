@@ -82,6 +82,7 @@
           "area",
           "stock",
           "direct",
+          "attribution",
           "comparison",
           "status",
           "annotation"
@@ -115,6 +116,9 @@
           },
           "stock": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/brief"}]},
           "direct": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/brief"}]},
+          "attribution": {
+            "enum": ["direct_backend", "stock", "foreign", "absent"]
+          },
           "comparison": {
             "type": "object",
             "additionalProperties": false,
@@ -184,6 +188,8 @@
         "stock_only_entries",
         "direct_only_entries",
         "uninspectable_signature_entries",
+        "direct_backend_entries",
+        "superset_violations",
         "generated_interface_aliases",
         "statuses"
       ],
@@ -196,6 +202,8 @@
         "stock_only_entries": {"type": "integer", "minimum": 0},
         "direct_only_entries": {"type": "integer", "minimum": 0},
         "uninspectable_signature_entries": {"type": "integer", "minimum": 0},
+        "direct_backend_entries": {"type": "integer", "minimum": 0},
+        "superset_violations": {"type": "integer", "minimum": 0},
         "generated_interface_aliases": {"type": "integer", "minimum": 0},
         "statuses": {
           "type": "object",
@@ -250,6 +258,7 @@
         "qualname": {"type": ["string", "null"]},
         "owner": {"type": ["string", "null"]},
         "implementation": {"type": "string"},
+        "attribution": {"enum": ["direct_backend", "stock", "foreign"]},
         "signature": {"$ref": "#/$defs/signature"},
         "value": {}
       }

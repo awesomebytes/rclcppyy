@@ -38,6 +38,15 @@ STATUSES = {
     "missing_mismatch",
     "unassessed",
 }
+DIRECT_AUTHORITY_STATUSES = {"exact_direct_cpp_authority", "mixed_control_direct_data"}
+SUPERSET_ALLOWLIST: tuple[str, ...] = ()  # reviewed, path-exact; starts EMPTY
+# Landed report-only per the allocation-plan §5.1 escape hatch: the leak fix
+# clears the lifecycle-only leaks but Tier 1 attribution newly reveals a much
+# larger backend-owned surface (ActionClient/CallbackGroup/Executor/
+# Subscription/parameter-dataclass) that a follow-up hygiene slice must drive
+# to zero first. Flip to True in a one-line follow-up once superset_violations
+# is zero.
+SUPERSET_GUARD_FAIL_CLOSED = False
 REQUIRED_DUNDERS = {
     "__aenter__",
     "__aexit__",
@@ -141,6 +150,51 @@ def _implementation(value: Any) -> str:
     return "data"
 
 
+def _rclcppyy_package_dir() -> str | None:
+    """Resolve the rclcppyy package directory without ever importing it.
+
+    Only direct-mode observation imports rclcppyy (observe() does so before
+    any symbol is inspected); stock-mode observation must not gain a new
+    import, and no stock object can legitimately source from the rclcppyy
+    package tree regardless. Reading sys.modules is self-gating: it resolves
+    when direct mode has already imported the package and is a no-op
+    otherwise.
+    """
+    module = sys.modules.get("rclcppyy")
+    if module is None:
+        return None
+    try:
+        return os.path.dirname(module.__file__)
+    except TypeError:
+        return None
+
+
+def _attribution(value: Any) -> str:
+    """Classify value as direct_backend, stock, or foreign (spoof-resistant).
+
+    A __module__ advertised by the object is not trusted on its own: the
+    direct_cpp profile deliberately spoofs it on some facades for drop-in
+    identity fidelity, so the defining source file is checked under the
+    rclcppyy package directory before falling back to origin.
+    """
+    if hasattr(value, "__cpp_name__"):
+        return "direct_backend"
+    origin = _origin(value) or ""
+    if origin.startswith("rclcppyy"):
+        return "direct_backend"
+    package_dir = _rclcppyy_package_dir()
+    if package_dir is not None:
+        try:
+            source = inspect.getsourcefile(value)
+        except (TypeError, OSError):
+            source = None
+        if source is not None and source.startswith(package_dir + os.sep):
+            return "direct_backend"
+    if origin == "" or origin.startswith("rclpy") or origin.startswith("rcl"):
+        return "stock"
+    return "foreign"
+
+
 def _constant_value(value: Any) -> Any:
     if value is None or isinstance(value, (bool, int, float, str)):
         return value
@@ -189,7 +243,9 @@ def _is_public_symbol(module: Any, name: str, value: Any) -> bool:
     kind = _symbol_kind(value)
     if kind in {"class", "function"}:
         origin = _origin(value) or ""
-        return origin == module.__name__ or origin.startswith("rclpy.")
+        if origin == module.__name__ or origin.startswith("rclpy."):
+            return True
+        return _attribution(value) == "direct_backend"
     if kind == "constant":
         if name.isupper():
             return True
@@ -244,6 +300,7 @@ def _member_descriptor(class_path: str, class_type: type, name: str) -> dict[str
             "owner": None,
             "origin": None,
             "implementation": "extension",
+            "attribution": "stock",
             "signature": {
                 "state": "uninspectable",
                 "reason": "static_attribute_unavailable",
@@ -261,6 +318,7 @@ def _member_descriptor(class_path: str, class_type: type, name: str) -> dict[str
         "owner": owner_path,
         "origin": _origin(target),
         "implementation": _implementation(target),
+        "attribution": _attribution(target),
         "signature": _signature(target, applicable=applicable),
     }
     if kind == "class_attribute":
@@ -295,6 +353,7 @@ def _symbol_descriptor(module: Any, name: str, value: Any) -> dict[str, Any]:
         "origin": _origin(value),
         "qualname": _qualname(value),
         "implementation": _implementation(value),
+        "attribution": _attribution(value),
         "signature": _signature(value, applicable=kind in {"class", "function"}),
     }
     if kind == "class":
@@ -456,7 +515,8 @@ def _brief(value: dict[str, Any] | None) -> dict[str, Any] | None:
     if value is None:
         return None
     keys = (
-        "kind", "origin", "qualname", "owner", "implementation", "signature", "value",
+        "kind", "origin", "qualname", "owner", "implementation", "attribution",
+        "signature", "value",
     )
     return {key: value[key] for key in keys if key in value}
 
@@ -656,12 +716,14 @@ def build_ledger(
             annotation_ids = annotation["manifest_entry_ids"]
         area = _path_area(path)
         level_source = stock_value if stock_value is not None else direct_value
+        direct_brief = _brief(direct_value)
         entries.append({
             "path": path,
             "level": level_source["_level"],
             "area": area,
             "stock": _brief(stock_value),
-            "direct": _brief(direct_value),
+            "direct": direct_brief,
+            "attribution": direct_brief["attribution"] if direct_brief is not None else "absent",
             "comparison": comparison,
             "status": status,
             "annotation": {
@@ -743,6 +805,14 @@ def build_ledger(
                 entry["comparison"]["signature"] == "uninspectable"
                 for entry in entries
             ),
+            "direct_backend_entries": sum(
+                entry["attribution"] == "direct_backend" for entry in entries
+            ),
+            "superset_violations": sum(
+                entry["comparison"]["presence"] == "direct_only"
+                and entry["path"] not in SUPERSET_ALLOWLIST
+                for entry in entries
+            ),
             "statuses": status_counts,
             "generated_interface_aliases": len(direct["generated_interfaces"]),
         },
@@ -778,6 +848,24 @@ def validate_ledger(document: dict[str, Any]) -> dict[str, Any]:
                 entry["status"] == "missing_mismatch",
                 f"{entry['path']}: structural mismatch is not fail-visible",
             )
+    for entry in entries:
+        if entry["status"] in DIRECT_AUTHORITY_STATUSES:
+            _require(
+                entry["attribution"] == "direct_backend",
+                f"{entry['path']}: {entry['status']} requires a direct-backend surface, "
+                f"got attribution={entry['attribution']}",
+            )
+    supersets = [
+        entry["path"] for entry in entries
+        if entry["comparison"]["presence"] == "direct_only"
+        and entry["path"] not in SUPERSET_ALLOWLIST
+    ]
+    if SUPERSET_GUARD_FAIL_CLOSED:
+        _require(
+            not supersets,
+            "direct public surface exposes names stock lacks (superset hygiene defect): "
+            + ", ".join(supersets),
+        )
     summary = document["summary"]
     _require(summary["modules"] == len(modules), "module summary drift")
     _require(summary["ledger_entries"] == len(entries), "entry summary drift")
@@ -786,6 +874,15 @@ def validate_ledger(document: dict[str, Any]) -> dict[str, Any]:
         summary["signature_mismatches"]
         == sum(entry["comparison"]["signature"] == "different" for entry in entries),
         "signature mismatch summary drift",
+    )
+    _require(
+        summary["direct_backend_entries"]
+        == sum(entry["attribution"] == "direct_backend" for entry in entries),
+        "direct backend entries summary drift",
+    )
+    _require(
+        summary["superset_violations"] == len(supersets),
+        "superset violations summary drift",
     )
     return summary
 

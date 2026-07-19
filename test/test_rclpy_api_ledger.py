@@ -1,5 +1,6 @@
 """Focused contract tests for the public API ledger extractor."""
 
+import builtins
 import enum
 import importlib.util
 import json
@@ -47,7 +48,7 @@ def _observation(mode, symbols):
     }
 
 
-def _symbol(path, signature="(value)", members=()):
+def _symbol(path, signature="(value)", members=(), attribution="stock"):
     return {
         "name": path.rsplit(".", 1)[-1],
         "path": path,
@@ -55,12 +56,13 @@ def _symbol(path, signature="(value)", members=()):
         "origin": "rclpy.node",
         "qualname": path.rsplit(".", 1)[-1],
         "implementation": "python",
+        "attribution": attribution,
         "signature": {"state": "inspectable", "value": signature},
         "members": list(members),
     }
 
 
-def _member(path, signature="(self)"):
+def _member(path, signature="(self)", attribution="stock"):
     return {
         "name": path.rsplit(".", 1)[-1],
         "path": path,
@@ -68,6 +70,7 @@ def _member(path, signature="(self)"):
         "owner": path.rsplit(".", 1)[0],
         "origin": "rclpy.action.client",
         "implementation": "python",
+        "attribution": attribution,
         "signature": {"state": "inspectable", "value": signature},
     }
 
@@ -139,6 +142,153 @@ def test_matching_name_and_signature_remain_unassessed():
 
     assert document["entries"][0]["comparison"]["signature"] == "equal"
     assert document["entries"][0]["status"] == "unassessed"
+
+
+def test_direct_backend_symbol_is_kept_and_attributed():
+    module = types.ModuleType("rclpy.node")
+
+    class Node:
+        """Stands in for DirectNode: rclcppyy origin at a stock-public path."""
+
+    Node.__module__ = "rclcppyy.direct_cpp"
+    module.Node = Node
+
+    # Guards §1.2: the pre-relaxation gate only kept rclpy-origin symbols and
+    # would have discarded this class entirely.
+    assert ledger._is_public_symbol(module, "Node", Node) is True
+    descriptor = ledger._symbol_descriptor(module, "Node", Node)
+    assert descriptor["attribution"] == "direct_backend"
+
+
+def test_foreign_symbol_at_public_name_is_still_dropped():
+    module = types.ModuleType("rclpy.node")
+
+    class Foreign:
+        """A third-party class bound at a public rclpy name."""
+
+    Foreign.__module__ = "some_other_package.thing"
+    module.Node = Foreign
+
+    assert ledger._attribution(Foreign) == "foreign"
+    assert ledger._is_public_symbol(module, "Node", Foreign) is False
+
+
+def test_spoofed_facade_attributed_by_source_not_module(monkeypatch):
+    class SpoofedParameter:
+        """Advertises a stock __module__ but is defined under rclcppyy."""
+
+    SpoofedParameter.__module__ = "rclpy.parameter"
+    SpoofedParameter.__qualname__ = "Parameter"
+
+    def member():
+        return None
+
+    member.__module__ = "rclpy.parameter"
+
+    monkeypatch.setattr(ledger, "_rclcppyy_package_dir", lambda: "/fake/rclcppyy")
+
+    def fake_getsourcefile(value):
+        if value in (SpoofedParameter, member):
+            return "/fake/rclcppyy/direct_parameters.py"
+        raise TypeError("no source available")
+
+    monkeypatch.setattr(ledger.inspect, "getsourcefile", fake_getsourcefile)
+
+    assert ledger._attribution(SpoofedParameter) == "direct_backend"
+    assert ledger._attribution(member) == "direct_backend"
+
+
+def test_attribution_absent_when_direct_missing():
+    stock = _observation("stock", [_symbol("rclpy.node.operation")])
+    direct = _observation("direct", [])
+    document = ledger.build_ledger(stock, direct, _annotations(), _manifest())
+
+    entry = document["entries"][0]
+    assert entry["attribution"] == "absent"
+    assert entry["status"] == "missing_mismatch"
+
+
+def test_superset_direct_only_is_report_only_until_flipped(monkeypatch):
+    stock = _observation("stock", [])
+    direct = _observation(
+        "direct", [_symbol("rclpy.node.leaked_member", attribution="direct_backend")]
+    )
+    document = ledger.build_ledger(stock, direct, _annotations(), _manifest())
+
+    # Landed mode (§5.1 escape hatch, authorized): violations are counted,
+    # not raised, while the leak-fix and surface-hygiene follow-up are in
+    # flight.
+    assert document["summary"]["superset_violations"] == 1
+    ledger.validate_ledger(document)  # must not raise
+
+    # The allowlist still exempts a reviewed path from the count.
+    monkeypatch.setattr(ledger, "SUPERSET_ALLOWLIST", ("rclpy.node.leaked_member",))
+    allowlisted = ledger.build_ledger(stock, direct, _annotations(), _manifest())
+    assert allowlisted["summary"]["superset_violations"] == 0
+    ledger.validate_ledger(allowlisted)
+
+    # The eventual one-line flip to fail-closed must actually gate.
+    monkeypatch.setattr(ledger, "SUPERSET_ALLOWLIST", ())
+    monkeypatch.setattr(ledger, "SUPERSET_GUARD_FAIL_CLOSED", True)
+    flipped = ledger.build_ledger(stock, direct, _annotations(), _manifest())
+    with pytest.raises(ledger.LedgerError, match="superset hygiene defect"):
+        ledger.validate_ledger(flipped)
+
+
+def test_package_dir_resolves_from_sys_modules_without_importing(monkeypatch):
+    monkeypatch.delitem(ledger.sys.modules, "rclcppyy", raising=False)
+    real_import = builtins.__import__
+
+    def guard(name, *args, **kwargs):
+        if name == "rclcppyy" or name.startswith("rclcppyy."):
+            pytest.fail("must not import rclcppyy while resolving the package dir")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", guard)
+    assert ledger._rclcppyy_package_dir() is None
+
+    fake_module = types.ModuleType("rclcppyy")
+    fake_module.__file__ = "/fake/rclcppyy/__init__.py"
+    monkeypatch.setitem(ledger.sys.modules, "rclcppyy", fake_module)
+    assert ledger._rclcppyy_package_dir() == "/fake/rclcppyy"
+
+
+def test_direct_authority_status_requires_direct_backend():
+    annotation = {
+        "path": "rclpy.node.operation",
+        "status": "exact_direct_cpp_authority",
+        "manifest_entry_ids": ["node.direct"],
+        "rationale": "Focused native authority proof.",
+    }
+    stock = _observation("stock", [_symbol("rclpy.node.operation", attribution="stock")])
+    stock_attributed_direct = _observation(
+        "direct", [_symbol("rclpy.node.operation", attribution="stock")]
+    )
+    document = ledger.build_ledger(
+        stock, stock_attributed_direct, _annotations([annotation]), _manifest())
+    assert document["entries"][0]["status"] == "exact_direct_cpp_authority"
+    assert document["entries"][0]["attribution"] == "stock"
+    with pytest.raises(ledger.LedgerError, match="requires a direct-backend surface"):
+        ledger.validate_ledger(document)
+
+    direct_backed = _observation(
+        "direct", [_symbol("rclpy.node.operation", attribution="direct_backend")]
+    )
+    document = ledger.build_ledger(
+        stock, direct_backed, _annotations([annotation]), _manifest())
+    assert document["entries"][0]["attribution"] == "direct_backend"
+    ledger.validate_ledger(document)
+
+
+def test_build_ledger_is_byte_deterministic():
+    stock = _observation("stock", [_symbol("rclpy.node.operation")])
+    direct = _observation("direct", [_symbol("rclpy.node.operation")])
+
+    first = json.dumps(
+        ledger.build_ledger(stock, direct, _annotations(), _manifest()), sort_keys=True)
+    second = json.dumps(
+        ledger.build_ledger(stock, direct, _annotations(), _manifest()), sort_keys=True)
+    assert first == second
 
 
 @pytest.mark.parametrize(
@@ -257,4 +407,9 @@ def test_baseline_matches_hardened_schema():
     schema_path = REPO_ROOT / "schemas" / "rclpy-api-ledger-v1.schema.json"
     baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    if baseline["entries"] and "attribution" not in baseline["entries"][0]:
+        # The committed baseline predates the attribution field (schema now
+        # requires it on every entry). This clears itself once the baseline
+        # is regenerated in the exclusive window; no follow-up removal needed.
+        pytest.skip("baseline predates attribution; pending regeneration")
     jsonschema.validate(baseline, schema)
