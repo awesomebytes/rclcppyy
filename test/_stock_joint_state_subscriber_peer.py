@@ -37,17 +37,22 @@ def main():
     subscription = node.create_subscription(
         JointState, topic, received.append, 10)
     try:
+        matching = []
+
+        def direct_publisher_discovered():
+            matching[:] = [
+                endpoint for endpoint in node.get_publishers_info_by_topic(topic)
+                if endpoint.node_name == direct_node_name
+            ]
+            return len(matching) == 1
+
+        # count_publishers() and get_publishers_info_by_topic() are separate
+        # graph-cache queries; the topic-endpoint metadata the latter needs
+        # can still be in flight after the former already sees the publisher,
+        # so wait on the same query the assertions below depend on instead of
+        # racing two independent ones.
         spin_until(
-            node,
-            lambda: node.count_publishers(topic) == 1,
-            "direct publisher discovery",
-        )
-        endpoints = node.get_publishers_info_by_topic(topic)
-        matching = [
-            endpoint for endpoint in endpoints
-            if endpoint.node_name == direct_node_name
-        ]
-        assert len(matching) == 1
+            node, direct_publisher_discovered, "direct publisher discovery")
         endpoint = matching[0]
         assert endpoint.node_namespace == "/"
         assert endpoint.topic_type == "sensor_msgs/msg/JointState"
