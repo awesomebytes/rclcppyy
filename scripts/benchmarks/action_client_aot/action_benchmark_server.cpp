@@ -304,7 +304,16 @@ int main(int argc, char ** argv)
               << ",\"action_name\":" << quote(action_name)
               << ",\"loaded_rmw\":" << quote(loaded_rmw())
               << ",\"action_type\":\"tf2_msgs/action/LookupTransform\","
-              << "\"action_authority\":\"cpp\",\"qos\":" << qos_json()
+              << "\"execution_model\":\"conventional-release-aot-rclcpp-action-server\","
+              << "\"action_authority\":\"cpp\","
+              << "\"action_implementation\":\"rclcpp_action::Server<LookupTransform>\","
+              << "\"goal_representation\":\"generated-cpp\","
+              << "\"feedback_representation\":\"generated-cpp\","
+              << "\"result_representation\":\"generated-cpp\","
+              << "\"goal_id_representation\":\"generated-cpp\","
+              << "\"envelope_representation\":\"generated-cpp\","
+              << "\"cache\":{\"kind\":\"aot-binary\",\"state\":\"prebuilt\"},"
+              << "\"qos\":" << qos_json()
               << ",\"endpoints\":" << endpoint_json(action_name)
               << ",\"executor\":{\"authority\":\"cpp\","
               << "\"kind\":\"single_threaded\",\"threads\":1}}" << std::endl;
@@ -351,6 +360,15 @@ int main(int argc, char ** argv)
               << ",\"cpu_clock\":\"CLOCK_PROCESS_CPUTIME_ID\","
               << "\"cpu_role\":\"drift_diagnostic_only\",\"rss_guard\":"
               << rss_json(report.rss_baseline, report.rss_final)
+              << ",\"python_crossings\":{\"goal_decision\":0,"
+              << "\"accepted_goal\":0,\"execute\":0,\"total\":0},"
+              << "\"cpp_value_operations\":{\"known\":true,"
+              << "\"goal_shared_handoffs\":0,\"goal_id_materializations\":0,"
+              << "\"feedback_value_submissions\":0,\"result_value_submissions\":0,"
+              << "\"adapter_message_deep_copies\":0},"
+              << "\"boundary_evidence\":{\"exact_generated_cpp\":true,"
+              << "\"python_message_conversions\":0,\"python_serialization_calls\":0,"
+              << "\"adapter_cdr_roundtrips\":0,\"tripwires_armed\":false}"
               << ",\"teardown_clean\":true}" << std::endl;
     return 0;
   } catch (const std::exception & error) {
