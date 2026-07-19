@@ -96,8 +96,11 @@ def forbidden_boundary(*_args, **_kwargs):
 
 
 bringup = importlib.import_module("rclcpp_kit.bringup_rclcpp")
+native_action = importlib.import_module("rclcpp_kit.native_action")
 serialization = importlib.import_module("rclcpp_kit.serialization")
+assert not hasattr(native_action, "convert_python_msg_to_cpp")
 bringup.convert_python_msg_to_cpp = forbidden_boundary
+native_action.convert_python_msg_to_cpp = forbidden_boundary
 serialization.serialize_message = forbidden_boundary
 serialization.deserialize_message = forbidden_boundary
 
