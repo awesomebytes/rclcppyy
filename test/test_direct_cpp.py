@@ -273,6 +273,17 @@ def test_direct_cpp_lookup_transform_action_server_exact_cpp_lifecycle():
     assert "DIRECT_CPP_ACTION_SERVER_TEARDOWN_REINIT_OK" in process.stdout
 
 
+def test_direct_cpp_action_server_interoperates_with_external_stock_client():
+    process = run_helper(
+        "_direct_cpp_action_server_stock_interop_helper.py", timeout=180)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_ACTION_SERVER_STOCK_EXACT_CPP_OK" in process.stdout
+    assert (
+        "DIRECT_CPP_ACTION_SERVER_STOCK_RETAINED_TEARDOWN_OK"
+        in process.stdout
+    )
+
+
 def test_direct_cpp_registered_custom_action_uses_aot_cpp_server(tmp_path):
     fixture = HERE / "fixtures" / "custom_interfaces"
     work = tmp_path / "custom-action"
