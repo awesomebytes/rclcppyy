@@ -1434,10 +1434,43 @@ class DirectNode:
         self._disable_direct_parameter_cache("destroyed")
 
     def undeclare_parameter(self, name):
-        _unsupported("direct_cpp does not support undeclare_parameter")
+        native_parameters, _direct_parameters = self._parameter_modules()
+        if not native_parameters.has_parameter(self._require_node(), name):
+            from rclpy.exceptions import ParameterNotDeclaredException
+
+            raise ParameterNotDeclaredException(name)
+        descriptor = native_parameters.describe_parameters(
+            self._require_node(), (name,))[0]
+        if bool(descriptor.read_only):
+            from rclpy.exceptions import ParameterImmutableException
+
+            raise ParameterImmutableException(name)
+        if not bool(descriptor.dynamic_typing):
+            _unsupported(
+                "direct_cpp cannot undeclare statically typed parameters on "
+                "ROS 2 Jazzy: public rclcpp rejects this operation although "
+                "rclpy permits it")
+        native_parameters.undeclare_parameter(self._require_node(), name)
+        try:
+            self._invalidate_direct_parameter_cache(name)
+        except BaseException:
+            self._disable_direct_parameter_cache(
+                "undeclare_invalidation_failure")
 
     def set_descriptor(self, name, descriptor, alternative_value=None):
-        _unsupported("direct_cpp does not support set_descriptor")
+        _native_parameters, direct_parameters = self._parameter_modules()
+        direct_parameters.descriptor_to_cpp(descriptor, name=name)
+        if alternative_value is not None and not isinstance(
+                alternative_value,
+                cppyy.gbl.rcl_interfaces.msg.ParameterValue):
+            raise TypeError(
+                "alternative_value must be an actual direct_cpp C++ "
+                "ParameterValue")
+        _unsupported(
+            "direct_cpp cannot support set_descriptor on ROS 2 Jazzy: public "
+            "rclcpp has no descriptor mutation operation, and emulating it "
+            "with undeclare/redeclare would change rclpy atomicity, callbacks, "
+            "and parameter events")
 
     def _graph_interface(self):
         return self._require_node().get_node_graph_interface()

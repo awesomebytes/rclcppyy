@@ -206,8 +206,9 @@ Python message conversion is involved.
 
 Local parameters use the same native node authority. The generated-style
 `rclpy.parameter.Parameter` facade owns one actual `rclcpp::Parameter`; declare,
-get, type queries, set, atomic set, describe, list, and pre/on/post callbacks execute
-through `rclcpp`. `Parameter`, `ParameterValue`, descriptors, ranges, list results,
+get, type queries, set, atomic set, dynamic undeclare, describe, list, and
+pre/on/post callbacks execute through `rclcpp`. `Parameter`, `ParameterValue`,
+descriptors, ranges, list results,
 and set results are actual generated C++ aliases. Non-C++ control messages,
 descriptors, callback results, and parameter objects fail before mutation. The
 public `.value` property is the explicit Python snapshot boundary. Parameter
@@ -235,8 +236,14 @@ arguments, non-native overrides, and non-boolean flags reject before either the
 runtime or native session records a node. Live Jazzy/Cyclone tests prove local and
 global remaps, CLI parameter overrides, deferred and automatic override
 declaration, implicit declaration, and the requested rosout/parameter/logger graph
-state with conversion and serialization paths poisoned. Undeclare, descriptor
-mutation, and graph-event waiting remain fail-closed or uncovered.
+state with conversion and serialization paths poisoned. Jazzy's public `rclcpp`
+undeclare operation is used for dynamically typed, non-read-only parameters and
+does not invoke parameter callbacks; cache invalidation retains previously returned
+owning C++ snapshots. Static undeclare remains fail-closed because Jazzy `rclcpp`
+rejects it although `rclpy` permits it. Descriptor mutation also remains fail-closed:
+Jazzy exposes no public `rclcpp` operation for it, while an undeclare/redeclare
+emulation would change atomicity, callback ordering, and parameter events.
+Graph-event waiting remains uncovered.
 
 When its six canonical `rcl_interfaces` services and `ParameterEvent` are explicitly
 registered before imports, the installed Jazzy `AsyncParameterClient` source runs
