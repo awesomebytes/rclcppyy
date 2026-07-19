@@ -434,6 +434,341 @@
     },
     {
       "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.Client",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.Client.__init__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.Client.call",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.Client.call_async",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.Client.configure_introspection",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.Client.destroy",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.Client.get_pending_request",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.Client.handle",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.Client.logger_name",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.Client.remove_pending_request",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.Client.service_is_ready",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.Client.service_name",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.Client.wait_for_service",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.client.QoSProfile",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.client.QoSProfile.__eq__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.client.QoSProfile.__hash__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.client.QoSProfile.__init__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.client.QoSProfile.__str__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.client.QoSProfile.avoid_ros_namespace_conventions",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.client.QoSProfile.deadline",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.client.QoSProfile.depth",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.client.QoSProfile.durability",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.client.QoSProfile.get_c_qos_profile",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.client.QoSProfile.history",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.client.QoSProfile.lifespan",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.client.QoSProfile.liveliness",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.client.QoSProfile.liveliness_lease_duration",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.client.QoSProfile.reliability",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.ServiceIntrospectionState",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.ServiceIntrospectionState.CONTENTS",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.ServiceIntrospectionState.METADATA",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.ServiceIntrospectionState.OFF",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.ServiceIntrospectionState.__eq__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.ServiceIntrospectionState.__hash__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.ServiceIntrospectionState.__init__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.ServiceIntrospectionState.__ne__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.ServiceIntrospectionState.__repr__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.ServiceIntrospectionState.__str__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.ServiceIntrospectionState.name",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.client.ServiceIntrospectionState.value",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
         "time.stock_surface"
       ],
       "path": "rclpy.clock.Clock",
@@ -1262,6 +1597,222 @@
       ],
       "path": "rclpy.clock.get_default_context",
       "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.Context",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.Context.__enter__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.Context.__exit__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.Context.__init__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.Context.destroy",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.Context.get_domain_id",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.Context.handle",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.Context.init",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.Context.ok",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.Context.on_shutdown",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.Context.shutdown",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.Context.try_shutdown",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.ContextHandle",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.ContextHandle.__enter__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.ContextHandle.__exit__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.ContextHandle.destroy_when_not_in_use",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.ContextHandle.get_domain_id",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.ContextHandle.ok",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.ContextHandle.shutdown",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.DestroyableType",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.DestroyableType.__enter__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.DestroyableType.__exit__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.context.DestroyableType.destroy_when_not_in_use",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.destroyable.DestroyableType",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.destroyable.DestroyableType.__enter__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.destroyable.DestroyableType.__exit__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.destroyable.DestroyableType.destroy_when_not_in_use",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
       "status": "unchanged_stock_fallback"
     },
     {
@@ -2286,6 +2837,14 @@
       ],
       "path": "rclpy.event_handler.qos_policy_name_from_kind",
       "rationale": "The direct profile preserves this stock rclpy event type object unchanged; a fresh-process stock-vs-direct differential proves identical type identity and module-alias identity. Stock behavior; event delivery acceleration, if later added, is recorded separately.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.expand_topic_name.expand_topic_name",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
       "status": "unchanged_stock_fallback"
     },
     {
@@ -6650,6 +7209,597 @@
     },
     {
       "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.service.QoSProfile",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.service.QoSProfile.__eq__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.service.QoSProfile.__hash__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.service.QoSProfile.__init__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.service.QoSProfile.__str__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.service.QoSProfile.avoid_ros_namespace_conventions",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.service.QoSProfile.deadline",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.service.QoSProfile.depth",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.service.QoSProfile.durability",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.service.QoSProfile.get_c_qos_profile",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.service.QoSProfile.history",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.service.QoSProfile.lifespan",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.service.QoSProfile.liveliness",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.service.QoSProfile.liveliness_lease_duration",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.service.QoSProfile.reliability",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.Service",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.Service.__init__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.Service.configure_introspection",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.Service.destroy",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.Service.handle",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.Service.logger_name",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.Service.send_response",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.Service.service_name",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.ServiceIntrospectionState",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.ServiceIntrospectionState.CONTENTS",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.ServiceIntrospectionState.METADATA",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.ServiceIntrospectionState.OFF",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.ServiceIntrospectionState.__eq__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.ServiceIntrospectionState.__hash__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.ServiceIntrospectionState.__init__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.ServiceIntrospectionState.__ne__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.ServiceIntrospectionState.__repr__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.ServiceIntrospectionState.__str__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.ServiceIntrospectionState.name",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service.ServiceIntrospectionState.value",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service_introspection.ServiceIntrospectionState",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service_introspection.ServiceIntrospectionState.CONTENTS",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service_introspection.ServiceIntrospectionState.METADATA",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service_introspection.ServiceIntrospectionState.OFF",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service_introspection.ServiceIntrospectionState.__eq__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service_introspection.ServiceIntrospectionState.__hash__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service_introspection.ServiceIntrospectionState.__init__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service_introspection.ServiceIntrospectionState.__ne__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service_introspection.ServiceIntrospectionState.__repr__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service_introspection.ServiceIntrospectionState.__str__",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service_introspection.ServiceIntrospectionState.name",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.extended_stock_surface"
+      ],
+      "path": "rclpy.service_introspection.ServiceIntrospectionState.value",
+      "rationale": "The direct profile preserves this stock rclpy service-native object unchanged; the test_stock_service_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.InvalidHandle",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.InvalidHandle.add_note",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.InvalidHandle.args",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.InvalidHandle.with_traceback",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerGuardCondition",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerGuardCondition.__init__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerGuardCondition.destroy",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerGuardCondition.handle",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerGuardCondition.trigger",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerOptions",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerOptions.ALL",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerOptions.NO",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerOptions.SIGINT",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerOptions.SIGTERM",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerOptions.__eq__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerOptions.__hash__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerOptions.__init__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerOptions.__ne__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerOptions.__repr__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerOptions.__str__",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerOptions.name",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.SignalHandlerOptions.value",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.get_current_signal_handlers_options",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.install_signal_handlers",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "context.stock_initialization"
+      ],
+      "path": "rclpy.signals.uninstall_signal_handlers",
+      "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
         "time.stock_surface"
       ],
       "path": "rclpy.time.Duration",
@@ -7142,6 +8292,925 @@
       ],
       "path": "rclpy.time_source.USE_SIM_TIME_NAME",
       "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy.KEEP_ALL",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy.KEEP_LAST",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy.SYSTEM_DEFAULT",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy.UNKNOWN",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy.as_integer_ratio",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy.bit_count",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy.bit_length",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy.conjugate",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy.denominator",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy.from_bytes",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy.imag",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy.is_integer",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy.numerator",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy.real",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSHistoryPolicy.to_bytes",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSPresetProfiles",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSPresetProfiles.ACTION_STATUS_DEFAULT",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSPresetProfiles.BEST_AVAILABLE",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSPresetProfiles.DEFAULT",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSPresetProfiles.PARAMETERS",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSPresetProfiles.SENSOR_DATA",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSPresetProfiles.SYSTEM_DEFAULT",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSPresetProfiles.UNKNOWN",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSProfile",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSProfile.__eq__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSProfile.__hash__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSProfile.__init__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSProfile.__str__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSProfile.avoid_ros_namespace_conventions",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSProfile.deadline",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSProfile.depth",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSProfile.durability",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSProfile.get_c_qos_profile",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSProfile.history",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSProfile.lifespan",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSProfile.liveliness",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSProfile.liveliness_lease_duration",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface",
+        "qos.stock_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.QoSProfile.reliability",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointInfo",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointInfo.__eq__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointInfo.__hash__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointInfo.__init__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointInfo.__str__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointInfo.endpoint_gid",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointInfo.endpoint_type",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointInfo.node_name",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointInfo.node_namespace",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointInfo.qos_profile",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointInfo.topic_type",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointInfo.topic_type_hash",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointTypeEnum",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointTypeEnum.INVALID",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointTypeEnum.PUBLISHER",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointTypeEnum.SUBSCRIPTION",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointTypeEnum.as_integer_ratio",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointTypeEnum.bit_count",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointTypeEnum.bit_length",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointTypeEnum.conjugate",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointTypeEnum.denominator",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointTypeEnum.from_bytes",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointTypeEnum.imag",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointTypeEnum.is_integer",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointTypeEnum.numerator",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointTypeEnum.real",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TopicEndpointTypeEnum.to_bytes",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TypeHash",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TypeHash.__eq__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TypeHash.__hash__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TypeHash.__init__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TypeHash.__str__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TypeHash.value",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_endpoint_info.TypeHash.version",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_or_service_is_hidden.HIDDEN_TOPIC_PREFIX",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.topic_or_service_is_hidden.topic_or_service_is_hidden",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_full_topic_name.InvalidServiceNameException",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_full_topic_name.InvalidServiceNameException.__init__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_full_topic_name.InvalidServiceNameException.add_note",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_full_topic_name.InvalidServiceNameException.args",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_full_topic_name.InvalidServiceNameException.with_traceback",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_full_topic_name.InvalidTopicNameException",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_full_topic_name.InvalidTopicNameException.__init__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_full_topic_name.InvalidTopicNameException.add_note",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_full_topic_name.InvalidTopicNameException.args",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_full_topic_name.InvalidTopicNameException.with_traceback",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_full_topic_name.validate_full_topic_name",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_namespace.InvalidNamespaceException",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_namespace.InvalidNamespaceException.__init__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_namespace.InvalidNamespaceException.add_note",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_namespace.InvalidNamespaceException.args",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_namespace.InvalidNamespaceException.with_traceback",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_namespace.validate_namespace",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_node_name.InvalidNodeNameException",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_node_name.InvalidNodeNameException.__init__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_node_name.InvalidNodeNameException.add_note",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_node_name.InvalidNodeNameException.args",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_node_name.InvalidNodeNameException.with_traceback",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_node_name.validate_node_name",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_topic_name.InvalidServiceNameException",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_topic_name.InvalidServiceNameException.__init__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_topic_name.InvalidServiceNameException.add_note",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_topic_name.InvalidServiceNameException.args",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_topic_name.InvalidServiceNameException.with_traceback",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_topic_name.InvalidTopicNameException",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_topic_name.InvalidTopicNameException.__init__",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_topic_name.InvalidTopicNameException.add_note",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_topic_name.InvalidTopicNameException.args",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_topic_name.InvalidTopicNameException.with_traceback",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_topic_name.TOPIC_SEPARATOR_STRING",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "graph.utility_surface"
+      ],
+      "path": "rclpy.validate_topic_name.validate_topic_name",
+      "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
       "status": "unchanged_stock_fallback"
     }
   ],

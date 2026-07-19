@@ -673,7 +673,7 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_stock_context_identity.py", "test/_stock_context_identity_probe.py"],
       "notes": "The selected initialization and Context files pass with compatible activation, including invalid sequences and repeated shutdown. The separate repeated-default entry covers explicit same-handle C++ publishing between default Context cycles."
     },
     {
@@ -695,7 +695,7 @@
       "backend": "python",
       "fallback": "not_applicable",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_stock_graph_identity.py", "test/_stock_graph_identity_probe.py"],
       "notes": "The pinned value and validation tests preserve accepted values, invalid indices, exception types, endpoint identity, GIDs, QoS, and type hashes."
     },
     {
@@ -772,7 +772,7 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "rclcppyy/monkey.py"],
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "rclcppyy/monkey.py", "test/test_stock_service_identity.py", "test/_stock_service_identity_probe.py"],
       "notes": "The pinned activated tests cover concurrent and synchronous calls, timeout behavior, name remapping, type rejection, timestamps, and service-introspection metadata and contents. No C++ service route is claimed."
     },
     {
