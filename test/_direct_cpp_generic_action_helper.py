@@ -135,8 +135,9 @@ try:
     assert response.result.total == 10
     assert str(response.result.summary.label) == "aot-action"
     assert list(response.result.summary.samples) == [4, 10]
-    assert retained_feedback
-    assert retained_feedback[-1].feedback.partial_total == 10
+    assert [
+        message.feedback.partial_total for message in retained_feedback
+    ] == [1, 3, 6, 10]
     retained_values.extend((handle.goal_id, response))
 
     stats = client.stats()

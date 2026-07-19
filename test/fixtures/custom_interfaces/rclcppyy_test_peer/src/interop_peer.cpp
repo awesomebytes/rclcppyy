@@ -21,7 +21,8 @@ public:
   using GoalHandleAccumulate = rclcpp_action::ServerGoalHandle<Accumulate>;
 
   explicit InteropPeer(const std::string & prefix)
-  : Node("rclcppyy_aot_interop_peer")
+  : Node("rclcppyy_aot_interop_peer"),
+    feedback_topic_(prefix + "/accumulate/_action/feedback")
   {
     reply_publisher_ = create_publisher<StampedValue>(prefix + "/cpp_to_python", 10);
     request_subscription_ = create_subscription<StampedValue>(
@@ -80,7 +81,19 @@ private:
   void handle_accepted(const std::shared_ptr<GoalHandleAccumulate> goal_handle)
   {
     std::thread(
-      [goal_handle]() {
+      [this, goal_handle]() {
+        const auto discovery_deadline =
+        std::chrono::steady_clock::now() + std::chrono::seconds(5);
+        while (count_subscribers(feedback_topic_) == 0 &&
+        std::chrono::steady_clock::now() < discovery_deadline)
+        {
+          std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        if (count_subscribers(feedback_topic_) == 0) {
+          return;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
         const auto goal = goal_handle->get_goal();
         auto feedback = std::make_shared<Accumulate::Feedback>();
         int64_t total = 0;
@@ -97,6 +110,7 @@ private:
           goal_handle->publish_feedback(feedback);
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
         auto result = std::make_shared<Accumulate::Result>();
         result->total = total;
@@ -111,6 +125,7 @@ private:
   rclcpp::Publisher<StampedValue>::SharedPtr reply_publisher_;
   rclcpp::Subscription<StampedValue>::SharedPtr request_subscription_;
   rclcpp::Service<TransformValue>::SharedPtr transform_service_;
+  std::string feedback_topic_;
   rclcpp_action::Server<Accumulate>::SharedPtr action_server_;
 };
 

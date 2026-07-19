@@ -21,7 +21,9 @@ def run_custom_interface_helper(
         [
             "bash",
             "-c",
-            'source "$1"; shift; exec "$@"',
+            'source_pythonpath="$PYTHONPATH"; source "$1"; '
+            'export PYTHONPATH="$source_pythonpath${PYTHONPATH:+:$PYTHONPATH}"; '
+            'shift; exec "$@"',
             "direct-action-helper",
             str(setup),
             sys.executable,
