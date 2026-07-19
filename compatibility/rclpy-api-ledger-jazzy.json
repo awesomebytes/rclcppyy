@@ -16905,6 +16905,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -16956,6 +16957,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17007,6 +17009,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17058,6 +17061,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17109,6 +17113,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17160,6 +17165,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17211,6 +17217,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17262,6 +17269,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17313,6 +17321,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17364,6 +17373,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17415,6 +17425,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17466,6 +17477,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17517,6 +17529,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17568,6 +17581,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17619,6 +17633,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17670,6 +17685,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17721,6 +17737,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17772,6 +17789,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17823,6 +17841,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17874,6 +17893,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -17925,6 +17945,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -40786,6 +40807,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -40837,6 +40859,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -40888,6 +40911,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -40939,6 +40963,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -40990,6 +41015,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41041,6 +41067,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41092,6 +41119,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41143,6 +41171,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41194,6 +41223,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41245,6 +41275,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41296,6 +41327,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41347,6 +41379,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41398,6 +41431,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41449,6 +41483,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41500,6 +41535,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41551,6 +41587,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41602,6 +41639,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41653,6 +41691,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41704,6 +41743,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41755,6 +41795,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41806,6 +41847,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41857,6 +41899,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41908,6 +41951,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -41965,6 +42009,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42022,6 +42067,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42079,6 +42125,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42136,6 +42183,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42187,6 +42235,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42238,6 +42287,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42289,6 +42339,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42340,6 +42391,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42389,6 +42441,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42440,6 +42493,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42489,6 +42543,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42540,6 +42595,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42589,6 +42645,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42638,6 +42695,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42689,6 +42747,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42740,6 +42799,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42791,6 +42851,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42840,6 +42901,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42891,6 +42953,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42942,6 +43005,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -42993,6 +43057,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43044,6 +43109,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43095,6 +43161,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43146,6 +43213,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43197,6 +43265,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43248,6 +43317,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43299,6 +43369,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43350,6 +43421,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43401,6 +43473,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43452,6 +43525,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43503,6 +43577,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43554,6 +43629,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43605,6 +43681,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43656,6 +43733,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43707,6 +43785,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43758,6 +43837,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43809,6 +43889,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43860,6 +43941,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43911,6 +43993,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -43962,6 +44045,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44013,6 +44097,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44064,6 +44149,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44115,6 +44201,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44166,6 +44253,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44217,6 +44305,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44268,6 +44357,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44319,6 +44409,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44370,6 +44461,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44421,6 +44513,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44472,6 +44565,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44523,6 +44617,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44574,6 +44669,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44623,6 +44719,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44674,6 +44771,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44725,6 +44823,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44776,6 +44875,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44827,6 +44927,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44878,6 +44979,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44929,6 +45031,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -44980,6 +45083,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45031,6 +45135,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45082,6 +45187,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45133,6 +45239,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45184,6 +45291,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45235,6 +45343,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45286,6 +45395,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45337,6 +45447,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45388,6 +45499,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45439,6 +45551,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45490,6 +45603,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45541,6 +45655,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45592,6 +45707,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45643,6 +45759,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45692,6 +45809,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45743,6 +45861,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45794,6 +45913,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45845,6 +45965,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45896,6 +46017,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45947,6 +46069,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -45998,6 +46121,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46049,6 +46173,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46100,6 +46225,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46151,6 +46277,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46202,6 +46329,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46253,6 +46381,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46304,6 +46433,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46355,6 +46485,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46406,6 +46537,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46457,6 +46589,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46508,6 +46641,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46559,6 +46693,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46610,6 +46745,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46661,6 +46797,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46712,6 +46849,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46763,6 +46901,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46814,6 +46953,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46865,6 +47005,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46914,6 +47055,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -46963,6 +47105,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47012,6 +47155,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47061,6 +47205,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47110,6 +47255,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47159,6 +47305,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47210,6 +47357,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47261,6 +47409,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47312,6 +47461,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47363,6 +47513,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47414,6 +47565,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47465,6 +47617,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47516,6 +47669,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47567,6 +47721,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47618,6 +47773,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47669,6 +47825,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47718,6 +47875,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47769,6 +47927,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47820,6 +47979,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47871,6 +48031,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47922,6 +48083,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -47973,6 +48135,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48024,6 +48187,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48075,6 +48239,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48126,6 +48291,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48177,6 +48343,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48228,6 +48395,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48279,6 +48447,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48330,6 +48499,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48381,6 +48551,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48432,6 +48603,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48483,6 +48655,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48534,6 +48707,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48585,6 +48759,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48636,6 +48811,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48687,6 +48863,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48738,6 +48915,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48789,6 +48967,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48840,6 +49019,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48891,6 +49071,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48942,6 +49123,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -48993,6 +49175,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49044,6 +49227,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49095,6 +49279,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49146,6 +49331,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49197,6 +49383,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49248,6 +49435,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49299,6 +49487,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49350,6 +49539,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49401,6 +49591,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49452,6 +49643,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49503,6 +49695,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49554,6 +49747,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49605,6 +49799,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49662,6 +49857,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49713,6 +49909,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49764,6 +49961,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49815,6 +50013,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49866,6 +50065,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49917,6 +50117,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -49968,6 +50169,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50019,6 +50221,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50070,6 +50273,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50121,6 +50325,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50172,6 +50377,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50223,6 +50429,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50274,6 +50481,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50325,6 +50533,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50376,6 +50585,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50427,6 +50637,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50478,6 +50689,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50535,6 +50747,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50586,6 +50799,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50637,6 +50851,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50694,6 +50909,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50751,6 +50967,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50802,6 +51019,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50853,6 +51071,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50902,6 +51121,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -50953,6 +51173,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51004,6 +51225,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51055,6 +51277,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51106,6 +51329,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51157,6 +51381,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51208,6 +51433,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51259,6 +51485,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51310,6 +51537,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51361,6 +51589,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51412,6 +51641,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51463,6 +51693,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51514,6 +51745,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51565,6 +51797,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51616,6 +51849,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51667,6 +51901,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51718,6 +51953,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51769,6 +52005,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51820,6 +52057,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51869,6 +52107,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51920,6 +52159,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -51971,6 +52211,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52022,6 +52263,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52073,6 +52315,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52124,6 +52367,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52175,6 +52419,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52226,6 +52471,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52277,6 +52523,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52328,6 +52575,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52379,6 +52627,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52430,6 +52679,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52481,6 +52731,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52532,6 +52783,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52583,6 +52835,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52677,6 +52930,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52728,6 +52982,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52902,6 +53157,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -52953,6 +53209,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -53004,6 +53261,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -53055,6 +53313,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -53106,6 +53365,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -53157,6 +53417,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -148885,6 +149146,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -148936,6 +149198,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -148987,6 +149250,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149038,6 +149302,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149089,6 +149354,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149140,6 +149406,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149191,6 +149458,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149242,6 +149510,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149293,6 +149562,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149344,6 +149614,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149395,6 +149666,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149446,6 +149718,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149497,6 +149770,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149548,6 +149822,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149613,6 +149888,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149678,6 +149954,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149743,6 +150020,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149794,6 +150072,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149845,6 +150124,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149896,6 +150176,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149947,6 +150228,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -149998,6 +150280,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -150049,6 +150332,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -150100,6 +150384,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -150151,6 +150436,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -150202,6 +150488,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -150253,6 +150540,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -150304,6 +150592,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -150355,6 +150644,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -150406,6 +150696,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -171481,6 +171772,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -171532,6 +171824,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -171583,6 +171876,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -171634,6 +171928,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -171683,6 +171978,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -171732,6 +172028,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -171781,6 +172078,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -171830,6 +172128,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -171879,6 +172178,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -171928,6 +172228,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -171979,6 +172280,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -172030,6 +172332,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -172081,6 +172384,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -172132,6 +172436,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -172183,6 +172488,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -172234,6 +172540,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -172285,6 +172592,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -172336,6 +172644,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -172387,6 +172696,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",
@@ -172438,6 +172748,7 @@
         "area_manifest_entry_ids": [
           "executor.custom_overrides_and_stress",
           "executor.direct_cpp_callback_groups",
+          "executor.direct_cpp_multi_threaded",
           "executor.direct_cpp_single_threaded",
           "executor.direct_cpp_tasks",
           "executor.future_completion",

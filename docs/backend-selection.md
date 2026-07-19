@@ -177,8 +177,14 @@ object directly, with no Python-message conversion or serialization path.
 `rclpy.spin_once(node, timeout_sec=...)` drives the session-owned native
 single-threaded executor. The patched public `Executor` and
 `SingleThreadedExecutor` support explicit add/remove/transfer ownership, top-level
-spin APIs, blocked-wait wake, and shutdown; `MultiThreadedExecutor` remains
-fail-closed pending concurrent Python-callback evidence. Subscription callbacks may
+spin APIs, blocked-wait wake, shutdown, and `create_task`/`Task`/coroutine driving.
+`MultiThreadedExecutor`'s real concurrent-dispatch machinery is implemented and
+proven under a test-only construction guard, but public construction stays
+fail-closed: a raising Python callback under real concurrent native dispatch
+crosses into C++ uncaught and aborts the process, and a separate suite-level
+dispatch-reliability gap can silently drop a ready callback (see
+`compatibility/jazzy.json`'s `executor.direct_cpp_multi_threaded` entry).
+Subscription callbacks may
 accept either the generated C++ message alone or that message plus native
 `rclcpp::MessageInfo` fields. The baseline owning-copy and opt-in shared-lease forms
 are both supported.

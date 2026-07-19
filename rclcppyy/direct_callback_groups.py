@@ -13,6 +13,35 @@ def _unsupported(reason: str):
     raise BackendUnavailableError(reason)
 
 
+_HOOK_NAMES = ("can_execute", "beginning_execution", "ending_execution")
+# Populated once the concrete classes below are defined. Keyed by _kind so a
+# future canonical subclass stays covered without an editor having to touch
+# this lookup by hand.
+_CANONICAL_GROUP_CLASSES: dict[str, type] = {}
+
+
+def _overridden_hooks(group) -> tuple[str, ...]:
+    """Hook names a subclass has overridden beyond the canonical direct
+    implementation for its ``_kind``.
+
+    Native ``rclcpp`` dispatch enforces callback-group exclusion entirely in
+    C++ and never calls back into these Python hooks during real dispatch
+    (they are advisory only -- see the module docstring and the dispatch
+    model note in ``docs/plans/PLAN-executor-slice.md``). Stock rclpy's own
+    ``Executor._make_handler`` does call them, so a stock user's subclass
+    that overrides one expecting it to be honored would be silently
+    ignored under direct_cpp -- a semantic divergence, not merely an inert
+    customization.
+    """
+    canonical = _CANONICAL_GROUP_CLASSES.get(group._kind)
+    if canonical is None:
+        return ()
+    return tuple(
+        name for name in _HOOK_NAMES
+        if getattr(type(group), name) is not getattr(canonical, name)
+    )
+
+
 class DirectCallbackGroup(metaclass=_DirectSurface):
     """Base rclpy-shaped ownership facade for one native callback group."""
 
@@ -49,6 +78,16 @@ class DirectCallbackGroup(metaclass=_DirectSurface):
             raise TypeError("direct_cpp callback groups require a direct_cpp Node")
         if self._kind is None:
             _unsupported("the direct_cpp CallbackGroup base class cannot own entities")
+        overridden = _overridden_hooks(self)
+        if overridden:
+            _unsupported(
+                "direct_cpp callback groups with an overridden %s are not "
+                "supported: native rclcpp dispatch enforces callback-group "
+                "exclusion entirely in C++ and never calls back into these "
+                "Python hooks during real dispatch, so the override would "
+                "be silently ignored -- native hook bridging is not yet "
+                "implemented" % " / ".join(overridden)
+            )
         with self._bind_lock:
             owner = self.node
             if owner is not None and owner is not node:
@@ -139,6 +178,12 @@ class DirectMutuallyExclusiveCallbackGroup(DirectCallbackGroup):
         with self._execution_lock:
             assert self._active_entity is entity
             self._active_entity = None
+
+
+_CANONICAL_GROUP_CLASSES.update({
+    "reentrant": DirectReentrantCallbackGroup,
+    "mutually_exclusive": DirectMutuallyExclusiveCallbackGroup,
+})
 
 
 __all__ = [

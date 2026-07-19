@@ -6,8 +6,11 @@ This pins Commit 1 of the executor slice: the 18 executor + 1 callback-group
 `docs/plans/PLAN-executor-slice.md` Sec. 3), re-derived here ahead of a full
 ledger regen. It also proves the two runtime-behavior invariants this commit
 holds steady: `can_execute` delegates to the real callback-group contract, and
-`MultiThreadedExecutor` still rejects construction (un-fail-closing native
-concurrent dispatch is a later commit).
+`MultiThreadedExecutor` rejects public construction (real concurrent native
+dispatch is fully implemented and proven under a test-only construction
+guard -- see `_direct_cpp_multi_threaded_executor_helper.py` -- but the
+public constructor stays fail-closed this wave; see
+`rclcppyy.direct_executors._MULTI_THREADED_FAIL_CLOSED_REASON`).
 """
 
 import inspect
@@ -143,14 +146,23 @@ else:
 print("DIRECT_CPP_EXECUTOR_SURFACE_WAIT_FOR_READY_FAIL_CLOSED_OK", flush=True)
 
 
-# --- MultiThreadedExecutor: unchanged fail-closed runtime behavior --------
-try:
-    MultiThreadedExecutor(num_threads=2, context=node.context)
-except (BackendUnavailableError, TypeError, ValueError, RuntimeError):
-    pass
-else:
-    raise AssertionError(
-        "direct_cpp MultiThreadedExecutor accepted construction")
+# --- MultiThreadedExecutor: public construction is fail-closed -----------
+# A raising Python callback under real concurrent native dispatch aborts the
+# whole process (std::terminate, not catchable), and a separate suite-level
+# start_executor() dispatch-reliability gap can silently drop a ready
+# callback; both are queued, out-of-boundary fixes (see
+# rclcppyy.direct_executors._MULTI_THREADED_FAIL_CLOSED_REASON). The real
+# concurrent-dispatch machinery is proven under the test-only construction
+# guard in _direct_cpp_multi_threaded_executor_helper.py, not through this
+# public constructor.
+for kwargs in ({"num_threads": 2}, {}):
+    try:
+        MultiThreadedExecutor(context=node.context, **kwargs)
+    except BackendUnavailableError as error:
+        assert "fail-closed" in str(error), str(error)
+    else:
+        raise AssertionError(
+            "direct_cpp MultiThreadedExecutor accepted construction")
 print("DIRECT_CPP_EXECUTOR_SURFACE_MULTI_THREADED_FAIL_CLOSED_OK", flush=True)
 
 
