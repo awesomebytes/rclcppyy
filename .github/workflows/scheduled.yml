@@ -49,7 +49,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: db8b1b8be0fb182bceabe18d6955ccd3c39032fc
+          ref: 845f83bb80c2c20d44f6023105f906167f32b674
           path: _deps/cppyy_kit
       - name: Verify architecture
         run: test "$(uname -m)" = "${{ matrix.machine }}"
@@ -179,7 +179,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: db8b1b8be0fb182bceabe18d6955ccd3c39032fc
+          ref: 845f83bb80c2c20d44f6023105f906167f32b674
           path: _deps/cppyy_kit
       - uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
         with:
