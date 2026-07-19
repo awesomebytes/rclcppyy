@@ -381,8 +381,23 @@ RCLCPPYY_ENABLE_HOOK=1 ros2 topic hz /some_topic  # activated; inspect status fo
 ros2 topic hz /some_topic                   # env var unset -> ordinary rclpy, untouched
 ```
 
-`RCLCPPYY_ENABLE_HOOK` is the single control: `RCLCPPYY_ENABLE_HOOK=1` turns the
-hook on for a process; unset, `0`, or any other value leaves it off. `install`
+The hook defaults to the stock-authoritative `compatible` profile. An unchanged
+application whose API use is inside the current direct surface can instead select
+the generated-C++ backend before its imports:
+
+```bash
+RCLCPPYY_ENABLE_HOOK=1 \
+RCLCPPYY_HOOK_PROFILE=direct_cpp \
+RCLCPPYY_DIRECT_INTERFACES=std_msgs/msg/Header \
+python existing_application.py
+```
+
+`RCLCPPYY_DIRECT_INTERFACES` and `RCLCPPYY_DIRECT_OPTIMIZATIONS` are optional
+comma-separated inputs to `direct_cpp`. Unsupported direct operations fail closed;
+they do not silently convert application messages or create a second node authority.
+
+`RCLCPPYY_ENABLE_HOOK=1` turns the hook on for a process; unset, `0`, or any other
+value leaves it off. `install`
 writes a `.pth` into the environment's site-packages that runs at every interpreter
 start; when the hook is off it is a near-zero-cost no-op, and `python -m
 rclcppyy.hook uninstall` removes it.

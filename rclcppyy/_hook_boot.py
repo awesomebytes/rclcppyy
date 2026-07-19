@@ -19,15 +19,18 @@ cppyy_kit's auto-PCH bootstrap):
   * **never raises** -- a bootstrap that threw would print a traceback on every
     ``python`` invocation. ``activate()`` swallows everything.
 
-The single control is ``RCLCPPYY_ENABLE_HOOK``: exactly ``"1"`` turns the hook on;
-unset, ``"0"``, or any other value leaves it off, so ``activate()`` returns
-immediately (before importing anything) and the cost for unrelated processes is
-negligible.
+``RCLCPPYY_ENABLE_HOOK=1`` turns the hook on. ``RCLCPPYY_HOOK_PROFILE`` selects
+the activation profile and defaults to ``compatible``; the optional comma-separated
+``RCLCPPYY_DIRECT_INTERFACES`` and ``RCLCPPYY_DIRECT_OPTIMIZATIONS`` inputs configure
+the strict ``direct_cpp`` profile before generated interfaces are imported.
 """
 import os
 import sys
 
 ENABLE_ENV = "RCLCPPYY_ENABLE_HOOK"
+PROFILE_ENV = "RCLCPPYY_HOOK_PROFILE"
+INTERFACES_ENV = "RCLCPPYY_DIRECT_INTERFACES"
+OPTIMIZATIONS_ENV = "RCLCPPYY_DIRECT_OPTIMIZATIONS"
 
 # Per-process guard. A module global (not an env var) so it never leaks into child
 # processes -- each interpreter decides for itself whether to accelerate.
@@ -39,6 +42,11 @@ def _enabled():
     return os.environ.get(ENABLE_ENV) == "1"
 
 
+def _profile():
+    """Return the requested profile without importing the package."""
+    return os.environ.get(PROFILE_ENV, "compatible").strip() or "compatible"
+
+
 def _accelerate():
     """Apply enable_cpp_acceleration() exactly once. Best-effort; never raises."""
     global _activated
@@ -47,7 +55,20 @@ def _accelerate():
     _activated = True
     try:
         import rclcppyy
-        rclcppyy.enable_cpp_acceleration()
+        profile = _profile()
+        interfaces = tuple(
+            item.strip() for item in os.environ.get(INTERFACES_ENV, "").split(",")
+            if item.strip()
+        )
+        optimizations = tuple(
+            item.strip() for item in os.environ.get(OPTIMIZATIONS_ENV, "").split(",")
+            if item.strip()
+        )
+        rclcppyy.enable_cpp_acceleration(
+            profile=profile,
+            interfaces=interfaces,
+            optimizations=optimizations,
+        )
     except Exception as exc:  # pragma: no cover - defensive
         sys.stderr.write("rclcppyy auto-acceleration failed (%s); "
                          "running on stock rclpy.\n" % exc)
@@ -94,6 +115,12 @@ def activate():
     """
     try:
         if not _enabled() or _activated:
+            return
+        # The direct profile must replace generated message aliases before rclpy's
+        # eager control-message imports. Its explicit selection accepts native
+        # bringup cost at process start; conservative profiles stay lazy.
+        if _profile() == "direct_cpp":
+            _accelerate()
             return
         if "rclpy" in sys.modules:
             _accelerate()

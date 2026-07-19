@@ -79,8 +79,19 @@
       "backend": "python",
       "fallback": "safe",
       "default": false,
-      "evidence": ["test/test_hook.py", "rclcppyy/monkey.py"],
+      "evidence": ["test/test_hook.py", "rclcppyy/_hook_boot.py"],
       "notes": "A fresh interpreter proves default compatible startup activation. Node, Publisher.publish, executor, and Future behavior remains stock-authoritative and reports Python authority."
+    },
+    {
+      "id": "activation.startup_hook.direct_cpp",
+      "area": "activation",
+      "api": "RCLCPPYY_ENABLE_HOOK=1 with RCLCPPYY_HOOK_PROFILE=direct_cpp and optional registered interfaces/optimizations",
+      "support": "experimental",
+      "backend": "cpp",
+      "fallback": "safe",
+      "default": false,
+      "evidence": ["test/test_hook.py", "rclcppyy/_hook_boot.py", "rclcppyy/direct_cpp.py"],
+      "notes": "The explicitly selected direct profile activates from the installed startup bootstrap before rclpy eagerly imports generated control messages. A fresh Jazzy/Cyclone process proves an unchanged user import receives the direct Node and exact generated C++ nested Header/Time classes registered through the comma-separated interface input. Entity operations retain the bounded direct_cpp fail-closed contract and never fall back through an application-message conversion or serialized route. Compatible remains the default hook profile."
     },
     {
       "id": "activation.startup_hook.disabled",

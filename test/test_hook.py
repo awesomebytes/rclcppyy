@@ -27,6 +27,9 @@ def _run(code, env_extra, timeout):
     env = os.environ.copy()
     # Never let an env var inherited from the caller decide the outcome.
     env.pop("RCLCPPYY_ENABLE_HOOK", None)
+    env.pop("RCLCPPYY_HOOK_PROFILE", None)
+    env.pop("RCLCPPYY_DIRECT_INTERFACES", None)
+    env.pop("RCLCPPYY_DIRECT_OPTIMIZATIONS", None)
     env.update(env_extra)
     return subprocess.run([sys.executable, "-c", code], capture_output=True,
                           text=True, timeout=timeout, env=env)
@@ -43,6 +46,20 @@ def _probe_code(site_dir):
         "stock_authority = rclpy.create_node.__name__ == 'create_node' and \\\n"
         "                  rclpy.spin_once.__name__ == 'spin_once'\n"
         "print('ROUTED_STOCK' if routed and stock_authority else 'STOCK')\n" % site_dir
+    )
+
+
+def _direct_probe_code(site_dir):
+    return (
+        "import site; site.addsitedir(%r)\n"
+        "import rclpy\n"
+        "from rclpy.node import Node\n"
+        "from std_msgs.msg import Header\n"
+        "direct_node = Node.__module__ == 'rclcppyy.direct_cpp'\n"
+        "cpp_message = bool(getattr(Header, '__cpp_name__', ''))\n"
+        "cpp_nested = bool(getattr(type(Header().stamp), '__cpp_name__', ''))\n"
+        "print('DIRECT_CPP_HOOK' if direct_node and cpp_message and cpp_nested "
+        "else 'NOT_DIRECT')\n" % site_dir
     )
 
 
@@ -79,6 +96,25 @@ class TestHookBehaviour(unittest.TestCase):
             proc = _run(_probe_code(site), {"RCLCPPYY_ENABLE_HOOK": "1"}, timeout=180)
             self.assertIn("ROUTED_STOCK", proc.stdout,
                           "\nstdout:\n%s\nstderr:\n%s" % (proc.stdout, proc.stderr))
+
+    def test_enabled_direct_profile_prepares_cpp_interfaces_before_user_imports(self):
+        with tempfile.TemporaryDirectory() as site:
+            hook.install(site)
+            proc = _run(
+                _direct_probe_code(site),
+                {
+                    "RCLCPPYY_ENABLE_HOOK": "1",
+                    "RCLCPPYY_HOOK_PROFILE": "direct_cpp",
+                    "RCLCPPYY_DIRECT_INTERFACES": "std_msgs/msg/Header",
+                },
+                timeout=180,
+            )
+            self.assertEqual(proc.returncode, 0,
+                             "\nstdout:\n%s\nstderr:\n%s" % (
+                                 proc.stdout, proc.stderr))
+            self.assertIn("DIRECT_CPP_HOOK", proc.stdout,
+                          "\nstdout:\n%s\nstderr:\n%s" % (
+                              proc.stdout, proc.stderr))
 
     def test_unset_leaves_stock_rclpy(self):
         with tempfile.TemporaryDirectory() as site:

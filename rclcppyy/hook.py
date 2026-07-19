@@ -15,9 +15,10 @@ set; when it is, it arranges for ``enable_cpp_acceleration()`` to run the moment
     python -m rclcppyy.hook status
     python -m rclcppyy.hook uninstall
 
-The single control is ``RCLCPPYY_ENABLE_HOOK``: exactly ``"1"`` turns the hook on
-for a process; unset, ``"0"``, or any other value leaves it off. The ``.pth`` itself
-is silent and near-zero-cost when the hook is off, and is fully uninstallable.
+``RCLCPPYY_ENABLE_HOOK=1`` turns the hook on for a process. The optional
+``RCLCPPYY_HOOK_PROFILE`` selects the activation profile; it defaults to
+``compatible``. The ``.pth`` itself is silent and near-zero-cost when the hook is
+off, and is fully uninstallable.
 """
 import argparse
 import os
@@ -111,6 +112,9 @@ def status(site_dir=None):
         "site_dir": site,
         "installed": is_installed(site),
         "RCLCPPYY_ENABLE_HOOK": os.environ.get(_boot.ENABLE_ENV),
+        "RCLCPPYY_HOOK_PROFILE": os.environ.get(_boot.PROFILE_ENV),
+        "RCLCPPYY_DIRECT_INTERFACES": os.environ.get(_boot.INTERFACES_ENV),
+        "RCLCPPYY_DIRECT_OPTIMIZATIONS": os.environ.get(_boot.OPTIMIZATIONS_ENV),
     }
 
 
@@ -144,6 +148,11 @@ def main(argv=None):
         print("site-packages       : %s" % st["site_dir"])
         print("installed           : %s" % st["installed"])
         print("RCLCPPYY_ENABLE_HOOK : %s" % (st["RCLCPPYY_ENABLE_HOOK"] or "<unset>"))
+        print("RCLCPPYY_HOOK_PROFILE: %s" % (st["RCLCPPYY_HOOK_PROFILE"] or "compatible"))
+        print("direct interfaces    : %s" % (
+            st["RCLCPPYY_DIRECT_INTERFACES"] or "<defaults>"))
+        print("direct optimizations : %s" % (
+            st["RCLCPPYY_DIRECT_OPTIMIZATIONS"] or "<none>"))
     return 0
 
 
