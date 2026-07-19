@@ -52,6 +52,20 @@ def test_run_token_namespaces_topics_without_changing_case_identity():
     assert scoped["topic"] == "/rclcppyy_bench/run123/" + plain["case_id"]
 
 
+def test_direct_cpp_matrix_lanes_cover_flat_and_nested_generated_cpp_values():
+    direct = {
+        name: matrix.BACKENDS[name]
+        for name in ("rclcppyy-direct-copy", "rclcppyy-direct-lease")
+    }
+    assert {item["worker_backend"] for item in direct.values()} == {
+        "direct-copy", "direct-lease"}
+    assert all(item["expected_backends"] == {
+        "publisher": "cpp", "subscriber": "cpp"}
+        for item in direct.values())
+    assert all(item["workloads"] == ("small-string", "nested-header")
+               for item in direct.values())
+
+
 def test_domain_leases_are_distinct_and_reusable(tmp_path, monkeypatch):
     monkeypatch.setenv("RCLCPPYY_BENCH_DOMAIN_MIN", "220")
     monkeypatch.setenv("RCLCPPYY_BENCH_DOMAIN_MAX", "221")
@@ -175,6 +189,68 @@ def test_smoke_matrix_runs_flat_and_nested_in_isolated_processes():
         for row in document["results"])
     assert all(row["wire_values"]["value_contract_verified"] for row in document["results"])
     assert all(row["wire_values"]["violations"] == 0 for row in document["results"])
+
+
+def test_direct_cpp_smoke_proves_copy_and_lease_representation_boundaries():
+    command = [
+        sys.executable,
+        str(BENCH_DIR / "run_benchmarks.py"),
+        "--smoke",
+        "--backends", "rclcppyy-direct-copy,rclcppyy-direct-lease",
+        "--workloads", "small-string,nested-header",
+        "--rate", "200",
+        "--payload-bytes", "8",
+        "--duration", "0.35",
+        "--warmup-timeout", "30",
+        "--json",
+    ]
+    proc = subprocess.run(
+        command,
+        cwd=REPO_ROOT,
+        env=os.environ.copy(),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+
+    assert proc.returncode == 0, f"stdout:\n{proc.stdout}\nstderr:\n{proc.stderr}"
+    document = json.loads(proc.stdout)
+    assert document["failures"] == []
+    assert len(document["results"]) == 4
+    assert {(row["backend"], row["workload"]) for row in document["results"]} == {
+        (backend, workload)
+        for backend in ("rclcppyy-direct-copy", "rclcppyy-direct-lease")
+        for workload in ("small-string", "nested-header")
+    }
+    for row in document["results"]:
+        assert row["backend_verified"]
+        assert row["wire_values"]["value_contract_verified"]
+        assert row["wire_values"]["violations"] == 0
+        expected_name = (
+            "std_msgs::msg::Header_<std::allocator<void>>"
+            if row["workload"] == "nested-header"
+            else "std_msgs::msg::String_<std::allocator<void>>"
+        )
+        for marker in (row["publisher_backend"], row["subscriber_backend"]):
+            assert marker["backend"] == "cpp"
+            assert marker["evidence"] == "rclcppyy_direct_status"
+            assert "no_conversion" in marker["metadata"]["policies"]
+            assert marker["metadata"]["decision_metadata"][
+                "message_type"] == expected_name
+        subscriber = row["subscriber_backend"]["metadata"]
+        if row["backend"] == "rclcppyy-direct-copy":
+            assert "owning_cpp_callback_copy" in subscriber["policies"]
+            assert subscriber["decision_metadata"]["callback_handoff"] == (
+                "one_native_cpp_copy")
+        else:
+            assert {"subscription_shared_lease", "actual_cpp_message"} <= set(
+                subscriber["policies"])
+            evidence = subscriber["decision_metadata"]
+            assert evidence["callback_handoff"] == "shared_cpp_message_lease"
+            assert evidence["message_representation"] == "actual_cpp"
+            assert evidence["message_deep_copies_per_callback"] == 0
+            assert evidence["python_message_conversions"] == 0
+            assert evidence["serialization_operations"] == 0
 
 
 def test_measurement_window_rejects_wire_contract_violations():

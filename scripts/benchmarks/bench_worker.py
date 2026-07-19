@@ -4,12 +4,18 @@
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 import sys
 import threading
 import time
 
-from _backend_marker import emit_native_backend, emit_status_backend, emit_stock_backend
+from _backend_marker import (
+    emit_direct_status_backend,
+    emit_native_backend,
+    emit_status_backend,
+    emit_stock_backend,
+)
 from _benchmark_matrix import WORKLOADS
 from _benchmark_protocol import (
     READY_PREFIX,
@@ -51,10 +57,13 @@ class PythonCodec:
 
     def decode(self, message):
         if self.workload == "small-string":
-            sequence, timestamp_ns, padding = message.data.split(":", 2)
+            sequence, timestamp_ns, padding = str(message.data).split(":", 2)
         else:
-            sequence, padding = message.frame_id.split(":", 1)
-            timestamp_ns = message.stamp.sec * 1_000_000_000 + message.stamp.nanosec
+            sequence, padding = str(message.frame_id).split(":", 1)
+            timestamp_ns = (
+                int(message.stamp.sec) * 1_000_000_000
+                + int(message.stamp.nanosec)
+            )
         if padding != self.padding:
             raise ValueError("payload padding does not match the workload contract")
         sequence = int(sequence)
@@ -109,6 +118,9 @@ def _emit_backend(backend, role, entity):
         emit_stock_backend(role, entity)
     elif backend == "compatibility":
         emit_status_backend(role, "publisher" if role == "publisher" else "subscription")
+    elif backend in ("direct-copy", "direct-lease"):
+        emit_direct_status_backend(
+            role, "publisher" if role == "publisher" else "subscription")
     else:
         emit_native_backend(role, entity)
 
@@ -148,15 +160,51 @@ def _subscriber_callback(codec, state):
 
 
 def _run_python(args):
+    direct = args.backend in ("direct-copy", "direct-lease")
     if args.backend == "compatibility":
         import rclcppyy
         rclcppyy.enable_cpp_acceleration()
+    elif direct:
+        import rclcppyy
+
+        interfaces = (
+            ("std_msgs/msg/Header",)
+            if args.workload == "nested-header" else ()
+        )
+        optimizations = (
+            ("subscription_shared_lease",)
+            if args.backend == "direct-lease" else ()
+        )
+        rclcppyy.enable_cpp_acceleration(
+            profile="direct_cpp",
+            interfaces=interfaces,
+            optimizations=optimizations,
+        )
 
     import rclpy
 
+    if direct:
+        import rclcpp_kit
+        from rclcpp_kit import serialization
+
+        bringup = importlib.import_module("rclcpp_kit.bringup_rclcpp")
+
+        def forbidden_boundary(*_args, **_kwargs):
+            raise AssertionError("direct benchmark used a conversion or serialization bridge")
+
+        bringup.convert_python_msg_to_cpp = forbidden_boundary
+        rclcpp_kit.convert_python_msg_to_cpp = forbidden_boundary
+        serialization.serialize_message = forbidden_boundary
+        serialization.deserialize_message = forbidden_boundary
+
     codec = PythonCodec(args.workload, args.payload_bytes)
     rclpy.init(args=[])
-    node = rclpy.create_node(args.node_name)
+    if direct:
+        from rclpy.node import Node
+
+        node = Node(args.node_name)
+    else:
+        node = rclpy.create_node(args.node_name)
 
     if args.role == "publisher":
         publisher = node.create_publisher(codec.message_type, args.topic, 10)
@@ -240,7 +288,11 @@ def _run_native(args):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--backend", choices=("stock", "compatibility", "native"), required=True)
+    parser.add_argument(
+        "--backend",
+        choices=("stock", "compatibility", "native", "direct-copy", "direct-lease"),
+        required=True,
+    )
     parser.add_argument("--role", choices=("publisher", "subscriber"), required=True)
     parser.add_argument("--workload", choices=tuple(WORKLOADS), required=True)
     parser.add_argument("--topic", required=True)

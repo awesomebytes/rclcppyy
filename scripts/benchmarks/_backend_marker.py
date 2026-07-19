@@ -75,3 +75,28 @@ def emit_status_backend(role, entity_type):
         reason=decision["reason"],
         policies=decision["policies"],
     )
+
+
+def emit_direct_status_backend(role, entity_type):
+    """Report a direct entity without requiring a wrapped publish operation."""
+    import rclcppyy
+
+    matching = [
+        record for record in rclcppyy.status()["entities"]
+        if record["metadata"].get("entity_type") == entity_type
+    ]
+    if not matching:
+        raise RuntimeError(f"no direct backend decision recorded for {entity_type}")
+    decision = matching[-1]
+    if decision["backend"] != "cpp" or "no_conversion" not in decision["policies"]:
+        raise RuntimeError(f"{entity_type} did not select the strict direct C++ route")
+    _emit(
+        role,
+        "cpp",
+        "rclcppyy_direct_status",
+        entity_type=entity_type,
+        decision_id=decision["id"],
+        reason=decision["reason"],
+        policies=decision["policies"],
+        decision_metadata=decision["metadata"],
+    )

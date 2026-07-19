@@ -44,7 +44,7 @@ An intentional matrix run can select multiple axes:
 
 ```bash
 pixi run bench \
-  --backends rclpy,rclcppyy,rclcppyy-templated \
+  --backends rclpy,rclcppyy-direct-copy,rclcppyy-direct-lease,rclcppyy-templated \
   --workloads small-string,nested-header \
   --rate 1000,10000 \
   --payload-bytes 0,4096 \
@@ -65,6 +65,16 @@ The raw runner always writes `performance_claims_allowed: false`, including in
 measurement mode. Smoke reports identify validation-only evidence; measurement
 reports identify characterization inputs and do not select a winner. A separate
 reviewed analysis must combine repeated controlled runs before making a claim.
+
+The two source-compatible direct lanes run the same Python codec and callback body.
+`rclcppyy-direct-copy` retains one generated-C++ callback copy;
+`rclcppyy-direct-lease` transfers the received C++ allocation into shared ownership.
+Both poison the Python-message converter and serializer helpers. Their backend
+markers require actual C++ entities, `no_conversion` policy evidence, and the exact
+generated C++ `String` or nested `Header` type. The lease marker additionally
+requires actual-C++ representation and zero declared message deep copies. These
+lanes remain separate from `rclcppyy-templated`, which uses the explicit native API
+rather than the source-compatible `rclpy` call shape.
 
 ## Compatibility Evidence Gate
 
@@ -244,3 +254,6 @@ share endpoints accidentally; the leased domain and token are recorded in JSON.
   on controlled, architecture-specific machines and analysis outside smoke mode.
 - The direct native backend still executes the benchmark workload's timer and
   callback bodies in Python; its entities and message transport are C++.
+- The source-compatible direct lanes likewise retain the measured Python timer and
+  callback bodies. They differ only in callback ownership: one generated-C++ value
+  copy versus a shared lease over the received allocation.

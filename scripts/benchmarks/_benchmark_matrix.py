@@ -25,6 +25,18 @@ BACKENDS = {
         "expected_backends": {"publisher": "cpp", "subscriber": "cpp"},
         "workloads": ("small-string", "nested-header"),
     },
+    "rclcppyy-direct-copy": {
+        "label": "source-compatible direct C++ with callback copy",
+        "worker_backend": "direct-copy",
+        "expected_backends": {"publisher": "cpp", "subscriber": "cpp"},
+        "workloads": ("small-string", "nested-header"),
+    },
+    "rclcppyy-direct-lease": {
+        "label": "source-compatible direct C++ with shared callback lease",
+        "worker_backend": "direct-lease",
+        "expected_backends": {"publisher": "cpp", "subscriber": "cpp"},
+        "workloads": ("small-string", "nested-header"),
+    },
 }
 
 WORKLOADS = {
