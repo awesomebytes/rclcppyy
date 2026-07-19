@@ -787,6 +787,28 @@
       "notes": "The selected tests cover construction, arithmetic and comparison, message conversion, clock sleep and shutdown, ROS-time activation, jumps, clock attachment, Rate destruction/wake, and /clock delivery."
     },
     {
+      "id": "time.direct_cpp_payload",
+      "area": "time",
+      "api": "Time.to_msg/from_msg and Duration.to_msg/from_msg under profile=direct_cpp",
+      "support": "experimental",
+      "backend": "cpp",
+      "fallback": "process_only",
+      "default": false,
+      "evidence": ["test/test_direct_time.py", "test/_direct_cpp_time_helper.py"],
+      "notes": "Time and Duration are unchanged stock rclpy classes under direct_cpp; to_msg/from_msg are not patched. rclpy's time.py/duration.py resolve their builtin_interfaces.msg.Time/Duration return annotations at import time (no future-annotations deferral), and direct_cpp has already installed generated C++ builtin_interfaces.msg.Time_<...>/Duration_<...> aliases by then, so the same unchanged stock bodies construct and read the C++ message: keyword construction, .sec/.nanosec access, and the from_msg isinstance check all work against the C++ type with no product shim. Verified with forbidden_boundary poisoned: to_msg()/from_msg() round-trip correctly for both Time and Duration, and a to_msg() payload assigned into a generated C++ Header.stamp field keeps the C++ type end to end, proving a real app timestamp path never crosses to a Python message or a serialization boundary. This is an intentional divergence from stock's Python builtin_interfaces payload, not a defect; the corresponding 12 from_msg/to_msg ledger rows stay missing_mismatch by design (the payload type genuinely differs) and are not annotated."
+    },
+    {
+      "id": "time.direct_cpp_node_clock",
+      "area": "time",
+      "api": "profile=direct_cpp Node.get_clock() returning a native-node-backed Clock/ROSClock",
+      "support": "experimental",
+      "backend": "cpp",
+      "fallback": "process_only",
+      "default": false,
+      "evidence": ["test/test_direct_clock.py", "test/_direct_cpp_clock_helper.py"],
+      "notes": "DirectNode.get_clock() retains one DirectClock/DirectROSClock per node, backed by the native foundation's NativeNodeClock -- the node's exact rclcpp::Clock (node clocks are always RCL_ROS_TIME). DirectClock/DirectROSClock subclass stock rclpy.clock.Clock/ROSClock for isinstance identity but bypass Clock.__new__ so no second, disconnected _rclpy.Clock is created. now() returns a stock rclpy.time.Time built from the native now_nanoseconds() hot path; clock_type is resolved once at construction and cached, so it never re-touches the native object. Verified live with forbidden_boundary poisoned: isinstance/identity (one clock per node, the same object returned on every get_clock() call), a stock-time differential against time.time_ns(), address identity against the node's own native rclcpp::Clock, and clean teardown (destroy_node() closes the retained clock; a later now() raises instead of touching a dangling native reference). A fast in-process unit test additionally proves the wrapper checks closedness before calling into the native object at all. Standalone Clock(...) construction, the raw handle, jump callbacks, sleep_for/sleep_until, and set_ros_time_override are explicit_fail_closed -- the native foundation does not support them yet -- rather than silently falling back to a disconnected stock clock."
+    },
+    {
       "id": "type_support.stock_surface",
       "area": "type_support",
       "api": "TypeHash values and type-support checks for installed generated message and service classes",
