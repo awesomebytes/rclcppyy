@@ -142,6 +142,41 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  ledger-drift:
+    name: API ledger drift
+    runs-on: ubuntu-latest
+    env:
+      RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
+      PYTHONPATH: ${{ github.workspace }}/_deps/cppyy_kit:${{ github.workspace }}/_deps/cppyy_kit/rclcpp_kit
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - name: Checkout pinned kit sources
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          repository: awesomebytes/cppyy_kit
+          ref: adaf2a8266d93e31f0a38fb72adc5fcab1b42f31
+          path: _deps/cppyy_kit
+
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
+        with:
+          pixi-version: v0.70.0
+          environments: default
+          cache: true
+          cache-key: rclcppyy-linux-64-
+          cache-write: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
+      - name: Build
+        run: pixi run build
+
+      # Regenerates stock + direct observations against this checkout and fails
+      # on any drift vs. the committed baseline: a missing or changed public
+      # symbol, signature, or semantic contract in the pinned Jazzy rclpy surface.
+      - name: Check API ledger drift
+        run: pixi run ledger-verify
+
   native-architecture:
     name: native source + package (${{ matrix.platform }})
     runs-on: ${{ matrix.runner }}
