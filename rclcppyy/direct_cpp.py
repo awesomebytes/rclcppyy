@@ -2015,6 +2015,7 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
     action_plan = direct_actions.prepare(action_interfaces)
     installation = direct_messages.install(
         message_interfaces
+        + direct_parameters.CONTROL_MESSAGE_INTERFACES
         + service_plan.message_dependencies
         + action_plan.message_dependencies)
     service_installation = None

@@ -13,6 +13,9 @@ rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
 import cppyy  # noqa: E402
 import rclpy  # noqa: E402
 from rcl_interfaces.msg import (  # noqa: E402
+    FloatingPointRange,
+    IntegerRange,
+    ListParametersResult,
     Parameter as ParameterMsg,
     ParameterDescriptor,
     ParameterValue,
@@ -27,6 +30,15 @@ from rclpy.exceptions import (  # noqa: E402
 )
 from rclpy.node import Node  # noqa: E402
 from rclpy.parameter import Parameter  # noqa: E402
+
+
+assert ParameterMsg is cppyy.gbl.rcl_interfaces.msg.Parameter
+assert ParameterValue is cppyy.gbl.rcl_interfaces.msg.ParameterValue
+assert ParameterDescriptor is cppyy.gbl.rcl_interfaces.msg.ParameterDescriptor
+assert IntegerRange is cppyy.gbl.rcl_interfaces.msg.IntegerRange
+assert FloatingPointRange is cppyy.gbl.rcl_interfaces.msg.FloatingPointRange
+assert ListParametersResult is cppyy.gbl.rcl_interfaces.msg.ListParametersResult
+assert SetParametersResult is cppyy.gbl.rcl_interfaces.msg.SetParametersResult
 
 
 def forbidden_boundary(*_args, **_kwargs):
@@ -96,14 +108,20 @@ snapshot = snapshot_source.value
 snapshot.append(3)
 assert snapshot_source.value == [1, 2]
 
-python_message = ParameterMsg(
-    name="python_control_message",
+cpp_message = ParameterMsg(
+    name="cpp_control_message",
     value=ParameterValue(type=Parameter.Type.INTEGER.value, integer_value=41),
 )
-adapted = Parameter.from_parameter_msg(python_message)
-assert adapted.name == "python_control_message"
-assert adapted.value == 41
-assert isinstance(adapted._rclcppyy_native_parameter.native, cppyy.gbl.rclcpp.Parameter)
+restored = Parameter.from_parameter_msg(cpp_message)
+assert restored.name == "cpp_control_message"
+assert restored.value == 41
+assert isinstance(restored._rclcppyy_native_parameter.native, cppyy.gbl.rclcpp.Parameter)
+try:
+    Parameter.from_parameter_msg(object())
+except TypeError as error:
+    assert "actual direct_cpp C++ Parameter" in str(error)
+else:
+    raise AssertionError("direct_cpp accepted a non-C++ Parameter message")
 print("DIRECT_CPP_PARAMETERS_OWNING_FACADE_OK")
 
 
@@ -172,6 +190,13 @@ else:
     raise AssertionError("duplicate declaration succeeded")
 assert not node.has_parameter("never_created")
 try:
+    node.declare_parameter("python_descriptor", 1, object())
+except TypeError as error:
+    assert "actual direct_cpp C++ ParameterDescriptor" in str(error)
+else:
+    raise AssertionError("direct_cpp accepted a non-C++ parameter descriptor")
+assert not node.has_parameter("python_descriptor")
+try:
     node.get_parameter("missing")
 except ParameterNotDeclaredException:
     pass
@@ -218,6 +243,21 @@ assert not bool(result.successful)
 assert str(result.reason) == "rejected"
 assert node.get_parameter("group.count").value == 11
 node.remove_on_set_parameters_callback(reject_callback)
+
+
+def non_cpp_result(_parameters):
+    return object()
+
+
+node.add_on_set_parameters_callback(non_cpp_result)
+try:
+    node.set_parameters([Parameter("group.count", value=29)])
+except TypeError as exception:
+    assert "actual direct_cpp C++ SetParametersResult" in str(exception)
+else:
+    raise AssertionError("direct_cpp accepted a non-C++ parameter callback result")
+assert node.get_parameter("group.count").value == 11
+node.remove_on_set_parameters_callback(non_cpp_result)
 
 
 def on_exception(_parameters):

@@ -6,46 +6,18 @@ are materialized only by the public ``Parameter.value`` property.
 
 from __future__ import annotations
 
-from typing import Any
-
 import cppyy
 
 from rclcpp_kit import native_parameters
 
 
 _FACADE = None
-
-
-def _uint8(value: Any) -> int:
-    if isinstance(value, str):
-        return ord(value)
-    if isinstance(value, bytes):
-        return value[0]
-    return int(value)
-
-
-def _value_from_parameter_message(value: Any, type_code: int) -> Any:
-    if type_code == native_parameters.PARAMETER_NOT_SET:
-        return None
-    if type_code == native_parameters.PARAMETER_BOOL:
-        return bool(value.bool_value)
-    if type_code == native_parameters.PARAMETER_INTEGER:
-        return int(value.integer_value)
-    if type_code == native_parameters.PARAMETER_DOUBLE:
-        return float(value.double_value)
-    if type_code == native_parameters.PARAMETER_STRING:
-        return str(value.string_value)
-    if type_code == native_parameters.PARAMETER_BYTE_ARRAY:
-        return [bytes((_uint8(item),)) for item in value.byte_array_value]
-    if type_code == native_parameters.PARAMETER_BOOL_ARRAY:
-        return [bool(item) for item in value.bool_array_value]
-    if type_code == native_parameters.PARAMETER_INTEGER_ARRAY:
-        return [int(item) for item in value.integer_array_value]
-    if type_code == native_parameters.PARAMETER_DOUBLE_ARRAY:
-        return [float(item) for item in value.double_array_value]
-    if type_code == native_parameters.PARAMETER_STRING_ARRAY:
-        return [str(item) for item in value.string_array_value]
-    raise ValueError("unknown parameter type code %d" % type_code)
+CONTROL_MESSAGE_INTERFACES = (
+    "rcl_interfaces/msg/ListParametersResult",
+    "rcl_interfaces/msg/Parameter",
+    "rcl_interfaces/msg/ParameterDescriptor",
+    "rcl_interfaces/msg/SetParametersResult",
+)
 
 
 def prepare(original_parameter_class):
@@ -84,16 +56,12 @@ def prepare(original_parameter_class):
         @classmethod
         def from_parameter_msg(cls, param_msg):
             cpp_message_type = cppyy.gbl.rcl_interfaces.msg.Parameter
-            if isinstance(param_msg, cpp_message_type):
-                native = native_parameters.NativeParameter(
-                    cppyy.gbl.rclcpp.Parameter.from_parameter_msg(param_msg))
-                return cls._from_native(native)
-            type_code = _uint8(param_msg.value.type)
-            return cls(
-                str(param_msg.name),
-                cls.Type(type_code),
-                _value_from_parameter_message(param_msg.value, type_code),
-            )
+            if not isinstance(param_msg, cpp_message_type):
+                raise TypeError(
+                    "param_msg must be an actual direct_cpp C++ Parameter message")
+            native = native_parameters.NativeParameter(
+                cppyy.gbl.rclcpp.Parameter.from_parameter_msg(param_msg))
+            return cls._from_native(native)
 
         @property
         def name(self):
@@ -137,40 +105,15 @@ def wrap_native(value):
 
 
 def descriptor_to_cpp(descriptor, *, name="", type_code=0):
-    """Adapt a parameter control descriptor without touching app messages."""
+    """Copy an exact C++ descriptor before applying declaration metadata."""
     descriptor_type = cppyy.gbl.rcl_interfaces.msg.ParameterDescriptor
     if descriptor is None:
         result = descriptor_type()
     elif isinstance(descriptor, descriptor_type):
         result = descriptor_type(descriptor)
     else:
-        required = (
-            "description",
-            "additional_constraints",
-            "read_only",
-            "dynamic_typing",
-            "integer_range",
-            "floating_point_range",
-        )
-        if not all(hasattr(descriptor, field) for field in required):
-            raise TypeError("descriptor must be a ParameterDescriptor")
-        result = descriptor_type()
-        result.description = str(descriptor.description)
-        result.additional_constraints = str(descriptor.additional_constraints)
-        result.read_only = bool(descriptor.read_only)
-        result.dynamic_typing = bool(descriptor.dynamic_typing)
-        for source in descriptor.integer_range:
-            target = cppyy.gbl.rcl_interfaces.msg.IntegerRange()
-            target.from_value = int(source.from_value)
-            target.to_value = int(source.to_value)
-            target.step = int(source.step)
-            result.integer_range.push_back(target)
-        for source in descriptor.floating_point_range:
-            target = cppyy.gbl.rcl_interfaces.msg.FloatingPointRange()
-            target.from_value = float(source.from_value)
-            target.to_value = float(source.to_value)
-            target.step = float(source.step)
-            result.floating_point_range.push_back(target)
+        raise TypeError(
+            "descriptor must be an actual direct_cpp C++ ParameterDescriptor")
     result.name = str(name)
     result.type = int(type_code)
     return result
@@ -178,15 +121,15 @@ def descriptor_to_cpp(descriptor, *, name="", type_code=0):
 
 def result_to_cpp(result):
     result_type = cppyy.gbl.rcl_interfaces.msg.SetParametersResult
-    if isinstance(result, result_type):
-        return result_type(result)
-    if not hasattr(result, "successful") or not hasattr(result, "reason"):
-        raise TypeError("parameter callback must return SetParametersResult")
-    return native_parameters.make_set_parameters_result(
-        bool(result.successful), str(result.reason))
+    if not isinstance(result, result_type):
+        raise TypeError(
+            "parameter callback must return an actual direct_cpp C++ "
+            "SetParametersResult")
+    return result_type(result)
 
 
 __all__ = [
+    "CONTROL_MESSAGE_INTERFACES",
     "descriptor_to_cpp",
     "native_parameter",
     "parameter_class",
