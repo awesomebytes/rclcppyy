@@ -254,8 +254,10 @@ def _rss_guard(baseline: int, final: int) -> dict:
 def _prewarm() -> int:
     import cppyy_kit
     from cppyy_kit import cache
+    from rclcpp_kit import direct_subscription_lease
     from rclcpp_kit.native import native
     from rclcpp_kit import subscription_cache
+    from rclcpp_kit.bringup_rclcpp import get_ros2_lib_path, ros2_include_paths
     from std_msgs.msg import UInt64
 
     with native(["relay-boundary-prewarm"]) as ros:
@@ -277,9 +279,36 @@ def _prewarm() -> int:
         pipeline_result = dict(pipeline.compile_result)
         source_id = pipeline.source_id
 
+        lease_source_id, _, lease_code, lease_declarations = \
+            direct_subscription_lease._source(CPP_TYPE, HEADER)
+        lease_options = {
+            "decls": lease_declarations,
+            "name": "rclcpp_direct_subscription_lease_%s" % lease_source_id,
+            "include_paths": tuple(sorted(ros2_include_paths())),
+            "library_paths": (get_ros2_lib_path(),),
+            "libraries": ("rclcpp", "std_msgs__rosidl_typesupport_cpp"),
+            "directory": direct_subscription_lease._cache_dir(),
+        }
+        lease_path = cache.artifact_paths(
+            lease_code,
+            lease_options["decls"],
+            lease_options["name"],
+            lease_options["include_paths"],
+            lease_options["libraries"],
+            directory=lease_options["directory"],
+        )[0]
+        lease_was_cached = Path(lease_path).is_file()
+        direct_subscription_lease._compile_glue(lease_code, lease_options)
+        lease_result = {
+            "cached": lease_was_cached,
+            "reason": "hit" if lease_was_cached else "miss-built",
+            "so": lease_path,
+        }
+
     artifacts = {}
     for name, result in (
         ("subscription", subscription_result),
+        ("subscription_lease", lease_result),
         ("fused_pipeline", pipeline_result),
     ):
         artifact = result.get("so")
@@ -308,6 +337,7 @@ def _prewarm() -> int:
         "pid": os.getpid(),
         "loaded_rmw": _loaded_rmw(),
         "fused_source_id": source_id,
+        "lease_source_id": lease_source_id,
         "artifacts": artifacts,
     })
     return 0
@@ -340,15 +370,54 @@ def _subscription_artifact() -> dict:
     }
 
 
-def _run_python_relay(args, *, profile: str | None) -> tuple[dict, dict, bool]:
+def _subscription_lease_artifact() -> dict:
+    from cppyy_kit import cache
+    from rclcpp_kit import direct_subscription_lease
+    from rclcpp_kit.bringup_rclcpp import get_ros2_lib_path, ros2_include_paths
+
+    source_id, _, code, declarations = direct_subscription_lease._source(
+        CPP_TYPE, HEADER)
+    include_paths = tuple(sorted(ros2_include_paths()))
+    libraries = ("rclcpp", "std_msgs__rosidl_typesupport_cpp")
+    artifact = cache.artifact_paths(
+        code,
+        declarations,
+        "rclcpp_direct_subscription_lease_%s" % source_id,
+        include_paths,
+        libraries,
+        directory=direct_subscription_lease._cache_dir(),
+    )[0]
+    path = Path(artifact).resolve()
+    if not path.is_file():
+        raise RuntimeError("prebuilt direct subscription lease artifact is missing")
+    if not get_ros2_lib_path() or not include_paths:
+        raise RuntimeError("direct subscription lease ROS build inputs are unavailable")
+    return {
+        "state": "prebuilt",
+        "kind": "direct-cpp-subscription-lease",
+        "path": str(path),
+        "sha256": _sha256(path),
+        "size_bytes": path.stat().st_size,
+        "hit": True,
+        "source_id": source_id,
+    }
+
+
+def _run_python_relay(
+        args, *, profile: str | None,
+        optimizations: tuple[str, ...] = ()) -> tuple[dict, dict, bool]:
     rclcppyy = None
     if profile is not None:
         import rclcppyy as active_rclcppyy
 
-        active_rclcppyy.enable_cpp_acceleration(profile=profile)
+        active_rclcppyy.enable_cpp_acceleration(
+            profile=profile, optimizations=optimizations)
         rclcppyy = active_rclcppyy
     use_cpp_publisher = profile == "publisher_cpp"
     use_direct_cpp = profile == "direct_cpp"
+    use_subscription_lease = "subscription_shared_lease" in optimizations
+    if use_subscription_lease and not use_direct_cpp:
+        raise RuntimeError("subscription lease benchmark requires direct_cpp")
 
     import rclpy
     from rclpy.node import Node
@@ -395,6 +464,7 @@ def _run_python_relay(args, *, profile: str | None) -> tuple[dict, dict, bool]:
     checksum = 0
     last = 0
     non_cpp_callback_messages = 0
+    callback_last_message_address = 0
     publish_marker = None
     spin_errors = []
     if use_direct_cpp:
@@ -416,8 +486,11 @@ def _run_python_relay(args, *, profile: str | None) -> tuple[dict, dict, bool]:
 
     def on_message(message):
         nonlocal received, published, checksum, last, non_cpp_callback_messages
+        nonlocal callback_last_message_address
         if use_direct_cpp and type(message) is not UInt64:
             non_cpp_callback_messages += 1
+        if use_subscription_lease:
+            callback_last_message_address = int(cppyy.addressof(message))
         value = int(message.data)
         received += 1
         checksum += value
@@ -443,7 +516,11 @@ def _run_python_relay(args, *, profile: str | None) -> tuple[dict, dict, bool]:
         executor = runtime.executor
         executor_thread = threading.Thread(target=spin_direct_cpp, daemon=False)
         direct_subscription = node._direct_cpp_subscriptions[-1]
-        if direct_subscription.creation_route != "prebuilt_subscription_trampoline":
+        expected_creation_route = (
+            "rclcpp_unique_ptr_subscription_lease"
+            if use_subscription_lease else "prebuilt_subscription_trampoline"
+        )
+        if direct_subscription.creation_route != expected_creation_route:
             raise RuntimeError("direct_cpp subscription missed its prebuilt trampoline")
     else:
         runtime = None
@@ -466,8 +543,11 @@ def _run_python_relay(args, *, profile: str | None) -> tuple[dict, dict, bool]:
                 "prepared_before_measurement": True,
             }
         elif use_direct_cpp:
-            cache_evidence = _subscription_artifact()
-            cache_evidence["kind"] = "direct-cpp-subscription-trampoline"
+            if use_subscription_lease:
+                cache_evidence = _subscription_lease_artifact()
+            else:
+                cache_evidence = _subscription_artifact()
+                cache_evidence["kind"] = "direct-cpp-subscription-trampoline"
         else:
             cache_evidence = {
                 "state": "not_applicable",
@@ -497,7 +577,9 @@ def _run_python_relay(args, *, profile: str | None) -> tuple[dict, dict, bool]:
                 and runtime.session.nodes == (node._direct_cpp_node,)
             ),
             "session_node_count": len(runtime.session.nodes),
-            "callback_handoff": "one_native_cpp_copy",
+            "callback_handoff": (
+                "shared_cpp_message_lease"
+                if use_subscription_lease else "one_native_cpp_copy"),
             "subscription_creation_route": direct_subscription.creation_route,
             "python_message_conversion_guarded": True,
             "serialization_guarded": True,
@@ -522,12 +604,15 @@ def _run_python_relay(args, *, profile: str | None) -> tuple[dict, dict, bool]:
         "process_group_id": os.getpgrp(),
         "node_name": args.node_name,
         "loaded_rmw": _loaded_rmw(),
-        "execution_model": {
-            None: "same-python-relay-stock-rclpy",
-            "compatible": "same-python-relay-compatible-stock-publish",
-            "publisher_cpp": "same-python-relay-explicit-publisher-cpp",
-            "direct_cpp": "same-python-relay-direct-rclcpp",
-        }[profile],
+        "execution_model": (
+            "same-python-relay-direct-rclcpp-shared-lease"
+            if use_subscription_lease else {
+                None: "same-python-relay-stock-rclpy",
+                "compatible": "same-python-relay-compatible-stock-publish",
+                "publisher_cpp": "same-python-relay-explicit-publisher-cpp",
+                "direct_cpp": "same-python-relay-direct-rclcpp",
+            }[profile]
+        ),
         "cache": cache_evidence,
         "entity_types": entity_types,
         "backend_markers": markers,
@@ -604,7 +689,7 @@ def _run_python_relay(args, *, profile: str | None) -> tuple[dict, dict, bool]:
         "rss_guard": _rss_guard(rss_baseline, rss_final),
     }
     if use_direct_cpp:
-        counters.update({
+        direct_counters = {
             "owning_cpp_callback_copies": direct_subscription.owning_cpp_copy_count,
             "cpp_callback_messages": received - non_cpp_callback_messages,
             "non_cpp_callback_messages": non_cpp_callback_messages,
@@ -612,7 +697,21 @@ def _run_python_relay(args, *, profile: str | None) -> tuple[dict, dict, bool]:
                 "python_message_conversion"],
             "serialization_operations": boundary_guard_calls["serialization"],
             "boundary_guard_calls": dict(boundary_guard_calls),
-        })
+        }
+        if use_subscription_lease:
+            lease_stats = direct_subscription.stats()
+            direct_counters.update({
+                "subscription_leases": lease_stats.leases,
+                "shared_control_blocks": lease_stats.shared_control_blocks,
+                "shared_owner_acquisitions": lease_stats.shared_owner_acquisitions,
+                "lease_python_boundary_crossings": (
+                    lease_stats.python_boundary_crossings),
+                "lease_exceptions": lease_stats.exceptions,
+                "native_last_message_address": (
+                    direct_subscription.last_message_address),
+                "callback_last_message_address": callback_last_message_address,
+            })
+        counters.update(direct_counters)
     return ready, counters, teardown_clean
 
 
@@ -798,6 +897,12 @@ def _run_relay(args) -> int:
     elif args.variant == "direct-cpp-rclcppyy":
         _ready, counters, teardown_clean = _run_python_relay(
             args, profile="direct_cpp")
+    elif args.variant == "direct-lease-rclcppyy":
+        _ready, counters, teardown_clean = _run_python_relay(
+            args,
+            profile="direct_cpp",
+            optimizations=("subscription_shared_lease",),
+        )
     elif args.variant == "native-python-callback":
         _ready, counters, teardown_clean = _run_python_callback(args)
     else:
@@ -828,7 +933,8 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--variant", choices=(
             "stock-rclpy", "compatible-rclcppyy", "publisher-cpp-rclcppyy",
-            "direct-cpp-rclcppyy", "native-python-callback", "native-fused"))
+            "direct-cpp-rclcppyy", "direct-lease-rclcppyy",
+            "native-python-callback", "native-fused"))
     parser.add_argument("--input-topic")
     parser.add_argument("--output-topic")
     parser.add_argument("--node-name")

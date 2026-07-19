@@ -39,6 +39,11 @@ VARIANTS = {
         "cache_kind": "direct-cpp-subscription-trampoline",
         "python_crossings": True,
     },
+    "direct-lease-rclcppyy": {
+        "execution_model": "same-python-relay-direct-rclcpp-shared-lease",
+        "cache_kind": "direct-cpp-subscription-lease",
+        "python_crossings": True,
+    },
     "native-python-callback": {
         "execution_model": "native-rclcpp-python-transform-callback",
         "cache_kind": "subscription-trampoline",
@@ -159,9 +164,13 @@ def validate_prewarm(document: dict, *, expect_hits: bool) -> None:
     source_id = document.get("fused_source_id")
     if not isinstance(source_id, str) or not re.fullmatch(r"[a-f0-9]{16}", source_id):
         raise ValueError("relay prewarm fused source id is invalid")
+    lease_source_id = document.get("lease_source_id")
+    if not isinstance(lease_source_id, str) or not re.fullmatch(
+            r"[a-f0-9]{16}", lease_source_id):
+        raise ValueError("relay prewarm lease source id is invalid")
     artifacts = document.get("artifacts")
     if not isinstance(artifacts, dict) or set(artifacts) != {
-            "subscription", "fused_pipeline"}:
+            "subscription", "subscription_lease", "fused_pipeline"}:
         raise ValueError("relay prewarm artifact matrix is incomplete")
     for artifact in artifacts.values():
         _validate_artifact(artifact, hit=expect_hits)
@@ -189,7 +198,7 @@ def validate_cache_manifest(manifest: dict, requested_rmw: str) -> None:
     validate_prewarm(phases["warm"], expect_hits=True)
     if any(phase.get("loaded_rmw") != requested_rmw for phase in phases.values()):
         raise ValueError("relay cache prewarm used the wrong RMW")
-    for name in ("subscription", "fused_pipeline"):
+    for name in ("subscription", "subscription_lease", "fused_pipeline"):
         cold = phases["cold"]["artifacts"][name]
         warm = phases["warm"]["artifacts"][name]
         if (cold["path"], cold["sha256"], cold["size_bytes"]) != (
@@ -197,6 +206,8 @@ def validate_cache_manifest(manifest: dict, requested_rmw: str) -> None:
             raise ValueError("cold and warm phases selected different cache artifacts")
     if phases["cold"]["fused_source_id"] != phases["warm"]["fused_source_id"]:
         raise ValueError("fused source identity changed between cache phases")
+    if phases["cold"]["lease_source_id"] != phases["warm"]["lease_source_id"]:
+        raise ValueError("subscription lease source identity changed between cache phases")
 
 
 def _validate_source_environment(environment: dict) -> None:
@@ -279,15 +290,23 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
                 "kind": "publisher-cpp-borrowed-publish-route",
                 "prepared_before_measurement": True}:
             raise ValueError("publisher_cpp relay warm-route evidence is invalid")
-    elif variant == "direct-cpp-rclcppyy":
+    elif variant in ("direct-cpp-rclcppyy", "direct-lease-rclcppyy"):
         if artifact.get("state") != "prebuilt" or artifact.get("hit") is not True:
             raise ValueError("direct_cpp relay cache state is invalid")
         if not _is_sha256(artifact.get("sha256")):
             raise ValueError("direct_cpp relay cache identity is invalid")
-        expected = cache["phases"]["warm"]["artifacts"]["subscription"]
+        artifact_name = (
+            "subscription_lease"
+            if variant == "direct-lease-rclcppyy"
+            else "subscription"
+        )
+        expected = cache["phases"]["warm"]["artifacts"][artifact_name]
         if (artifact.get("path"), artifact.get("sha256"), artifact.get("size_bytes")) != (
                 expected["path"], expected["sha256"], expected["size_bytes"]):
             raise ValueError("direct_cpp cache differs from the warm manifest")
+        if variant == "direct-lease-rclcppyy" and artifact.get(
+                "source_id") != cache["phases"]["warm"]["lease_source_id"]:
+            raise ValueError("direct_cpp lease source differs from the warm manifest")
     else:
         if artifact.get("state") != "prebuilt":
             raise ValueError("dynamic native relay cache state is invalid")
@@ -304,20 +323,24 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
     entity_types = ready.get("entity_types")
     if variant in (
             "stock-rclpy", "compatible-rclcppyy", "publisher-cpp-rclcppyy",
-            "direct-cpp-rclcppyy"):
-        if variant == "direct-cpp-rclcppyy":
+            "direct-cpp-rclcppyy", "direct-lease-rclcppyy"):
+        if variant in ("direct-cpp-rclcppyy", "direct-lease-rclcppyy"):
             if not isinstance(entity_types, dict) or set(entity_types) != {
                     "node", "publisher", "subscription", "executor"} or any(
                     "rclcpp" not in value for value in entity_types.values()):
                 raise ValueError("direct_cpp concrete C++ entity identities are invalid")
             proof = ready.get("direct_cpp_proof")
+            lease = variant == "direct-lease-rclcppyy"
             expected_proof = {
                 "actual_cpp_message_class": True,
                 "message_cpp_name": "std_msgs::msg::UInt64_<std::allocator<void>>",
                 "single_native_node_authority": True,
                 "session_node_count": 1,
-                "callback_handoff": "one_native_cpp_copy",
-                "subscription_creation_route": "prebuilt_subscription_trampoline",
+                "callback_handoff": (
+                    "shared_cpp_message_lease" if lease else "one_native_cpp_copy"),
+                "subscription_creation_route": (
+                    "rclcpp_unique_ptr_subscription_lease"
+                    if lease else "prebuilt_subscription_trampoline"),
                 "python_message_conversion_guarded": True,
                 "serialization_guarded": True,
             }
@@ -335,10 +358,12 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
         expected_backends = {
             "publisher": (
                 "cpp" if variant in (
-                    "publisher-cpp-rclcppyy", "direct-cpp-rclcppyy")
+                    "publisher-cpp-rclcppyy", "direct-cpp-rclcppyy",
+                    "direct-lease-rclcppyy")
                 else "python"),
             "subscriber": (
-                "cpp" if variant == "direct-cpp-rclcppyy" else "python"),
+                "cpp" if variant in (
+                    "direct-cpp-rclcppyy", "direct-lease-rclcppyy") else "python"),
         }
         for role, marker in markers.items():
             if not isinstance(marker, dict) or marker.get(
@@ -353,15 +378,24 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
             if marker.get("evidence") != expected_evidence or not isinstance(
                     marker.get("metadata"), dict):
                 raise ValueError("Python relay backend marker evidence is invalid")
-        if variant == "direct-cpp-rclcppyy":
+        if variant in ("direct-cpp-rclcppyy", "direct-lease-rclcppyy"):
             publisher_metadata = markers["publisher"]["metadata"]
             subscriber_metadata = markers["subscriber"]["metadata"]
             if "no_conversion" not in publisher_metadata.get("policies", ()) or (
                     "no_conversion" not in subscriber_metadata.get("policies", ())):
                 raise ValueError("direct_cpp no-conversion status evidence is invalid")
-            if subscriber_metadata.get("callback_handoff") != "one_native_cpp_copy" or (
-                    "owning_cpp_callback_copy" not in subscriber_metadata.get(
-                        "policies", ())):
+            expected_handoff = (
+                "shared_cpp_message_lease"
+                if variant == "direct-lease-rclcppyy"
+                else "one_native_cpp_copy"
+            )
+            required_policy = (
+                "subscription_shared_lease"
+                if variant == "direct-lease-rclcppyy"
+                else "owning_cpp_callback_copy"
+            )
+            if subscriber_metadata.get("callback_handoff") != expected_handoff or (
+                    required_policy not in subscriber_metadata.get("policies", ())):
                 raise ValueError("direct_cpp callback handoff status evidence is invalid")
     elif variant != "aot-staged":
         if not isinstance(entity_types, dict) or any(
@@ -394,7 +428,8 @@ def _validate_report(report: dict, sample: dict, warmup: int, messages: int) -> 
         raise ValueError("relay Python-boundary count is invalid")
     if variant in (
             "stock-rclpy", "compatible-rclcppyy", "publisher-cpp-rclcppyy",
-            "direct-cpp-rclcppyy", "native-python-callback", "aot-staged"):
+            "direct-cpp-rclcppyy", "direct-lease-rclcppyy",
+            "native-python-callback", "aot-staged"):
         if report.get("checksum") != expected_input_checksum(total) or report.get("last") != total:
             raise ValueError("relay input checksum evidence is invalid")
     if variant in ("stock-rclpy", "compatible-rclcppyy"):
@@ -435,6 +470,33 @@ def _validate_report(report: dict, sample: dict, warmup: int, messages: int) -> 
                 "last_publish_backend") != "cpp" or report.get(
                 "publish_route_tainted") is not False:
             raise ValueError("direct_cpp publish-route evidence is invalid")
+    if variant == "direct-lease-rclcppyy":
+        if report.get("owning_cpp_callback_copies") != 0 or report.get(
+                "subscription_leases") != total or report.get(
+                "shared_control_blocks") != total or report.get(
+                "shared_owner_acquisitions") != total or report.get(
+                "lease_python_boundary_crossings") != total or report.get(
+                "lease_exceptions") != 0:
+            raise ValueError("direct_cpp shared-lease counter evidence is invalid")
+        if report.get("cpp_callback_messages") != total or report.get(
+                "non_cpp_callback_messages") != 0:
+            raise ValueError("direct_cpp lease C++ message evidence is invalid")
+        native_address = report.get("native_last_message_address")
+        callback_address = report.get("callback_last_message_address")
+        if not _is_positive_int(native_address) or callback_address != native_address:
+            raise ValueError("direct_cpp lease native-address evidence is invalid")
+        if report.get("python_message_conversions") != 0 or report.get(
+                "serialization_operations") != 0 or report.get(
+                "boundary_guard_calls") != {
+                    "python_message_conversion": 0,
+                    "serialization": 0,
+                }:
+            raise ValueError("direct_cpp conversion or serialization evidence is invalid")
+        if report.get("publish_operation_marker") is not None or report.get(
+                "fallback_publish_operations") != 0 or report.get(
+                "last_publish_backend") != "cpp" or report.get(
+                "publish_route_tainted") is not False:
+            raise ValueError("direct_cpp lease publish-route evidence is invalid")
     if variant == "native-fused" and (
             report.get("compile_cache_hits") != 1 or report.get("compile_cache_misses") != 0):
         raise ValueError("fused relay compile-cache counters are invalid")
@@ -681,7 +743,8 @@ def summarize(results: list[dict], variants: list[str]) -> dict:
             "Stock, compatible, publisher_cpp, and direct_cpp use one Python relay implementation. "
             "Compatible adds default activation while preserving stock publish authority; "
             "publisher_cpp opts into same-handle C++ publishing; direct_cpp uses actual C++ messages "
-            "and entities with one owning native callback copy. All ratios are "
+            "and entities with either one owning native callback copy or one shared ownership lease "
+            "over the received allocation. All ratios are "
             "descriptive: lower is better for CPU and latency, higher is better for throughput. No "
             "threshold, ranking, or winner is selected."
         ),

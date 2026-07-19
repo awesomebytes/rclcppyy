@@ -1,6 +1,6 @@
 # Controlled relay-boundary benchmark
 
-This benchmark characterizes one fixed ROS 2 relay across seven execution
+This benchmark characterizes one fixed ROS 2 relay across eight execution
 boundaries. It is a raw evidence generator, not a release gate or a source of
 performance claims. Jazzy with CycloneDDS is the current validated gate; the
 protocol retains explicit RMW evidence so later backends cannot be conflated
@@ -15,11 +15,15 @@ with that baseline.
 3. `publisher-cpp-rclcppyy`: the same Python relay function, explicitly
    activated with `profile="publisher_cpp"` for same-handle C++ publishing.
 4. `direct-cpp-rclcppyy`: the same Python transform and publish body, activated
-   with `profile="direct_cpp"` so messages and entities are actual C++ objects.
-5. `native-python-callback`: native rclcpp entities with a Python transform
+   with `profile="direct_cpp"` so messages and entities are actual C++ objects;
+   each callback receives one owning C++ value copy.
+5. `direct-lease-rclcppyy`: the same direct C++ source shape with
+   `optimizations=("subscription_shared_lease",)`. The rclcpp unique message
+   allocation transfers into shared ownership without copying `MessageT`.
+6. `native-python-callback`: native rclcpp entities with a Python transform
    callback.
-6. `native-fused`: a prebuilt, content-addressed C++ fused pipeline.
-7. `aot-staged`: a conventional Release-mode C++ relay.
+7. `native-fused`: a prebuilt, content-addressed C++ fused pipeline.
+8. `aot-staged`: a conventional Release-mode C++ relay.
 
 Every variant is driven by the same Release-mode AOT executable, transform,
 reliable/volatile `KeepLast(1)` QoS, closed-loop message sequence, warmup, and
@@ -65,6 +69,13 @@ contain zero guard calls, zero Python-message conversions, and zero serializatio
 operations. The direct lane uses integer-depth QoS and a `rclpy.spin_once` thread,
 which is the bounded direct profile's supported control plane and is recorded as
 a distinct execution model.
+
+The direct-lease lane has the same C++ authority and Python callback body. Its
+native and Python-observed message addresses must match, and the callback count
+must equal its lease, shared-control-block, shared-owner, and Python-crossing
+counters. It requires zero `MessageT` deep copies and zero lease exceptions. The
+copy and lease routes are separate production options in the same rotating run so
+CPU effects are paired without conflating representation or application work.
 
 ## Running
 
