@@ -34,6 +34,25 @@ Every dynamic exact-C++ lane arms conversion, serialization, and CDR tripwires.
 The source-compatible and managed lanes also report exact-C++ shared handoffs,
 goal-ID materializations, feedback/result submissions, and adapter deep copies.
 
+The source-compatible lane keeps its value-copy calls as the default contract. An
+explicit opt-in removes only the feedback/result adapter copies by constructing the
+values with shared ownership:
+
+```python
+feedback = goal_handle.create_feedback_shared()
+goal_handle.publish_feedback_shared(feedback)
+
+result = goal_handle.create_result_shared()
+goal_handle.succeed_shared(result)
+```
+
+`abort_shared(result)` and `canceled_shared(result)` cover the other terminal states.
+These methods require values from the matching factory and retain the actual generated
+C++ Feedback or Result type. The value may outlive the handoff, but callers must not
+mutate it concurrently with publication or a terminal call. Ordinary generated C++
+values continue through `publish_feedback`, `succeed`, `abort`, and `canceled` and keep
+their counted adapter copy.
+
 Run the fixed matrix with:
 
 ```bash
@@ -54,3 +73,20 @@ The direct lane performs 2,080 counted exact-C++ deep copies per 520-goal sample
 and consumes 2.588x the server CPU of the AOT lane. This is an optimization target,
 not a representation failure. Claims remain disabled pending dedicated-host and
 native ARM64 repetition.
+
+## Shared-value diagnostic
+
+Product `47e4e56` with suite `48927c9` adds the opt-in shared-value API and a bounded
+copy-versus-shared diagnostic. Artifact
+`build/action-server-shared-diagnostic-48927c9.json` uses three repetitions with five
+warmup and 30 measured goals. Each copy sample reports exactly 140 adapter deep copies.
+Each shared sample reports zero adapter deep copies, 105 feedback shared handoffs, and
+35 result shared handoffs. Conversion, serialization, and CDR counters remain zero.
+
+The copy and shared lane medians are 1.232 ms and 1.169 ms server CPU per goal, a
+5.09% reduction by the ratio of lane medians. One of the three paired repetitions is
+33.6% worse with shared values, however, and the short run shares a noisy development
+host. The shared median also remains about 2.22x the corrected baseline AOT median.
+This diagnostic proves that the opt-in removes the intended copies and identifies the
+remaining callback/cppyy overhead. It is not fixed-matrix evidence, does not change the
+default API, and supports no performance claim.

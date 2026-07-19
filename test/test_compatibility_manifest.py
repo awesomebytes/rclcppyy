@@ -24,15 +24,15 @@ def test_jazzy_manifest_is_valid_and_inventory_is_explicit():
 
     assert summary["schema"] == "rclcppyy.compatibility/v2"
     assert summary["ros_distribution"] == "jazzy"
-    assert summary["entries"] == 70
+    assert summary["entries"] == 71
     assert summary["support"] == {
         "certified": 36,
-        "experimental": 15,
+        "experimental": 16,
         "stock_authoritative": 16,
         "unassessed": 3,
     }
     assert summary["backend"] == {
-        "cpp": 13,
+        "cpp": 14,
         "mixed": 8,
         "none": 3,
         "python": 46,
@@ -126,6 +126,29 @@ def test_direct_action_notes_lock_corrected_cpu_evidence():
     ) in server
     assert "2,080 counted exact-C++ adapter deep copies" in server
     assert "representation conversion" in server
+    assert "create_feedback_shared/create_result_shared" in server
+    assert "zero adapter deep copies" in server
+    assert "105 feedback shared handoffs" in server
+    assert "35 result shared handoffs" in server
+    assert "5.09% server-CPU reduction" in server
+    assert "one of three paired repetitions regresses" in server
+    assert "not a performance claim" in server
+
+
+def test_direct_wait_for_message_is_distinct_from_stock_authority():
+    entries = {item["id"]: item for item in _manifest()["entries"]}
+    stock = entries["subscription.wait_for_message"]
+    direct = entries["subscription.direct_cpp_wait_for_message"]
+
+    assert stock["support"] == "stock_authoritative"
+    assert stock["backend"] == "python"
+    assert stock["default"] is True
+    assert direct["support"] == "experimental"
+    assert direct["backend"] == "cpp"
+    assert direct["default"] is False
+    assert "actual generated C++ message" in direct["notes"]
+    assert "zero conversion, serialization, and CDR poison calls" in direct["notes"]
+    assert "no CPU result or performance claim" in direct["notes"]
 
 
 def test_duplicate_ids_are_rejected():
