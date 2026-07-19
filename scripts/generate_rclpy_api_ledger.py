@@ -40,13 +40,12 @@ STATUSES = {
 }
 DIRECT_AUTHORITY_STATUSES = {"exact_direct_cpp_authority", "mixed_control_direct_data"}
 SUPERSET_ALLOWLIST: tuple[str, ...] = ()  # reviewed, path-exact; starts EMPTY
-# Landed report-only per the allocation-plan §5.1 escape hatch: the leak fix
-# clears the lifecycle-only leaks but Tier 1 attribution newly reveals a much
-# larger backend-owned surface (ActionClient/CallbackGroup/Executor/
-# Subscription/parameter-dataclass) that a follow-up hygiene slice must drive
-# to zero first. Flip to True in a one-line follow-up once superset_violations
-# is zero.
-SUPERSET_GUARD_FAIL_CLOSED = False
+# Fail-closed: the direct public surface is not a superset of stock
+# (superset_violations == 0). Both --generate and --verify now raise if a
+# future direct_only public name appears. SUPERSET_ALLOWLIST is the sole
+# reviewed escape for a name that legitimately needs to stay direct-only;
+# it stays empty until a specific path earns a reviewed entry.
+SUPERSET_GUARD_FAIL_CLOSED = True
 REQUIRED_DUNDERS = {
     "__aenter__",
     "__aexit__",

@@ -255,31 +255,34 @@ def test_attribution_absent_when_direct_missing():
     assert entry["status"] == "missing_mismatch"
 
 
-def test_superset_direct_only_is_report_only_until_flipped(monkeypatch):
+def test_superset_direct_only_fails_closed_by_default(monkeypatch):
     stock = _observation("stock", [])
     direct = _observation(
         "direct", [_symbol("rclpy.node.leaked_member", attribution="direct_backend")]
     )
     document = ledger.build_ledger(stock, direct, _annotations(), _manifest())
 
-    # Landed mode (§5.1 escape hatch, authorized): violations are counted,
-    # not raised, while the leak-fix and surface-hygiene follow-up are in
-    # flight.
+    # Fail-closed is the shipped default: a direct-only public name (a real
+    # superset regression) must raise, not merely be counted.
     assert document["summary"]["superset_violations"] == 1
-    ledger.validate_ledger(document)  # must not raise
+    with pytest.raises(ledger.LedgerError, match="superset hygiene defect"):
+        ledger.validate_ledger(document)
 
-    # The allowlist still exempts a reviewed path from the count.
+    # The allowlist is the sole reviewed escape and still works under
+    # fail-closed: an exempted path drops the count to zero and does not
+    # raise.
     monkeypatch.setattr(ledger, "SUPERSET_ALLOWLIST", ("rclpy.node.leaked_member",))
     allowlisted = ledger.build_ledger(stock, direct, _annotations(), _manifest())
     assert allowlisted["summary"]["superset_violations"] == 0
-    ledger.validate_ledger(allowlisted)
+    ledger.validate_ledger(allowlisted)  # must not raise
 
-    # The eventual one-line flip to fail-closed must actually gate.
+    # Report-only mode remains available (and covered) as a fallback branch,
+    # even though the shipped default is fail-closed.
     monkeypatch.setattr(ledger, "SUPERSET_ALLOWLIST", ())
-    monkeypatch.setattr(ledger, "SUPERSET_GUARD_FAIL_CLOSED", True)
-    flipped = ledger.build_ledger(stock, direct, _annotations(), _manifest())
-    with pytest.raises(ledger.LedgerError, match="superset hygiene defect"):
-        ledger.validate_ledger(flipped)
+    monkeypatch.setattr(ledger, "SUPERSET_GUARD_FAIL_CLOSED", False)
+    report_only = ledger.build_ledger(stock, direct, _annotations(), _manifest())
+    assert report_only["summary"]["superset_violations"] == 1
+    ledger.validate_ledger(report_only)  # must not raise
 
 
 def test_package_dir_resolves_from_sys_modules_without_importing(monkeypatch):
