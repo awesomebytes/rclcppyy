@@ -257,6 +257,10 @@
             "then": {"properties": {"server_ready": {"properties": {"execution_model": {"const": "native-rclcpp-service-python-callback"}, "service_authority": {"const": "cpp"}}}}}
           },
           {
+            "if": {"properties": {"variant": {"const": "direct-cpp-rclcppyy"}}, "required": ["variant"]},
+            "then": {"properties": {"server_ready": {"properties": {"execution_model": {"const": "source-compatible-direct-cpp-service-python-callback"}, "service_authority": {"const": "cpp"}}}}}
+          },
+          {
             "if": {"properties": {"variant": {"const": "native-cpp-callback"}}, "required": ["variant"]},
             "then": {"properties": {"server_ready": {"properties": {"execution_model": {"const": "native-session-cpp-service-callback"}, "service_authority": {"const": "cpp"}}}}}
           },
@@ -286,6 +290,7 @@
         "stock-rclpy",
         "compatible-rclcppyy",
         "native-python-callback",
+        "direct-cpp-rclcppyy",
         "native-cpp-callback",
         "aot-staged"
       ]

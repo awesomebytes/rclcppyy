@@ -37,6 +37,12 @@ VARIANTS = {
         "python": True,
         "authority": "cpp",
     },
+    "direct-cpp-rclcppyy": {
+        "model": "source-compatible-direct-cpp-service-python-callback",
+        "cache": "direct-cpp-python-service",
+        "python": True,
+        "authority": "cpp",
+    },
     "native-cpp-callback": {
         "model": "native-session-cpp-service-callback",
         "cache": "native-cpp-service",
@@ -134,7 +140,7 @@ def validate_prewarm(value: dict, expect_hits: bool) -> None:
         raise ValueError("native C++ service source id is invalid")
     artifacts = value.get("artifacts")
     if not isinstance(artifacts, dict) or set(artifacts) != {
-            "python_bridge", "native_cpp_service"}:
+            "python_bridge", "direct_cpp_python_service", "native_cpp_service"}:
         raise ValueError("service prewarm artifact matrix is incomplete")
     for artifact in artifacts.values():
         _artifact(artifact, expect_hits)
@@ -159,7 +165,7 @@ def validate_cache(value: dict, rmw: str) -> None:
     validate_prewarm(phases["warm"], True)
     if phases["cold"]["loaded_rmw"] != rmw or phases["warm"]["loaded_rmw"] != rmw:
         raise ValueError("service prewarm used the wrong RMW")
-    for name in ("python_bridge", "native_cpp_service"):
+    for name in ("python_bridge", "direct_cpp_python_service", "native_cpp_service"):
         cold = phases["cold"]["artifacts"][name]
         warm = phases["warm"]["artifacts"][name]
         if (cold["path"], cold["sha256"], cold["size_bytes"]) != (
@@ -244,13 +250,33 @@ def _validate_ready(ready: dict, sample: dict, cache: dict, rmw: str) -> None:
         if artifact.get("state") != "prebuilt" or artifact.get("cached") is not True:
             raise ValueError("native service must use a warm artifact")
         _artifact(artifact, True)
-        name = "python_bridge" if variant == "native-python-callback" else "native_cpp_service"
+        name = {
+            "native-python-callback": "python_bridge",
+            "direct-cpp-rclcppyy": "direct_cpp_python_service",
+        }.get(variant, "native_cpp_service")
         expected = cache["phases"]["warm"]["artifacts"][name]
         if (artifact["path"], artifact["sha256"], artifact["size_bytes"]) != (
                 expected["path"], expected["sha256"], expected["size_bytes"]):
             raise ValueError("native service artifact differs from warm manifest")
         if ready.get("entity_type") != "rclcpp::Service<std_srvs::srv::SetBool>":
             raise ValueError("native service entity type is invalid")
+        if variant == "direct-cpp-rclcppyy":
+            marker = ready.get("backend_marker")
+            if not isinstance(marker, dict) or marker.get("backend") != "cpp" or marker.get(
+                    "role") != "server" or marker.get(
+                        "evidence") != "rclcppyy_status_entity":
+                raise ValueError("direct C++ service authority marker is invalid")
+            expected_path = {
+                "request_representation": "actual_cpp",
+                "response_representation": "actual_cpp",
+                "python_message_conversions": 0,
+                "serialization_bridges": 0,
+                "python_callback_crossings_per_request": 1,
+                "request_cpp_copies_per_request": 1,
+                "response_cpp_copies_per_request": 1,
+            }
+            if ready.get("data_path") != expected_path:
+                raise ValueError("direct C++ service data-path evidence is invalid")
 
 
 def _validate_armed(value: dict, sample: dict, warmup: int) -> None:
@@ -285,6 +311,15 @@ def _validate_report(value: dict, sample: dict, warmup: int, messages: int) -> N
     if value.get("python_callback_count_total") != (total if python else 0) or value.get(
             "python_boundary_crossings_measured") != (messages if python else 0):
         raise ValueError("service Python callback crossing counts are invalid")
+    if variant == "direct-cpp-rclcppyy":
+        exact = {
+            "request_cpp_copies_measured": messages,
+            "response_cpp_copies_measured": messages,
+            "python_message_conversions_measured": 0,
+            "serialization_bridges_measured": 0,
+        }
+        if any(value.get(key) != expected for key, expected in exact.items()):
+            raise ValueError("direct C++ service copy/conversion evidence is invalid")
     if variant != "native-cpp-callback":
         if value.get("true_total") != true_requests(1, total) or value.get(
                 "true_measured") != true_requests(warmup + 1, messages):

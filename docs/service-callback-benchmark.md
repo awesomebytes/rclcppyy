@@ -1,7 +1,7 @@
 # Controlled service-callback benchmark
 
 This benchmark characterizes the server-side CPU cost of one fixed
-`std_srvs/srv/SetBool` service across five callback boundaries. It is a raw
+`std_srvs/srv/SetBool` service across six callback boundaries. It is a raw
 evidence generator, not a release gate or a source of performance claims. ROS 2
 Jazzy with CycloneDDS is the only accepted environment for this v1 protocol.
 
@@ -14,9 +14,14 @@ Jazzy with CycloneDDS is the only accepted environment for this v1 protocol.
 3. `native-python-callback`: a benchmark-private, content-addressed
    `rclcpp::Service` bridge that enters Python exactly once per request. Python
    returns the success decision; C++ materializes the exact response string.
-4. `native-cpp-callback`: `NativeSession.create_native_service` with no Python
+4. `direct-cpp-rclcppyy`: the source-compatible `Node.create_service` shape in
+   the opt-in `direct_cpp` profile. The entity and request/response values are
+   generated C++ objects. Each call has one Python callback crossing, one owning
+   C++ request copy, and one C++ response assignment; message conversion and
+   serialization paths remain at zero.
+5. `native-cpp-callback`: `NativeSession.create_native_service` with no Python
    callback crossing.
-5. `aot-staged`: a conventional Release-mode C++ server.
+6. `aot-staged`: a conventional Release-mode C++ server.
 
 Every server implements the same contract: `success` equals request `data`, and
 `message` is exactly `enabled` or `disabled`. The same Release-mode AOT client

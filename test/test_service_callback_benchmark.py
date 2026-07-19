@@ -53,6 +53,7 @@ def _cache():
             "native_cpp_source_id": "1" * 16,
             "artifacts": {
                 "python_bridge": _artifact(cached=cached),
+                "direct_cpp_python_service": _artifact(cached=cached),
                 "native_cpp_service": _artifact(cached=cached),
             },
             "stdout_diagnostics": ["fixture initialization"],
@@ -138,15 +139,30 @@ def _sample(variant, index=0):
             "stock_rclpy_entity" if variant == "stock-rclpy"
             else "rclcppyy_status_entity")
     else:
-        artifact_name = (
-            "python_bridge" if variant == "native-python-callback"
-            else "native_cpp_service")
+        artifact_name = {
+            "native-python-callback": "python_bridge",
+            "direct-cpp-rclcppyy": "direct_cpp_python_service",
+        }.get(variant, "native_cpp_service")
         ready["cache"] = {
             **_cache()["phases"]["warm"]["artifacts"][artifact_name],
             "state": "prebuilt",
             "kind": spec["cache"],
         }
         ready["entity_type"] = "rclcpp::Service<std_srvs::srv::SetBool>"
+        if variant == "direct-cpp-rclcppyy":
+            ready["backend_marker"] = {
+                **_backend_marker("rclcppyy_status_entity"),
+                "backend": "cpp",
+            }
+            ready["data_path"] = {
+                "request_representation": "actual_cpp",
+                "response_representation": "actual_cpp",
+                "python_message_conversions": 0,
+                "serialization_bridges": 0,
+                "python_callback_crossings_per_request": 1,
+                "request_cpp_copies_per_request": 1,
+                "response_cpp_copies_per_request": 1,
+            }
 
     total = WARMUP + MESSAGES
     python = spec["python"]
@@ -174,6 +190,13 @@ def _sample(variant, index=0):
     if variant == "native-cpp-callback":
         report.update(
             true_total=None, true_measured=None, response_checksum=None)
+    elif variant == "direct-cpp-rclcppyy":
+        report.update(
+            request_cpp_copies_measured=MESSAGES,
+            response_cpp_copies_measured=MESSAGES,
+            python_message_conversions_measured=0,
+            serialization_bridges_measured=0,
+        )
     latency = [100, 200, 300, 400]
     client = {
         "schema": protocol.CLIENT_SCHEMA,
@@ -283,6 +306,8 @@ def test_each_service_variant_satisfies_the_strict_contract(variant):
             python_boundary_crossings_measured=1), "crossing"),
         ("native-python-callback", lambda row: row["server_ready"]["cache"].update(
             sha256="b" * 64), "differs from warm manifest"),
+        ("direct-cpp-rclcppyy", lambda row: row["server_report"].update(
+            python_message_conversions_measured=1), "copy/conversion"),
         ("aot-staged", lambda row: row["client_result"]["qos"].update(
             depth=1), "parity/topology"),
         ("aot-staged", lambda row: row["client_result"].update(
@@ -313,12 +338,17 @@ def test_cold_and_warm_artifacts_must_have_identical_content():
 
 def test_python_compatibility_lanes_share_one_callback_implementation():
     source = inspect.getsource(worker._run_python_server)
+    direct = inspect.getsource(worker._run_direct_cpp)
+    callback_factory = inspect.getsource(worker._make_setbool_callback)
     dispatcher = inspect.getsource(worker._run_server)
-    assert source.count("def callback(request, response):") == 1
+    assert callback_factory.count("def callback(request, response):") == 1
+    assert "_make_setbool_callback()" in source
+    assert "_make_setbool_callback()" in direct
     assert "if activate:" in source
     assert "active.enable_cpp_acceleration()" in source
     assert "_run_python_server(args, False)" in dispatcher
     assert "_run_python_server(args, True)" in dispatcher
+    assert "_run_direct_cpp(args)" in dispatcher
 
 
 def test_runner_rejects_any_armed_record_drift():
@@ -386,7 +416,7 @@ def test_document_and_portable_schema_forbid_performance_claims(monkeypatch):
         "interpretation_allowed"] == {"const": False}
     assert schema["properties"]["benchmark"]["properties"]["parameters"][
         "properties"]["requested_rmw"] == {"const": RMW}
-    assert len(schema["properties"]["results"]["items"]["allOf"]) == 5
+    assert len(schema["properties"]["results"]["items"]["allOf"]) == 6
 
 
 def test_all_service_variants_run_with_one_aot_client_and_exact_parity(tmp_path):
@@ -424,7 +454,7 @@ def test_all_service_variants_run_with_one_aot_client_and_exact_parity(tmp_path)
     assert len({
         pid for row in document["results"]
         for pid in (row["server_pid"], row["client_pid"])
-    }) == 10
+    }) == 12
     for row in document["results"]:
         report = row["server_report"]
         assert report["total_requests"] == 6
@@ -442,6 +472,7 @@ def test_all_service_variants_run_with_one_aot_client_and_exact_parity(tmp_path)
         "stock-rclpy": 4,
         "compatible-rclcppyy": 4,
         "native-python-callback": 4,
+        "direct-cpp-rclcppyy": 4,
         "native-cpp-callback": 0,
         "aot-staged": 0,
     }

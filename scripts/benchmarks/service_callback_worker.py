@@ -95,6 +95,27 @@ def _response_code(value: bool, success: bool, message: str) -> int:
     return (100 if success else 0) + (10 if value else 0) + len(message)
 
 
+def _make_setbool_callback():
+    total = 0
+    true_total = 0
+    checksum_total = 0
+
+    def callback(request, response):
+        nonlocal total, true_total, checksum_total
+        value = bool(request.data)
+        response.success = value
+        response.message = "enabled" if value else "disabled"
+        total += 1
+        true_total += int(value)
+        checksum_total += _response_code(value, response.success, response.message)
+        return response
+
+    def snapshot():
+        return total, true_total, checksum_total
+
+    return callback, snapshot
+
+
 def _artifact(path: str | Path, cached: bool, reason: str) -> dict:
     value = Path(path).resolve()
     if not value.is_file():
@@ -273,6 +294,11 @@ def _prewarm() -> int:
 
         callback_type = cppyy.gbl.std.function["bool(bool)"]
         bridge = factory(node, "/service_callback/prewarm_bridge", callback_type(callback))
+        def direct_callback(_request, response):
+            return response
+
+        direct_service = ros.create_python_service(
+            node, SetBool, "/service_callback/prewarm_direct", direct_callback)
         before = set(Path(os.environ["XDG_CACHE_HOME"]).rglob("*.so"))
         native_service = ros.create_native_service(
             node, SetBool, "/service_callback/prewarm_native", NATIVE_BODY)
@@ -284,6 +310,10 @@ def _prewarm() -> int:
         "python_bridge": _artifact(
             bridge_path, bridge_result.get("cached", False),
             bridge_result.get("reason", "unknown")),
+        "direct_cpp_python_service": _artifact(
+            direct_service.compile_result["so"],
+            direct_service.compile_result.get("cached", False),
+            direct_service.compile_result.get("reason", "unknown")),
         "native_cpp_service": _artifact(
             native_path, native_cached, "hit" if native_cached else "miss-built"),
     }
@@ -391,19 +421,7 @@ def _run_python_server(args, activate: bool) -> tuple[dict, dict, bool]:
     from std_srvs.srv import SetBool
     import threading
 
-    total = 0
-    true_total = 0
-    checksum_total = 0
-
-    def callback(request, response):
-        nonlocal total, true_total, checksum_total
-        value = bool(request.data)
-        response.success = value
-        response.message = "enabled" if value else "disabled"
-        total += 1
-        true_total += int(value)
-        checksum_total += _response_code(value, response.success, response.message)
-        return response
+    callback, snapshot = _make_setbool_callback()
 
     context = Context()
     context.init(args=[])
@@ -447,6 +465,7 @@ def _run_python_server(args, activate: bool) -> tuple[dict, dict, bool]:
         _emit(ready)
         if sys.stdin.readline().rstrip("\n") != "START":
             raise RuntimeError("server expected START control")
+        total, true_total, checksum_total = snapshot()
         if total != args.warmup_requests:
             raise RuntimeError("Python service warmup count is invalid")
         baseline_true = true_total
@@ -458,6 +477,7 @@ def _run_python_server(args, activate: bool) -> tuple[dict, dict, bool]:
             raise RuntimeError("server expected REPORT control")
         cpu_time = time.process_time_ns() - cpu_start
         rss_final = _peak_rss_bytes()
+        total, true_total, checksum_total = snapshot()
         measured = total - args.warmup_requests
         report = {
             "warmup_requests": args.warmup_requests,
@@ -477,6 +497,114 @@ def _run_python_server(args, activate: bool) -> tuple[dict, dict, bool]:
     finally:
         teardown_clean = _cleanup_python_server(
             args, executor, thread, node, service, context)
+    return ready, report, teardown_clean
+
+
+def _run_direct_cpp(args) -> tuple[dict, dict, bool]:
+    import rclcppyy
+
+    rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
+    import rclpy
+    from rclpy.node import Node
+    from std_srvs.srv import SetBool
+    import threading
+
+    callback, snapshot = _make_setbool_callback()
+    rclpy.init(args=[])
+    node = Node(args.node_name)
+    service = node.create_service(SetBool, args.service_name, callback)
+    thread = threading.Thread(target=rclpy.spin, args=(node,), daemon=False)
+    thread.start()
+    status = rclcppyy.status()
+    marker = _status_service_marker(status, service.service_name)
+    ready = {
+        "schema": SERVER_SCHEMA,
+        "event": "ready",
+        "variant": args.variant,
+        "run_token": args.run_token,
+        "pid": os.getpid(),
+        "process_group_id": os.getpgrp(),
+        "node_name": args.node_name,
+        "loaded_rmw": _loaded_rmw(),
+        "execution_model": "source-compatible-direct-cpp-service-python-callback",
+        "cache": {
+            **_artifact(
+                service.compile_result["so"],
+                service.compile_result.get("cached", False),
+                service.compile_result.get("reason", "unknown")),
+            "state": "prebuilt",
+            "kind": "direct-cpp-python-service",
+            "source_id": service.source_id,
+        },
+        "entity_type": "rclcpp::Service<std_srvs::srv::SetBool>",
+        "service_authority": "cpp",
+        "backend_marker": marker,
+        "data_path": {
+            "request_representation": "actual_cpp",
+            "response_representation": "actual_cpp",
+            "python_message_conversions": 0,
+            "serialization_bridges": 0,
+            "python_callback_crossings_per_request": 1,
+            "request_cpp_copies_per_request": 1,
+            "response_cpp_copies_per_request": 1,
+        },
+    }
+    teardown_clean = False
+    try:
+        _emit(ready)
+        if sys.stdin.readline().rstrip("\n") != "START":
+            raise RuntimeError("server expected START control")
+        baseline = service.stats()
+        total, baseline_true, baseline_checksum = snapshot()
+        if baseline.requests != args.warmup_requests or total != args.warmup_requests:
+            raise RuntimeError("direct C++ service warmup count is invalid")
+        rss_baseline = _peak_rss_bytes()
+        cpu_start = time.process_time_ns()
+        _emit(_armed(args))
+        if sys.stdin.readline().rstrip("\n") != "REPORT":
+            raise RuntimeError("server expected REPORT control")
+        cpu_time = time.process_time_ns() - cpu_start
+        rss_final = _peak_rss_bytes()
+        final = service.stats()
+        total, true_total, checksum_total = snapshot()
+        report = {
+            "warmup_requests": args.warmup_requests,
+            "total_requests": final.requests,
+            "measured_requests": final.requests - baseline.requests,
+            "true_total": true_total,
+            "true_measured": true_total - baseline_true,
+            "response_checksum": checksum_total - baseline_checksum,
+            "python_callback_count_total": total,
+            "python_boundary_crossings_measured": (
+                final.python_callback_crossings - baseline.python_callback_crossings),
+            "request_cpp_copies_measured": (
+                final.request_cpp_copies - baseline.request_cpp_copies),
+            "response_cpp_copies_measured": (
+                final.response_cpp_copies - baseline.response_cpp_copies),
+            "python_message_conversions_measured": 0,
+            "serialization_bridges_measured": 0,
+            "exceptions": final.exceptions,
+            "pending_requests": 0,
+            "cpu_time_ns": cpu_time,
+            "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
+            "rss_guard": _rss_guard(rss_baseline, rss_final),
+        }
+    finally:
+        errors = []
+        try:
+            node.destroy_service(service)
+        except BaseException as exc:
+            errors.append(exc)
+        try:
+            node.destroy_node()
+        except BaseException as exc:
+            errors.append(exc)
+        try:
+            rclpy.shutdown()
+        except BaseException as exc:
+            errors.append(exc)
+        thread.join(timeout=2.0)
+        teardown_clean = not errors and not thread.is_alive() and not rclpy.ok()
     return ready, report, teardown_clean
 
 
@@ -623,6 +751,8 @@ def _run_server(args) -> int:
         ready, report, teardown = _run_python_server(args, True)
     elif args.variant == "native-python-callback":
         ready, report, teardown = _run_native_python(args)
+    elif args.variant == "direct-cpp-rclcppyy":
+        ready, report, teardown = _run_direct_cpp(args)
     else:
         ready, report, teardown = _run_native_cpp(args)
     correct = (
@@ -648,7 +778,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--prewarm", action="store_true")
     parser.add_argument("--variant", choices=(
         "stock-rclpy", "compatible-rclcppyy", "native-python-callback",
-        "native-cpp-callback"))
+        "direct-cpp-rclcppyy", "native-cpp-callback"))
     parser.add_argument("--service-name")
     parser.add_argument("--node-name")
     parser.add_argument("--warmup-requests", type=int)
