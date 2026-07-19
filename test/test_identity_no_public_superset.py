@@ -2,10 +2,10 @@
 
 Finding D (identity-proof plan §0/§2 file 5): six leaked public names made
 the direct public surface a superset of stock. Scope is exactly node +
-publisher, per plan -- subscription/action/executor/callback-group classes
-carry a separately-tracked backend superset (~200+ names, allocation plan
-follow-up "surface-hygiene slice") and are deliberately out of scope here;
-touching them is not this test's job.
+publisher, per plan -- subscription (and action/executor/callback-group)
+classes carry a backend superset already tracked by the ledger's own
+summary.superset_violations counter, and are deliberately out of scope
+here; touching them is not this test's job.
 
 The live check covers a plain Node/Publisher (what can actually be
 constructed under the direct profile today -- see the Phase A report for

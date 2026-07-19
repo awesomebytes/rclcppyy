@@ -2,10 +2,10 @@
 """Live endpoint proof that the direct public surface is not a superset of
 stock (Finding D, identity-proof plan §2 file 5).
 
-Scope is exactly node + publisher, per plan -- subscription/action/executor/
-callback-group classes carry a separately-tracked backend superset (~200+
-names) pending a dedicated hygiene slice, and are deliberately out of scope
-here.
+Scope is exactly node + publisher, per plan -- subscription (and action/
+executor/callback-group) classes carry a backend superset already tracked
+by the ledger's own summary.superset_violations counter, and are
+deliberately out of scope here.
 
 Builds a node and publisher under the requested backend and emits their
 concrete instance types' public ``dir()`` sets, plus a static
