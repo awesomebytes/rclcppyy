@@ -391,6 +391,14 @@ def test_direct_cpp_stock_type_support_validation_survives_rebound_messages():
     assert "DIRECT_CPP_TYPE_SUPPORT_DISTINCT_METACLASS_OK" in process.stdout
 
 
+def test_direct_cpp_check_is_valid_msg_type_accepts_registered_alias():
+    process = run_helper("_direct_cpp_msg_type_validation_helper.py", timeout=180)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_MSG_TYPE_SIGNATURE_OK" in process.stdout
+    assert "DIRECT_CPP_MSG_TYPE_ACCEPTED_OK" in process.stdout
+    assert "DIRECT_CPP_MSG_TYPE_REJECTED_OK" in process.stdout
+
+
 def test_direct_cpp_profile_is_jazzy_cyclone_only():
     assert os.environ.get("ROS_DISTRO") == "jazzy"
     assert os.environ.get("RMW_IMPLEMENTATION") == "rmw_cyclonedds_cpp"

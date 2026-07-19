@@ -2339,6 +2339,29 @@ def _direct_spin_until_future_complete(
                 selected.remove_node(node)
 
 
+def _prepare_check_is_valid_msg_type(original, check_for_type_support):
+    """Keep ``check_is_valid_msg_type`` parity for registered direct message aliases.
+
+    3.A (direct_messages._mirror_type_support_metadata) deliberately withholds
+    the four conversion capsules stock ``check_is_valid_msg_type`` asserts, so
+    unpatched it would raise a misleading "this might be a service or action"
+    ``RuntimeError`` for a perfectly valid rebound cppyy message. A registered
+    direct message alias is accepted after running ``check_for_type_support``
+    (matching stock's own "this also imports stuff we need later" side
+    effect); anything else -- including an unregistered type -- delegates to
+    stock, which rejects it precisely.
+    """
+    def check_is_valid_msg_type(msg_type):
+        check_for_type_support(msg_type)
+        installation = _MESSAGE_INSTALLATION
+        if installation is not None and any(
+            msg_type is binding.cpp_type for binding in installation.bindings
+        ):
+            return
+        original(msg_type)
+    return check_is_valid_msg_type
+
+
 def activate(*, optimizations=(), interfaces=()) -> bool:
     """Install the complete first-slice surface, rolling back on any failure."""
     global _ACTION_INSTALLATION, _ACTIVE, _ACTIVE_INTERFACES
@@ -2403,6 +2426,7 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         import rclpy.parameter as parameter_module
         import rclpy.publisher as publisher_module
         import rclpy.subscription as subscription_module
+        import rclpy.type_support as type_support_module
         import rclpy.wait_for_message as wait_for_message_module
 
         runtime = _DirectRuntime(
@@ -2423,6 +2447,10 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         DirectParameter = direct_parameters.prepare(parameter_module.Parameter)
         direct_wait = direct_wait_for_message.prepare(
             wait_for_message_module.wait_for_message)
+        direct_check_is_valid_msg_type = _prepare_check_is_valid_msg_type(
+            type_support_module.check_is_valid_msg_type,
+            type_support_module.check_for_type_support,
+        )
         replacements = (
             (parameter_module, "Parameter", DirectParameter),
             (rclpy, "Parameter", DirectParameter),
@@ -2475,6 +2503,11 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
             (rclpy, "spin", _direct_spin),
             (rclpy, "spin_until_future_complete", _direct_spin_until_future_complete),
             (wait_for_message_module, "wait_for_message", direct_wait),
+            (
+                type_support_module,
+                "check_is_valid_msg_type",
+                direct_check_is_valid_msg_type,
+            ),
         )
         for module, name, replacement in replacements:
             original = getattr(module, name)

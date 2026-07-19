@@ -171467,18 +171467,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "type_support",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "function",
-        "origin": "rclpy.type_support",
-        "qualname": "check_is_valid_msg_type",
+        "origin": "rclcppyy.direct_cpp",
+        "qualname": "_prepare_check_is_valid_msg_type.<locals>.check_is_valid_msg_type",
         "signature": {
           "state": "inspectable",
           "value": "(msg_type)"
@@ -180166,7 +180166,7 @@
     "ros_distribution": "jazzy"
   },
   "summary": {
-    "direct_backend_entries": 883,
+    "direct_backend_entries": 884,
     "direct_only_entries": 261,
     "generated_interface_aliases": 21,
     "ledger_entries": 4061,
