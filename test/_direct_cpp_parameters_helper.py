@@ -130,21 +130,6 @@ node = Node("direct_parameters_%d" % os.getpid())
 direct_module = importlib.import_module("rclcppyy.direct_cpp")
 runtime = direct_module._runtime()
 
-before_nodes = tuple(runtime.nodes)
-for arguments in (
-    {"parameter_overrides": []},
-    {"allow_undeclared_parameters": True},
-    {"automatically_declare_parameters_from_overrides": True},
-    {"start_parameter_services": False},
-):
-    try:
-        Node("rejected_parameter_options", **arguments)
-    except BackendUnavailableError:
-        pass
-    else:
-        raise AssertionError("unsupported parameter node option succeeded")
-    assert tuple(runtime.nodes) == before_nodes
-
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     dynamic = node.declare_parameter("dynamic")

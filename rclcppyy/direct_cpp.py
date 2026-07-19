@@ -221,6 +221,66 @@ def _lower_entity_qos(qos_profile):
     return native, qos_profile
 
 
+def _direct_node_options(
+    session,
+    *,
+    cli_args,
+    use_global_arguments,
+    enable_rosout,
+    start_parameter_services,
+    parameter_overrides,
+    allow_undeclared_parameters,
+    automatically_declare_parameters_from_overrides,
+    enable_logger_service,
+):
+    boolean_options = {
+        "use_global_arguments": use_global_arguments,
+        "enable_rosout": enable_rosout,
+        "start_parameter_services": start_parameter_services,
+        "allow_undeclared_parameters": allow_undeclared_parameters,
+        "automatically_declare_parameters_from_overrides": (
+            automatically_declare_parameters_from_overrides),
+        "enable_logger_service": enable_logger_service,
+    }
+    invalid = sorted(
+        name for name, value in boolean_options.items()
+        if not isinstance(value, bool)
+    )
+    if invalid:
+        raise TypeError(
+            "direct_cpp node option(s) must be bool: %s" % ", ".join(invalid))
+    if cli_args is not None:
+        if not isinstance(cli_args, list) or not all(
+                isinstance(value, str) for value in cli_args):
+            raise TypeError("direct_cpp cli_args must be a list of strings or None")
+        native_arguments = cppyy.gbl.std.vector["std::string"](cli_args)
+    else:
+        native_arguments = None
+    if parameter_overrides is not None and not isinstance(parameter_overrides, list):
+        raise TypeError("direct_cpp parameter_overrides must be a list or None")
+
+    from rclcpp_kit import native_parameters
+    from rclcppyy import direct_parameters
+
+    native_overrides = tuple(
+        direct_parameters.native_parameter(parameter)
+        for parameter in (parameter_overrides or ()))
+    options = session.rclcpp.NodeOptions()
+    if native_arguments is not None:
+        options.arguments(native_arguments)
+    if native_overrides:
+        options.parameter_overrides(
+            native_parameters.parameter_vector(native_overrides))
+    options.use_global_arguments(use_global_arguments)
+    options.enable_rosout(enable_rosout)
+    options.start_parameter_services(start_parameter_services)
+    options.allow_undeclared_parameters(allow_undeclared_parameters)
+    options.automatically_declare_parameters_from_overrides(
+        automatically_declare_parameters_from_overrides)
+    options.enable_logger_service(enable_logger_service)
+    return options, len(native_overrides)
+
+
 class DirectPublisher:
     """rclpy-shaped metadata and lifetime around a typed C++ publisher."""
 
@@ -628,28 +688,26 @@ class DirectNode:
         automatically_declare_parameters_from_overrides=False,
         enable_logger_service=False,
     ):
-        unsupported = {
-            "context": context is not None,
-            "cli_args": cli_args is not None,
-            "use_global_arguments": use_global_arguments is not True,
-            "enable_rosout": enable_rosout is not True,
-            "start_parameter_services": start_parameter_services is not True,
-            "parameter_overrides": parameter_overrides is not None,
-            "allow_undeclared_parameters": bool(allow_undeclared_parameters),
-            "automatically_declare_parameters_from_overrides": bool(
+        runtime = _runtime()
+        if context is not None and context is not runtime.context:
+            _unsupported("direct_cpp node requires its active runtime context")
+        session = runtime.require_session()
+        options, override_count = _direct_node_options(
+            session,
+            cli_args=cli_args,
+            use_global_arguments=use_global_arguments,
+            enable_rosout=enable_rosout,
+            start_parameter_services=start_parameter_services,
+            parameter_overrides=parameter_overrides,
+            allow_undeclared_parameters=allow_undeclared_parameters,
+            automatically_declare_parameters_from_overrides=(
                 automatically_declare_parameters_from_overrides),
-            "enable_logger_service": bool(enable_logger_service),
-        }
-        requested = sorted(name for name, value in unsupported.items() if value)
-        if requested:
-            _unsupported(
-                "direct_cpp node does not support constructor option(s): %s" %
-                ", ".join(requested)
-            )
-        session = _runtime().require_session()
+            enable_logger_service=enable_logger_service,
+        )
         self._direct_cpp_node = session.create_node(
-            str(node_name), namespace=str(namespace or ""))
+            str(node_name), namespace=str(namespace or ""), options=options)
         self._direct_cpp_executor_ref = None
+        self._allow_undeclared_parameters = allow_undeclared_parameters
         from rclcppyy.direct_callback_groups import DirectCallbackGroup
 
         native_default_group = (
@@ -680,7 +738,20 @@ class DirectNode:
             "cpp",
             "direct_cpp owns one NativeSession rclcpp node",
             policies=("direct_cpp", "native_node_authority"),
-            metadata={"name": str(node_name), "namespace": str(namespace or "")},
+            metadata={
+                "name": str(node_name),
+                "namespace": str(namespace or ""),
+                "context": "direct_runtime",
+                "cli_arguments": 0 if cli_args is None else len(cli_args),
+                "use_global_arguments": use_global_arguments,
+                "enable_rosout": enable_rosout,
+                "start_parameter_services": start_parameter_services,
+                "parameter_overrides": override_count,
+                "allow_undeclared_parameters": allow_undeclared_parameters,
+                "automatically_declare_parameters_from_overrides": (
+                    automatically_declare_parameters_from_overrides),
+                "enable_logger_service": enable_logger_service,
+            },
         )
 
     @property
@@ -821,6 +892,8 @@ class DirectNode:
 
     def _require_declared_parameter(self, name):
         if not self.has_parameter(name):
+            if self._allow_undeclared_parameters:
+                return
             from rclpy.exceptions import ParameterNotDeclaredException
 
             raise ParameterNotDeclaredException(name)
@@ -953,7 +1026,10 @@ class DirectNode:
         from rclpy.exceptions import ParameterUninitializedException
 
         native_parameters, direct_parameters = self._parameter_modules()
-        self._require_declared_parameter(name)
+        if not self.has_parameter(name):
+            if self._allow_undeclared_parameters:
+                return direct_parameters.parameter_class()(name)
+            self._require_declared_parameter(name)
         type_code = native_parameters.get_parameter_types(
             self._require_node(), (name,))[0]
         if type_code == native_parameters.PARAMETER_NOT_SET:
@@ -983,11 +1059,16 @@ class DirectNode:
     def get_parameter_types(self, names):
         if not isinstance(names, list):
             raise TypeError("names must be a list")
-        for name in names:
-            self._require_declared_parameter(name)
         native_parameters, _direct_parameters = self._parameter_modules()
-        return list(native_parameters.get_parameter_types(
-            self._require_node(), names))
+        result = []
+        for name in names:
+            if not self.has_parameter(name):
+                self._require_declared_parameter(name)
+                result.append(native_parameters.PARAMETER_NOT_SET)
+                continue
+            result.extend(native_parameters.get_parameter_types(
+                self._require_node(), (name,)))
+        return result
 
     def set_parameters(self, parameter_list):
         if not isinstance(parameter_list, list):
@@ -1033,11 +1114,16 @@ class DirectNode:
     def describe_parameters(self, names):
         if not isinstance(names, list):
             raise TypeError("names must be a list")
+        native_parameters, direct_parameters = self._parameter_modules()
+        result = []
         for name in names:
-            self._require_declared_parameter(name)
-        native_parameters, _direct_parameters = self._parameter_modules()
-        return list(native_parameters.describe_parameters(
-            self._require_node(), names))
+            if not self.has_parameter(name):
+                self._require_declared_parameter(name)
+                result.append(direct_parameters.descriptor_to_cpp(None))
+                continue
+            result.extend(native_parameters.describe_parameters(
+                self._require_node(), (name,)))
+        return result
 
     def list_parameters(self, prefixes, depth):
         if not isinstance(prefixes, list):

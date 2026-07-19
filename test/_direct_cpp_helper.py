@@ -88,11 +88,11 @@ assert node.context is runtime.context
 assert Publisher is direct_module.DirectPublisher
 assert Subscription is direct_module.DirectSubscription
 try:
-    Node("rejected_options", cli_args=[])
-except BackendUnavailableError:
+    Node("rejected_options", cli_args=("--ros-args",))
+except (BackendUnavailableError, TypeError):
     pass
 else:
-    raise AssertionError("unsupported node options created a native node")
+    raise AssertionError("invalid node options created a native node")
 assert runtime.nodes == [node]
 assert runtime.session.nodes == (node._direct_cpp_node,)
 
