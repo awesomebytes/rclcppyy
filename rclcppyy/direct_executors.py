@@ -9,6 +9,7 @@ from typing import Any
 
 import cppyy
 
+from rclcppyy._surface import _DirectSurface
 from rclcppyy.policy import BackendUnavailableError
 
 
@@ -36,11 +37,12 @@ def _timeout_seconds(timeout_sec: Any) -> float | None:
     return value
 
 
-class DirectExecutor:
+class DirectExecutor(metaclass=_DirectSurface):
     """Base facade for one executor owned by the active ``NativeSession``."""
 
     _kind = "single_threaded"
     _threads = 1
+    _PARITY_HIDDEN = frozenset({"native_executor", "park_node"})
 
     def __init__(self, *, context=None, num_threads=None) -> None:
         runtime = _runtime()

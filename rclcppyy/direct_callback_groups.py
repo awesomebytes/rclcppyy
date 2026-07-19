@@ -5,6 +5,7 @@ from __future__ import annotations
 import threading
 import weakref
 
+from rclcppyy._surface import _DirectSurface
 from rclcppyy.policy import BackendUnavailableError
 
 
@@ -12,10 +13,11 @@ def _unsupported(reason: str):
     raise BackendUnavailableError(reason)
 
 
-class DirectCallbackGroup:
+class DirectCallbackGroup(metaclass=_DirectSurface):
     """Base rclpy-shaped ownership facade for one native callback group."""
 
     _kind = None
+    _PARITY_HIDDEN = frozenset({"discard_entity", "native_group", "node"})
 
     def __init__(self) -> None:
         self.entities = set()

@@ -15,6 +15,7 @@ import cppyy
 
 from rclcpp_kit import native_parameters as _native_parameters
 from rclcppyy._status import record_decision
+from rclcppyy._surface import _DirectSurface
 from rclcppyy import direct_parameters as _direct_parameters
 from rclcppyy.policy import BackendUnavailableError
 
@@ -320,14 +321,6 @@ def _direct_node_options(
     return options, len(native_overrides)
 
 
-class _DirectSurface(type):
-    """Curate the introspected public surface of direct entity classes."""
-
-    def __dir__(cls):
-        hidden = frozenset(getattr(cls, "_PARITY_HIDDEN", ()))
-        return [name for name in super().__dir__() if name not in hidden]
-
-
 class DirectPublisher(metaclass=_DirectSurface):
     """rclpy-shaped metadata and lifetime around a typed C++ publisher."""
 
@@ -406,8 +399,10 @@ class DirectPublisher(metaclass=_DirectSurface):
             _invalid_handle("direct_cpp publisher is already destroyed")
 
 
-class DirectSubscription:
+class DirectSubscription(metaclass=_DirectSurface):
     """rclpy-shaped control plane over one existing C++ callback route."""
+
+    _PARITY_HIDDEN = frozenset({"closed", "native_entity"})
 
     class CallbackType(Enum):
         MessageOnly = 0

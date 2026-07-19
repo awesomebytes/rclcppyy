@@ -12,6 +12,7 @@ import threading
 from typing import Any
 
 from rclcppyy._status import record_decision
+from rclcppyy._surface import _DirectSurface
 from rclcppyy.policy import BackendUnavailableError
 
 
@@ -569,8 +570,13 @@ class DirectClientGoalHandle:
             list(_byte_values(self.goal_id.uuid)), self.accepted, self.status)
 
 
-class DirectActionClient:
+class DirectActionClient(metaclass=_DirectSurface):
     """Lean source-shape facade over a C++-owned ``rclcpp_action`` client."""
+
+    _PARITY_HIDDEN = frozenset({
+        "action_name", "close", "closed", "compile_result",
+        "configure_introspection", "python_feedback_callbacks", "source_id", "stats",
+    })
 
     def __init__(
         self,
@@ -958,8 +964,13 @@ class DirectActionClient:
         return True
 
 
-class DirectServerGoalHandle:
+class DirectServerGoalHandle(metaclass=_DirectSurface):
     """Jazzy-shaped server goal handle over one native C++ goal record."""
+
+    _PARITY_HIDDEN = frozenset({
+        "__repr__", "abort_shared", "canceled_shared", "create_feedback_shared",
+        "create_result_shared", "publish_feedback_shared", "succeed_shared",
+    })
 
     def __init__(self, action_server, accepted_goal):
         self._action_server = action_server
@@ -1135,8 +1146,14 @@ class DirectServerGoalHandle:
             list(_byte_values(self.goal_id.uuid)), self.status)
 
 
-class DirectActionServer:
+class DirectActionServer(metaclass=_DirectSurface):
     """Lean synchronous ActionServer facade over ``rclcpp_action`` authority."""
+
+    _PARITY_HIDDEN = frozenset({
+        "action_name", "callback_error_ready", "close", "close_pending", "closed",
+        "compile_result", "configure_introspection", "source_id", "stats",
+        "take_callback_error",
+    })
 
     def __init__(
         self,
