@@ -143,7 +143,9 @@ def _sample(variant, index=0):
             "kind": "publisher-cpp-borrowed-publish-route",
             "prepared_before_measurement": True,
         }
-    elif variant in ("direct-cpp-rclcppyy", "direct-lease-rclcppyy"):
+    elif variant in (
+            "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+            "direct-lease-rclcppyy"):
         ready["cache"] = {
             "state": "prebuilt",
             "kind": spec["cache_kind"],
@@ -169,7 +171,9 @@ def _sample(variant, index=0):
         if variant == "native-fused":
             ready["cache"]["source_id"] = "1" * 16
         assert name in _cache()["phases"]["warm"]["artifacts"]
-    if variant in ("direct-cpp-rclcppyy", "direct-lease-rclcppyy"):
+    if variant in (
+            "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+            "direct-lease-rclcppyy"):
         lease = variant == "direct-lease-rclcppyy"
         ready["entity_types"] = {
             "node": "rclcpp::Node",
@@ -187,6 +191,10 @@ def _sample(variant, index=0):
             "subscription_creation_route": (
                 "rclcpp_unique_ptr_subscription_lease"
                 if lease else "prebuilt_subscription_trampoline"),
+            "publisher_call_route": (
+                "raw_rclcpp_entity"
+                if variant == "direct-raw-publish-rclcppyy"
+                else "managed_typed_holder"),
             "python_message_conversion_guarded": True,
             "serialization_guarded": True,
         }
@@ -278,7 +286,9 @@ def _sample(variant, index=0):
                 "cpp": 2, "python": 0, "unsupported": 0},
             "status_dropped_operation_records": 0,
         })
-    elif variant in ("direct-cpp-rclcppyy", "direct-lease-rclcppyy"):
+    elif variant in (
+            "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+            "direct-lease-rclcppyy"):
         lease = variant == "direct-lease-rclcppyy"
         direct_report = {
             "publish_operation_marker": None,
@@ -294,6 +304,10 @@ def _sample(variant, index=0):
                 "python_message_conversion": 0,
                 "serialization": 0,
             },
+            "publisher_call_route": (
+                "raw_rclcpp_entity"
+                if variant == "direct-raw-publish-rclcppyy"
+                else "managed_typed_holder"),
         }
         if lease:
             direct_report.update({
@@ -443,6 +457,8 @@ def test_transform_percentiles_and_shared_compatibility_relay():
     assert "teardown_clean = _cleanup_direct_cpp_relay" in relay_source
     assert "teardown_clean = _cleanup_python_relay" in relay_source
     assert 'profile="direct_cpp"' in worker_source
+    assert "publisher.native_entity.publish" in relay_source
+    assert "publish_message(UInt64" in relay_source
     assert 'optimizations=("subscription_shared_lease",)' in worker_source
     assert "owning_cpp_callback_copies" in relay_source
     assert "native_last_message_address" in relay_source
@@ -502,7 +518,7 @@ while True:
         runner._stop_process(process)
 
 
-def test_all_eight_fixture_routes_satisfy_strict_sample_contract():
+def test_all_nine_fixture_routes_satisfy_strict_sample_contract():
     parameters = _parameters()
     for index, variant in enumerate(protocol.VARIANTS):
         protocol.validate_sample(
@@ -535,6 +551,8 @@ def test_all_eight_fixture_routes_satisfy_strict_sample_contract():
         ("direct-cpp-rclcppyy", lambda row: row["relay_ready"][
             "direct_cpp_proof"].update(actual_cpp_message_class=False),
          "representation or authority"),
+        ("direct-raw-publish-rclcppyy", lambda row: row["relay_report"].update(
+            publisher_call_route="managed_typed_holder"), "publisher callable route"),
         ("direct-lease-rclcppyy", lambda row: row["relay_report"].update(
             owning_cpp_callback_copies=1), "shared-lease counter"),
         ("direct-lease-rclcppyy", lambda row: row["relay_report"].update(
@@ -600,7 +618,7 @@ def test_document_is_descriptive_and_portable_schema_forbids_claims(monkeypatch)
         "performance_claims_allowed"] == {"const": False}
     assert schema["properties"]["comparison"]["properties"][
         "interpretation_allowed"] == {"const": False}
-    assert len(schema["properties"]["results"]["items"]["allOf"]) == 8
+    assert len(schema["properties"]["results"]["items"]["allOf"]) == 9
     assert "relay_armed" in schema["properties"]["results"]["items"]["required"]
 
 
@@ -640,7 +658,7 @@ def test_all_variants_run_with_one_aot_driver_and_exact_parity(tmp_path):
     assert len({
         pid for row in document["results"]
         for pid in (row["relay_pid"], row["driver_pid"])
-    }) == 16
+    }) == 18
     for row in document["results"]:
         report = row["relay_report"]
         assert report["received"] == report["processed"] == report["published"] == 5
@@ -656,6 +674,7 @@ def test_all_variants_run_with_one_aot_driver_and_exact_parity(tmp_path):
         "compatible-rclcppyy": 5,
         "publisher-cpp-rclcppyy": 5,
         "direct-cpp-rclcppyy": 5,
+        "direct-raw-publish-rclcppyy": 5,
         "direct-lease-rclcppyy": 5,
         "native-python-callback": 5,
         "native-fused": 0,
@@ -672,6 +691,7 @@ def test_all_variants_run_with_one_aot_driver_and_exact_parity(tmp_path):
         "session_node_count": 1,
         "callback_handoff": "one_native_cpp_copy",
         "subscription_creation_route": "prebuilt_subscription_trampoline",
+        "publisher_call_route": "managed_typed_holder",
         "python_message_conversion_guarded": True,
         "serialization_guarded": True,
     }
@@ -681,6 +701,17 @@ def test_all_variants_run_with_one_aot_driver_and_exact_parity(tmp_path):
         "python_message_conversion": 0,
         "serialization": 0,
     }
+    raw_publish = next(
+        row for row in document["results"]
+        if row["variant"] == "direct-raw-publish-rclcppyy"
+    )
+    assert raw_publish["relay_ready"]["direct_cpp_proof"] == {
+        **direct["relay_ready"]["direct_cpp_proof"],
+        "publisher_call_route": "raw_rclcpp_entity",
+    }
+    assert raw_publish["relay_report"]["owning_cpp_callback_copies"] == 5
+    assert raw_publish["relay_report"]["publisher_call_route"] == \
+        "raw_rclcpp_entity"
     lease = next(
         row for row in document["results"]
         if row["variant"] == "direct-lease-rclcppyy"
@@ -692,6 +723,7 @@ def test_all_variants_run_with_one_aot_driver_and_exact_parity(tmp_path):
         "session_node_count": 1,
         "callback_handoff": "shared_cpp_message_lease",
         "subscription_creation_route": "rclcpp_unique_ptr_subscription_lease",
+        "publisher_call_route": "managed_typed_holder",
         "python_message_conversion_guarded": True,
         "serialization_guarded": True,
     }

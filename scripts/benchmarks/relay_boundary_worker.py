@@ -405,7 +405,8 @@ def _subscription_lease_artifact() -> dict:
 
 def _run_python_relay(
         args, *, profile: str | None,
-        optimizations: tuple[str, ...] = ()) -> tuple[dict, dict, bool]:
+        optimizations: tuple[str, ...] = (),
+        raw_native_publish: bool = False) -> tuple[dict, dict, bool]:
     rclcppyy = None
     if profile is not None:
         import rclcppyy as active_rclcppyy
@@ -418,6 +419,8 @@ def _run_python_relay(
     use_subscription_lease = "subscription_shared_lease" in optimizations
     if use_subscription_lease and not use_direct_cpp:
         raise RuntimeError("subscription lease benchmark requires direct_cpp")
+    if raw_native_publish and not use_direct_cpp:
+        raise RuntimeError("raw native publish benchmark requires direct_cpp")
 
     import rclpy
     from rclpy.node import Node
@@ -483,6 +486,11 @@ def _run_python_relay(
             durability=DurabilityPolicy.VOLATILE,
         )
     publisher = node.create_publisher(UInt64, args.output_topic, qos)
+    publish_message = (
+        publisher.native_entity.publish
+        if raw_native_publish else publisher.publish)
+    publisher_call_route = (
+        "raw_rclcpp_entity" if raw_native_publish else "managed_typed_holder")
 
     def on_message(message):
         nonlocal received, published, checksum, last, non_cpp_callback_messages
@@ -495,7 +503,7 @@ def _run_python_relay(
         received += 1
         checksum += value
         last = value
-        publisher.publish(UInt64(data=value * 2 + 1))
+        publish_message(UInt64(data=value * 2 + 1))
         published += 1
 
     subscription = node.create_subscription(UInt64, args.input_topic, on_message, qos)
@@ -581,6 +589,7 @@ def _run_python_relay(
                 "shared_cpp_message_lease"
                 if use_subscription_lease else "one_native_cpp_copy"),
             "subscription_creation_route": direct_subscription.creation_route,
+            "publisher_call_route": publisher_call_route,
             "python_message_conversion_guarded": True,
             "serialization_guarded": True,
         }
@@ -606,12 +615,14 @@ def _run_python_relay(
         "loaded_rmw": _loaded_rmw(),
         "execution_model": (
             "same-python-relay-direct-rclcpp-shared-lease"
-            if use_subscription_lease else {
+            if use_subscription_lease else (
+                "same-python-relay-direct-raw-rclcpp-publish"
+                if raw_native_publish else {
                 None: "same-python-relay-stock-rclpy",
                 "compatible": "same-python-relay-compatible-stock-publish",
                 "publisher_cpp": "same-python-relay-explicit-publisher-cpp",
                 "direct_cpp": "same-python-relay-direct-rclcpp",
-            }[profile]
+                }[profile])
         ),
         "cache": cache_evidence,
         "entity_types": entity_types,
@@ -697,6 +708,7 @@ def _run_python_relay(
                 "python_message_conversion"],
             "serialization_operations": boundary_guard_calls["serialization"],
             "boundary_guard_calls": dict(boundary_guard_calls),
+            "publisher_call_route": publisher_call_route,
         }
         if use_subscription_lease:
             lease_stats = direct_subscription.stats()
@@ -897,6 +909,9 @@ def _run_relay(args) -> int:
     elif args.variant == "direct-cpp-rclcppyy":
         _ready, counters, teardown_clean = _run_python_relay(
             args, profile="direct_cpp")
+    elif args.variant == "direct-raw-publish-rclcppyy":
+        _ready, counters, teardown_clean = _run_python_relay(
+            args, profile="direct_cpp", raw_native_publish=True)
     elif args.variant == "direct-lease-rclcppyy":
         _ready, counters, teardown_clean = _run_python_relay(
             args,
@@ -933,7 +948,8 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--variant", choices=(
             "stock-rclpy", "compatible-rclcppyy", "publisher-cpp-rclcppyy",
-            "direct-cpp-rclcppyy", "direct-lease-rclcppyy",
+            "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+            "direct-lease-rclcppyy",
             "native-python-callback", "native-fused"))
     parser.add_argument("--input-topic")
     parser.add_argument("--output-topic")

@@ -1,6 +1,6 @@
 # Controlled relay-boundary benchmark
 
-This benchmark characterizes one fixed ROS 2 relay across eight execution
+This benchmark characterizes one fixed ROS 2 relay across nine execution
 boundaries. It is a raw evidence generator, not a release gate or a source of
 performance claims. Jazzy with CycloneDDS is the current validated gate; the
 protocol retains explicit RMW evidence so later backends cannot be conflated
@@ -17,13 +17,17 @@ with that baseline.
 4. `direct-cpp-rclcppyy`: the same Python transform and publish body, activated
    with `profile="direct_cpp"` so messages and entities are actual C++ objects;
    each callback receives one owning C++ value copy.
-5. `direct-lease-rclcppyy`: the same direct C++ source shape with
+5. `direct-raw-publish-rclcppyy`: a benchmark-only A/B control with the same
+   direct node, facade publisher, owning-copy subscription, callback, and bound
+   publish-call shape. It binds `publisher.native_entity.publish` once instead
+   of the managed holder's `publisher.publish`; product behavior is unchanged.
+6. `direct-lease-rclcppyy`: the same direct C++ source shape with
    `optimizations=("subscription_shared_lease",)`. The rclcpp unique message
    allocation transfers into shared ownership without copying `MessageT`.
-6. `native-python-callback`: native rclcpp entities with a Python transform
+7. `native-python-callback`: native rclcpp entities with a Python transform
    callback.
-7. `native-fused`: a prebuilt, content-addressed C++ fused pipeline.
-8. `aot-staged`: a conventional Release-mode C++ relay.
+8. `native-fused`: a prebuilt, content-addressed C++ fused pipeline.
+9. `aot-staged`: a conventional Release-mode C++ relay.
 
 Every variant is driven by the same Release-mode AOT executable, transform,
 reliable/volatile `KeepLast(1)` QoS, closed-loop message sequence, warmup, and
@@ -76,6 +80,11 @@ must equal its lease, shared-control-block, shared-owner, and Python-crossing
 counters. It requires zero `MessageT` deep copies and zero lease exceptions. The
 copy and lease routes are separate production options in the same rotating run so
 CPU effects are paired without conflating representation or application work.
+
+The raw-publish control and managed direct-copy lane each bind exactly one cppyy
+publish callable before warmup. Their subscription, callback body, message
+construction, executor, graph, QoS, conversion guards, and teardown are identical.
+This isolates the managed publisher holder from unrelated historical-run noise.
 
 ## Running
 

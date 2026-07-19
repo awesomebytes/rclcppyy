@@ -39,6 +39,11 @@ VARIANTS = {
         "cache_kind": "direct-cpp-subscription-trampoline",
         "python_crossings": True,
     },
+    "direct-raw-publish-rclcppyy": {
+        "execution_model": "same-python-relay-direct-raw-rclcpp-publish",
+        "cache_kind": "direct-cpp-subscription-trampoline",
+        "python_crossings": True,
+    },
     "direct-lease-rclcppyy": {
         "execution_model": "same-python-relay-direct-rclcpp-shared-lease",
         "cache_kind": "direct-cpp-subscription-lease",
@@ -290,7 +295,9 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
                 "kind": "publisher-cpp-borrowed-publish-route",
                 "prepared_before_measurement": True}:
             raise ValueError("publisher_cpp relay warm-route evidence is invalid")
-    elif variant in ("direct-cpp-rclcppyy", "direct-lease-rclcppyy"):
+    elif variant in (
+            "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+            "direct-lease-rclcppyy"):
         if artifact.get("state") != "prebuilt" or artifact.get("hit") is not True:
             raise ValueError("direct_cpp relay cache state is invalid")
         if not _is_sha256(artifact.get("sha256")):
@@ -323,8 +330,11 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
     entity_types = ready.get("entity_types")
     if variant in (
             "stock-rclpy", "compatible-rclcppyy", "publisher-cpp-rclcppyy",
-            "direct-cpp-rclcppyy", "direct-lease-rclcppyy"):
-        if variant in ("direct-cpp-rclcppyy", "direct-lease-rclcppyy"):
+            "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+            "direct-lease-rclcppyy"):
+        if variant in (
+                "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+                "direct-lease-rclcppyy"):
             if not isinstance(entity_types, dict) or set(entity_types) != {
                     "node", "publisher", "subscription", "executor"} or any(
                     "rclcpp" not in value for value in entity_types.values()):
@@ -341,6 +351,10 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
                 "subscription_creation_route": (
                     "rclcpp_unique_ptr_subscription_lease"
                     if lease else "prebuilt_subscription_trampoline"),
+                "publisher_call_route": (
+                    "raw_rclcpp_entity"
+                    if variant == "direct-raw-publish-rclcppyy"
+                    else "managed_typed_holder"),
                 "python_message_conversion_guarded": True,
                 "serialization_guarded": True,
             }
@@ -359,11 +373,12 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
             "publisher": (
                 "cpp" if variant in (
                     "publisher-cpp-rclcppyy", "direct-cpp-rclcppyy",
-                    "direct-lease-rclcppyy")
+                    "direct-raw-publish-rclcppyy", "direct-lease-rclcppyy")
                 else "python"),
             "subscriber": (
                 "cpp" if variant in (
-                    "direct-cpp-rclcppyy", "direct-lease-rclcppyy") else "python"),
+                    "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+                    "direct-lease-rclcppyy") else "python"),
         }
         for role, marker in markers.items():
             if not isinstance(marker, dict) or marker.get(
@@ -378,7 +393,9 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
             if marker.get("evidence") != expected_evidence or not isinstance(
                     marker.get("metadata"), dict):
                 raise ValueError("Python relay backend marker evidence is invalid")
-        if variant in ("direct-cpp-rclcppyy", "direct-lease-rclcppyy"):
+        if variant in (
+                "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+                "direct-lease-rclcppyy"):
             publisher_metadata = markers["publisher"]["metadata"]
             subscriber_metadata = markers["subscriber"]["metadata"]
             if "no_conversion" not in publisher_metadata.get("policies", ()) or (
@@ -428,7 +445,8 @@ def _validate_report(report: dict, sample: dict, warmup: int, messages: int) -> 
         raise ValueError("relay Python-boundary count is invalid")
     if variant in (
             "stock-rclpy", "compatible-rclcppyy", "publisher-cpp-rclcppyy",
-            "direct-cpp-rclcppyy", "direct-lease-rclcppyy",
+            "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+            "direct-lease-rclcppyy",
             "native-python-callback", "aot-staged"):
         if report.get("checksum") != expected_input_checksum(total) or report.get("last") != total:
             raise ValueError("relay input checksum evidence is invalid")
@@ -453,7 +471,7 @@ def _validate_report(report: dict, sample: dict, warmup: int, messages: int) -> 
             raise ValueError("publisher_cpp relay operation aggregates are invalid")
         if not _is_nonnegative_int(report.get("status_dropped_operation_records")):
             raise ValueError("publisher_cpp relay dropped-status evidence is invalid")
-    if variant == "direct-cpp-rclcppyy":
+    if variant in ("direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy"):
         if report.get("owning_cpp_callback_copies") != total or report.get(
                 "cpp_callback_messages") != total or report.get(
                 "non_cpp_callback_messages") != 0:
@@ -470,6 +488,12 @@ def _validate_report(report: dict, sample: dict, warmup: int, messages: int) -> 
                 "last_publish_backend") != "cpp" or report.get(
                 "publish_route_tainted") is not False:
             raise ValueError("direct_cpp publish-route evidence is invalid")
+        expected_route = (
+            "raw_rclcpp_entity"
+            if variant == "direct-raw-publish-rclcppyy"
+            else "managed_typed_holder")
+        if report.get("publisher_call_route") != expected_route:
+            raise ValueError("direct_cpp publisher callable route is invalid")
     if variant == "direct-lease-rclcppyy":
         if report.get("owning_cpp_callback_copies") != 0 or report.get(
                 "subscription_leases") != total or report.get(
@@ -497,6 +521,8 @@ def _validate_report(report: dict, sample: dict, warmup: int, messages: int) -> 
                 "last_publish_backend") != "cpp" or report.get(
                 "publish_route_tainted") is not False:
             raise ValueError("direct_cpp lease publish-route evidence is invalid")
+        if report.get("publisher_call_route") != "managed_typed_holder":
+            raise ValueError("direct_cpp publisher callable route is invalid")
     if variant == "native-fused" and (
             report.get("compile_cache_hits") != 1 or report.get("compile_cache_misses") != 0):
         raise ValueError("fused relay compile-cache counters are invalid")
@@ -743,7 +769,8 @@ def summarize(results: list[dict], variants: list[str]) -> dict:
             "Stock, compatible, publisher_cpp, and direct_cpp use one Python relay implementation. "
             "Compatible adds default activation while preserving stock publish authority; "
             "publisher_cpp opts into same-handle C++ publishing; direct_cpp uses actual C++ messages "
-            "and entities with either one owning native callback copy or one shared ownership lease "
+            "and entities with a managed/raw publisher A/B and either one owning native callback "
+            "copy or one shared ownership lease "
             "over the received allocation. All ratios are "
             "descriptive: lower is better for CPU and latency, higher is better for throughput. No "
             "threshold, ranking, or winner is selected."
