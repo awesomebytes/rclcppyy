@@ -13,6 +13,15 @@ import cppyy  # noqa: E402
 import rclpy  # noqa: E402
 import rclpy._rclpy_pybind11 as _rclpy  # noqa: E402
 from rclpy.node import Node  # noqa: E402
+from rclpy.qos import (  # noqa: E402
+    QoSDurabilityPolicy,
+    QoSHistoryPolicy,
+    QoSReliabilityPolicy,
+)
+from rclpy.topic_endpoint_info import (  # noqa: E402
+    TopicEndpointInfo,
+    TopicEndpointTypeEnum,
+)
 from std_msgs.msg import String  # noqa: E402
 from std_srvs.srv import SetBool  # noqa: E402
 
@@ -83,6 +92,29 @@ assert observer.count_services("/direct_graph/renamed_toggle") == 1
 assert observer.count_clients("/direct_graph/renamed_toggle") == 1
 assert target.count_publishers("chatter") == 0
 assert target.count_services("toggle") == 0
+
+publisher_info = observer.get_publishers_info_by_topic("/direct_graph/renamed")
+subscription_info = observer.get_subscriptions_info_by_topic(
+    "/direct_graph/renamed")
+assert len(publisher_info) == 1 and len(subscription_info) == 1
+publisher_endpoint = publisher_info[0]
+subscription_endpoint = subscription_info[0]
+assert isinstance(publisher_endpoint, TopicEndpointInfo)
+assert isinstance(subscription_endpoint, TopicEndpointInfo)
+assert publisher_endpoint.node_name == target.get_name()
+assert publisher_endpoint.node_namespace == target.get_namespace()
+assert publisher_endpoint.topic_type == "std_msgs/msg/String"
+assert publisher_endpoint.endpoint_type == TopicEndpointTypeEnum.PUBLISHER
+assert subscription_endpoint.endpoint_type == TopicEndpointTypeEnum.SUBSCRIPTION
+assert len(publisher_endpoint.endpoint_gid) == 16
+assert publisher_endpoint.topic_type_hash.version > 0
+assert len(publisher_endpoint.topic_type_hash.value) == 32
+assert publisher_endpoint.qos_profile.history == QoSHistoryPolicy.KEEP_LAST
+assert publisher_endpoint.qos_profile.depth == 10
+assert publisher_endpoint.qos_profile.reliability == QoSReliabilityPolicy.RELIABLE
+assert publisher_endpoint.qos_profile.durability == QoSDurabilityPolicy.VOLATILE
+assert publisher_endpoint.qos_profile.avoid_ros_namespace_conventions is False
+print("DIRECT_CPP_GRAPH_ENDPOINT_INFO_OK", flush=True)
 
 for operation in (
     lambda: target.resolve_topic_name("bad name"),

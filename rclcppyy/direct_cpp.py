@@ -45,6 +45,58 @@ def _graph_names_and_types(values) -> list[tuple[str, list[str]]]:
     ]
 
 
+def _topic_endpoint_info(value):
+    from rclpy.duration import Duration
+    from rclpy.qos import (
+        QoSDurabilityPolicy,
+        QoSHistoryPolicy,
+        QoSLivelinessPolicy,
+        QoSProfile,
+        QoSReliabilityPolicy,
+    )
+    from rclpy.topic_endpoint_info import TopicEndpointInfo
+    from rclpy.type_hash import TypeHash
+
+    native_qos = value.qos_profile().get_rmw_qos_profile()
+
+    def policy(enum_type, raw_value):
+        try:
+            return enum_type(int(raw_value))
+        except ValueError:
+            return enum_type.UNKNOWN
+
+    def duration(raw_value):
+        return Duration(
+            seconds=int(raw_value.sec), nanoseconds=int(raw_value.nsec))
+
+    native_hash = value.topic_type_hash()
+    qos = QoSProfile(
+        history=policy(QoSHistoryPolicy, native_qos.history),
+        depth=int(native_qos.depth),
+        reliability=policy(QoSReliabilityPolicy, native_qos.reliability),
+        durability=policy(QoSDurabilityPolicy, native_qos.durability),
+        deadline=duration(native_qos.deadline),
+        lifespan=duration(native_qos.lifespan),
+        liveliness=policy(QoSLivelinessPolicy, native_qos.liveliness),
+        liveliness_lease_duration=duration(
+            native_qos.liveliness_lease_duration),
+        avoid_ros_namespace_conventions=bool(
+            native_qos.avoid_ros_namespace_conventions),
+    )
+    return TopicEndpointInfo(
+        node_name=_cpp_string(value.node_name()),
+        node_namespace=_cpp_string(value.node_namespace()),
+        topic_type=_cpp_string(value.topic_type()),
+        topic_type_hash=TypeHash(
+            version=int(native_hash.version),
+            value=bytes(native_hash.value),
+        ),
+        endpoint_type=int(value.endpoint_type()),
+        endpoint_gid=[int(item) for item in value.endpoint_gid()],
+        qos_profile=qos,
+    )
+
+
 class _DirectContext:
     def __init__(self, runtime):
         self._runtime = runtime
@@ -851,6 +903,28 @@ class DirectNode:
     def count_services(self, service_name: str) -> int:
         service = self._expand_graph_name(service_name, is_service=True)
         return int(self._graph_interface().count_services(service))
+
+    def _get_info_by_topic(self, topic_name: str, no_mangle: bool, method_name: str):
+        selected_name = (
+            topic_name if no_mangle else self.resolve_topic_name(topic_name)
+        )
+        method = getattr(self._graph_interface(), method_name)
+        return [
+            _topic_endpoint_info(value)
+            for value in method(selected_name, no_mangle)
+        ]
+
+    def get_publishers_info_by_topic(
+        self, topic_name: str, no_mangle: bool = False
+    ):
+        return self._get_info_by_topic(
+            topic_name, no_mangle, "get_publishers_info_by_topic")
+
+    def get_subscriptions_info_by_topic(
+        self, topic_name: str, no_mangle: bool = False
+    ):
+        return self._get_info_by_topic(
+            topic_name, no_mangle, "get_subscriptions_info_by_topic")
 
     def wait_for_node(self, fully_qualified_node_name: str, timeout: float) -> bool:
         if not fully_qualified_node_name.startswith("/"):
