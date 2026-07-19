@@ -778,6 +778,7 @@ class DirectNode:
         self._direct_cpp_services = []
         self._direct_cpp_action_clients = []
         self._direct_cpp_action_servers = []
+        self._direct_cpp_clock = None
         self._pre_set_parameters_callbacks = []
         self._on_set_parameters_callbacks = []
         self._post_set_parameters_callbacks = []
@@ -926,6 +927,18 @@ class DirectNode:
 
     def get_logger(self):
         return self._logger
+
+    def get_clock(self):
+        clock = self._direct_cpp_clock
+        if clock is not None:
+            return clock
+        from rclcppyy.direct_clock import wrap_node_clock
+
+        native_node_clock = _runtime().session.create_native_node_clock(
+            self._require_node())
+        clock = wrap_node_clock(native_node_clock)
+        self._direct_cpp_clock = clock
+        return clock
 
     def _parameter_modules(self):
         return _native_parameters, _direct_parameters
@@ -2004,9 +2017,16 @@ class DirectNode:
         self._direct_cpp_services.clear()
         self._direct_cpp_action_servers.clear()
         self._direct_cpp_action_clients.clear()
+        self._close_direct_clock()
         self._release_callback_groups()
         _runtime().detach(self, node)
         self._direct_cpp_node = None
+
+    def _close_direct_clock(self):
+        clock = self._direct_cpp_clock
+        if clock is not None:
+            clock.close()
+        self._direct_cpp_clock = None
 
     def _mark_runtime_shutdown(self):
         self._close_parameter_callbacks()
@@ -2031,6 +2051,7 @@ class DirectNode:
         self._direct_cpp_action_clients.clear()
         self._direct_cpp_publishers.clear()
         self._direct_cpp_subscriptions.clear()
+        self._close_direct_clock()
         self._release_callback_groups()
         self._set_direct_executor(None)
         self._direct_cpp_node = None

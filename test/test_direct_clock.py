@@ -1,0 +1,100 @@
+"""Native-node-clock proofs for direct_cpp's Node.get_clock()."""
+
+from rclcppyy.direct_clock import DirectClock, DirectROSClock
+from rclcppyy.policy import BackendUnavailableError
+
+from _run_helper import format_output, run_helper
+
+
+class _FakeNativeNodeClock:
+    """Mirrors NativeNodeClock's shape without touching any C++.
+
+    Every accessor raises if called while closed, mirroring the suite's own
+    ``test_closed_native_node_clock_fences_access_without_touching_cpp``: if
+    DirectClock ever forwarded a call into a closed native clock instead of
+    fencing it in Python first, this would trip instead of raising cleanly.
+    """
+
+    def __init__(self, clock_type=1):
+        self._closed = False
+        self._clock_type = clock_type
+
+    @property
+    def closed(self):
+        return self._closed
+
+    def close(self):
+        was_open = not self._closed
+        self._closed = True
+        return was_open
+
+    @property
+    def clock_type(self):
+        return self._clock_type
+
+    @property
+    def ros_time_is_active(self):
+        if self._closed:
+            raise AssertionError("touched native clock after close")
+        return False
+
+    def now_nanoseconds(self):
+        if self._closed:
+            raise AssertionError("touched native clock after close")
+        return 12_000_000_345
+
+
+def test_direct_clock_fences_closed_access_without_touching_native():
+    fake = _FakeNativeNodeClock()
+    clock = DirectClock._wrap(fake)
+    assert isinstance(clock, DirectROSClock)
+
+    first = clock.now()
+    assert first.nanoseconds == 12_000_000_345
+    assert clock.ros_time_is_active is False
+
+    assert clock.close() is True
+    assert clock.close() is False
+
+    for operation in (clock.now, lambda: clock.ros_time_is_active):
+        try:
+            operation()
+        except RuntimeError as exc:
+            assert "closed" in str(exc)
+        else:
+            raise AssertionError("closed direct clock did not fence access")
+
+
+def test_direct_clock_construction_and_fail_closed_surface_are_explicit():
+    try:
+        DirectClock(clock_type=1)
+    except BackendUnavailableError:
+        pass
+    else:
+        raise AssertionError("standalone DirectClock construction succeeded")
+
+    fake = _FakeNativeNodeClock()
+    clock = DirectClock._wrap(fake)
+    for operation in (
+        clock.create_jump_callback,
+        clock.sleep_for,
+        clock.sleep_until,
+        clock.set_ros_time_override,
+        lambda: clock.handle,
+    ):
+        try:
+            operation()
+        except BackendUnavailableError:
+            pass
+        else:
+            raise AssertionError("unsupported direct clock operation succeeded")
+
+
+def test_direct_cpp_node_clock_matches_native_node_clock_exactly():
+    process = run_helper("_direct_cpp_clock_helper.py", timeout=180)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_CLOCK_IDENTITY_OK" in process.stdout
+    assert "DIRECT_CPP_CLOCK_STOCK_DIFFERENTIAL_OK" in process.stdout
+    assert "DIRECT_CPP_CLOCK_NATIVE_IDENTITY_OK" in process.stdout
+    assert "DIRECT_CPP_CLOCK_FAIL_CLOSED_OK" in process.stdout
+    assert "DIRECT_CPP_CLOCK_TEARDOWN_OK" in process.stdout
