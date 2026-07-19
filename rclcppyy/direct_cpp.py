@@ -28,6 +28,12 @@ _ACTIVE_INTERFACES = ()
 _DEFAULT_SERVICE_QOS = object()
 
 
+class _DirectParameterCallbackError(Exception):
+    def __init__(self, original):
+        super().__init__(str(original))
+        self.original = original
+
+
 def _unsupported(reason: str):
     raise BackendUnavailableError(reason)
 
@@ -646,6 +652,14 @@ class DirectNode:
         self._direct_cpp_clients = []
         self._direct_cpp_services = []
         self._direct_cpp_action_clients = []
+        self._pre_set_parameters_callbacks = []
+        self._on_set_parameters_callbacks = []
+        self._post_set_parameters_callbacks = []
+        self._direct_cpp_parameter_callback_bridges = {
+            "pre": None,
+            "on": None,
+            "post": None,
+        }
         _runtime().attach(self, self._direct_cpp_node)
         record_decision(
             "nodes",
@@ -753,6 +767,372 @@ class DirectNode:
 
     def get_logger(self):
         return self._require_node().get_logger()
+
+    def _parameter_modules(self):
+        from rclcpp_kit import native_parameters
+        from rclcppyy import direct_parameters
+
+        return native_parameters, direct_parameters
+
+    def _raise_parameter_callback_exception(self):
+        for kind in ("pre", "on", "post"):
+            bridge = self._direct_cpp_parameter_callback_bridges[kind]
+            if bridge is not None:
+                exception = bridge.take_exception()
+                if exception is not None:
+                    raise _DirectParameterCallbackError(exception) from exception
+
+    def _run_parameter_operation(self, operation, *, unwrap_callback=True):
+        try:
+            result = operation()
+        except BaseException:
+            try:
+                self._raise_parameter_callback_exception()
+            except _DirectParameterCallbackError as callback_error:
+                if unwrap_callback:
+                    raise callback_error.original from callback_error
+                raise
+            raise
+        try:
+            self._raise_parameter_callback_exception()
+        except _DirectParameterCallbackError as callback_error:
+            if unwrap_callback:
+                raise callback_error.original from callback_error
+            raise
+        return result
+
+    def _require_declared_parameter(self, name):
+        if not self.has_parameter(name):
+            from rclpy.exceptions import ParameterNotDeclaredException
+
+            raise ParameterNotDeclaredException(name)
+
+    def _prepare_parameter_declarations(self, namespace, parameters):
+        import warnings
+
+        from rclpy.exceptions import ParameterAlreadyDeclaredException
+        from rclpy.validate_parameter_name import validate_parameter_name
+
+        native_parameters, direct_parameters = self._parameter_modules()
+        parameter_type = direct_parameters.parameter_class().Type
+        prepared = []
+        for index, parameter_tuple in enumerate(parameters):
+            if not isinstance(parameter_tuple, tuple):
+                raise TypeError(
+                    "Parameter descriptor at index %d is not a tuple" % index)
+            if len(parameter_tuple) < 1 or len(parameter_tuple) > 3:
+                raise TypeError(
+                    "Invalid parameter tuple length at index %d in parameters list: "
+                    "%r; expecting length between 1 and 3" %
+                    (index, parameter_tuple))
+            name = parameter_tuple[0]
+            if not isinstance(name, str):
+                raise TypeError(
+                    "First element %r at index %d in parameters list is not a str." %
+                    (name, index))
+            if namespace:
+                name = "%s.%s" % (namespace, name)
+            validate_parameter_name(name)
+            second = parameter_tuple[1] if len(parameter_tuple) > 1 else None
+            source_descriptor = parameter_tuple[2] if len(parameter_tuple) > 2 else None
+            descriptor = direct_parameters.descriptor_to_cpp(
+                source_descriptor, name=name)
+            if len(parameter_tuple) == 1:
+                warnings.warn(
+                    "when declaring parameter named '%s', declaring a parameter only "
+                    "providing its name is deprecated" % name,
+                    stacklevel=3,
+                )
+                descriptor.dynamic_typing = True
+            if isinstance(second, parameter_type):
+                if second == parameter_type.NOT_SET:
+                    raise ValueError(
+                        "Cannot declare parameter {%s} as statically typed of type "
+                        "NOT_SET" % name)
+                if bool(descriptor.dynamic_typing):
+                    raise ValueError(
+                        "When declaring parameter {%s} passing a descriptor with "
+                        "`dynamic_typing=True` is not allowed when the parameter type "
+                        "is provided" % name)
+                descriptor.type = int(second.value)
+                prepared.append(("type", name, second, descriptor))
+                continue
+            facade = direct_parameters.parameter_class()(name, value=second)
+            if not bool(descriptor.dynamic_typing):
+                if facade.type_ == parameter_type.NOT_SET:
+                    raise ValueError(
+                        "Cannot declare a statically typed parameter with default value "
+                        "of type PARAMETER_NOT_SET")
+                descriptor.type = int(facade.type_.value)
+            prepared.append(("value", name, facade, descriptor))
+
+        duplicates = [
+            name for _kind, name, _value, _descriptor in prepared
+            if native_parameters.has_parameter(self._require_node(), name)
+        ]
+        if duplicates:
+            raise ParameterAlreadyDeclaredException(duplicates)
+        return prepared
+
+    def declare_parameter(
+        self, name, value=None, descriptor=None, ignore_override=False
+    ):
+        if value is None and descriptor is None:
+            declaration = (name,)
+        elif descriptor is None:
+            declaration = (name, value)
+        else:
+            declaration = (name, value, descriptor)
+        return self.declare_parameters(
+            "", [declaration], ignore_override=ignore_override)[0]
+
+    def declare_parameters(
+        self, namespace, parameters, ignore_override=False
+    ):
+        if not isinstance(namespace, str):
+            raise TypeError("parameter namespace must be a str")
+        if not isinstance(parameters, list):
+            raise TypeError("parameters must be a list")
+        native_parameters, direct_parameters = self._parameter_modules()
+        prepared = self._prepare_parameter_declarations(namespace, parameters)
+        result = []
+        for kind, name, value, descriptor in prepared:
+            if kind == "type":
+                def operation(n=name, v=value, d=descriptor):
+                    return native_parameters.declare_parameter_type(
+                        self._require_node(), n, int(v.value), d,
+                        ignore_override=ignore_override)
+            else:
+                def operation(v=value, d=descriptor):
+                    return native_parameters.declare_parameter(
+                        self._require_node(),
+                        direct_parameters.native_parameter(v),
+                        d,
+                        ignore_override=ignore_override)
+            try:
+                declared = self._run_parameter_operation(
+                    operation, unwrap_callback=False)
+            except _DirectParameterCallbackError as callback_error:
+                raise callback_error.original from callback_error
+            except BaseException as exception:
+                from rclpy.exceptions import InvalidParameterValueException
+
+                if self.has_parameter(name):
+                    raise
+                raise InvalidParameterValueException(
+                    name,
+                    None if kind == "type" else value.value,
+                    str(exception),
+                ) from exception
+            result.append(direct_parameters.wrap_native(declared))
+        return result
+
+    def has_parameter(self, name):
+        native_parameters, _direct_parameters = self._parameter_modules()
+        return native_parameters.has_parameter(self._require_node(), name)
+
+    def get_parameter(self, name):
+        from rclpy.exceptions import ParameterUninitializedException
+
+        native_parameters, direct_parameters = self._parameter_modules()
+        self._require_declared_parameter(name)
+        type_code = native_parameters.get_parameter_types(
+            self._require_node(), (name,))[0]
+        if type_code == native_parameters.PARAMETER_NOT_SET:
+            descriptor = native_parameters.describe_parameters(
+                self._require_node(), (name,))[0]
+            if not bool(descriptor.dynamic_typing):
+                raise ParameterUninitializedException(name)
+        return direct_parameters.wrap_native(
+            native_parameters.get_parameter(self._require_node(), name))
+
+    def get_parameters(self, names):
+        if not isinstance(names, list):
+            raise TypeError("names must be a list")
+        return [self.get_parameter(name) for name in names]
+
+    def get_parameter_or(self, name, alternative_value=None):
+        if self.has_parameter(name):
+            return self.get_parameter(name)
+        if alternative_value is None:
+            _native, direct_parameters = self._parameter_modules()
+            return direct_parameters.parameter_class()(name)
+        return alternative_value
+
+    def get_parameter_type(self, name):
+        return self.get_parameter_types([name])[0]
+
+    def get_parameter_types(self, names):
+        if not isinstance(names, list):
+            raise TypeError("names must be a list")
+        for name in names:
+            self._require_declared_parameter(name)
+        native_parameters, _direct_parameters = self._parameter_modules()
+        return list(native_parameters.get_parameter_types(
+            self._require_node(), names))
+
+    def set_parameters(self, parameter_list):
+        if not isinstance(parameter_list, list):
+            raise TypeError("parameter_list must be a list")
+        native_parameters, direct_parameters = self._parameter_modules()
+        results = []
+        for parameter in parameter_list:
+            native = direct_parameters.native_parameter(parameter)
+            if self._direct_cpp_parameter_callback_bridges["pre"] is None:
+                self._require_declared_parameter(parameter.name)
+                if native.type_code == native_parameters.PARAMETER_NOT_SET:
+                    _unsupported(
+                        "direct_cpp does not support implicit undeclare through NOT_SET")
+            result = self._run_parameter_operation(
+                lambda p=native: native_parameters.set_parameters_atomically(
+                    self._require_node(), (p,)))
+            results.append(result)
+        return results
+
+    def set_parameters_atomically(self, parameter_list):
+        if not isinstance(parameter_list, list):
+            raise TypeError("parameter_list must be a list")
+        native_parameters, direct_parameters = self._parameter_modules()
+        native = tuple(
+            direct_parameters.native_parameter(parameter)
+            for parameter in parameter_list)
+        if self._direct_cpp_parameter_callback_bridges["pre"] is None:
+            for parameter in parameter_list:
+                self._require_declared_parameter(parameter.name)
+            if any(
+                parameter.type_code == native_parameters.PARAMETER_NOT_SET
+                for parameter in native
+            ):
+                _unsupported(
+                    "direct_cpp does not support implicit undeclare through NOT_SET")
+        return self._run_parameter_operation(
+            lambda: native_parameters.set_parameters_atomically(
+                self._require_node(), native))
+
+    def describe_parameter(self, name):
+        return self.describe_parameters([name])[0]
+
+    def describe_parameters(self, names):
+        if not isinstance(names, list):
+            raise TypeError("names must be a list")
+        for name in names:
+            self._require_declared_parameter(name)
+        native_parameters, _direct_parameters = self._parameter_modules()
+        return list(native_parameters.describe_parameters(
+            self._require_node(), names))
+
+    def list_parameters(self, prefixes, depth):
+        if not isinstance(prefixes, list):
+            raise TypeError("The prefixes argument must be a list")
+        if not all(isinstance(prefix, str) for prefix in prefixes):
+            raise TypeError("All prefixes must be instances of type str")
+        native_parameters, _direct_parameters = self._parameter_modules()
+        return native_parameters.list_parameters(
+            self._require_node(), prefixes, depth)
+
+    def _install_parameter_callback_bridge(self, kind):
+        if self._direct_cpp_parameter_callback_bridges[kind] is not None:
+            return
+        native_parameters, direct_parameters = self._parameter_modules()
+
+        def facades(values):
+            return [direct_parameters.wrap_native(value) for value in values]
+
+        if kind == "pre":
+            def dispatch(values):
+                original = facades(values)
+                modified = []
+                for callback in self._pre_set_parameters_callbacks:
+                    modified.extend(callback(original))
+                native = tuple(
+                    direct_parameters.native_parameter(value)
+                    for value in modified)
+                for value in modified:
+                    self._require_declared_parameter(value.name)
+                if any(
+                    value.type_code == native_parameters.PARAMETER_NOT_SET
+                    for value in native
+                ):
+                    _unsupported(
+                        "direct_cpp does not support implicit undeclare through NOT_SET")
+                return native
+
+            bridge = native_parameters.add_pre_set_parameters_callback(
+                self._require_node(), dispatch)
+        elif kind == "on":
+            def dispatch(values):
+                parameter_list = facades(values)
+                for callback in self._on_set_parameters_callbacks:
+                    result = direct_parameters.result_to_cpp(
+                        callback(parameter_list))
+                    if not bool(result.successful):
+                        return result
+                return native_parameters.make_set_parameters_result(True)
+
+            bridge = native_parameters.add_on_set_parameters_callback(
+                self._require_node(), dispatch)
+        else:
+            def dispatch(values):
+                parameter_list = facades(values)
+                for callback in self._post_set_parameters_callbacks:
+                    callback(parameter_list)
+
+            bridge = native_parameters.add_post_set_parameters_callback(
+                self._require_node(), dispatch)
+        self._direct_cpp_parameter_callback_bridges[kind] = bridge
+
+    def add_pre_set_parameters_callback(self, callback):
+        if not callable(callback):
+            raise TypeError("Callback must be callable")
+        self._install_parameter_callback_bridge("pre")
+        self._pre_set_parameters_callbacks.insert(0, callback)
+
+    def add_on_set_parameters_callback(self, callback):
+        if not callable(callback):
+            raise TypeError("Callback must be callable")
+        self._install_parameter_callback_bridge("on")
+        self._on_set_parameters_callbacks.insert(0, callback)
+
+    def add_post_set_parameters_callback(self, callback):
+        if not callable(callback):
+            raise TypeError("Callback must be callable")
+        self._install_parameter_callback_bridge("post")
+        self._post_set_parameters_callbacks.insert(0, callback)
+
+    def _remove_parameter_callback(self, kind, callbacks, callback):
+        callbacks.remove(callback)
+        if not callbacks:
+            bridge = self._direct_cpp_parameter_callback_bridges[kind]
+            if bridge is not None:
+                bridge.close()
+                self._direct_cpp_parameter_callback_bridges[kind] = None
+
+    def remove_pre_set_parameters_callback(self, callback):
+        self._remove_parameter_callback(
+            "pre", self._pre_set_parameters_callbacks, callback)
+
+    def remove_on_set_parameters_callback(self, callback):
+        self._remove_parameter_callback(
+            "on", self._on_set_parameters_callbacks, callback)
+
+    def remove_post_set_parameters_callback(self, callback):
+        self._remove_parameter_callback(
+            "post", self._post_set_parameters_callbacks, callback)
+
+    def _close_parameter_callbacks(self):
+        for kind, bridge in self._direct_cpp_parameter_callback_bridges.items():
+            if bridge is not None:
+                bridge.close()
+                self._direct_cpp_parameter_callback_bridges[kind] = None
+        self._pre_set_parameters_callbacks.clear()
+        self._on_set_parameters_callbacks.clear()
+        self._post_set_parameters_callbacks.clear()
+
+    def undeclare_parameter(self, name):
+        _unsupported("direct_cpp does not support undeclare_parameter")
+
+    def set_descriptor(self, name, descriptor, alternative_value=None):
+        _unsupported("direct_cpp does not support set_descriptor")
 
     def _graph_interface(self):
         return self._require_node().get_node_graph_interface()
@@ -1232,6 +1612,7 @@ class DirectNode:
         node = self._direct_cpp_node
         if node is None:
             return
+        self._close_parameter_callbacks()
         executor = self.executor
         if executor is not None:
             executor.remove_node(self)
@@ -1257,6 +1638,7 @@ class DirectNode:
         self._direct_cpp_node = None
 
     def _mark_runtime_shutdown(self):
+        self._close_parameter_callbacks()
         for publisher in tuple(self._direct_cpp_publishers):
             publisher._close()
         for subscription in tuple(self._direct_cpp_subscriptions):
@@ -1564,7 +1946,12 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
     global _ACTIVE_OPTIMIZATIONS
     global _MESSAGE_INSTALLATION, _PATCHES, _RUNTIME, _SERVICE_INSTALLATION
     normalized_optimizations = tuple(sorted(set(optimizations)))
-    from rclcppyy import direct_actions, direct_messages, direct_services
+    from rclcppyy import (
+        direct_actions,
+        direct_messages,
+        direct_parameters,
+        direct_services,
+    )
 
     normalized_interfaces = direct_actions.normalize_registered_interfaces(
         interfaces)
@@ -1612,6 +1999,7 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         import rclpy.callback_groups as callback_groups_module
         import rclpy.executors as executors_module
         import rclpy.node as node_module
+        import rclpy.parameter as parameter_module
         import rclpy.publisher as publisher_module
         import rclpy.subscription as subscription_module
 
@@ -1630,7 +2018,11 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
 
         DirectSubscription.CallbackType = (
             subscription_module.Subscription.CallbackType)
+        DirectParameter = direct_parameters.prepare(parameter_module.Parameter)
         replacements = (
+            (parameter_module, "Parameter", DirectParameter),
+            (rclpy, "Parameter", DirectParameter),
+            (node_module, "Parameter", DirectParameter),
             (callback_groups_module, "CallbackGroup", DirectCallbackGroup),
             (
                 callback_groups_module,
