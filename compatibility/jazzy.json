@@ -270,6 +270,17 @@
       "notes": "Stock timer authority is explicit. The corpus covers callback groups, autostart=false, reset, callback execution, cancellation, exception propagation, and destruction; required_cpp rejects before creation."
     },
     {
+      "id": "timer.direct_cpp_first_slice",
+      "area": "timer",
+      "api": "profile=direct_cpp Node.create_timer, cancel/reset/destroy, spin, and spin_once",
+      "support": "experimental",
+      "backend": "cpp",
+      "fallback": "none",
+      "default": false,
+      "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_timer_helper.py", "rclcppyy/direct_cpp.py", "scripts/benchmarks/timer_executor_worker.py", "scripts/benchmarks/_timer_executor_protocol.py", "test/test_timer_executor_benchmark.py", "docs/backend-selection.md", "docs/timer-executor-benchmark.md"],
+      "notes": "On Jazzy/Cyclone, the opt-in profile creates a real rclcpp WallTimer on the NativeSession executor and enters the Python callback once per firing without message conversion, serialization, or a per-firing data copy. Default clock, callback group, autostart, and continuous periodic use are the bounded surface; unsupported options fail before entity creation. Controlled evidence shows substantially lower process CPU and better consecutive-interval jitter than stock, but materially worse first-reset error and absolute scheduled phase. The route remains experimental and is not suitable for reset-sensitive deadlines."
+    },
+    {
       "id": "executor.spin",
       "area": "executor",
       "api": "rclpy.spin(accelerated_node)",
@@ -356,6 +367,17 @@
       "default": true,
       "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_control_plane_helper.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
       "notes": "A local SetBool client/server request, Future response, callback group, discovery, status, identity, and teardown match stock. required_cpp rejects user service/client creation before side effects while preserving constructor-owned services."
+    },
+    {
+      "id": "service.direct_cpp_setbool_first_slice",
+      "area": "service",
+      "api": "profile=direct_cpp SetBool create_service/create_client, call_async, and spin_until_future_complete",
+      "support": "experimental",
+      "backend": "cpp",
+      "fallback": "none",
+      "default": false,
+      "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_service_helper.py", "test/_direct_cpp_service_stale_import_helper.py", "rclcppyy/direct_cpp.py", "rclcppyy/direct_services.py", "scripts/benchmarks/service_callback_worker.py", "scripts/benchmarks/_service_callback_protocol.py", "scripts/benchmarks/service_client_worker.py", "scripts/benchmarks/_service_client_protocol.py", "docs/backend-selection.md", "docs/service-callback-benchmark.md", "docs/service-client-benchmark.md"],
+      "notes": "On Jazzy/Cyclone, early activation replaces SetBool Request and Response aliases with the actual generated C++ classes and creates real rclcpp service/client entities. The common synchronous two-argument callback and call_async/Future shapes work with default service QoS: callback requests are owning C++ copies, responses are assigned in C++, client requests make one native C++ value copy, and returned results remain C++. There is no Python-message conversion or serialization bridge. Each operation uses an unmodified stock rclpy.task.Future only as Python control state; no global Future method is patched. Unsupported service types, custom QoS/groups, coroutine callbacks, synchronous call, introspection, and manual response send fail closed. Stock and AOT peers, cancellation, timeouts, exceptions, retained values, status authority, teardown, and reinitialization are covered. The bounded surface remains experimental pending controlled CPU results and broader generated service types."
     },
     {
       "id": "action.client_server",
