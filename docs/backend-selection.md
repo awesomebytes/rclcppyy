@@ -136,10 +136,12 @@ messages may defer that failure until serialization. This explicit divergence is
 one reason the profile is opt-in.
 
 Activation resolves Cling/template setup before installing the facade classes.
-Correctness and future performance measurements must exclude activation, JIT, DDS
-discovery, and endpoint warmup from the steady-state window. No performance benefit
-is claimed until the dedicated repeated benchmark clears the normal promotion
-gate on both x86_64 and ARM64.
+Correctness and performance measurements exclude activation, JIT, DDS discovery,
+and endpoint warmup from the steady-state window. The completed x86-64
+Jazzy/Cyclone characterization is negative: this serialized facade uses about
+1.10x stock CPU for both tested messages and delivers about 0.90x stock throughput.
+It remains an explicit interoperability experiment, is never selected by
+`direct_cpp`, and is frozen unless it blocks compatibility work.
 
 ## Direct-C++ first slice
 
@@ -193,6 +195,19 @@ values and returns a C++ response, with one request copy and one response
 assignment. These copies and Python crossings are explicit status evidence; no
 Python message conversion is involved.
 
+Local parameters use the same native node authority. The generated-style
+`rclpy.parameter.Parameter` facade owns one actual `rclcpp::Parameter`; declare,
+get, type queries, set, atomic set, describe, list, and pre/on/post callbacks execute
+through `rclcpp`. `Parameter`, `ParameterValue`, descriptors, ranges, list results,
+and set results are actual generated C++ aliases. Non-C++ control messages,
+descriptors, callback results, and parameter objects fail before mutation. The
+public `.value` property is the explicit Python snapshot boundary. Parameter
+overrides and related Node constructor options, undeclare, descriptor mutation,
+parameter events/services, and remote parameter clients remain fail-closed or
+uncovered. The stock/direct/raw CPU benchmark exists, but its repeated
+characterization has not yet been run, so no parameter performance result is
+claimed.
+
 Common graph queries use the same native node authority: topic/service names and
 types, node names/namespaces/enclaves, per-node endpoint types, publisher/
 subscriber/service/client counts, topic/service resolution, and `wait_for_node`.
@@ -208,9 +223,16 @@ Explicitly registered installed actions use the common `ActionClient`,
 Result, Feedback, UUID, SendGoal/GetResult, feedback-message, and CancelGoal aliases
 are validated before activation and then replaced transactionally with their exact
 generated C++ classes. Nested action payload messages are included in the same
-dependency closure. Direct action servers, custom goal UUIDs, non-default action
-QoS, synchronous convenience calls, and introspection remain
-fail-closed.
+dependency closure. The first `ActionServer` slice likewise retains exact C++ Goal,
+Feedback, Result, UUID, envelopes, and accepted-goal state. It supports synchronous
+goal/cancel/accepted/execute callbacks, staged feedback, terminal results, and
+cancellation on the single-threaded executor with a mutually-exclusive callback
+group and default QoS. Server callbacks, node teardown, deferred close, and retained
+goal values have explicit lifetime/error guards. Coroutine callbacks,
+multi-threaded/reentrant server execution, custom goal UUIDs, non-default action QoS,
+synchronous client convenience calls, and introspection remain fail-closed. The
+action client has a strong CPU characterization; the action server is not yet
+benchmarked and carries no performance claim.
 
 `std_msgs/msg/String` and `std_msgs/msg/UInt64` remain the default message registry.
 Additional interfaces must use canonical `package/msg/Message` or
@@ -226,8 +248,9 @@ default callback group plus explicit mutually-exclusive and reentrant groups wor
 for publishers, subscriptions, timers, services, clients, and action clients.
 Events, QoS overrides, raw/content-filter subscriptions, custom publisher classes,
 coroutine service callbacks, synchronous client `call`, service introspection,
-parameters, multi-threaded execution, and the rest of the uncovered `rclpy` surface
-are rejected rather than falling back onto a second authority.
+parameter services/events and remote clients, multi-threaded execution, and the rest
+of the uncovered `rclpy` surface are rejected rather than falling back onto a second
+authority.
 
 cppyy's callback argument is borrowed for the duration of the shared-pointer
 call. To preserve the `rclpy` expectation that a callback may retain its message,
