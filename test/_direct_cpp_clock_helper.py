@@ -76,8 +76,6 @@ def expect_unsupported(operation):
 
 
 expect_unsupported(lambda: clk.create_jump_callback(None))
-expect_unsupported(lambda: clk.sleep_for(None))
-expect_unsupported(lambda: clk.sleep_until(None))
 expect_unsupported(lambda: clk.set_ros_time_override(first))
 expect_unsupported(lambda: clk.handle)
 # Standalone construction is fail-closed on DirectClock itself -- the stock

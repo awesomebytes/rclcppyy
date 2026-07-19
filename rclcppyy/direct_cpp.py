@@ -181,7 +181,16 @@ class _DirectRuntime:
     def ok(self) -> bool:
         if self._shutting_down or self.session is None or self.session.closed:
             return False
-        return bool(self.session.context.is_valid())
+        try:
+            return bool(self.session.context.is_valid())
+        except RuntimeError:
+            # The native context can become invalid through a path this
+            # runtime never tracked (e.g. a native rclcpp shutdown outside
+            # NativeSession.close()), in which case NativeSession.context
+            # itself raises rather than reporting False. ok() is a boolean
+            # predicate and must not raise on an unowned, already-gone
+            # context; not ok is exactly the honest answer here.
+            return False
 
     def require_session(self):
         if not self.ok():
@@ -775,6 +784,7 @@ class DirectNode:
         self._direct_cpp_action_clients = []
         self._direct_cpp_action_servers = []
         self._direct_cpp_clock = None
+        self._direct_cpp_sleeper = None
         self._pre_set_parameters_callbacks = []
         self._on_set_parameters_callbacks = []
         self._post_set_parameters_callbacks = []
@@ -924,6 +934,15 @@ class DirectNode:
     def get_logger(self):
         return self._logger
 
+    def _clock_sleeper(self):
+        sleeper = self._direct_cpp_sleeper
+        if sleeper is not None:
+            return sleeper
+        sleeper = _runtime().session.create_native_clock_sleeper(
+            self._require_node())
+        self._direct_cpp_sleeper = sleeper
+        return sleeper
+
     def get_clock(self):
         clock = self._direct_cpp_clock
         if clock is not None:
@@ -932,7 +951,15 @@ class DirectNode:
 
         native_node_clock = _runtime().session.create_native_node_clock(
             self._require_node())
-        clock = wrap_node_clock(native_node_clock)
+        node_ref = weakref.ref(self)
+
+        def sleeper_provider():
+            node = node_ref()
+            if node is None:
+                raise RuntimeError("direct_cpp node is destroyed")
+            return node._clock_sleeper()
+
+        clock = wrap_node_clock(native_node_clock, sleeper_provider=sleeper_provider)
         self._direct_cpp_clock = clock
         return clock
 
@@ -2022,6 +2049,10 @@ class DirectNode:
         self._direct_cpp_node = None
 
     def _close_direct_clock(self):
+        sleeper = self._direct_cpp_sleeper
+        if sleeper is not None:
+            sleeper.close()
+        self._direct_cpp_sleeper = None
         clock = self._direct_cpp_clock
         if clock is not None:
             clock.close()

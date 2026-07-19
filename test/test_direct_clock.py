@@ -1,5 +1,9 @@
 """Native-node-clock proofs for direct_cpp's Node.get_clock()."""
 
+from rclpy.clock_type import ClockType
+from rclpy.duration import Duration
+from rclpy.time import Time
+
 from rclcppyy.direct_clock import DirectClock, DirectROSClock
 from rclcppyy.policy import BackendUnavailableError
 
@@ -77,8 +81,6 @@ def test_direct_clock_construction_and_fail_closed_surface_are_explicit():
     clock = DirectClock._wrap(fake)
     for operation in (
         clock.create_jump_callback,
-        clock.sleep_for,
-        clock.sleep_until,
         clock.set_ros_time_override,
         lambda: clock.handle,
     ):
@@ -90,6 +92,32 @@ def test_direct_clock_construction_and_fail_closed_surface_are_explicit():
             raise AssertionError("unsupported direct clock operation succeeded")
 
 
+def test_direct_clock_sleep_fences_without_a_sleeper_provider():
+    """An unbound clock (no ``sleeper_provider``) still fails sleep closed.
+
+    ``DirectClock._wrap`` used bare -- as every other fast unit test in this
+    file does -- never receives a ``sleeper_provider``; only
+    ``Node.get_clock()`` does. Sleep must fence on that alone, without ever
+    touching ``rclcppyy.direct_cpp``'s runtime (this test does not call
+    ``rclpy.init()``), while ``now()``/``clock_type`` keep working exactly as
+    the fencing test above already proves.
+    """
+    fake = _FakeNativeNodeClock()
+    clock = DirectClock._wrap(fake)
+    for operation in (
+        lambda: clock.sleep_for(Duration(seconds=0.1)),
+        lambda: clock.sleep_until(Time(nanoseconds=1, clock_type=ClockType.ROS_TIME)),
+    ):
+        try:
+            operation()
+        except BackendUnavailableError:
+            pass
+        else:
+            raise AssertionError("unbound direct clock sleep succeeded")
+    assert clock.now().nanoseconds == 12_000_000_345
+    assert clock.clock_type == ClockType.ROS_TIME
+
+
 def test_direct_cpp_node_clock_matches_native_node_clock_exactly():
     process = run_helper("_direct_cpp_clock_helper.py", timeout=180)
     assert process.returncode == 0, format_output(process)
@@ -98,3 +126,13 @@ def test_direct_cpp_node_clock_matches_native_node_clock_exactly():
     assert "DIRECT_CPP_CLOCK_NATIVE_IDENTITY_OK" in process.stdout
     assert "DIRECT_CPP_CLOCK_FAIL_CLOSED_OK" in process.stdout
     assert "DIRECT_CPP_CLOCK_TEARDOWN_OK" in process.stdout
+
+
+def test_direct_cpp_clock_sleep_over_native_sleeper():
+    process = run_helper("_direct_cpp_clock_sleep_helper.py", timeout=180)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_CLOCK_SLEEP_FOR_OK" in process.stdout
+    assert "DIRECT_CPP_CLOCK_SLEEP_NATIVE_IDENTITY_OK" in process.stdout
+    assert "DIRECT_CPP_CLOCK_SLEEP_SIM_OK" in process.stdout
+    assert "DIRECT_CPP_CLOCK_SLEEP_INTERRUPT_OK" in process.stdout
+    assert "DIRECT_CPP_CLOCK_SLEEP_NOTINIT_OK" in process.stdout

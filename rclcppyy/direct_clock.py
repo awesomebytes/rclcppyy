@@ -4,9 +4,13 @@
 facade wraps the exact ``NativeNodeClock`` the native foundation retains for
 a node's ``rclcpp::Clock`` (one ``rclcpp::TimeSource`` owns sim-time
 natively; there is no product Python ``TimeSource``). Standalone
-``Clock(...)`` construction, the raw ``handle``, jump callbacks, ``sleep_for``
-/``sleep_until``, and ``set_ros_time_override`` all fail closed with a typed
-error -- none of them is half-built.
+``Clock(...)`` construction, the raw ``handle``, jump callbacks, and
+``set_ros_time_override`` all fail closed with a typed error -- none of them
+is half-built. ``sleep_for``/``sleep_until`` are the one accelerated
+exception: a node-bound clock runs them over the node's native
+``NativeClockSleeper`` (ROS-time-aware, context-interruptible); a clock built
+without a ``sleeper_provider`` (e.g. ``DirectClock._wrap`` used bare in a
+fast unit test) still fails the same sleep calls closed.
 """
 
 from __future__ import annotations
@@ -37,12 +41,15 @@ class DirectClock(_stock_clock.Clock):
             "Clock(...) construction is not supported")
 
     @classmethod
-    def _wrap(cls, native_node_clock: Any) -> "DirectClock":
+    def _wrap(
+        cls, native_node_clock: Any, sleeper_provider: Any = None,
+    ) -> "DirectClock":
         clock_type = ClockType(int(native_node_clock.clock_type))
         target = DirectROSClock if clock_type is ClockType.ROS_TIME else cls
         self = object.__new__(target)
         self._native_node_clock = native_node_clock
         self._clock_type = clock_type
+        self._sleeper_provider = sleeper_provider
         return self
 
     def _require_native(self) -> Any:
@@ -70,11 +77,47 @@ class DirectClock(_stock_clock.Clock):
     def create_jump_callback(self, *args: Any, **kwargs: Any) -> Any:
         _unsupported("direct_cpp clocks do not support jump callbacks")
 
-    def sleep_until(self, *args: Any, **kwargs: Any) -> bool:
-        _unsupported("direct_cpp clocks do not support sleep_until")
+    def _require_sleeper_provider(self) -> None:
+        if self._sleeper_provider is None:
+            _unsupported(
+                "direct_cpp clock sleep requires a node-bound clock "
+                "(built by Node.get_clock())")
 
-    def sleep_for(self, *args: Any, **kwargs: Any) -> bool:
-        _unsupported("direct_cpp clocks do not support sleep_for")
+    def _resolve_sleep_context(self, context: Any) -> Any:
+        """Validate ``context`` against the single active session context.
+
+        ``None`` resolves to the active context (the one the node's
+        sleeper is bound to); a foreign, non-active context fails closed --
+        direct_cpp has exactly one context per process, so there is no
+        second context to honor. Raises stock's own
+        ``NotInitializedException`` when the active context is not ok,
+        matching ``rclpy.clock.Clock.sleep_for/sleep_until``.
+        """
+        from rclcppyy.direct_cpp import _runtime
+
+        active = _runtime().context
+        if context is not None and context is not active:
+            _unsupported(
+                "direct_cpp clock sleep only supports the active session "
+                "context")
+        if not active.ok():
+            from rclpy.exceptions import NotInitializedException
+
+            raise NotInitializedException()
+        return active
+
+    def sleep_until(self, until: Any, context: Any = None) -> bool:
+        self._require_sleeper_provider()
+        self._resolve_sleep_context(context)
+        if until.clock_type != self._clock_type:
+            raise ValueError(
+                "until's clock type does not match this clock's type")
+        return bool(self._sleeper_provider().sleep_until(int(until.nanoseconds)))
+
+    def sleep_for(self, rel_time: Any, context: Any = None) -> bool:
+        self._require_sleeper_provider()
+        self._resolve_sleep_context(context)
+        return bool(self._sleeper_provider().sleep_for(int(rel_time.nanoseconds)))
 
     def close(self) -> bool:
         return self._native_node_clock.close()
@@ -96,9 +139,16 @@ class DirectROSClock(DirectClock, _stock_clock.ROSClock):
             "time is driven natively by use_sim_time + /clock")
 
 
-def wrap_node_clock(native_node_clock: Any) -> DirectClock:
-    """Build the rclpy-shaped facade that ``DirectNode.get_clock()`` returns."""
-    return DirectClock._wrap(native_node_clock)
+def wrap_node_clock(
+    native_node_clock: Any, sleeper_provider: Any = None,
+) -> DirectClock:
+    """Build the rclpy-shaped facade that ``DirectNode.get_clock()`` returns.
+
+    ``sleeper_provider``, when given, is a zero-argument callable returning
+    the node's ``NativeClockSleeper`` on demand -- passed in rather than a
+    node reference so the facade never holds a hard reference to the node.
+    """
+    return DirectClock._wrap(native_node_clock, sleeper_provider=sleeper_provider)
 
 
 __all__ = ["DirectClock", "DirectROSClock", "wrap_node_clock"]
