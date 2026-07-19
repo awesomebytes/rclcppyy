@@ -11,7 +11,7 @@ evidence to decide whether a more specialized lane is worthwhile.
 | Run existing `rclpy` software unchanged | `enable_cpp_acceleration()` | Exact stock Python object identities and behavior, including `Publisher.publish` | Operations remain stock Python and report that authority |
 | Try same-handle C++ publishing without changing application code | `enable_cpp_acceleration(profile="publisher_cpp")` | Exact stock publisher object and graph endpoint; explicit publish implementation change | Falls back to stock publishing visibly if preparation or a publish fails |
 | Keep supported messages in C++ storage through publish and take | `enable_cpp_acceleration(profile="message_facade")` before message imports | Exact stock Node, Context, Publisher, Subscription, callback-group, graph, and destruction objects; generated-style `String` and `UInt64` classes own C++ storage | Unsupported layouts/options stay visibly stock; a failed take raises without an unsafe retry |
-| Exercise the bounded source-compatible direct-C++ slice | `enable_cpp_acceleration(profile="direct_cpp", interfaces=("package/msg/Message", "package/srv/Service"))` before node/interface imports | One native `rclcpp` node authority; requested installed interfaces and nested message dependencies are actual generated C++ classes | Missing interfaces, stale imports, Python message objects, unreviewed options, and unsupported operations fail before entity creation |
+| Exercise the bounded source-compatible direct-C++ slice | `enable_cpp_acceleration(profile="direct_cpp", interfaces=("package/msg/Message", "package/srv/Service", "package/action/Action"))` before node/interface imports | One native `rclcpp` node authority; requested installed interfaces and nested message dependencies are actual generated C++ classes | Missing interfaces, stale imports, Python message objects, unreviewed options, and unsupported operations fail before entity creation |
 | Prove that a selected operation cannot fall back | `enable_cpp_acceleration(profile="required_cpp")` | Exact stock contract for supported operations | Rejects an unsupported operation before its side effects |
 | Use a C++-only ROS facility from Python | `rclcppyy.native()` | Explicit native API; not a drop-in `rclpy` replacement | Capability queries and normal exceptions make unsupported facilities visible |
 | Remove Python from a measured hot path | `rclcpp_kit` native callbacks, services, clients, actions, components, lifecycle nodes, or fused pipelines | Explicit opt-in contract for ownership, scheduling, and delivery | Compilation and construction are explicit; generated code and counters are inspectable |
@@ -151,7 +151,11 @@ import rclcppyy
 
 rclcppyy.enable_cpp_acceleration(
     profile="direct_cpp",
-    interfaces=("std_msgs/msg/Header", "std_srvs/srv/Trigger"),
+    interfaces=(
+        "std_msgs/msg/Header",
+        "std_srvs/srv/Trigger",
+        "my_actions/action/DoWork",
+    ),
 )
 
 import rclpy
@@ -183,14 +187,25 @@ values and returns a C++ response, with one request copy and one response
 assignment. These copies and Python crossings are explicit status evidence; no
 Python message conversion is involved.
 
+The default direct action registry contains `tf2_msgs/action/LookupTransform`.
+Explicitly registered installed actions use the common `ActionClient`,
+`send_goal_async`, feedback callback, result, and cancellation surface. Goal,
+Result, Feedback, UUID, SendGoal/GetResult, feedback-message, and CancelGoal aliases
+are validated before activation and then replaced transactionally with their exact
+generated C++ classes. Nested action payload messages are included in the same
+dependency closure. Direct action servers, custom goal UUIDs, non-default action
+QoS, synchronous convenience calls, callback groups, and introspection remain
+fail-closed.
+
 `std_msgs/msg/String` and `std_msgs/msg/UInt64` remain the default message registry.
 Additional interfaces must use canonical `package/msg/Message` or
-`package/srv/Service` spelling and must have installed rosidl resource metadata, a
-generated C++ header, a canonical cppyy alias, and a loadable C++ typesupport
-library. A registered service's nested message dependencies are resolved before
-any alias changes. Generated Python message classes are never accepted by direct
-entity factories. Topic QoS is still a positive integer depth; services use only
-the default service QoS. Activation must precede
+`package/srv/Service`, or `package/action/Action` spelling and must have installed
+rosidl resource metadata, a generated C++ header, a canonical cppyy alias, and a
+loadable C++ typesupport library. Registered service and action nested message
+dependencies are resolved before any alias changes. Generated Python message
+classes are never accepted by direct entity factories. Topic QoS accepts a
+positive integer depth or a validated Jazzy `QoSProfile`; services use only the
+default service QoS. Activation must precede
 `rclpy.node`, `rclpy.executors`, and every generated message import. Callback groups,
 events, QoS overrides, raw/content-filter subscriptions, custom publisher classes,
 public executors, coroutine service callbacks, synchronous client `call`, service

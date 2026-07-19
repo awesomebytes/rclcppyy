@@ -1126,12 +1126,14 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
     normalized_optimizations = tuple(sorted(set(optimizations)))
     from rclcppyy import direct_actions, direct_messages, direct_services
 
-    normalized_interfaces = direct_services.normalize_registered_interfaces(
+    normalized_interfaces = direct_actions.normalize_registered_interfaces(
         interfaces)
     message_interfaces = tuple(
         value for value in normalized_interfaces if "/msg/" in value)
     service_interfaces = tuple(
         value for value in normalized_interfaces if "/srv/" in value)
+    action_interfaces = tuple(
+        value for value in normalized_interfaces if "/action/" in value)
     unknown = sorted(
         set(normalized_optimizations) - {"subscription_shared_lease"})
     if unknown:
@@ -1152,14 +1154,17 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
     _check_runtime()
 
     service_plan = direct_services.prepare(service_interfaces)
+    action_plan = direct_actions.prepare(action_interfaces)
     installation = direct_messages.install(
-        message_interfaces + service_plan.message_dependencies)
+        message_interfaces
+        + service_plan.message_dependencies
+        + action_plan.message_dependencies)
     service_installation = None
     action_installation = None
     patches = []
     try:
         service_installation = direct_services.install(plan=service_plan)
-        action_installation = direct_actions.install()
+        action_installation = direct_actions.install(plan=action_plan)
         import rclpy
         import rclpy.action as action_module
         import rclpy.action.client as action_client_module
@@ -1226,10 +1231,13 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
             "optimizations": list(normalized_optimizations),
             "requested_message_interfaces": list(message_interfaces),
             "requested_service_interfaces": list(service_interfaces),
+            "requested_action_interfaces": list(action_interfaces),
             "message_types": [binding.cpp_type_name for binding in installation.bindings],
             "service_types": [
                 binding.cpp_type_name for binding in service_installation.bindings],
-            "action_types": [action_installation.binding.cpp_types.cpp_name],
+            "action_types": [
+                binding.cpp_types.cpp_name
+                for binding in action_installation.bindings],
         },
     )
     return True

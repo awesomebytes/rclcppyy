@@ -3,11 +3,37 @@
 import os
 from pathlib import Path
 import subprocess
+import sys
 
 from _run_helper import format_output, run_helper
 
 
 HERE = Path(__file__).resolve().parent
+
+
+def run_custom_interface_helper(
+    setup, helper, *arguments, timeout=360, cache_home=None
+):
+    environment = os.environ.copy()
+    if cache_home is not None:
+        environment["XDG_CACHE_HOME"] = str(cache_home)
+    return subprocess.run(
+        [
+            "bash",
+            "-c",
+            'source "$1"; shift; exec "$@"',
+            "direct-action-helper",
+            str(setup),
+            sys.executable,
+            str(HERE / helper),
+            *map(str, arguments),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+        check=False,
+        env=environment,
+    )
 
 
 def test_direct_cpp_source_compatible_pubsub_and_lifetime():
@@ -65,6 +91,13 @@ def test_direct_cpp_uninstalled_service_fails_before_alias_mutation():
         "_direct_cpp_missing_service_helper.py", timeout=180)
     assert process.returncode == 0, format_output(process)
     assert "DIRECT_CPP_MISSING_SERVICE_TRANSACTIONAL_OK" in process.stdout
+
+
+def test_direct_cpp_uninstalled_action_fails_before_alias_mutation():
+    process = run_helper(
+        "_direct_cpp_missing_action_helper.py", timeout=180)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_MISSING_ACTION_TRANSACTIONAL_OK" in process.stdout
 
 
 def test_direct_cpp_native_timer_and_bounded_spin():
@@ -135,6 +168,63 @@ def test_direct_cpp_lookup_transform_action_client_and_cpp_envelopes():
     assert "DIRECT_CPP_ACTION_CANCEL_OK" in process.stdout
     assert "DIRECT_CPP_ACTION_EVIDENCE_OK" in process.stdout
     assert "DIRECT_CPP_ACTION_REINIT_TEARDOWN_OK" in process.stdout
+
+
+def test_direct_cpp_registered_custom_action_uses_aot_cpp_server(tmp_path):
+    fixture = HERE / "fixtures" / "custom_interfaces"
+    work = tmp_path / "custom-action"
+    build = subprocess.run(
+        [
+            "colcon",
+            "--log-base", str(work / "log"),
+            "build",
+            "--base-paths", str(fixture),
+            "--build-base", str(work / "build"),
+            "--install-base", str(work / "install"),
+            "--packages-select",
+            "rclcppyy_test_interfaces",
+            "rclcppyy_test_peer",
+            "--cmake-args", "-DCMAKE_BUILD_TYPE=Release",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=240,
+        check=False,
+        env=os.environ.copy(),
+    )
+    assert build.returncode == 0, format_output(build)
+    setup = work / "install" / "setup.bash"
+    peer = (
+        work / "install" / "rclcppyy_test_peer" / "lib"
+        / "rclcppyy_test_peer" / "interop_peer"
+    )
+    assert setup.is_file()
+    assert peer.is_file() and os.access(peer, os.X_OK)
+
+    stale = run_custom_interface_helper(
+        setup, "_direct_cpp_custom_action_stale_import_helper.py")
+    assert stale.returncode == 0, format_output(stale)
+    assert "DIRECT_CPP_CUSTOM_ACTION_STALE_IMPORT_OK" in stale.stdout
+
+    unregistered = run_custom_interface_helper(
+        setup, "_direct_cpp_unregistered_action_helper.py")
+    assert unregistered.returncode == 0, format_output(unregistered)
+    assert "DIRECT_CPP_UNREGISTERED_ACTION_FAIL_CLOSED_OK" in \
+        unregistered.stdout
+
+    process = run_custom_interface_helper(
+        setup,
+        "_direct_cpp_generic_action_helper.py",
+        peer,
+        cache_home=work / "xdg-cache",
+    )
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_GENERIC_ACTION_ALIASES_OK" in process.stdout
+    assert "DIRECT_CPP_GENERIC_ACTION_SERVER_FAIL_CLOSED_OK" in process.stdout
+    assert "DIRECT_CPP_GENERIC_ACTION_RUNPATH_OK" in process.stdout
+    assert "DIRECT_CPP_GENERIC_ACTION_AOT_INTEROP_OK" in process.stdout
+    assert "DIRECT_CPP_GENERIC_ACTION_EVIDENCE_OK" in process.stdout
+    assert "DIRECT_CPP_GENERIC_ACTION_RETAINED_TEARDOWN_OK" in process.stdout
 
 
 def test_direct_cpp_rejects_supported_message_imported_before_activation():

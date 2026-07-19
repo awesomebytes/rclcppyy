@@ -18,13 +18,21 @@ rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
 import cppyy  # noqa: E402
 import rclpy  # noqa: E402
 from action_msgs.msg import GoalStatus  # noqa: E402
+from action_msgs.srv import CancelGoal  # noqa: E402
 from rclcppyy.policy import BackendUnavailableError  # noqa: E402
 from rclpy.action import ActionClient, ActionServer  # noqa: E402
 from rclpy.action.client import ClientGoalHandle  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from rclpy.qos import QoSProfile  # noqa: E402
 from rclpy.task import Future  # noqa: E402
-from tf2_msgs.action import LookupTransform  # noqa: E402
+from tf2_msgs.action import (  # noqa: E402
+    LookupTransform,
+    LookupTransform_GetResult_Request,
+    LookupTransform_GetResult_Response,
+    LookupTransform_SendGoal_Request,
+    LookupTransform_SendGoal_Response,
+)
+from unique_identifier_msgs.msg import UUID  # noqa: E402
 
 
 def as_int8(value):
@@ -53,8 +61,23 @@ assert LookupTransform.Result is cpp_action.Result
 assert LookupTransform.Impl.FeedbackMessage is cpp_action.Impl.FeedbackMessage
 assert LookupTransform.Impl.SendGoalService.Response is \
     cpp_action.Impl.SendGoalService.Response
+assert LookupTransform.Impl.SendGoalService.Request is \
+    cpp_action.Impl.SendGoalService.Request
 assert LookupTransform.Impl.GetResultService.Response is \
     cpp_action.Impl.GetResultService.Response
+assert LookupTransform.Impl.GetResultService.Request is \
+    cpp_action.Impl.GetResultService.Request
+assert LookupTransform_SendGoal_Request is \
+    cpp_action.Impl.SendGoalService.Request
+assert LookupTransform_SendGoal_Response is \
+    cpp_action.Impl.SendGoalService.Response
+assert LookupTransform_GetResult_Request is \
+    cpp_action.Impl.GetResultService.Request
+assert LookupTransform_GetResult_Response is \
+    cpp_action.Impl.GetResultService.Response
+assert UUID is cppyy.gbl.unique_identifier_msgs.msg.UUID
+assert CancelGoal.Request is cppyy.gbl.action_msgs.srv.CancelGoal.Request
+assert CancelGoal.Response is cppyy.gbl.action_msgs.srv.CancelGoal.Response
 constructed = LookupTransform.Goal(target_frame="map", source_frame="base")
 assert str(constructed.target_frame) == "map"
 assert str(constructed.source_frame) == "base"
@@ -251,6 +274,8 @@ try:
     assert evidence["cancel_representation"] == "actual_cpp"
     assert evidence["python_message_conversions"] == 0
     assert evidence["python_serialization_calls"] == 0
+    assert evidence["action_interface"] == \
+        "tf2_msgs/action/LookupTransform"
     print("DIRECT_CPP_ACTION_EVIDENCE_OK")
 
     assert client.destroy() is None

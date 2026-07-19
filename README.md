@@ -76,7 +76,10 @@ top-level `spin_until_future_complete` call shape uses actual C++ request and
 response classes. It must be enabled before importing `rclpy.node` or any supported
 interface. Unsupported options fail before entity creation. Subscription and
 service callbacks receive owning native C++ values; there is no generated Python
-message, representation conversion, or serialization boundary.
+message, representation conversion, or serialization boundary. The profile also
+defaults to a direct `tf2_msgs/action/LookupTransform` client and accepts explicitly
+registered installed actions. Goals, UUIDs, feedback, results, and protocol
+envelopes remain generated C++ values; direct action servers are still rejected.
 
 ## What you get
 
@@ -222,12 +225,14 @@ backend fact; a benefit requires separate, repeated, architecture-specific evide
   invalid Context blocked indefinitely, at the cost of periodic idle wake-ups.
   It is a reliability mitigation, not a C++ route or performance claim.
 - `profile="direct_cpp"` defaults to `std_msgs/String`, `UInt64`, and
-  `std_srvs/SetBool`; additional installed message and service interfaces can be
-  registered by canonical name. It covers the common node/entity call patterns,
+  `std_srvs/SetBool`, plus the `tf2_msgs/LookupTransform` action client. Additional
+  installed message, service, and action interfaces can be registered by canonical
+  name. It covers the common node/entity call patterns,
   native timers, top-level spin functions, and default service QoS. Service clients
   support `call_async`, not synchronous `call`; service callbacks must be synchronous
   and accept `(request, response)`. Callback groups, service introspection, and
-  public executors remain unsupported. It is not yet a general `rclpy` replacement. The
+  public executors and direct action servers remain unsupported. It is not yet a
+  general `rclpy` replacement. The
   subscription callback copy is measured by the dedicated `direct-cpp-rclcppyy`
   controlled relay lane. Service/client copy and crossing counts are exposed as
   correctness evidence; no service performance benefit is claimed yet.

@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import importlib
 import inspect
 import math
+import re
 import sys
 import threading
 from typing import Any
@@ -14,7 +15,14 @@ from rclcppyy._status import record_decision
 from rclcppyy.policy import BackendUnavailableError
 
 
-_IMPLEMENTATION_MODULE = "tf2_msgs.action._lookup_transform"
+DEFAULT_INTERFACES = ("tf2_msgs/action/LookupTransform",)
+_INTERFACE_NAME = re.compile(
+    r"^([A-Za-z][A-Za-z0-9_]*)/action/([A-Z][A-Za-z0-9_]*)$")
+_FIELD_INTERFACE = re.compile(
+    r"(?<![A-Za-z0-9_])([A-Za-z][A-Za-z0-9_]*)/(?:msg/)?"
+    r"([A-Z][A-Za-z0-9_]*)")
+_IMPLEMENTATION_MODULE = re.compile(
+    r"^[A-Za-z][A-Za-z0-9_]*\.action\._[A-Za-z0-9_]+$")
 _PYTHONIZED: dict[Any, Any] = {}
 _ACTIVE_INSTALLATION = None
 _DEFAULT_QOS = object()
@@ -38,18 +46,32 @@ def _int8_value(value) -> int:
 
 @dataclass(frozen=True)
 class DirectActionBinding:
+    interface: str
     action_type: type
     cpp_types: Any
     original_goal_type: type
     original_feedback_type: type
     original_result_type: type
+    header: str
+
+
+@dataclass(frozen=True)
+class DirectActionPlan:
+    bindings: tuple[DirectActionBinding, ...]
+    targets: tuple[tuple[Any, str, Any, Any], ...]
+    constructors: tuple[tuple[Any, type], ...]
+    message_dependencies: tuple[str, ...]
 
 
 class DirectActionInstallation:
-    def __init__(self, replacements, binding, pythonizations=()):
+    def __init__(self, replacements, bindings, pythonizations=()):
         self._replacements = tuple(replacements)
         self._pythonizations = tuple(pythonizations)
-        self.binding = binding
+        self.bindings = tuple(bindings)
+        self.binding = next(
+            binding for binding in self.bindings
+            if binding.interface == DEFAULT_INTERFACES[0]
+        )
         self._restored = False
 
     def restore(self):
@@ -68,14 +90,63 @@ class DirectActionInstallation:
         self._restored = True
 
 
-def assert_early_imports() -> None:
-    stale = sorted(
-        name for name in (_IMPLEMENTATION_MODULE, "rclpy.action")
-        if name in sys.modules
+def normalize_interfaces(interfaces=()) -> tuple[str, ...]:
+    values = (interfaces,) if isinstance(interfaces, str) else interfaces
+    try:
+        selected = tuple(values)
+    except TypeError as exc:
+        raise TypeError("interfaces must be an iterable of canonical names") from exc
+    if any(not isinstance(value, str) or not value for value in selected):
+        raise TypeError("interfaces must contain only non-empty strings")
+    invalid = sorted(
+        value for value in selected if _INTERFACE_NAME.fullmatch(value) is None)
+    if invalid:
+        raise ValueError(
+            "direct_cpp action interfaces must use package/action/Action names: %s" %
+            ", ".join(invalid)
+        )
+    return tuple(sorted(set(selected)))
+
+
+def normalize_registered_interfaces(interfaces=()) -> tuple[str, ...]:
+    """Validate the public registry across direct messages, services, and actions."""
+    values = (interfaces,) if isinstance(interfaces, str) else interfaces
+    try:
+        selected = tuple(values)
+    except TypeError as exc:
+        raise TypeError("interfaces must be an iterable of canonical names") from exc
+    if any(not isinstance(value, str) or not value for value in selected):
+        raise TypeError("interfaces must contain only non-empty strings")
+
+    messages = tuple(value for value in selected if "/msg/" in value)
+    services = tuple(value for value in selected if "/srv/" in value)
+    actions = tuple(value for value in selected if "/action/" in value)
+    known = set(messages) | set(services) | set(actions)
+    unknown = sorted(set(selected) - known)
+    if unknown:
+        raise ValueError(
+            "direct_cpp interfaces must use package/msg/Message, "
+            "package/srv/Service, or package/action/Action names: %s" %
+            ", ".join(unknown)
+        )
+    from rclcppyy.direct_messages import normalize_interfaces as normalize_messages
+    from rclcppyy.direct_services import normalize_interfaces as normalize_services
+
+    normalized = (
+        normalize_messages(messages)
+        + normalize_services(services)
+        + normalize_interfaces(actions)
     )
+    return tuple(sorted(set(normalized)))
+
+
+def assert_early_imports() -> None:
+    stale = sorted(name for name in sys.modules if _IMPLEMENTATION_MODULE.fullmatch(name))
+    if "rclpy.action" in sys.modules:
+        stale.append("rclpy.action")
     if stale:
         raise RuntimeError(
-            "direct_cpp must be enabled before importing supported actions: %s" %
+            "direct_cpp must be enabled before importing generated actions: %s" %
             ", ".join(stale)
         )
 
@@ -106,127 +177,278 @@ def _pythonize_constructor(cpp_type: Any, original_type: type):
     return cpp_type, original_init, direct_init
 
 
-def install() -> DirectActionInstallation:
-    """Install the first action's actual C++ payload and response aliases."""
-    global _ACTIVE_INSTALLATION
+def _dependencies(message_type: type, excluded=()) -> tuple[str, ...]:
+    excluded_set = set(excluded)
+    dependencies = set()
+    for field_type in message_type.get_fields_and_field_types().values():
+        for package, name in _FIELD_INTERFACE.findall(field_type):
+            interface = "%s/msg/%s" % (package, name)
+            if interface not in excluded_set:
+                dependencies.add(interface)
+    return tuple(sorted(dependencies))
+
+
+def prepare(interfaces=()) -> DirectActionPlan:
+    """Resolve every generated action value and envelope before alias mutation."""
+    import cppyy
     from rclcpp_kit.native_action import resolve_cpp_action_type
+    from rosidl_pycommon import convert_camel_case_to_lower_case_underscore
+    from rosidl_runtime_py.utilities import get_action, get_message, get_service
 
-    generated = importlib.import_module(_IMPLEMENTATION_MODULE)
-    public = importlib.import_module("tf2_msgs.action")
-    action_type = generated.LookupTransform
-    if public.LookupTransform is not action_type:
-        raise RuntimeError(
-            "tf2_msgs.action.LookupTransform changed before direct installation")
+    normalized = normalize_interfaces(interfaces)
+    bindings = []
+    targets = []
+    constructors = []
+    dependencies = set()
+    target_keys = set()
+    constructor_types = set()
+    common_cancel = None
 
-    impl = action_type.Impl
-    originals = {
-        "goal": generated.LookupTransform_Goal,
-        "feedback": generated.LookupTransform_Feedback,
-        "result": generated.LookupTransform_Result,
-        "feedback_message": generated.LookupTransform_FeedbackMessage,
-        "goal_response": generated.LookupTransform_SendGoal_Response,
-        "result_response": generated.LookupTransform_GetResult_Response,
-    }
+    def add_target(owner, attr, original, replacement):
+        key = (id(owner), attr)
+        if key in target_keys:
+            return
+        target_keys.add(key)
+        targets.append((owner, attr, original, replacement))
+
+    def add_constructor(replacement, original):
+        if replacement not in constructor_types:
+            constructor_types.add(replacement)
+            constructors.append((replacement, original))
+
+    seen = set()
+    for interface in DEFAULT_INTERFACES + normalized:
+        if interface in seen:
+            continue
+        seen.add(interface)
+        match = _INTERFACE_NAME.fullmatch(interface)
+        package, name = match.groups()
+        snake_name = convert_camel_case_to_lower_case_underscore(name)
+        expected_module = "%s.action._%s" % (package, snake_name)
+        try:
+            action_type = get_action(interface)
+        except (ImportError, AttributeError, ValueError) as exc:
+            raise TypeError(
+                "direct_cpp action interface is not installed: %s" % interface
+            ) from exc
+        if action_type.__module__ != expected_module or action_type.__name__ != name:
+            raise TypeError(
+                "direct_cpp action did not resolve to exact canonical interface %s" %
+                interface)
+
+        generated = importlib.import_module(expected_module)
+        public = importlib.import_module("%s.action" % package)
+        if getattr(generated, name) is not action_type:
+            raise RuntimeError("%s changed before direct alias installation" % interface)
+        if getattr(public, name) is not action_type:
+            raise RuntimeError("%s public alias changed before direct installation" % interface)
+
+        impl = action_type.Impl
+        prefix = "%s_" % name
+        originals = {
+            "goal": getattr(generated, prefix + "Goal"),
+            "feedback": getattr(generated, prefix + "Feedback"),
+            "result": getattr(generated, prefix + "Result"),
+            "feedback_message": getattr(generated, prefix + "FeedbackMessage"),
+            "goal_request": getattr(generated, prefix + "SendGoal_Request"),
+            "goal_response": getattr(generated, prefix + "SendGoal_Response"),
+            "result_request": getattr(generated, prefix + "GetResult_Request"),
+            "result_response": getattr(generated, prefix + "GetResult_Response"),
+        }
+        if (
+            action_type.Goal is not originals["goal"]
+            or action_type.Feedback is not originals["feedback"]
+            or action_type.Result is not originals["result"]
+            or getattr(generated, prefix + "SendGoal") is not impl.SendGoalService
+            or getattr(generated, prefix + "GetResult") is not impl.GetResultService
+            or impl.FeedbackMessage is not originals["feedback_message"]
+            or impl.SendGoalService.Request is not originals["goal_request"]
+            or impl.SendGoalService.Response is not originals["goal_response"]
+            or impl.GetResultService.Request is not originals["result_request"]
+            or impl.GetResultService.Response is not originals["result_response"]
+        ):
+            raise RuntimeError(
+                "%s payload or envelope aliases changed before installation" % interface)
+        for suffix in (
+            "SendGoal_Request", "SendGoal_Response",
+            "GetResult_Request", "GetResult_Response",
+        ):
+            if getattr(public, prefix + suffix) is not getattr(generated, prefix + suffix):
+                raise RuntimeError(
+                    "%s public envelope aliases changed before installation" % interface)
+
+        try:
+            uuid_type = get_message("unique_identifier_msgs/msg/UUID")
+            cancel_type = get_service("action_msgs/srv/CancelGoal")
+        except (ImportError, AttributeError, ValueError) as exc:
+            raise TypeError("direct_cpp action support types are not installed") from exc
+        if impl.CancelGoalService is not cancel_type:
+            raise TypeError("%s does not use canonical action_msgs/CancelGoal" % interface)
+        if (
+            uuid_type.__module__ != "unique_identifier_msgs.msg._uuid"
+            or uuid_type.__name__ != "UUID"
+            or cancel_type.__module__ != "action_msgs.srv._cancel_goal"
+            or cancel_type.__name__ != "CancelGoal"
+        ):
+            raise TypeError("direct_cpp action support types are not canonical")
+
+        cpp_types = resolve_cpp_action_type(action_type)
+        expected_cpp_name = "%s::action::%s" % (package, name)
+        cpp_impl = cpp_types.action.Impl
+        cpp_values = {
+            "goal": cpp_types.goal,
+            "feedback": cpp_types.feedback,
+            "result": cpp_types.result,
+            "feedback_message": cpp_types.feedback_message,
+            "goal_request": cpp_impl.SendGoalService.Request,
+            "goal_response": cpp_types.goal_response,
+            "result_request": cpp_impl.GetResultService.Request,
+            "result_response": cpp_types.result_response,
+        }
+        if (
+            cpp_types.cpp_name != expected_cpp_name
+            or cpp_types.goal is not cpp_types.action.Goal
+            or cpp_types.feedback is not cpp_types.action.Feedback
+            or cpp_types.result is not cpp_types.action.Result
+            or cpp_types.goal_response is not cpp_impl.SendGoalService.Response
+            or cpp_types.feedback_message is not cpp_impl.FeedbackMessage
+            or cpp_types.result_response is not cpp_impl.GetResultService.Response
+            or cpp_types.goal_id is not
+                cppyy.gbl.unique_identifier_msgs.msg.UUID
+            or cpp_types.cancel_response is not cpp_impl.CancelGoalService.Response
+        ):
+            raise TypeError(
+                "direct_cpp action C++ types do not match canonical interface %s" %
+                interface)
+
+        binding = DirectActionBinding(
+            interface=interface,
+            action_type=action_type,
+            cpp_types=cpp_types,
+            original_goal_type=originals["goal"],
+            original_feedback_type=originals["feedback"],
+            original_result_type=originals["result"],
+            header="%s/action/%s.hpp" % (package, snake_name),
+        )
+        bindings.append(binding)
+
+        for key, suffix in (
+            ("goal", "Goal"),
+            ("feedback", "Feedback"),
+            ("result", "Result"),
+            ("feedback_message", "FeedbackMessage"),
+            ("goal_request", "SendGoal_Request"),
+            ("goal_response", "SendGoal_Response"),
+            ("result_request", "GetResult_Request"),
+            ("result_response", "GetResult_Response"),
+        ):
+            add_target(
+                generated, prefix + suffix, originals[key], cpp_values[key])
+            add_constructor(cpp_values[key], originals[key])
+        for key, attr in (
+            ("goal", "Goal"),
+            ("feedback", "Feedback"),
+            ("result", "Result"),
+            ("feedback_message", "FeedbackMessage"),
+        ):
+            owner = impl if key == "feedback_message" else action_type
+            add_target(owner, attr, originals[key], cpp_values[key])
+        for key, suffix, service_type in (
+            ("goal_request", "SendGoal_Request", impl.SendGoalService),
+            ("goal_response", "SendGoal_Response", impl.SendGoalService),
+            ("result_request", "GetResult_Request", impl.GetResultService),
+            ("result_response", "GetResult_Response", impl.GetResultService),
+        ):
+            add_target(public, prefix + suffix, originals[key], cpp_values[key])
+            attr = "Request" if key.endswith("request") else "Response"
+            add_target(service_type, attr, originals[key], cpp_values[key])
+
+        local_messages = {
+            "%s/msg/%s_%s" % (package, name, suffix)
+            for suffix in ("Goal", "Result", "Feedback")
+        }
+        for original in originals.values():
+            dependencies.update(_dependencies(original, local_messages))
+        dependencies.add("unique_identifier_msgs/msg/UUID")
+
+        cancel_request = cancel_type.Request
+        cancel_response = cancel_type.Response
+        cpp_cancel_request = cpp_impl.CancelGoalService.Request
+        cpp_cancel_response = cpp_impl.CancelGoalService.Response
+        if common_cancel is None:
+            common_cancel = (
+                cancel_type, cancel_request, cancel_response,
+                cpp_cancel_request, cpp_cancel_response,
+            )
+        elif common_cancel[3:] != (cpp_cancel_request, cpp_cancel_response):
+            raise TypeError("direct_cpp actions resolved inconsistent cancel envelopes")
+        dependencies.update(_dependencies(cancel_request))
+        dependencies.update(_dependencies(cancel_response))
+
+    cancel_type, cancel_request, cancel_response, cpp_request, cpp_response = common_cancel
+    cancel_generated = importlib.import_module("action_msgs.srv._cancel_goal")
+    cancel_public = importlib.import_module("action_msgs.srv")
     if (
-        action_type.Goal is not originals["goal"]
-        or action_type.Feedback is not originals["feedback"]
-        or action_type.Result is not originals["result"]
-        or impl.FeedbackMessage is not originals["feedback_message"]
-        or impl.SendGoalService.Response is not originals["goal_response"]
-        or impl.GetResultService.Response is not originals["result_response"]
+        cancel_generated.CancelGoal is not cancel_type
+        or cancel_public.CancelGoal is not cancel_type
+        or cancel_generated.CancelGoal_Request is not cancel_request
+        or cancel_generated.CancelGoal_Response is not cancel_response
+        or cancel_public.CancelGoal_Request is not cancel_request
+        or cancel_public.CancelGoal_Response is not cancel_response
     ):
-        raise RuntimeError("LookupTransform aliases changed before direct installation")
+        raise RuntimeError("CancelGoal aliases changed before direct action installation")
+    for owner, attr, original, replacement in (
+        (cancel_generated, "CancelGoal_Request", cancel_request, cpp_request),
+        (cancel_generated, "CancelGoal_Response", cancel_response, cpp_response),
+        (cancel_public, "CancelGoal_Request", cancel_request, cpp_request),
+        (cancel_public, "CancelGoal_Response", cancel_response, cpp_response),
+        (cancel_type, "Request", cancel_request, cpp_request),
+        (cancel_type, "Response", cancel_response, cpp_response),
+    ):
+        add_target(owner, attr, original, replacement)
+    add_constructor(cpp_request, cancel_request)
+    add_constructor(cpp_response, cancel_response)
 
-    cpp_types = resolve_cpp_action_type(action_type)
-    binding = DirectActionBinding(
-        action_type=action_type,
-        cpp_types=cpp_types,
-        original_goal_type=originals["goal"],
-        original_feedback_type=originals["feedback"],
-        original_result_type=originals["result"],
+    return DirectActionPlan(
+        bindings=tuple(bindings),
+        targets=tuple(targets),
+        constructors=tuple(constructors),
+        message_dependencies=tuple(sorted(dependencies)),
     )
-    targets = (
-        (generated, "LookupTransform_Goal", originals["goal"], cpp_types.goal),
-        (generated, "LookupTransform_Feedback", originals["feedback"], cpp_types.feedback),
-        (generated, "LookupTransform_Result", originals["result"], cpp_types.result),
-        (action_type, "Goal", originals["goal"], cpp_types.goal),
-        (action_type, "Feedback", originals["feedback"], cpp_types.feedback),
-        (action_type, "Result", originals["result"], cpp_types.result),
-        (
-            generated,
-            "LookupTransform_FeedbackMessage",
-            originals["feedback_message"],
-            cpp_types.feedback_message,
-        ),
-        (
-            impl,
-            "FeedbackMessage",
-            originals["feedback_message"],
-            cpp_types.feedback_message,
-        ),
-        (
-            generated,
-            "LookupTransform_SendGoal_Response",
-            originals["goal_response"],
-            cpp_types.goal_response,
-        ),
-        (
-            public,
-            "LookupTransform_SendGoal_Response",
-            originals["goal_response"],
-            cpp_types.goal_response,
-        ),
-        (
-            impl.SendGoalService,
-            "Response",
-            originals["goal_response"],
-            cpp_types.goal_response,
-        ),
-        (
-            generated,
-            "LookupTransform_GetResult_Response",
-            originals["result_response"],
-            cpp_types.result_response,
-        ),
-        (
-            public,
-            "LookupTransform_GetResult_Response",
-            originals["result_response"],
-            cpp_types.result_response,
-        ),
-        (
-            impl.GetResultService,
-            "Response",
-            originals["result_response"],
-            cpp_types.result_response,
-        ),
-    )
+
+
+def install(interfaces=(), *, plan=None) -> DirectActionInstallation:
+    """Atomically install every prepared generated C++ action alias."""
+    global _ACTIVE_INSTALLATION
+    if plan is not None and normalize_interfaces(interfaces):
+        raise ValueError("install accepts either interfaces or a prepared plan")
+    selected_plan = prepare(interfaces) if plan is None else plan
+    if not isinstance(selected_plan, DirectActionPlan):
+        raise TypeError("plan must be a DirectActionPlan")
+
     pythonizations = []
     replacements = []
     try:
-        for original_name, cpp_type in (
-            ("goal", cpp_types.goal),
-            ("feedback", cpp_types.feedback),
-            ("result", cpp_types.result),
-            ("feedback_message", cpp_types.feedback_message),
-            ("goal_response", cpp_types.goal_response),
-            ("result_response", cpp_types.result_response),
-        ):
-            pythonization = _pythonize_constructor(
-                cpp_type, originals[original_name])
+        for cpp_type, original in selected_plan.constructors:
+            pythonization = _pythonize_constructor(cpp_type, original)
             if pythonization is not None:
                 pythonizations.append(pythonization)
-        for owner, name, original, replacement in targets:
-            if getattr(owner, name) is not original:
-                raise RuntimeError("LookupTransform aliases changed during installation")
+        for owner, name, original, replacement in selected_plan.targets:
+            current = getattr(owner, name)
+            if current is replacement:
+                continue
+            if current is not original:
+                raise RuntimeError(
+                    "%s.%s changed during direct action installation" %
+                    (owner.__name__, name))
             setattr(owner, name, replacement)
             replacements.append((owner, name, original, replacement))
     except Exception:
         DirectActionInstallation(
-            replacements, binding, pythonizations).restore()
+            replacements, selected_plan.bindings, pythonizations).restore()
         raise
     installation = DirectActionInstallation(
-        replacements, binding, pythonizations)
+        replacements, selected_plan.bindings, pythonizations)
     _ACTIVE_INSTALLATION = installation
     return installation
 
@@ -235,17 +457,23 @@ def resolve_supported_type(action_type: Any):
     installation = _ACTIVE_INSTALLATION
     if installation is None:
         raise RuntimeError("direct_cpp action aliases are not installed")
-    binding = installation.binding
-    if action_type is not binding.action_type:
+    binding = next(
+        (candidate for candidate in installation.bindings
+         if action_type is candidate.action_type),
+        None,
+    )
+    if binding is None:
         raise TypeError(
-            "direct_cpp currently supports only tf2_msgs.action.LookupTransform")
+            "direct_cpp action type is not registered; active interfaces: %s" %
+            ", ".join(item.interface for item in installation.bindings))
     cpp_types = binding.cpp_types
     if (
         action_type.Goal is not cpp_types.goal
         or action_type.Feedback is not cpp_types.feedback
         or action_type.Result is not cpp_types.result
     ):
-        raise TypeError("direct_cpp LookupTransform C++ aliases are not active")
+        raise TypeError(
+            "direct_cpp C++ action aliases are not active for %s" % binding.interface)
     return binding
 
 
@@ -369,6 +597,7 @@ class DirectActionClient:
                 "entity_type": "action_client",
                 "action_name": name,
                 "action_type": binding.cpp_types.cpp_name,
+                "action_interface": binding.interface,
                 "goal_representation": "actual_cpp",
                 "goal_id_representation": "actual_cpp",
                 "feedback_representation": "actual_cpp",
@@ -693,12 +922,17 @@ class DirectActionServer:
 
 
 __all__ = [
+    "DEFAULT_INTERFACES",
     "DirectActionBinding",
     "DirectActionClient",
     "DirectActionInstallation",
+    "DirectActionPlan",
     "DirectActionServer",
     "DirectClientGoalHandle",
     "assert_early_imports",
     "install",
+    "normalize_interfaces",
+    "normalize_registered_interfaces",
+    "prepare",
     "resolve_supported_type",
 ]

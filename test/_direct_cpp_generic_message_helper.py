@@ -142,12 +142,12 @@ activation = next(
     if item["metadata"].get("operation") == "enable_cpp_acceleration"
 )
 assert activation["metadata"]["requested_message_interfaces"] == [INTERFACE]
-assert set(activation["metadata"]["message_types"]) == {
+assert {
     "std_msgs::msg::Header",
     "builtin_interfaces::msg::Time",
     "std_msgs::msg::String",
     "std_msgs::msg::UInt64",
-}
+} <= set(activation["metadata"]["message_types"])
 header_entities = [
     item for item in status["entities"]
     if item["metadata"].get("message_type") ==
