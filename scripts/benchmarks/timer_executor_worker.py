@@ -328,7 +328,7 @@ def _direct_cpp_python_callback(args) -> int:
         def spin_once(timeout_sec):
             duration = cppyy.gbl.std.chrono.nanoseconds(int(timeout_sec * 1e9))
             native_executor.spin_once(duration)
-            node._poll_direct_clients()
+            node._poll_direct_entities()
 
     else:
         def spin_once(timeout_sec):

@@ -334,6 +334,15 @@ def test_wrapping_recurrence_is_fixed():
         "direct-raw-ste-control", "direct-public-ste"]
 
 
+def test_raw_direct_executor_control_uses_current_entity_polling_contract():
+    source = (BENCH_DIR / "timer_executor_worker.py").read_text(
+        encoding="utf-8")
+    removed_poll = "_poll_direct_" "clients"
+
+    assert "node._poll_direct_entities()" in source
+    assert removed_poll not in source
+
+
 @pytest.mark.parametrize("variant", tuple(protocol.VARIANTS))
 def test_each_variant_satisfies_the_exact_sample_contract(variant):
     protocol.validate_sample(_sample(variant), _cache(), _build())
