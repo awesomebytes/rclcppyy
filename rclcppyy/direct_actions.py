@@ -539,16 +539,26 @@ class DirectActionClient:
     def _poll_ready(self):
         if self._closed:
             return
-        self._poll_goal_responses()
-        self._poll_feedback()
-        self._check_feedback_overflow()
-        self._poll_cancel_responses()
-        self._poll_results()
+        with self._lock:
+            tokens = tuple(
+                set(self._goal_futures)
+                | set(self._handles)
+                | set(self._result_futures)
+                | set(self._cancel_futures)
+            )
+        for token in tokens:
+            state = self._native.poll_state(token)
+            if not self._poll_goal_response(token, state):
+                continue
+            if not self._poll_feedback(token, int(state.feedback_ready_count)):
+                return
+            self._check_feedback_overflow(int(state.feedback_dropped))
+            self._poll_cancel_response(token, bool(state.cancel_response_ready))
+            if self._closed:
+                return
+            self._poll_result(token, bool(state.result_ready))
 
-    def _check_feedback_overflow(self):
-        if not self._handles:
-            return
-        dropped = self._native.feedback_dropped_count()
+    def _check_feedback_overflow(self, dropped):
         if dropped != self._last_feedback_dropped:
             previous = self._last_feedback_dropped
             self._last_feedback_dropped = dropped
@@ -556,85 +566,92 @@ class DirectActionClient:
                 "direct_cpp action feedback queue overflowed: %d new messages" %
                 (dropped - previous))
 
-    def _poll_goal_responses(self):
+    def _poll_goal_response(self, token, state):
         with self._lock:
-            pending = tuple(self._goal_futures.items())
-        for token, future in pending:
-            if not self._native.goal_response_ready(token):
-                continue
-            goal_id = self._native.goal_id(token)
-            response = self._native.goal_response(token)
-            handle = DirectClientGoalHandle(self, token, goal_id, response)
-            with self._lock:
-                if self._goal_futures.get(token) is not future:
-                    continue
-                del self._goal_futures[token]
-                orphaned = token in self._orphaned_goals or future.cancelled()
-                self._orphaned_goals.discard(token)
-                if handle.accepted and not orphaned:
-                    self._handles[token] = handle
-                else:
-                    self._feedback_callbacks.pop(token, None)
-            if orphaned:
-                self._native.forget(token)
-            elif not future.done() and not future.cancelled():
-                future.set_result(handle)
-                if not handle.accepted:
-                    self._native.forget(token)
-
-    def _poll_feedback(self):
+            future = self._goal_futures.get(token)
+        if future is None or not bool(state.goal_response_ready):
+            return True
+        goal_id = self._native.goal_id(token)
+        response = self._native.goal_response(token)
+        handle = DirectClientGoalHandle(self, token, goal_id, response)
         with self._lock:
-            active = tuple(self._handles)
-        for token in active:
-            while self._native.feedback_ready(token):
-                message = self._native.take_feedback_message(token)
-                callback = self._feedback_callbacks.get(token)
-                if callback is None:
-                    continue
-                result = callback(message)
-                if inspect.isawaitable(result):
-                    close = getattr(result, "close", None)
-                    if close is not None:
-                        close()
-                    _unsupported(
-                        "direct_cpp feedback callbacks must complete synchronously")
-                self._python_feedback_callbacks += 1
-
-    def _poll_cancel_responses(self):
-        with self._lock:
-            pending = tuple(self._cancel_futures.items())
-        for token, future in pending:
-            if not self._native.cancel_response_ready(token):
-                continue
-            response = self._native.take_cancel_response(token)
-            with self._lock:
-                if self._cancel_futures.get(token) is not future:
-                    continue
-                del self._cancel_futures[token]
-                discard = token in self._discard_cancels or future.cancelled()
-                self._discard_cancels.discard(token)
-            if not discard and not future.done() and not future.cancelled():
-                future.set_result(response)
-
-    def _poll_results(self):
-        with self._lock:
-            pending = tuple(self._result_futures.items())
-        for token, future in pending:
-            if not self._native.result_ready(token):
-                continue
-            response = self._native.take_result_response(token)
-            with self._lock:
-                if self._result_futures.get(token) is not future:
-                    continue
-                del self._result_futures[token]
-                handle = self._handles.pop(token, None)
+            if self._goal_futures.get(token) is not future:
+                return True
+            del self._goal_futures[token]
+            orphaned = token in self._orphaned_goals or future.cancelled()
+            self._orphaned_goals.discard(token)
+            if handle.accepted and not orphaned:
+                self._handles[token] = handle
+            else:
                 self._feedback_callbacks.pop(token, None)
-                discard = token in self._discard_results or future.cancelled()
-                self._discard_results.discard(token)
-            if handle is not None:
-                handle._status = _int8_value(response.status)
-            if not discard and not future.done() and not future.cancelled():
-                future.set_result(response)
+        if orphaned:
+            self._native.forget(token)
+            return False
+        if not future.done() and not future.cancelled():
+            future.set_result(handle)
+        if not handle.accepted:
+            self._native.forget(token)
+            return False
+        return not self._closed
+
+    def _poll_feedback(self, token, ready_count):
+        with self._lock:
+            if token not in self._handles:
+                return True
+        for _ in range(ready_count):
+            message = self._native.take_feedback_message(token)
+            callback = self._feedback_callbacks.get(token)
+            if callback is None:
+                continue
+            result = callback(message)
+            if inspect.isawaitable(result):
+                close = getattr(result, "close", None)
+                if close is not None:
+                    close()
+                _unsupported(
+                    "direct_cpp feedback callbacks must complete synchronously")
+            self._python_feedback_callbacks += 1
+            if self._closed:
+                return False
+        return True
+
+    def _poll_cancel_response(self, token, ready):
+        if not ready:
+            return
+        with self._lock:
+            future = self._cancel_futures.get(token)
+        if future is None:
+            return
+        response = self._native.take_cancel_response(token)
+        with self._lock:
+            if self._cancel_futures.get(token) is not future:
+                return
+            del self._cancel_futures[token]
+            discard = token in self._discard_cancels or future.cancelled()
+            self._discard_cancels.discard(token)
+        if not discard and not future.done() and not future.cancelled():
+            future.set_result(response)
+
+    def _poll_result(self, token, ready):
+        if not ready:
+            return
+        with self._lock:
+            future = self._result_futures.get(token)
+        if future is None:
+            return
+        response = self._native.take_result_response(token)
+        with self._lock:
+            if self._result_futures.get(token) is not future:
+                return
+            del self._result_futures[token]
+            handle = self._handles.pop(token, None)
+            self._feedback_callbacks.pop(token, None)
+            discard = token in self._discard_results or future.cancelled()
+            self._discard_results.discard(token)
+        if handle is not None:
+            handle._status = _int8_value(response.status)
+        if not discard and not future.done() and not future.cancelled():
+            future.set_result(response)
 
     def stats(self):
         return self._native.stats()
