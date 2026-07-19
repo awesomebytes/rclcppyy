@@ -435,7 +435,18 @@ class DirectClient:
         _unsupported("direct_cpp clients do not expose a stock rclpy handle")
 
     def call(self, request, timeout_sec=None):
-        _unsupported("direct_cpp first service slice supports call_async(), not call()")
+        if not isinstance(request, self.srv_type.Request):
+            raise TypeError(
+                "request must be an actual direct_cpp C++ %s.Request" %
+                self.srv_type.__name__)
+        event = threading.Event()
+        future = self.call_async(request)
+        future.add_done_callback(lambda _future: event.set())
+        if not future.done() and not event.wait(timeout_sec):
+            self.remove_pending_request(future)
+        if future.exception() is not None:
+            raise future.exception()
+        return future.result()
 
     def call_async(self, request):
         if self._closed:

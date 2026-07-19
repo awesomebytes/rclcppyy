@@ -4,6 +4,7 @@
 import gc
 import importlib
 import os
+import threading
 import time
 
 import rclcppyy
@@ -14,6 +15,7 @@ rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
 import cppyy  # noqa: E402
 import rclpy  # noqa: E402
 from rclcppyy.policy import BackendUnavailableError  # noqa: E402
+from rclpy.executors import SingleThreadedExecutor  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from rclpy.qos import QoSProfile, qos_profile_services_default  # noqa: E402
 from rclpy.task import Future  # noqa: E402
@@ -195,33 +197,63 @@ rclpy.spin_until_future_complete(node, timed_out, timeout_sec=0.01)
 assert not timed_out.done() and not timed_out.cancelled()
 missing.remove_pending_request(timed_out)
 try:
-    client.call(SetBool.Request(data=True), timeout_sec=0.01)
-except BackendUnavailableError:
-    pass
+    client.call(object(), timeout_sec=0.01)
+except TypeError as error:
+    assert "actual direct_cpp C++ SetBool.Request" in str(error)
 else:
-    raise AssertionError("direct synchronous client call was accepted")
+    raise AssertionError("direct synchronous client accepted a non-C++ request")
+
+executor = SingleThreadedExecutor(context=node.context)
+assert executor.add_node(node)
+stop_spin = threading.Event()
+
+
+def spin_for_synchronous_calls():
+    while not stop_spin.is_set():
+        executor.spin_once(timeout_sec=0.02)
+
+
+spin_thread = threading.Thread(
+    target=spin_for_synchronous_calls,
+    name="direct-service-sync-spin",
+)
+spin_thread.start()
+try:
+    synchronous = client.call(SetBool.Request(data=False), timeout_sec=5.0)
+    assert type(synchronous) is SetBool.Response
+    assert synchronous.success is False
+    assert str(synchronous.message) == "direct:false"
+    assert missing.call(SetBool.Request(data=True), timeout_sec=0.01) is None
+finally:
+    stop_spin.set()
+    executor.wake()
+    spin_thread.join(timeout=5.0)
+    assert not spin_thread.is_alive()
+    executor.remove_node(node)
+    assert executor.shutdown(timeout_sec=1.0)
+print("DIRECT_CPP_SERVICE_SYNCHRONOUS_CALL_OK")
 plain_future = Future()
 rclpy.spin_until_future_complete(node, plain_future, timeout_sec=0.0)
 assert not plain_future.done() and not plain_future.cancelled()
 missing_stats = missing.stats()
-assert missing_stats.requests_sent == 2
-assert missing_stats.canceled == 2
+assert missing_stats.requests_sent == 3
+assert missing_stats.canceled == 3
 assert missing_stats.pending_requests == 0
-assert missing_stats.cpp_request_copies == 2
+assert missing_stats.cpp_request_copies == 3
 print("DIRECT_CPP_SERVICE_FUTURE_CONTROL_OK")
 
 
 client_stats = client.stats()
 service_stats = service.stats()
-assert client_stats.requests_sent == 1
-assert client_stats.responses_taken == 1
-assert client_stats.python_request_crossings == 1
-assert client_stats.python_response_crossings == 1
-assert client_stats.cpp_request_copies == 1
-assert service_stats.requests == 1
-assert service_stats.python_callback_crossings == 1
-assert service_stats.request_cpp_copies == 1
-assert service_stats.response_cpp_copies == 1
+assert client_stats.requests_sent == 2
+assert client_stats.responses_taken == 2
+assert client_stats.python_request_crossings == 2
+assert client_stats.python_response_crossings == 2
+assert client_stats.cpp_request_copies == 2
+assert service_stats.requests == 2
+assert service_stats.python_callback_crossings == 2
+assert service_stats.request_cpp_copies == 2
+assert service_stats.response_cpp_copies == 2
 assert service_stats.exceptions == 0
 
 records = [

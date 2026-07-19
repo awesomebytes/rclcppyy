@@ -202,6 +202,7 @@ def test_direct_cpp_setbool_service_client_and_future_control():
     assert "DIRECT_CPP_SERVICE_FAIL_CLOSED_OK" in process.stdout
     assert "DIRECT_CPP_SERVICE_CALL_OK" in process.stdout
     assert "DIRECT_CPP_SERVICE_EXCEPTION_OK" in process.stdout
+    assert "DIRECT_CPP_SERVICE_SYNCHRONOUS_CALL_OK" in process.stdout
     assert "DIRECT_CPP_SERVICE_FUTURE_CONTROL_OK" in process.stdout
     assert "DIRECT_CPP_SERVICE_EVIDENCE_OK" in process.stdout
     assert "DIRECT_CPP_SERVICE_REINIT_TEARDOWN_OK" in process.stdout

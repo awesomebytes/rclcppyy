@@ -185,7 +185,8 @@ are both supported.
 
 The same profile supports `std_srvs/srv/SetBool` by default and explicitly
 registered installed services such as `std_srvs/srv/Trigger` through the common
-`create_service`, `create_client`, request construction, `call_async`, and top-level
+`create_service`, `create_client`, request construction, `call_async`, blocking
+`call`, and top-level
 `rclpy.spin_until_future_complete` surface. Request and response objects are the
 actual generated C++ classes. Each call uses one C++ copy
 to transfer the constructed request value into shared native ownership; the
@@ -247,7 +248,7 @@ default service QoS. Activation must precede
 default callback group plus explicit mutually-exclusive and reentrant groups work
 for publishers, subscriptions, timers, services, clients, and action clients.
 Events, QoS overrides, raw/content-filter subscriptions, custom publisher classes,
-coroutine service callbacks, synchronous client `call`, service introspection,
+coroutine service callbacks, service introspection,
 parameter services/events and remote clients, multi-threaded execution, and the rest
 of the uncovered `rclpy` surface are rejected rather than falling back onto a second
 authority.
