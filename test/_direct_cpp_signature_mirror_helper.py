@@ -48,14 +48,17 @@ def assert_still_divergent(class_name, member_name):
 
 # Representative clean-mirrorable facades (signature-normalization plan's
 # population analysis: annotation-absence and stringified-annotation rows).
+# Executor.__init__ joined this population once the executor slice (wave 3
+# Lane 2) removed the num_threads parameter it used to carry on the shared
+# base -- num_threads is a MultiThreadedExecutor-only parameter in stock, so
+# the base Executor.__init__ has no genuine divergence left to mirror around.
 assert_mirrored("Executor", "create_task")
+assert_mirrored("Executor", "__init__")
 assert_mirrored("CallbackGroup", "can_execute")
 assert_mirrored("Node", "get_name")
 
-# Representative facades the gate must leave alone: a payload-tainted stock
-# counterpart (declare_parameter forwards a C++ descriptor payload), and a
-# genuine parameter-set divergence (Executor.__init__ gains num_threads).
+# Representative facade the gate must leave alone: a payload-tainted stock
+# counterpart (declare_parameter forwards a C++ descriptor payload).
 assert_still_divergent("Node", "declare_parameter")
-assert_still_divergent("Executor", "__init__")
 
 print("DIRECT_CPP_SIGNATURE_MIRROR_OK")

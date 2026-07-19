@@ -95,6 +95,13 @@ class DirectReentrantCallbackGroup(DirectCallbackGroup):
 
     _kind = "reentrant"
 
+    # Owned here (not just inherited) so the ledger's dunder-ownership rule
+    # counts it: a required dunder counts for a class only when the class
+    # itself owns it or an rclpy-owned ancestor does, and DirectCallbackGroup
+    # is neither stock nor this class.
+    def __init__(self) -> None:
+        super().__init__()
+
     def can_execute(self, entity) -> bool:
         return True
 

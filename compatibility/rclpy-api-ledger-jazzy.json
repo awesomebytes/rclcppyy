@@ -17557,19 +17557,29 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectReentrantCallbackGroup",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self) -> None"
+        }
+      },
       "level": "member",
       "path": "rclpy.callback_groups.ReentrantCallbackGroup.__init__",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -21256,6 +21266,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -21302,6 +21313,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -21348,6 +21360,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -21394,6 +21407,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -21440,6 +21454,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -21486,6 +21501,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -21532,6 +21548,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -21578,6 +21595,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -21624,6 +21642,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -21668,6 +21687,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -21718,6 +21738,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -21768,6 +21789,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -21818,6 +21840,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -21868,6 +21891,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -21912,6 +21936,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -21956,6 +21981,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22000,6 +22026,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22044,6 +22071,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22086,6 +22114,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22130,6 +22159,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22172,6 +22202,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22216,6 +22247,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22258,6 +22290,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22300,6 +22333,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22344,6 +22378,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22390,6 +22425,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22436,6 +22472,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22482,6 +22519,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22528,6 +22566,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22574,6 +22613,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22620,6 +22660,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22666,6 +22707,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22712,6 +22754,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22758,6 +22801,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22804,6 +22848,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22850,6 +22895,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22894,6 +22940,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22944,6 +22991,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -22994,6 +23042,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23044,6 +23093,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23094,6 +23144,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23138,6 +23189,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23182,6 +23234,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23226,6 +23279,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23270,6 +23324,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23312,6 +23367,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23356,6 +23412,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23398,6 +23455,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23442,6 +23500,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23484,6 +23543,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23526,6 +23586,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23570,6 +23631,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23616,6 +23678,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23662,6 +23725,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23708,6 +23772,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23754,6 +23819,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23800,6 +23866,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23846,6 +23913,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23892,6 +23960,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23938,6 +24007,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -23984,6 +24054,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24030,6 +24101,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24076,6 +24148,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24122,6 +24195,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24168,6 +24242,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24214,6 +24289,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24260,6 +24336,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24306,6 +24383,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24352,6 +24430,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24398,6 +24477,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24444,6 +24524,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24490,6 +24571,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24536,6 +24618,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24588,6 +24671,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24634,6 +24718,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24680,6 +24765,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24726,6 +24812,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24772,6 +24859,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24818,6 +24906,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24864,6 +24953,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24908,6 +24998,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -24954,6 +25045,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25000,6 +25092,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25044,6 +25137,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25090,6 +25184,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25136,6 +25231,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25182,6 +25278,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25228,6 +25325,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25274,6 +25372,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25320,6 +25419,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25366,6 +25466,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25412,6 +25513,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25458,6 +25560,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25504,6 +25607,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25548,6 +25652,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25594,6 +25699,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25640,6 +25746,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25686,6 +25793,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25732,6 +25840,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25778,6 +25887,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25824,6 +25934,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25870,6 +25981,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25916,6 +26028,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -25962,6 +26075,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26008,6 +26122,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26054,6 +26169,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26106,6 +26222,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26152,6 +26269,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26198,6 +26316,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26244,6 +26363,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26290,6 +26410,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26342,6 +26463,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26388,6 +26510,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26434,6 +26557,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26480,6 +26604,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26526,6 +26651,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26572,6 +26698,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26618,6 +26745,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26662,6 +26790,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26708,6 +26837,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26754,6 +26884,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26798,6 +26929,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26844,6 +26976,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26890,6 +27023,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26936,6 +27070,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -26982,6 +27117,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27028,6 +27164,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27074,6 +27211,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27120,6 +27258,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27166,6 +27305,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27212,6 +27352,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27258,6 +27399,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27304,6 +27446,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27350,6 +27493,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27396,6 +27540,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27442,6 +27587,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27488,6 +27634,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27534,6 +27681,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27580,6 +27728,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27626,6 +27775,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27672,6 +27822,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27716,6 +27867,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27766,6 +27918,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27816,6 +27969,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27866,6 +28020,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27916,6 +28071,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -27960,6 +28116,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -28004,6 +28161,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -28048,6 +28206,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -28092,6 +28251,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -28134,6 +28294,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -28178,6 +28339,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -28220,6 +28382,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -28264,6 +28427,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -28306,6 +28470,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -28348,6 +28513,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -29800,6 +29966,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -29846,6 +30013,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -29892,6 +30060,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -29938,6 +30107,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -29984,6 +30154,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -30036,6 +30207,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -30082,6 +30254,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -30128,6 +30301,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -30174,6 +30348,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -30220,6 +30395,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -30266,6 +30442,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -30312,6 +30489,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -30356,6 +30534,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -30402,6 +30581,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -30448,6 +30628,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -30492,6 +30673,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -30538,6 +30720,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -30584,6 +30767,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -30636,6 +30820,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -42997,14 +43182,14 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -43014,12 +43199,12 @@
         "qualname": "DirectExecutor",
         "signature": {
           "state": "inspectable",
-          "value": "(*, context=None, num_threads=None) -> 'None'"
+          "value": "(*, context: Optional[rclpy.context.Context] = None) -> None"
         }
       },
       "level": "symbol",
       "path": "rclpy.executors.Executor",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -43097,14 +43282,14 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -43114,12 +43299,12 @@
         "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
-          "value": "(self, exc_type, exc, traceback) -> 'None'"
+          "value": "(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[traceback]) -> None"
         }
       },
       "level": "member",
       "path": "rclpy.executors.Executor.__exit__",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -43147,14 +43332,14 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -43164,12 +43349,12 @@
         "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
-          "value": "(self, *, context=None, num_threads=None) -> 'None'"
+          "value": "(self, *, context: Optional[rclpy.context.Context] = None) -> None"
         }
       },
       "level": "member",
       "path": "rclpy.executors.Executor.__init__",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -43247,19 +43432,29 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, entity: ~WaitableEntityType) -> bool"
+        }
+      },
       "level": "member",
       "path": "rclpy.executors.Executor.can_execute",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -43837,19 +44032,29 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, *args, **kwargs) -> Tuple[rclpy.task.Task, ~WaitableEntityType, ForwardRef('Node')]"
+        }
+      },
       "level": "member",
       "path": "rclpy.executors.Executor.wait_for_ready_callbacks",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -45173,14 +45378,14 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -45190,12 +45395,12 @@
         "qualname": "DirectMultiThreadedExecutor",
         "signature": {
           "state": "inspectable",
-          "value": "(*, context=None, num_threads=None) -> 'None'"
+          "value": "(num_threads: Optional[int] = None, *, context: Optional[rclpy.context.Context] = None) -> None"
         }
       },
       "level": "symbol",
       "path": "rclpy.executors.MultiThreadedExecutor",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -45223,19 +45428,29 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectMultiThreadedExecutor",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self) -> 'Executor'"
+        }
+      },
       "level": "member",
       "path": "rclpy.executors.MultiThreadedExecutor.__enter__",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -45263,19 +45478,29 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectMultiThreadedExecutor",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[traceback]) -> None"
+        }
+      },
       "level": "member",
       "path": "rclpy.executors.MultiThreadedExecutor.__exit__",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -45303,19 +45528,29 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectMultiThreadedExecutor",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, num_threads: Optional[int] = None, *, context: Optional[rclpy.context.Context] = None) -> None"
+        }
+      },
       "level": "member",
       "path": "rclpy.executors.MultiThreadedExecutor.__init__",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -45393,19 +45628,29 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, entity: ~WaitableEntityType) -> bool"
+        }
+      },
       "level": "member",
       "path": "rclpy.executors.MultiThreadedExecutor.can_execute",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -45983,19 +46228,29 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, *args, **kwargs) -> Tuple[rclpy.task.Task, ~WaitableEntityType, ForwardRef('Node')]"
+        }
+      },
       "level": "member",
       "path": "rclpy.executors.MultiThreadedExecutor.wait_for_ready_callbacks",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -47359,14 +47614,14 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -47376,12 +47631,12 @@
         "qualname": "DirectSingleThreadedExecutor",
         "signature": {
           "state": "inspectable",
-          "value": "(*, context=None, num_threads=None) -> 'None'"
+          "value": "(*, context: Optional[rclpy.context.Context] = None) -> None"
         }
       },
       "level": "symbol",
       "path": "rclpy.executors.SingleThreadedExecutor",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -47409,19 +47664,29 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectSingleThreadedExecutor",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self) -> 'Executor'"
+        }
+      },
       "level": "member",
       "path": "rclpy.executors.SingleThreadedExecutor.__enter__",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -47449,19 +47714,29 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectSingleThreadedExecutor",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[traceback]) -> None"
+        }
+      },
       "level": "member",
       "path": "rclpy.executors.SingleThreadedExecutor.__exit__",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -47489,19 +47764,29 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectSingleThreadedExecutor",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, *, context: Optional[rclpy.context.Context] = None) -> None"
+        }
+      },
       "level": "member",
       "path": "rclpy.executors.SingleThreadedExecutor.__init__",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -47579,19 +47864,29 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, entity: ~WaitableEntityType) -> bool"
+        }
+      },
       "level": "member",
       "path": "rclpy.executors.SingleThreadedExecutor.can_execute",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -48169,19 +48464,29 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, *args, **kwargs) -> Tuple[rclpy.task.Task, ~WaitableEntityType, ForwardRef('Node')]"
+        }
+      },
       "level": "member",
       "path": "rclpy.executors.SingleThreadedExecutor.wait_for_ready_callbacks",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -149223,6 +149528,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149267,6 +149573,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149317,6 +149624,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149367,6 +149675,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149417,6 +149726,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149467,6 +149777,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149511,6 +149822,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149555,6 +149867,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149599,6 +149912,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149643,6 +149957,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149685,6 +150000,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149729,6 +150045,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149771,6 +150088,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149815,6 +150133,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149857,6 +150176,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149899,6 +150219,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149943,6 +150264,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -149989,6 +150311,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150035,6 +150358,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150081,6 +150405,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150127,6 +150452,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150179,6 +150505,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150225,6 +150552,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150271,6 +150599,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150317,6 +150646,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150363,6 +150693,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150409,6 +150740,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150455,6 +150787,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150499,6 +150832,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150545,6 +150879,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150591,6 +150926,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150635,6 +150971,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150687,6 +151024,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150733,6 +151071,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150779,6 +151118,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150825,6 +151165,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150871,6 +151212,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150923,6 +151265,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -150969,6 +151312,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151015,6 +151359,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151061,6 +151406,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151107,6 +151453,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151153,6 +151500,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151199,6 +151547,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151243,6 +151592,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151289,6 +151639,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151335,6 +151686,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151379,6 +151731,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151425,6 +151778,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151471,6 +151825,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151523,6 +151878,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151567,6 +151923,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151617,6 +151974,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151667,6 +152025,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151717,6 +152076,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151767,6 +152127,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151811,6 +152172,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151855,6 +152217,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151899,6 +152262,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151943,6 +152307,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -151985,6 +152350,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152029,6 +152395,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152071,6 +152438,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152115,6 +152483,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152157,6 +152526,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152199,6 +152569,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152243,6 +152614,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152287,6 +152659,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152331,6 +152704,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152375,6 +152749,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152419,6 +152794,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152463,6 +152839,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152507,6 +152884,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152551,6 +152929,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152595,6 +152974,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152639,6 +153019,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152683,6 +153064,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152727,6 +153109,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152777,6 +153160,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152821,6 +153205,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152865,6 +153250,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152909,6 +153295,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152953,6 +153340,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -152997,6 +153385,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153041,6 +153430,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153085,6 +153475,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153129,6 +153520,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153173,6 +153565,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153217,6 +153610,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153261,6 +153655,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153305,6 +153700,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153351,6 +153747,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153397,6 +153794,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153443,6 +153841,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153489,6 +153888,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153535,6 +153935,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153581,6 +153982,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153627,6 +154029,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153673,6 +154076,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153719,6 +154123,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153765,6 +154170,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153809,6 +154215,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153859,6 +154266,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153909,6 +154317,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -153959,6 +154368,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154009,6 +154419,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154059,6 +154470,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154103,6 +154515,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154147,6 +154560,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154191,6 +154605,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154235,6 +154650,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154277,6 +154693,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154321,6 +154738,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154363,6 +154781,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154407,6 +154826,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154449,6 +154869,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154491,6 +154912,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154535,6 +154957,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154587,6 +155010,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154633,6 +155057,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154679,6 +155104,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154725,6 +155151,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154771,6 +155198,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154823,6 +155251,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154869,6 +155298,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154915,6 +155345,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -154961,6 +155392,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -155007,6 +155439,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -155053,6 +155486,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -155099,6 +155533,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -155143,6 +155578,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -155189,6 +155625,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -155235,6 +155672,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -155279,6 +155717,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -155325,6 +155764,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -155371,6 +155811,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -155417,6 +155858,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -155463,6 +155905,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -155509,6 +155952,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -155555,6 +155999,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -155601,6 +156046,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "clock.direct_cpp_sleep",
           "time.direct_cpp_node_clock",
           "time.direct_cpp_payload",
           "time.direct_cpp_sim_time",
@@ -171441,21 +171887,21 @@
     "ros_distribution": "jazzy"
   },
   "summary": {
-    "direct_backend_entries": 721,
+    "direct_backend_entries": 734,
     "direct_only_entries": 0,
     "generated_interface_aliases": 21,
     "ledger_entries": 3800,
     "modules": 58,
-    "signature_mismatches": 199,
+    "signature_mismatches": 194,
     "statuses": {
       "exact_direct_cpp_authority": 0,
       "explicit_fail_closed": 3,
-      "missing_mismatch": 327,
+      "missing_mismatch": 309,
       "mixed_control_direct_data": 0,
-      "unassessed": 2673,
+      "unassessed": 2691,
       "unchanged_stock_fallback": 797
     },
-    "stock_only_entries": 128,
+    "stock_only_entries": 115,
     "stock_public_class_members": 3333,
     "stock_public_symbols": 467,
     "superset_violations": 0,

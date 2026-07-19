@@ -44,7 +44,7 @@ class DirectExecutor(metaclass=_DirectSurface):
     _threads = 1
     _PARITY_HIDDEN = frozenset({"native_executor", "park_node"})
 
-    def __init__(self, *, context=None, num_threads=None) -> None:
+    def __init__(self, *, context=None) -> None:
         runtime = _runtime()
         if context is not None and context is not runtime.context:
             _unsupported("direct_cpp executors require the active direct context")
@@ -53,8 +53,6 @@ class DirectExecutor(metaclass=_DirectSurface):
                 "direct_cpp MultiThreadedExecutor requires native Python callback "
                 "concurrency and exception propagation proof"
             )
-        if num_threads is not None:
-            _unsupported("direct_cpp SingleThreadedExecutor does not accept num_threads")
         self._runtime = runtime
         self._context = runtime.context
         self._native = runtime.require_session().create_executor(self._kind)
@@ -89,8 +87,21 @@ class DirectExecutor(metaclass=_DirectSurface):
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc, traceback) -> None:
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.shutdown()
+
+    def can_execute(self, entity) -> bool:
+        # Stock also gates on `not entity._executor_event`; direct entities
+        # carry no such attribute, so this delegates only to the callback
+        # group's advisory contract (rclcpp is the true scheduling
+        # authority -- see DirectCallbackGroup).
+        return entity.callback_group.can_execute(entity)
+
+    def wait_for_ready_callbacks(self, *args, **kwargs):
+        _unsupported(
+            "direct_cpp executors have no Python-level wait set to enumerate; "
+            "the native rclcpp executor owns readiness"
+        )
 
     def _validate_node(self, node):
         from rclcppyy.direct_cpp import DirectNode
@@ -279,11 +290,72 @@ class DirectExecutor(metaclass=_DirectSurface):
 class DirectSingleThreadedExecutor(DirectExecutor):
     """A public facade over ``rclcpp::executors::SingleThreadedExecutor``."""
 
+    # Owned directly (not just inherited from DirectExecutor) so the ledger's
+    # dunder-ownership rule counts them, matching stock -- which owns its own
+    # __init__ and inherits __enter__/__exit__ from an rclpy-owned ancestor
+    # (an inheritance path this package's base class cannot supply).
+    def __init__(self, *, context=None) -> None:
+        super().__init__(context=context)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self.shutdown()
+
 
 class DirectMultiThreadedExecutor(DirectExecutor):
     """Reserved until native concurrent Python callback behavior is proven."""
 
     _kind = "multi_threaded"
+
+    def __init__(self, num_threads=None, *, context=None) -> None:
+        # Structural parity only in this slice: DirectExecutor.__init__ still
+        # fails closed unconditionally for _kind == "multi_threaded" before
+        # num_threads would ever matter. Real resolution/dispatch lands with
+        # the un-fail-close.
+        del num_threads
+        super().__init__(context=context)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self.shutdown()
+
+
+def _mirror_stock_executor_subclasses() -> None:
+    """Mirror stock signatures onto the concrete executor subclasses.
+
+    ``direct_cpp.activate()`` mirrors only "Executor" onto the base
+    ``DirectExecutor`` before installing replacements (its own
+    ``mirrored_classes`` frozenset, out of this lane's file boundary); the
+    concrete subclasses were left unmirrored there because, historically,
+    they defined no members of their own. Now that they own their own
+    ``__init__``/``__enter__``/``__exit__``, those need mirroring too or the
+    ledger sees a real (but spurious) signature divergence.
+
+    This module is imported by ``direct_cpp.activate()`` before its
+    replacement loop runs (`from rclcppyy.direct_executors import ...`
+    precedes the loop that patches ``rclpy.executors.*``), so
+    ``rclpy.executors.SingleThreadedExecutor``/``MultiThreadedExecutor`` are
+    still genuinely stock at that point. The guard keeps this a no-op (never
+    mirroring a direct class onto itself) if that ordering assumption is ever
+    violated by a future refactor.
+    """
+    import rclpy.executors as _stock_executors
+
+    from rclcppyy._signature_mirror import mirror_class
+
+    stock_single = _stock_executors.SingleThreadedExecutor
+    if not issubclass(stock_single, DirectExecutor):
+        mirror_class(DirectSingleThreadedExecutor, stock_single)
+    stock_multi = _stock_executors.MultiThreadedExecutor
+    if not issubclass(stock_multi, DirectExecutor):
+        mirror_class(DirectMultiThreadedExecutor, stock_multi)
+
+
+_mirror_stock_executor_subclasses()
 
 
 __all__ = [
