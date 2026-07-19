@@ -199,7 +199,11 @@ def _sample(variant, repetition=1, index=0):
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
         "wall_duration_ns": 5_100_000_000,
         "scheduled_deadline_error": _deadline(),
+        "first_rearm_error_ns": 10,
+        "consecutive_interval_observations": protocol.MEASURED_FIRINGS - 1,
+        "consecutive_interval_error": _deadline(),
         "missed_periods": 0,
+        "max_phase_slip_periods": 0,
         "timer_canceled": True,
         "teardown_clean": True,
         "executor_thread_joined": True,
@@ -242,7 +246,10 @@ def _sample(variant, repetition=1, index=0):
             "effective_frequency_hz": (
                 protocol.MEASURED_FIRINGS * 1e9 / report["wall_duration_ns"]),
             "scheduled_deadline_error": report["scheduled_deadline_error"],
+            "first_rearm_error_ns": report["first_rearm_error_ns"],
+            "consecutive_interval_error": report["consecutive_interval_error"],
             "missed_periods": report["missed_periods"],
+            "max_phase_slip_periods": report["max_phase_slip_periods"],
         },
         "correctness_verified": True,
         "teardown_verified": True,
@@ -315,6 +322,9 @@ def test_wrapping_recurrence_is_fixed():
         "signed_ns": {"p50": -1, "p95": 8, "p99": 8, "max": 8},
         "absolute_ns": {"p50": 2, "p95": 8, "p99": 8, "max": 8},
     }
+    assert protocol.consecutive_interval_errors([1_179_157, 1_179_784, 1_170_000]) == [
+        627, -9_784]
+    assert protocol.max_phase_slip_periods([1_179_157, 1_170_000]) == 1
 
 
 @pytest.mark.parametrize("variant", tuple(protocol.VARIANTS))
@@ -341,7 +351,14 @@ def test_each_variant_satisfies_the_exact_sample_contract(variant):
         ("stock-rclpy", ("worker_report", "python_boundary_crossings"), 0),
         ("stock-rclpy", ("worker_report", "post_cancel_firings"), 1),
         ("stock-rclpy", ("worker_report", "cpu_clock"), "CLOCK_THREAD_CPUTIME_ID"),
+        ("stock-rclpy", ("worker_report", "first_rearm_error_ns"), "invalid"),
+        ("stock-rclpy", ("worker_report", "first_rearm_error_ns"), 50),
+        ("stock-rclpy", (
+            "worker_report", "consecutive_interval_observations"), 4_998),
+        ("stock-rclpy", (
+            "worker_report", "consecutive_interval_error", "signed_ns", "p50"), 50),
         ("stock-rclpy", ("worker_report", "missed_periods"), 1),
+        ("stock-rclpy", ("worker_report", "max_phase_slip_periods"), 1),
         ("stock-rclpy", ("worker_report", "teardown_clean"), False),
         ("stock-rclpy", ("graph", "present_after_ready"), False),
         ("stock-rclpy", ("graph", "absence_observation", "observed"), False),
@@ -469,6 +486,8 @@ def test_schema_encodes_the_same_negative_contracts():
     report = schema["$defs"]["report"]["allOf"][1]["properties"]
     assert report["cpu_clock"]["const"] == "CLOCK_PROCESS_CPUTIME_ID"
     assert report["post_cancel_firings"]["const"] == 0
+    assert report["consecutive_interval_observations"]["const"] == 4_999
+    assert report["missed_periods"] == {"type": "integer", "minimum": 0}
     patterns = schema["$defs"]["aot_build"]["properties"][
         "compile_command"]["allOf"]
     assert {item["pattern"] for item in patterns} == {
@@ -565,6 +584,12 @@ def test_live_cyclone_python_timer_graph_and_protocol(monkeypatch, variant):
                 protocol.expected_recurrence(20))
             assert report["python_boundary_crossings"] == 25
             assert report["post_cancel_firings"] == 0
+            assert isinstance(report["first_rearm_error_ns"], int)
+            assert report["consecutive_interval_observations"] == 19
+            assert set(report["consecutive_interval_error"]) == {
+                "signed_ns", "absolute_ns"}
+            assert report["missed_periods"] == report["max_phase_slip_periods"]
+            assert isinstance(report["max_phase_slip_periods"], int)
             assert report["teardown_clean"] is True
             if variant == "direct-cpp-rclcppyy":
                 assert ready["activation"] == {

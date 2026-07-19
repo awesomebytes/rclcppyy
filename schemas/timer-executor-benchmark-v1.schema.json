@@ -369,7 +369,11 @@
             "cpu_clock",
             "wall_duration_ns",
             "scheduled_deadline_error",
+            "first_rearm_error_ns",
+            "consecutive_interval_observations",
+            "consecutive_interval_error",
             "missed_periods",
+            "max_phase_slip_periods",
             "timer_canceled",
             "teardown_clean",
             "executor_thread_joined"
@@ -389,7 +393,11 @@
             "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
             "wall_duration_ns": {"type": "integer", "minimum": 1},
             "scheduled_deadline_error": {"$ref": "#/$defs/deadline"},
+            "first_rearm_error_ns": {"type": "integer"},
+            "consecutive_interval_observations": {"const": 4999},
+            "consecutive_interval_error": {"$ref": "#/$defs/deadline"},
             "missed_periods": {"type": "integer", "minimum": 0},
+            "max_phase_slip_periods": {"type": "integer", "minimum": 0},
             "timer_canceled": {"const": true},
             "teardown_clean": {"const": true},
             "executor_thread_joined": {"const": true}
@@ -469,13 +477,19 @@
             "worker_cpu_ns_per_firing",
             "effective_frequency_hz",
             "scheduled_deadline_error",
-            "missed_periods"
+            "first_rearm_error_ns",
+            "consecutive_interval_error",
+            "missed_periods",
+            "max_phase_slip_periods"
           ],
           "properties": {
             "worker_cpu_ns_per_firing": {"type": "number", "exclusiveMinimum": 0},
             "effective_frequency_hz": {"type": "number", "exclusiveMinimum": 0},
             "scheduled_deadline_error": {"$ref": "#/$defs/deadline"},
-            "missed_periods": {"type": "integer", "minimum": 0}
+            "first_rearm_error_ns": {"type": "integer"},
+            "consecutive_interval_error": {"$ref": "#/$defs/deadline"},
+            "missed_periods": {"type": "integer", "minimum": 0},
+            "max_phase_slip_periods": {"type": "integer", "minimum": 0}
           }
         },
         "correctness_verified": {"const": true},

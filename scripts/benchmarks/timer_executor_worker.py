@@ -22,8 +22,9 @@ from _timer_executor_protocol import (
     RECURRENCE_SEED,
     RMW,
     VARIANTS,
+    consecutive_interval_errors,
     deadline_summary,
-    missed_periods,
+    max_phase_slip_periods,
 )
 
 
@@ -121,6 +122,8 @@ def _report(
     teardown_clean: bool,
     executor_thread_joined: bool,
 ) -> dict:
+    interval_errors = consecutive_interval_errors(errors)
+    phase_slip_periods = max_phase_slip_periods(errors)
     return _event(
         args,
         "report",
@@ -137,7 +140,11 @@ def _report(
         cpu_clock="CLOCK_PROCESS_CPUTIME_ID",
         wall_duration_ns=wall_duration_ns,
         scheduled_deadline_error=deadline_summary(errors),
-        missed_periods=missed_periods(errors),
+        first_rearm_error_ns=errors[0],
+        consecutive_interval_observations=len(interval_errors),
+        consecutive_interval_error=deadline_summary(interval_errors),
+        missed_periods=phase_slip_periods,
+        max_phase_slip_periods=phase_slip_periods,
         timer_canceled=True,
         teardown_clean=teardown_clean,
         executor_thread_joined=executor_thread_joined,
@@ -917,8 +924,8 @@ def main() -> int:
     missing = [name for name in required if getattr(args, name) is None]
     if missing:
         raise SystemExit("timer worker requires: " + ", ".join(missing))
-    if args.warmup_firings <= 0 or args.measured_firings <= 0:
-        raise SystemExit("timer firing counts must be positive")
+    if args.warmup_firings <= 0 or args.measured_firings < 2:
+        raise SystemExit("timer requires positive warmup and at least two measured firings")
     if args.variant == "stock-rclpy":
         return _python_authority(args, activate=False)
     if args.variant == "compatible-rclcppyy":

@@ -112,6 +112,20 @@ std::string deadline_json(const std::vector<std::int64_t> & errors)
          "}}";
 }
 
+std::vector<std::int64_t> consecutive_interval_errors(
+  const std::vector<std::int64_t> & phase_errors)
+{
+  if (phase_errors.size() < 2) {
+    throw std::runtime_error("consecutive interval evidence requires two firings");
+  }
+  std::vector<std::int64_t> result;
+  result.reserve(phase_errors.size() - 1);
+  for (std::size_t index = 1; index < phase_errors.size(); ++index) {
+    result.push_back(phase_errors[index] - phase_errors[index - 1]);
+  }
+  return result;
+}
+
 struct State
 {
   std::uint64_t warmup{0};
@@ -137,6 +151,9 @@ int run(int argc, char ** argv)
   const std::string token(argv[2]);
   const auto warmup_target = parse_uint64(argv[3], "warmup");
   const auto measured_target = parse_uint64(argv[4], "measured");
+  if (measured_target < 2) {
+    throw std::invalid_argument("measured firings must be at least two");
+  }
   State state;
   state.errors.reserve(measured_target);
   auto node = std::make_shared<rclcpp::Node>(node_name);
@@ -221,10 +238,13 @@ int run(int argc, char ** argv)
   state.post_cancel += state.measured - canceled_count;
 
   const auto max_error = *std::max_element(state.errors.begin(), state.errors.end());
-  const auto missed = std::max<std::int64_t>(0, max_error / static_cast<std::int64_t>(kPeriodNs));
+  const auto max_phase_slip = std::max<std::int64_t>(
+    0, max_error / static_cast<std::int64_t>(kPeriodNs));
   const auto cpu_time = state.cpu_stop_ns - state.cpu_start_ns;
   const auto wall_time = state.wall_stop_ns - state.epoch_ns;
   const auto errors_json = deadline_json(state.errors);
+  const auto interval_errors = consecutive_interval_errors(state.errors);
+  const auto interval_errors_json = deadline_json(interval_errors);
   const auto rmw = loaded_rmw();
   executor.remove_node(node);
   timer.reset();
@@ -245,7 +265,11 @@ int run(int argc, char ** argv)
             << state.post_cancel << ",\"exceptions\":0,\"cpu_time_ns\":" << cpu_time
             << ",\"cpu_clock\":\"CLOCK_PROCESS_CPUTIME_ID\",\"wall_duration_ns\":"
             << wall_time << ",\"scheduled_deadline_error\":" << errors_json
-            << ",\"missed_periods\":" << missed
+            << ",\"first_rearm_error_ns\":" << state.errors.front()
+            << ",\"consecutive_interval_observations\":" << interval_errors.size()
+            << ",\"consecutive_interval_error\":" << interval_errors_json
+            << ",\"missed_periods\":" << max_phase_slip
+            << ",\"max_phase_slip_periods\":" << max_phase_slip
             << ",\"timer_canceled\":true,\"teardown_clean\":true,"
             << "\"executor_thread_joined\":true}" << std::endl;
   (void)rmw;

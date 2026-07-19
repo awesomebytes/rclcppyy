@@ -137,7 +137,16 @@ def deadline_summary(values: list[int]) -> dict[str, dict[str, int]]:
     }
 
 
-def missed_periods(errors: list[int]) -> int:
+def consecutive_interval_errors(phase_errors: list[int]) -> list[int]:
+    if len(phase_errors) < 2:
+        raise ValueError("consecutive interval evidence requires at least two firings")
+    return [
+        current - previous
+        for previous, current in zip(phase_errors, phase_errors[1:])
+    ]
+
+
+def max_phase_slip_periods(errors: list[int]) -> int:
     return max(0, max(errors) // PERIOD_NS)
 
 
@@ -363,9 +372,25 @@ def _validate_report(report: dict, sample: dict) -> None:
         raise ValueError("timer deadline evidence is required")
     _validate_percentiles(deadline.get("signed_ns"), absolute=False)
     _validate_percentiles(deadline.get("absolute_ns"), absolute=True)
-    if report.get("missed_periods") != max(
+    first_rearm = report.get("first_rearm_error_ns")
+    if (
+        not _is_int(first_rearm)
+        or first_rearm > deadline["signed_ns"]["max"]
+        or abs(first_rearm) > deadline["absolute_ns"]["max"]
+    ):
+        raise ValueError("timer first-rearm error is invalid")
+    interval = report.get("consecutive_interval_error")
+    if not isinstance(interval, dict):
+        raise ValueError("timer consecutive-interval evidence is required")
+    _validate_percentiles(interval.get("signed_ns"), absolute=False)
+    _validate_percentiles(interval.get("absolute_ns"), absolute=True)
+    if report.get("consecutive_interval_observations") != MEASURED_FIRINGS - 1:
+        raise ValueError("timer consecutive-interval observation count is invalid")
+    if report.get("max_phase_slip_periods") != max(
             0, deadline["signed_ns"]["max"] // PERIOD_NS):
-        raise ValueError("timer missed-period count is inconsistent")
+        raise ValueError("timer maximum phase-slip count is inconsistent")
+    if report.get("missed_periods") != report["max_phase_slip_periods"]:
+        raise ValueError("timer legacy missed-period alias is inconsistent")
     if report.get("timer_canceled") is not True or report.get("teardown_clean") is not True:
         raise ValueError("timer cancellation or teardown evidence is invalid")
     if report.get("executor_thread_joined") is not True:
@@ -422,8 +447,14 @@ def validate_sample(sample: dict, cache: dict, build: dict) -> None:
     if not _finite_number(timing.get("effective_frequency_hz")) or not math.isclose(
             timing["effective_frequency_hz"], expected_frequency, rel_tol=1e-12):
         raise ValueError("timer effective frequency is inconsistent")
-    if timing.get("scheduled_deadline_error") != report["scheduled_deadline_error"] or timing.get(
-            "missed_periods") != report["missed_periods"]:
+    secondary = (
+        "scheduled_deadline_error",
+        "first_rearm_error_ns",
+        "consecutive_interval_error",
+        "missed_periods",
+        "max_phase_slip_periods",
+    )
+    if any(timing.get(key) != report[key] for key in secondary):
         raise ValueError("timer secondary metrics differ from worker evidence")
     if sample.get("correctness_verified") is not True or sample.get(
             "teardown_verified") is not True:

@@ -362,7 +362,10 @@ def _run_sample(
             "effective_frequency_hz": (
                 MEASURED_FIRINGS * 1e9 / report["wall_duration_ns"]),
             "scheduled_deadline_error": report["scheduled_deadline_error"],
+            "first_rearm_error_ns": report["first_rearm_error_ns"],
+            "consecutive_interval_error": report["consecutive_interval_error"],
             "missed_periods": report["missed_periods"],
+            "max_phase_slip_periods": report["max_phase_slip_periods"],
         }
         sample = {
             "schema": SAMPLE_SCHEMA,
