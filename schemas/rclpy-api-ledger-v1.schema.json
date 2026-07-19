@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://awesomebytes.github.io/rclcppyy/schema/rclpy-api-ledger-v1.json",
+  "title": "rclcppyy Jazzy rclpy public API parity ledger",
+  "type": "object",
+  "required": [
+    "schema",
+    "source",
+    "contract",
+    "modules",
+    "entries",
+    "generated_interface_aliases",
+    "summary"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "rclcppyy.rclpy-api-ledger/v1"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ros_distribution",
+        "rmw_implementation",
+        "rclpy_package_version",
+        "extraction_contract",
+        "annotation_manifest"
+      ],
+      "properties": {
+        "ros_distribution": {"const": "jazzy"},
+        "rmw_implementation": {"const": "rmw_cyclonedds_cpp"},
+        "rclpy_package_version": {"const": "7.1.11"},
+        "extraction_contract": {"const": "rclpy-public-python-surface-v1"},
+        "annotation_manifest": {"type": "string", "minLength": 1}
+      }
+    },
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "module_rule",
+        "symbol_rule",
+        "member_rule",
+        "signature_rule",
+        "semantic_rule",
+        "required_dunders"
+      ],
+      "properties": {
+        "module_rule": {"type": "string", "minLength": 1},
+        "symbol_rule": {"type": "string", "minLength": 1},
+        "member_rule": {"type": "string", "minLength": 1},
+        "signature_rule": {"type": "string", "minLength": 1},
+        "semantic_rule": {"type": "string", "minLength": 1},
+        "required_dunders": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        }
+      }
+    },
+    "modules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "stock_import", "direct_import"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "stock_import": {"$ref": "#/$defs/module_import"},
+          "direct_import": {"$ref": "#/$defs/module_import"}
+        }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "level",
+          "area",
+          "stock",
+          "direct",
+          "comparison",
+          "status",
+          "annotation"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "level": {"enum": ["symbol", "member"]},
+          "area": {
+            "enum": [
+              "activation",
+              "node",
+              "message",
+              "publisher",
+              "subscription",
+              "timer",
+              "executor",
+              "service",
+              "action",
+              "parameter",
+              "lifecycle",
+              "context",
+              "serialization",
+              "logging",
+              "qos",
+              "time",
+              "graph",
+              "utility",
+              "type_support"
+            ]
+          },
+          "stock": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/brief"}]},
+          "direct": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/brief"}]},
+          "comparison": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["presence", "kind_match", "signature"],
+            "properties": {
+              "presence": {"enum": ["both", "stock_only", "direct_only"]},
+              "kind_match": {"type": "boolean"},
+              "signature": {
+                "enum": ["equal", "different", "missing", "uninspectable", "not_applicable"]
+              }
+            }
+          },
+          "status": {
+            "enum": [
+              "exact_direct_cpp_authority",
+              "mixed_control_direct_data",
+              "unchanged_stock_fallback",
+              "explicit_fail_closed",
+              "missing_mismatch",
+              "unassessed"
+            ]
+          },
+          "annotation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["manifest_entry_ids", "area_manifest_entry_ids", "rationale"],
+            "properties": {
+              "manifest_entry_ids": {
+                "type": "array",
+                "items": {"type": "string"},
+                "uniqueItems": true
+              },
+              "area_manifest_entry_ids": {
+                "type": "array",
+                "items": {"type": "string"},
+                "uniqueItems": true
+              },
+              "rationale": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
+    "generated_interface_aliases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["interface", "kind", "cpp_type", "public_type"],
+        "properties": {
+          "interface": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["message", "service", "action"]},
+          "cpp_type": {"type": ["string", "null"]},
+          "public_type": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "modules",
+        "stock_public_symbols",
+        "stock_public_class_members",
+        "ledger_entries",
+        "signature_mismatches",
+        "stock_only_entries",
+        "direct_only_entries",
+        "uninspectable_signature_entries",
+        "generated_interface_aliases",
+        "statuses"
+      ],
+      "properties": {
+        "modules": {"type": "integer", "minimum": 0},
+        "stock_public_symbols": {"type": "integer", "minimum": 0},
+        "stock_public_class_members": {"type": "integer", "minimum": 0},
+        "ledger_entries": {"type": "integer", "minimum": 0},
+        "signature_mismatches": {"type": "integer", "minimum": 0},
+        "stock_only_entries": {"type": "integer", "minimum": 0},
+        "direct_only_entries": {"type": "integer", "minimum": 0},
+        "uninspectable_signature_entries": {"type": "integer", "minimum": 0},
+        "generated_interface_aliases": {"type": "integer", "minimum": 0},
+        "statuses": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "exact_direct_cpp_authority",
+            "mixed_control_direct_data",
+            "unchanged_stock_fallback",
+            "explicit_fail_closed",
+            "missing_mismatch",
+            "unassessed"
+          ],
+          "properties": {
+            "exact_direct_cpp_authority": {"type": "integer", "minimum": 0},
+            "mixed_control_direct_data": {"type": "integer", "minimum": 0},
+            "unchanged_stock_fallback": {"type": "integer", "minimum": 0},
+            "explicit_fail_closed": {"type": "integer", "minimum": 0},
+            "missing_mismatch": {"type": "integer", "minimum": 0},
+            "unassessed": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "module_import": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "properties": {
+        "state": {"enum": ["ok", "failed"]},
+        "exception": {"type": "string"},
+        "message": {"type": "string"}
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "properties": {
+        "state": {"enum": ["inspectable", "uninspectable", "not_applicable"]},
+        "value": {"type": "string"},
+        "reason": {"type": "string"}
+      }
+    },
+    "brief": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"type": "string"},
+        "origin": {"type": ["string", "null"]},
+        "qualname": {"type": ["string", "null"]},
+        "owner": {"type": ["string", "null"]},
+        "implementation": {"type": "string"},
+        "signature": {"$ref": "#/$defs/signature"},
+        "value": {}
+      }
+    }
+  }
+}
