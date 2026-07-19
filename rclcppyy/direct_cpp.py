@@ -2313,6 +2313,7 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         direct_messages,
         direct_parameters,
         direct_services,
+        direct_wait_for_message,
     )
 
     normalized_interfaces = direct_actions.normalize_registered_interfaces(
@@ -2365,6 +2366,7 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         import rclpy.parameter as parameter_module
         import rclpy.publisher as publisher_module
         import rclpy.subscription as subscription_module
+        import rclpy.wait_for_message as wait_for_message_module
 
         runtime = _DirectRuntime(
             normalized_optimizations, normalized_interfaces)
@@ -2382,6 +2384,8 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         DirectSubscription.CallbackType = (
             subscription_module.Subscription.CallbackType)
         DirectParameter = direct_parameters.prepare(parameter_module.Parameter)
+        direct_wait = direct_wait_for_message.prepare(
+            wait_for_message_module.wait_for_message)
         replacements = (
             (parameter_module, "Parameter", DirectParameter),
             (rclpy, "Parameter", DirectParameter),
@@ -2433,6 +2437,7 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
             (rclpy, "spin_once", _direct_spin_once),
             (rclpy, "spin", _direct_spin),
             (rclpy, "spin_until_future_complete", _direct_spin_until_future_complete),
+            (wait_for_message_module, "wait_for_message", direct_wait),
         )
         for module, name, replacement in replacements:
             original = getattr(module, name)

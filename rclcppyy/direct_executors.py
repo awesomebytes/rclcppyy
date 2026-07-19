@@ -67,6 +67,7 @@ class DirectExecutor:
         self._state_lock = threading.RLock()
         self._is_shutdown = False
         self._is_spinning = False
+        self._spin_thread_id = None
         runtime.register_executor(self)
 
     @property
@@ -146,6 +147,8 @@ class DirectExecutor:
             native = getattr(node, "_direct_cpp_node", None)
             if native is not None and not self._runtime.session.closed:
                 self._native.remove_node(native)
+            if node.executor is self:
+                node._set_direct_executor(None)
 
     def park_node(self, node) -> None:
         """Logically remove one temporary global node without native churn."""
@@ -180,8 +183,10 @@ class DirectExecutor:
         if not self._spin_lock.acquire(blocking=False):
             raise RuntimeError("Executor is already spinning")
         self._is_spinning = True
+        self._spin_thread_id = threading.get_ident()
 
     def _exit_spin(self) -> None:
+        self._spin_thread_id = None
         self._is_spinning = False
         self._spin_lock.release()
 
