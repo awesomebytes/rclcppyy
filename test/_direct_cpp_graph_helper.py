@@ -84,6 +84,20 @@ assert observer.count_clients("/direct_graph/renamed_toggle") == 1
 assert target.count_publishers("chatter") == 0
 assert target.count_services("toggle") == 0
 
+for operation in (
+    lambda: target.resolve_topic_name("bad name"),
+    lambda: target.count_publishers("bad name"),
+    lambda: target.resolve_service_name("bad name"),
+    lambda: target.count_services("bad name"),
+):
+    try:
+        operation()
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("invalid graph name reached the native exception boundary")
+print("DIRECT_CPP_GRAPH_INVALID_NAME_FAIL_CLOSED_OK", flush=True)
+
 try:
     observer.get_publisher_names_and_types_by_node("missing", "/")
 except _rclpy.NodeNameNonExistentError:

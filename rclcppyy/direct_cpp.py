@@ -812,30 +812,44 @@ class DirectNode:
             node_namespace,
         )
 
+    def _expand_graph_name(self, name: str, *, is_service: bool) -> str:
+        from rclpy.expand_topic_name import expand_topic_name
+        from rclpy.validate_full_topic_name import validate_full_topic_name
+
+        expanded = expand_topic_name(name, self.get_name(), self.get_namespace())
+        validate_full_topic_name(expanded, is_service=is_service)
+        return expanded
+
     def resolve_topic_name(self, topic: str, *, only_expand: bool = False) -> str:
+        expanded = self._expand_graph_name(topic, is_service=False)
+        if only_expand:
+            return expanded
         interface = self._require_node().get_node_topics_interface()
-        return _cpp_string(interface.resolve_topic_name(topic, only_expand))
+        return _cpp_string(interface.resolve_topic_name(topic, False))
 
     def resolve_service_name(
         self, service: str, *, only_expand: bool = False
     ) -> str:
+        expanded = self._expand_graph_name(service, is_service=True)
+        if only_expand:
+            return expanded
         interface = self._require_node().get_node_services_interface()
-        return _cpp_string(interface.resolve_service_name(service, only_expand))
+        return _cpp_string(interface.resolve_service_name(service, False))
 
     def count_publishers(self, topic_name: str) -> int:
-        topic = self.resolve_topic_name(topic_name, only_expand=True)
+        topic = self._expand_graph_name(topic_name, is_service=False)
         return int(self._graph_interface().count_publishers(topic))
 
     def count_subscribers(self, topic_name: str) -> int:
-        topic = self.resolve_topic_name(topic_name, only_expand=True)
+        topic = self._expand_graph_name(topic_name, is_service=False)
         return int(self._graph_interface().count_subscribers(topic))
 
     def count_clients(self, service_name: str) -> int:
-        service = self.resolve_service_name(service_name, only_expand=True)
+        service = self._expand_graph_name(service_name, is_service=True)
         return int(self._graph_interface().count_clients(service))
 
     def count_services(self, service_name: str) -> int:
-        service = self.resolve_service_name(service_name, only_expand=True)
+        service = self._expand_graph_name(service_name, is_service=True)
         return int(self._graph_interface().count_services(service))
 
     def wait_for_node(self, fully_qualified_node_name: str, timeout: float) -> bool:

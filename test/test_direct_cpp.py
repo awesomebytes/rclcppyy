@@ -76,6 +76,7 @@ def test_direct_cpp_graph_queries_use_native_rclcpp_authority():
     assert process.returncode == 0, format_output(process)
     assert "DIRECT_CPP_GRAPH_CPP_AUTHORITY_OK" in process.stdout
     assert "DIRECT_CPP_GRAPH_RCLPY_SHAPE_OK" in process.stdout
+    assert "DIRECT_CPP_GRAPH_INVALID_NAME_FAIL_CLOSED_OK" in process.stdout
     assert "DIRECT_CPP_GRAPH_TEARDOWN_OK" in process.stdout
 
 
