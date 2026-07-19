@@ -113,7 +113,8 @@ def enable_cpp_acceleration(
         optimizations (Iterable[str]): Explicit opt-in C++ optimizations. The
             ``subscription_shared_lease`` option is valid only with ``direct_cpp``.
         interfaces (Iterable[str]): Additional canonical ``package/msg/Message``
-            interfaces to expose as generated C++ classes under ``direct_cpp``.
+            or ``package/srv/Service`` interfaces to expose as generated C++
+            classes under ``direct_cpp``.
 
     Returns:
         bool: True if successful
@@ -125,13 +126,13 @@ def enable_cpp_acceleration(
     """
     global _ACTIVE_INTERFACES, _ACTIVE_OPTIMIZATIONS, _ACTIVE_PROFILE
     normalized_optimizations = _normalize_optimizations(optimizations)
-    from rclcppyy.direct_messages import normalize_interfaces
+    from rclcppyy.direct_services import normalize_registered_interfaces
 
-    normalized_interfaces = normalize_interfaces(interfaces)
+    normalized_interfaces = normalize_registered_interfaces(interfaces)
     if normalized_optimizations and profile != "direct_cpp":
         raise ValueError("C++ acceleration optimizations require profile='direct_cpp'")
     if normalized_interfaces and profile != "direct_cpp":
-        raise ValueError("C++ message interfaces require profile='direct_cpp'")
+        raise ValueError("C++ interfaces require profile='direct_cpp'")
     if _ACTIVE_PROFILE is not None:
         if profile != _ACTIVE_PROFILE:
             raise RuntimeError(

@@ -162,7 +162,9 @@ class DirectClient:
         if self._closed:
             raise RuntimeError("direct_cpp client is destroyed")
         if not isinstance(request, self.srv_type.Request):
-            raise TypeError("request must be an actual direct_cpp C++ SetBool.Request")
+            raise TypeError(
+                "request must be an actual direct_cpp C++ %s.Request" %
+                self.srv_type.__name__)
         token = int(self._native.send_cpp_value(request))
         from rclpy.task import Future
 
@@ -542,7 +544,8 @@ class DirectNode:
     ):
         from rclcppyy import direct_services
 
-        direct_services.resolve_supported_type(srv_type, _SERVICE_INSTALLATION)
+        binding = direct_services.resolve_supported_type(
+            srv_type, _SERVICE_INSTALLATION)
         if callback_group is not None:
             _unsupported("direct_cpp clients do not support callback_group")
         qos = self._require_default_service_qos(qos_profile)
@@ -550,7 +553,8 @@ class DirectNode:
             self._require_node(), srv_type, str(srv_name))
         client = DirectClient(self, srv_type, str(srv_name), qos, native_client)
         self._direct_cpp_clients.append(client)
-        self._record_service_entity("client", client.srv_name, srv_type, client)
+        self._record_service_entity(
+            "client", client.srv_name, binding, client)
         return client
 
     def create_service(
@@ -564,7 +568,8 @@ class DirectNode:
     ):
         from rclcppyy import direct_services
 
-        direct_services.resolve_supported_type(srv_type, _SERVICE_INSTALLATION)
+        binding = direct_services.resolve_supported_type(
+            srv_type, _SERVICE_INSTALLATION)
         if callback_group is not None:
             _unsupported("direct_cpp services do not support callback_group")
         qos = self._require_default_service_qos(qos_profile)
@@ -585,7 +590,8 @@ class DirectNode:
         service = DirectService(
             srv_type, callback, qos, native_service)
         self._direct_cpp_services.append(service)
-        self._record_service_entity("service", service.srv_name, srv_type, service)
+        self._record_service_entity(
+            "service", service.srv_name, binding, service)
         return service
 
     def destroy_timer(self, timer):
@@ -695,7 +701,7 @@ class DirectNode:
         for action_client in tuple(self._direct_cpp_action_clients):
             action_client._poll_ready()
 
-    def _record_service_entity(self, entity_type, service_name, srv_type, entity):
+    def _record_service_entity(self, entity_type, service_name, binding, entity):
         if entity_type == "client":
             policies = (
                 "direct_cpp", "direct_cpp_service", "no_conversion",
@@ -730,7 +736,8 @@ class DirectNode:
             metadata={
                 "entity_type": entity_type,
                 "service_name": str(service_name),
-                "service_type": "std_srvs::srv::SetBool",
+                "service_type": binding.cpp_type_name,
+                "service_interface": binding.interface,
                 "request_representation": "actual_cpp",
                 "response_representation": "actual_cpp",
                 "python_message_conversions": 0,
@@ -882,7 +889,12 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
     normalized_optimizations = tuple(sorted(set(optimizations)))
     from rclcppyy import direct_actions, direct_messages, direct_services
 
-    normalized_interfaces = direct_messages.normalize_interfaces(interfaces)
+    normalized_interfaces = direct_services.normalize_registered_interfaces(
+        interfaces)
+    message_interfaces = tuple(
+        value for value in normalized_interfaces if "/msg/" in value)
+    service_interfaces = tuple(
+        value for value in normalized_interfaces if "/srv/" in value)
     unknown = sorted(
         set(normalized_optimizations) - {"subscription_shared_lease"})
     if unknown:
@@ -902,12 +914,14 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
     _check_early_activation()
     _check_runtime()
 
-    installation = direct_messages.install(normalized_interfaces)
+    service_plan = direct_services.prepare(service_interfaces)
+    installation = direct_messages.install(
+        message_interfaces + service_plan.message_dependencies)
     service_installation = None
     action_installation = None
     patches = []
     try:
-        service_installation = direct_services.install()
+        service_installation = direct_services.install(plan=service_plan)
         action_installation = direct_actions.install()
         import rclpy
         import rclpy.action as action_module
@@ -967,9 +981,11 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
             "operation": "enable_cpp_acceleration",
             "profile": "direct_cpp",
             "optimizations": list(normalized_optimizations),
-            "requested_message_interfaces": list(normalized_interfaces),
+            "requested_message_interfaces": list(message_interfaces),
+            "requested_service_interfaces": list(service_interfaces),
             "message_types": [binding.cpp_type_name for binding in installation.bindings],
-            "service_types": [service_installation.binding.cpp_type_name],
+            "service_types": [
+                binding.cpp_type_name for binding in service_installation.bindings],
             "action_types": [action_installation.binding.cpp_types.cpp_name],
         },
     )

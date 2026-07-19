@@ -70,9 +70,10 @@ stock and are reported as such.
 The experimental `profile="direct_cpp"` first slice goes further: on Jazzy with
 Cyclone DDS, unchanged `Node` subclasses can use actual `rclcpp` nodes, entities,
 and `String`/`UInt64` messages. The same profile supports the common synchronous
-`std_srvs/SetBool` `create_service`, `create_client`, `call_async`, and top-level
-`spin_until_future_complete` call shape with actual C++ request and response
-classes. It must be enabled before importing `rclpy.node` or any supported
+`std_srvs/SetBool` by default and explicitly registered installed services such as
+`std_srvs/srv/Trigger`. Their `create_service`, `create_client`, `call_async`, and
+top-level `spin_until_future_complete` call shape uses actual C++ request and
+response classes. It must be enabled before importing `rclpy.node` or any supported
 interface. Unsupported options fail before entity creation. Subscription and
 service callbacks receive owning native C++ values; there is no generated Python
 message, representation conversion, or serialization boundary.
@@ -220,12 +221,13 @@ backend fact; a benefit requires separate, repeated, architecture-specific evide
   `spin()` calls. This prevents a missed signal guard wake from leaving an
   invalid Context blocked indefinitely, at the cost of periodic idle wake-ups.
   It is a reliability mitigation, not a C++ route or performance claim.
-- `profile="direct_cpp"` currently covers only `std_msgs/String` and `UInt64`,
-  `std_srvs/SetBool`, the common node/entity call patterns, native timers,
-  top-level spin functions, and default service QoS. Service clients support
-  `call_async`, not synchronous `call`; service callbacks must be synchronous and
-  accept `(request, response)`. Callback groups, service introspection, and public
-  executors remain unsupported. It is not yet a general `rclpy` replacement. The
+- `profile="direct_cpp"` defaults to `std_msgs/String`, `UInt64`, and
+  `std_srvs/SetBool`; additional installed message and service interfaces can be
+  registered by canonical name. It covers the common node/entity call patterns,
+  native timers, top-level spin functions, and default service QoS. Service clients
+  support `call_async`, not synchronous `call`; service callbacks must be synchronous
+  and accept `(request, response)`. Callback groups, service introspection, and
+  public executors remain unsupported. It is not yet a general `rclpy` replacement. The
   subscription callback copy is measured by the dedicated `direct-cpp-rclcppyy`
   controlled relay lane. Service/client copy and crossing counts are exposed as
   correctness evidence; no service performance benefit is claimed yet.

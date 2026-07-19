@@ -1,8 +1,13 @@
 """Correctness and failure-boundary proofs for the direct-C++ first slice."""
 
 import os
+from pathlib import Path
+import subprocess
 
 from _run_helper import format_output, run_helper
+
+
+HERE = Path(__file__).resolve().parent
 
 
 def test_direct_cpp_source_compatible_pubsub_and_lifetime():
@@ -43,6 +48,13 @@ def test_direct_cpp_uninstalled_interface_fails_closed():
     assert "DIRECT_CPP_MISSING_INTERFACE_FAIL_CLOSED_OK" in process.stdout
 
 
+def test_direct_cpp_uninstalled_service_fails_before_alias_mutation():
+    process = run_helper(
+        "_direct_cpp_missing_service_helper.py", timeout=180)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_MISSING_SERVICE_TRANSACTIONAL_OK" in process.stdout
+
+
 def test_direct_cpp_native_timer_and_bounded_spin():
     process = run_helper("_direct_cpp_timer_helper.py", timeout=180)
     assert process.returncode == 0, format_output(process)
@@ -62,6 +74,43 @@ def test_direct_cpp_setbool_service_client_and_future_control():
     assert "DIRECT_CPP_SERVICE_FUTURE_CONTROL_OK" in process.stdout
     assert "DIRECT_CPP_SERVICE_EVIDENCE_OK" in process.stdout
     assert "DIRECT_CPP_SERVICE_REINIT_TEARDOWN_OK" in process.stdout
+
+
+def test_direct_cpp_registered_trigger_service_and_stock_interop():
+    process = run_helper(
+        "_direct_cpp_trigger_service_helper.py", timeout=360)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_TRIGGER_CONSTRUCTORS_OK" in process.stdout
+    assert "DIRECT_CPP_TRIGGER_FAIL_CLOSED_OK" in process.stdout
+    assert "DIRECT_CPP_TRIGGER_CALL_OK" in process.stdout
+    assert "DIRECT_CPP_TRIGGER_EXCEPTION_OK" in process.stdout
+    assert "DIRECT_CPP_TRIGGER_STOCK_INTEROP_OK" in process.stdout
+    assert "DIRECT_CPP_TRIGGER_EVIDENCE_OK" in process.stdout
+    assert "DIRECT_CPP_TRIGGER_RETAINED_REINIT_TEARDOWN_OK" in process.stdout
+
+
+def test_direct_cpp_registered_trigger_interoperates_with_aot_rclcpp(tmp_path):
+    build = subprocess.run(
+        [
+            "bash",
+            str(HERE / "build_direct_trigger_aot_peer.sh"),
+            str(tmp_path),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=180,
+        check=False,
+        env=os.environ.copy(),
+    )
+    assert build.returncode == 0, format_output(build)
+    process = run_helper(
+        "_direct_cpp_trigger_aot_helper.py",
+        str(tmp_path / "direct_trigger_aot_peer"),
+        timeout=360,
+    )
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_TRIGGER_AOT_BIDIRECTIONAL_OK" in process.stdout
+    assert "DIRECT_CPP_TRIGGER_AOT_RETAINED_TEARDOWN_OK" in process.stdout
 
 
 def test_direct_cpp_lookup_transform_action_client_and_cpp_envelopes():
@@ -86,6 +135,13 @@ def test_direct_cpp_rejects_setbool_imported_before_activation():
     process = run_helper("_direct_cpp_service_stale_import_helper.py", timeout=180)
     assert process.returncode == 0, format_output(process)
     assert "DIRECT_CPP_SERVICE_STALE_IMPORT_OK" in process.stdout
+
+
+def test_direct_cpp_rejects_trigger_imported_before_activation():
+    process = run_helper(
+        "_direct_cpp_trigger_service_stale_import_helper.py", timeout=180)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_TRIGGER_STALE_IMPORT_OK" in process.stdout
 
 
 def test_direct_cpp_rejects_lookup_transform_imported_before_activation():
