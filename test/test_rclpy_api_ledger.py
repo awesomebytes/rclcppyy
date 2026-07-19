@@ -1,5 +1,6 @@
 """Focused contract tests for the public API ledger extractor."""
 
+import enum
 import importlib.util
 import json
 import types
@@ -230,6 +231,22 @@ def test_validate_ledger_accepts_built_document_and_rejects_summary_drift():
     document["summary"]["ledger_entries"] += 1
     with pytest.raises(ledger.LedgerError, match="entry summary drift"):
         ledger.validate_ledger(document)
+
+
+def test_enum_with_unrepresentable_value_degrades_to_type_only():
+    class Fixture(enum.Enum):
+        MEMBER = object()
+
+    class Owner:
+        ATTR = Fixture.MEMBER
+
+    descriptor = ledger._member_descriptor("rclpy.fixture.Owner", Owner, "ATTR")
+
+    assert descriptor["value"] == {
+        "state": "type_only",
+        "type": f"{Fixture.__module__}.{Fixture.__qualname__}",
+    }
+    json.dumps(descriptor)  # must not raise: the sentinel must never reach serialization
 
 
 def test_baseline_matches_hardened_schema():

@@ -145,11 +145,14 @@ def _constant_value(value: Any) -> Any:
     if value is None or isinstance(value, (bool, int, float, str)):
         return value
     if isinstance(value, enum.Enum):
-        return {
-            "enum_type": f"{type(value).__module__}.{type(value).__qualname__}",
-            "name": value.name,
-            "value": _constant_value(value.value),
-        }
+        inner = _constant_value(value.value)
+        if inner is not _UNREPRESENTABLE:
+            return {
+                "enum_type": f"{type(value).__module__}.{type(value).__qualname__}",
+                "name": value.name,
+                "value": inner,
+            }
+        return _UNREPRESENTABLE
     if isinstance(value, (list, tuple)) and len(value) <= 32:
         converted = [_constant_value(item) for item in value]
         if all(item is not _UNREPRESENTABLE for item in converted):
