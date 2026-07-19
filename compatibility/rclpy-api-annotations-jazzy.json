@@ -835,6 +835,134 @@
       "manifest_entry_ids": [
         "time.stock_surface"
       ],
+      "path": "rclpy.clock.ClockChange",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockChange.ROS_TIME_ACTIVATED",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockChange.ROS_TIME_DEACTIVATED",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockChange.ROS_TIME_NO_CHANGE",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockChange.SYSTEM_TIME_NO_CHANGE",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockChange.as_integer_ratio",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockChange.bit_count",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockChange.bit_length",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockChange.conjugate",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockChange.denominator",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockChange.from_bytes",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockChange.imag",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockChange.is_integer",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockChange.numerator",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockChange.real",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockChange.to_bytes",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
       "path": "rclpy.clock.ClockHandle",
       "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
       "status": "unchanged_stock_fallback"
@@ -917,6 +1045,134 @@
       ],
       "path": "rclpy.clock.ClockHandle.set_ros_time_override_is_enabled",
       "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType.ROS_TIME",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType.STEADY_TIME",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType.SYSTEM_TIME",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType.UNINITIALIZED",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType.as_integer_ratio",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType.bit_count",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType.bit_length",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType.conjugate",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType.denominator",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType.from_bytes",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType.imag",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType.is_integer",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType.numerator",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType.real",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock.ClockType.to_bytes",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
       "status": "unchanged_stock_fallback"
     },
     {
@@ -1597,6 +1853,134 @@
       ],
       "path": "rclpy.clock.get_default_context",
       "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType.ROS_TIME",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType.STEADY_TIME",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType.SYSTEM_TIME",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType.UNINITIALIZED",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType.as_integer_ratio",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType.bit_count",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType.bit_length",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType.conjugate",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType.denominator",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType.from_bytes",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType.imag",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType.is_integer",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType.numerator",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType.real",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.clock_type.ClockType.to_bytes",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
       "status": "unchanged_stock_fallback"
     },
     {
@@ -8065,6 +8449,134 @@
       "manifest_entry_ids": [
         "time.stock_surface"
       ],
+      "path": "rclpy.time.ClockType",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time.ClockType.ROS_TIME",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time.ClockType.STEADY_TIME",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time.ClockType.SYSTEM_TIME",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time.ClockType.UNINITIALIZED",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time.ClockType.as_integer_ratio",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time.ClockType.bit_count",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time.ClockType.bit_length",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time.ClockType.conjugate",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time.ClockType.denominator",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time.ClockType.from_bytes",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time.ClockType.imag",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time.ClockType.is_integer",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time.ClockType.numerator",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time.ClockType.real",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time.ClockType.to_bytes",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
       "path": "rclpy.time.Duration",
       "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated.",
       "status": "unchanged_stock_fallback"
@@ -8299,6 +8811,134 @@
       ],
       "path": "rclpy.time_source.CLOCK_TOPIC",
       "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType.ROS_TIME",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType.STEADY_TIME",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType.SYSTEM_TIME",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType.UNINITIALIZED",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType.as_integer_ratio",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType.bit_count",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType.bit_length",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType.conjugate",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType.denominator",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType.from_bytes",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType.imag",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType.is_integer",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType.numerator",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType.real",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
+      "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "path": "rclpy.time_source.ClockType.to_bytes",
+      "rationale": "The direct profile preserves this stock rclpy time-enum object unchanged; the test_stock_time_enum_identity.py fresh-process stock-vs-direct differential proves identical IntEnum identity, member values, and int-method semantics. Stock behavior, not accelerated. This is the pure enum-identity row boundary Lane 1 (clock-rate) leaves to this lane; Lane 1 owns the behavioral clock/rate/timer rows.",
       "status": "unchanged_stock_fallback"
     },
     {

@@ -816,7 +816,7 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_differential_application.py", "test/differential/_application_probe.py"],
+      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_stock_time_enum_identity.py", "test/_stock_time_enum_identity_probe.py"],
       "notes": "The selected tests cover construction, arithmetic and comparison, message conversion, clock sleep and shutdown, ROS-time activation, jumps, clock attachment, Rate destruction/wake, and /clock delivery."
     },
     {
