@@ -1,5 +1,1470 @@
 {
   "schema": "rclcppyy.rclpy-api-annotations/v1",
   "source_manifest": "compatibility/jazzy.json",
-  "entries": []
+  "entries": [
+    {
+      "path": "rclpy.clock.Clock",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Clock.__repr__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Clock.clock_type",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Clock.create_jump_callback",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Clock.handle",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Clock.now",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Clock.sleep_for",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Clock.sleep_until",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ClockHandle",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ClockHandle.__enter__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ClockHandle.__exit__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ClockHandle.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ClockHandle.add_clock_callback",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ClockHandle.destroy_when_not_in_use",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ClockHandle.get_now",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ClockHandle.get_ros_time_override_is_enabled",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ClockHandle.remove_clock_callback",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ClockHandle.set_ros_time_override",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ClockHandle.set_ros_time_override_is_enabled",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Context",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Context.__enter__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Context.__exit__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Context.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Context.destroy",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Context.get_domain_id",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Context.handle",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Context.init",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Context.ok",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Context.on_shutdown",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Context.shutdown",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Context.try_shutdown",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.DestroyableType",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.DestroyableType.__enter__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.DestroyableType.__exit__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.DestroyableType.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.DestroyableType.destroy_when_not_in_use",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Duration",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Duration.__eq__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Duration.__ge__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Duration.__gt__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Duration.__hash__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Duration.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Duration.__le__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Duration.__lt__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Duration.__ne__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Duration.__repr__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Duration.__str__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Duration.get_c_duration",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Duration.nanoseconds",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.JumpHandle",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.JumpHandle.__enter__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.JumpHandle.__exit__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.JumpHandle.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.JumpHandle.unregister",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.JumpThreshold",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.JumpThreshold.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.NotInitializedException",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.NotInitializedException.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.NotInitializedException.add_note",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.NotInitializedException.args",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.NotInitializedException.with_traceback",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ROSClock",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ROSClock.__repr__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ROSClock.clock_type",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ROSClock.create_jump_callback",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ROSClock.handle",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ROSClock.now",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ROSClock.ros_time_is_active",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ROSClock.set_ros_time_override",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ROSClock.sleep_for",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.ROSClock.sleep_until",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TYPE_CHECKING",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Time",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Time.__eq__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Time.__ge__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Time.__gt__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Time.__hash__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Time.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Time.__le__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Time.__lt__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Time.__ne__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Time.__repr__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Time.clock_type",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Time.nanoseconds",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Time.seconds_nanoseconds",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeHandle",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeHandle.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJump",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJump.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJump.clock_change",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJump.delta",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJumpDictionary",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJumpDictionary.clear",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJumpDictionary.copy",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJumpDictionary.fromkeys",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJumpDictionary.get",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJumpDictionary.items",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJumpDictionary.keys",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJumpDictionary.pop",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJumpDictionary.popitem",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJumpDictionary.setdefault",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJumpDictionary.update",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.TimeJumpDictionary.values",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.get_default_context",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Duration",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Duration.__eq__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Duration.__ge__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Duration.__gt__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Duration.__hash__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Duration.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Duration.__le__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Duration.__lt__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Duration.__ne__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Duration.__repr__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Duration.__str__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Duration.get_c_duration",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Duration.nanoseconds",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.DurationType",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.DurationType.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Infinite",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.S_TO_NS",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Duration",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Duration.__eq__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Duration.__ge__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Duration.__gt__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Duration.__hash__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Duration.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Duration.__le__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Duration.__lt__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Duration.__ne__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Duration.__repr__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Duration.__str__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Duration.get_c_duration",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Duration.nanoseconds",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.S_TO_NS",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Time",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Time.__eq__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Time.__ge__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Time.__gt__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Time.__hash__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Time.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Time.__le__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Time.__lt__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Time.__ne__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Time.__repr__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Time.clock_type",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Time.nanoseconds",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Time.seconds_nanoseconds",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.TimeHandle",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.TimeHandle.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.CLOCK_TOPIC",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.ROSClock",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.ROSClock.__repr__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.ROSClock.clock_type",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.ROSClock.create_jump_callback",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.ROSClock.handle",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.ROSClock.now",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.ROSClock.ros_time_is_active",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.ROSClock.set_ros_time_override",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.ROSClock.sleep_for",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.ROSClock.sleep_until",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Clock and ROSClock are unchanged stock classes at rclpy.clock's module level: activate() never patches rclpy.clock (Clock/Duration/ROSClock/ClockType/TimeSource are not part of the direct_cpp facade). DirectNode.get_clock() returns a separate, per-node DirectClock/DirectROSClock facade (time.direct_cpp_node_clock); it is not installed as this module-level class, so this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.TYPE_CHECKING",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.Time",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.Time.__eq__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.Time.__ge__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.Time.__gt__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.Time.__hash__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.Time.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.Time.__le__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.Time.__lt__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.Time.__ne__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.Time.__repr__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.Time.clock_type",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.Time.nanoseconds",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.Time.seconds_nanoseconds",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.TimeSource",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "TimeSource is an unchanged stock class; it is not patched, and no product Python TimeSource is implemented -- sim-time is owned natively by the node's rclcpp::TimeSource (time.direct_cpp_sim_time). This row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.TimeSource.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "TimeSource is an unchanged stock class; it is not patched, and no product Python TimeSource is implemented -- sim-time is owned natively by the node's rclcpp::TimeSource (time.direct_cpp_sim_time). This row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.TimeSource.attach_clock",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "TimeSource is an unchanged stock class; it is not patched, and no product Python TimeSource is implemented -- sim-time is owned natively by the node's rclcpp::TimeSource (time.direct_cpp_sim_time). This row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.TimeSource.attach_node",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "TimeSource is an unchanged stock class; it is not patched, and no product Python TimeSource is implemented -- sim-time is owned natively by the node's rclcpp::TimeSource (time.direct_cpp_sim_time). This row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.TimeSource.clock_callback",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "TimeSource is an unchanged stock class; it is not patched, and no product Python TimeSource is implemented -- sim-time is owned natively by the node's rclcpp::TimeSource (time.direct_cpp_sim_time). This row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.TimeSource.detach_node",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "TimeSource is an unchanged stock class; it is not patched, and no product Python TimeSource is implemented -- sim-time is owned natively by the node's rclcpp::TimeSource (time.direct_cpp_sim_time). This row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.TimeSource.ros_time_is_active",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "TimeSource is an unchanged stock class; it is not patched, and no product Python TimeSource is implemented -- sim-time is owned natively by the node's rclcpp::TimeSource (time.direct_cpp_sim_time). This row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.USE_SIM_TIME_NAME",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
+    }
+  ]
 }
