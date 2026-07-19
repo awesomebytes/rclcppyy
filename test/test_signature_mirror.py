@@ -164,6 +164,34 @@ def test_subclass_inherits_a_base_mirror_without_separate_visitation():
     assert inspect.signature(DirectSub.shared) == inspect.signature(Stock.shared)
 
 
+def test_class_level_signature_does_not_leak_onto_an_unrelated_subclass():
+    class Stock:
+        def __init__(self, x, y=1) -> None:
+            pass
+
+    class Direct:
+        def __init__(self, x, y=1):
+            pass
+
+    class Mixin:
+        pass
+
+    class Subclass(Mixin, Direct):
+        """Stands in for LifecycleNode(LifecycleNodeMixin, Node): defines its
+        own __init__, entirely outside this mirror's own scope."""
+
+        def __init__(self, name, *, flag=True):
+            pass
+
+    mirror.mirror_class(Direct, Stock)
+
+    assert inspect.signature(Direct.__init__) == inspect.signature(Stock.__init__)
+    assert inspect.signature(Direct) == inspect.signature(Stock)
+    # Subclass was never passed to mirror_class -- its own __init__ must read
+    # exactly as it always did, not Direct's mirrored constructor.
+    assert str(inspect.signature(Subclass)) == "(name, *, flag=True)"
+
+
 def test_property_getter_is_mirrored_through_its_function():
     class Stock:
         @property

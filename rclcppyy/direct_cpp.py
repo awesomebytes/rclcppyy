@@ -14,6 +14,7 @@ import weakref
 import cppyy
 
 from rclcpp_kit import native_parameters as _native_parameters
+from rclcppyy._signature_mirror import mirror_class, mirror_function
 from rclcppyy._status import record_decision
 from rclcppyy._surface import _DirectSurface
 from rclcppyy import direct_parameters as _direct_parameters
@@ -2522,8 +2523,37 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
                 direct_check_is_valid_msg_type,
             ),
         )
+        # The mirror only ever fires for a member verified structurally
+        # identical to stock and payload-free (see rclcppyy._signature_mirror);
+        # everything else keeps rendering its own, still-divergent signature.
+        # DirectSingleThreadedExecutor/DirectMultiThreadedExecutor need no
+        # entry here: they define no members of their own, so they already
+        # read the base DirectExecutor's mirrored signatures through normal
+        # inheritance.
+        mirrored_classes = frozenset({
+            "CallbackGroup",
+            "MutuallyExclusiveCallbackGroup",
+            "ReentrantCallbackGroup",
+            "Executor",
+            "Node",
+            "Publisher",
+            "Subscription",
+        })
+        mirrored_functions = frozenset({
+            "init",
+            "ok",
+            "shutdown",
+            "spin",
+            "spin_once",
+            "spin_until_future_complete",
+            "get_global_executor",
+        })
         for module, name, replacement in replacements:
             original = getattr(module, name)
+            if name in mirrored_classes:
+                mirror_class(replacement, original)
+            elif name in mirrored_functions:
+                mirror_function(replacement, original)
             setattr(module, name, replacement)
             patches.append((module, name, original, replacement))
 

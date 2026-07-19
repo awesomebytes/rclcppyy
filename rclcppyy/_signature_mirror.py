@@ -110,9 +110,21 @@ def mirror_class(direct_class, stock_class) -> None:
     Walks only ``direct_class``'s own ``vars()`` -- never an inherited
     member -- so a subclass that leaves an rclcppyy base's member untouched
     picks up that base's mirror automatically (the two share the same
-    function object) rather than being revisited. The class object itself is
-    mirrored through the same gate, so the class-symbol ledger row and the
-    ``__init__`` member row flip together.
+    function object) rather than being revisited.
+
+    Deliberately does not also assign ``direct_class.__signature__``:
+    ``inspect.signature(a_class)`` reads a ``__signature__`` class attribute
+    before it ever looks at ``__init__``, and a class attribute is inherited
+    by every subclass -- including one outside this mirror's own scope (an
+    rclpy-owned mixin subclass of a mirrored facade, say). Setting it here
+    would leak the facade's mirrored constructor onto that unrelated
+    subclass's class-symbol row even though the subclass defines its own
+    ``__init__``. Mirroring only the ``__init__`` member is sufficient on its
+    own: ``inspect.signature(cls)`` falls back to a class's own or inherited
+    ``__init__`` when no ``__signature__`` is set, so the class-symbol row
+    and the ``__init__`` member row still flip together for every class this
+    function is actually called on, without touching classes it is not
+    called on.
     """
     for name, raw in list(vars(direct_class).items()):
         direct_target, direct_applicable = _callable_target(raw)
@@ -125,4 +137,3 @@ def mirror_class(direct_class, stock_class) -> None:
         if not stock_applicable:
             continue
         _mirror(direct_target, stock_target)
-    _mirror(direct_class, stock_class)

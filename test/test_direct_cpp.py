@@ -410,3 +410,9 @@ def test_direct_cpp_lifecycle_node_construction_fails_closed():
 def test_direct_cpp_profile_is_jazzy_cyclone_only():
     assert os.environ.get("ROS_DISTRO") == "jazzy"
     assert os.environ.get("RMW_IMPLEMENTATION") == "rmw_cyclonedds_cpp"
+
+
+def test_direct_cpp_signature_mirror_matches_stock_and_leaves_divergence_alone():
+    process = run_helper("_direct_cpp_signature_mirror_helper.py", timeout=120)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_SIGNATURE_MIRROR_OK" in process.stdout
