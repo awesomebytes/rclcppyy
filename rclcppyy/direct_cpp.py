@@ -235,6 +235,7 @@ class DirectSubscription:
         qos_profile,
         logger_name,
         native,
+        with_message_info=False,
     ):
         self._native = native
         self._closed = False
@@ -246,7 +247,11 @@ class DirectSubscription:
         self.qos_profile = qos_profile
         self.raw = False
         self.event_handlers = []
-        self._callback_type = self.CallbackType.MessageOnly
+        self._callback_type = (
+            self.CallbackType.WithMessageInfo
+            if with_message_info
+            else self.CallbackType.MessageOnly
+        )
         self._logger_name = str(logger_name)
 
     @property
@@ -691,16 +696,28 @@ class DirectNode:
         direct_entities.resolve_supported_type(msg_type)
         if not callable(callback):
             raise TypeError("subscription callback must be callable")
-        self._validate_subscription_callback(callback)
+        with_message_info = self._validate_subscription_callback(callback)
         qos, normalized_qos = _lower_entity_qos(qos_profile)
         if "subscription_shared_lease" in _runtime().optimizations:
             from rclcpp_kit import direct_subscription_lease
 
             native = direct_subscription_lease.create_subscription_lease(
-                self._require_node(), msg_type, str(topic), callback, qos)
+                self._require_node(),
+                msg_type,
+                str(topic),
+                callback,
+                qos,
+                with_message_info=with_message_info,
+            )
         else:
             native = direct_entities.create_subscription(
-                self._require_node(), msg_type, str(topic), callback, qos)
+                self._require_node(),
+                msg_type,
+                str(topic),
+                callback,
+                qos,
+                with_message_info=with_message_info,
+            )
         subscription = DirectSubscription(
             msg_type,
             topic,
@@ -708,9 +725,16 @@ class DirectNode:
             normalized_qos,
             self._logger_name(),
             native,
+            with_message_info,
         )
         self._direct_cpp_subscriptions.append(subscription)
-        self._record_entity("subscription", topic, msg_type, native)
+        self._record_entity(
+            "subscription",
+            topic,
+            msg_type,
+            native,
+            with_message_info=with_message_info,
+        )
         return subscription
 
     def create_timer(
@@ -943,17 +967,17 @@ class DirectNode:
         signature = inspect.signature(callback)
         try:
             signature.bind(object())
-            return
+            return False
         except TypeError:
             pass
         try:
             signature.bind(object(), object())
         except TypeError as exc:
             raise RuntimeError(
-                "subscription callback must accept exactly one message argument"
+                "subscription callback must accept one message argument or "
+                "message plus MessageInfo"
             ) from exc
-        _unsupported(
-            "direct_cpp subscriptions do not yet support MessageInfo callbacks")
+        return True
 
     def _require_default_service_qos(self, qos_profile):
         from rclpy.qos import qos_profile_services_default
@@ -1018,7 +1042,15 @@ class DirectNode:
             },
         )
 
-    def _record_entity(self, entity_type, topic, msg_type, entity=None):
+    def _record_entity(
+        self,
+        entity_type,
+        topic,
+        msg_type,
+        entity=None,
+        *,
+        with_message_info=False,
+    ):
         policies = ["direct_cpp", "direct_cpp_message", "no_conversion"]
         metadata = {
             "entity_type": entity_type,
@@ -1026,6 +1058,9 @@ class DirectNode:
             "message_type": str(getattr(msg_type, "__cpp_name__", msg_type)),
         }
         if entity_type == "subscription":
+            metadata["message_info"] = bool(with_message_info)
+            if with_message_info:
+                policies.append("native_message_info")
             if getattr(entity, "creation_route", "") == (
                 "rclcpp_unique_ptr_subscription_lease"
             ):

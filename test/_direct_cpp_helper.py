@@ -147,11 +147,6 @@ assert_rejected_without_entity(
     lambda: node.create_subscription(
         String, prefix + "/coroutine", coroutine_callback, 10),
 )
-assert_rejected_without_entity(
-    node,
-    lambda: node.create_subscription(
-        String, prefix + "/message_info", lambda _message, _info: None, 10),
-)
 print("DIRECT_CPP_FAIL_CLOSED_OK")
 
 assert isinstance(node.string_publisher, Publisher)
