@@ -70,6 +70,39 @@ assert "rclcpp::executors::SingleThreadedExecutor" in cpp_name(
 print("DIRECT_CPP_PUBLIC_EXECUTOR_OWNERSHIP_OK", flush=True)
 
 
+global_node = Node("direct_executor_global_%d" % os.getpid())
+global_executor = rclpy.get_global_executor()
+global_firings = []
+global_timer = None
+
+
+def global_timer_callback():
+    global_firings.append(time.monotonic_ns())
+    if len(global_firings) == 3:
+        global_timer.cancel()
+
+
+global_timer = global_node.create_timer(0.01, global_timer_callback)
+global_spin_calls = 0
+global_deadline = time.monotonic() + 2.0
+while len(global_firings) < 3 and time.monotonic() < global_deadline:
+    rclpy.spin_once(global_node, timeout_sec=0.1)
+    global_spin_calls += 1
+    assert global_executor.get_nodes() == []
+assert len(global_firings) == 3
+assert global_spin_calls <= 8, global_spin_calls
+
+global_replacement = SingleThreadedExecutor(context=global_node.context)
+assert global_replacement.add_node(global_node) is True
+assert global_executor.get_nodes() == []
+assert global_replacement.get_nodes() == [global_node]
+global_replacement.remove_node(global_node)
+assert global_node.destroy_timer(global_timer)
+global_node.destroy_node()
+assert global_replacement.shutdown(timeout_sec=1.0) is True
+print("DIRECT_CPP_GLOBAL_SPIN_ONCE_PARKING_OK", flush=True)
+
+
 topic = "/direct_cpp/executor/p%d" % os.getpid()
 received = []
 completed = Future()

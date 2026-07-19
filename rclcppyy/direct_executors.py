@@ -60,6 +60,8 @@ class DirectExecutor:
         # reacquires the GIL when an rclcpp callback enters its Python target.
         self._native.spin_once.__release_gil__ = True
         self._nodes: list[Any] = []
+        self._nodes_snapshot: tuple[Any, ...] = ()
+        self._parked_node = None
         self._nodes_lock = threading.RLock()
         self._spin_lock = threading.Lock()
         self._state_lock = threading.RLock()
@@ -73,8 +75,7 @@ class DirectExecutor:
 
     @property
     def is_spinning(self) -> bool:
-        with self._state_lock:
-            return self._is_spinning
+        return self._is_spinning
 
     @property
     def native_executor(self):
@@ -109,12 +110,25 @@ class DirectExecutor:
             with self._nodes_lock:
                 if node in self._nodes:
                     return False
+                if self._parked_node is node:
+                    self._parked_node = None
+                    self._nodes.append(node)
+                    self._nodes_snapshot = tuple(self._nodes)
+                    node._set_direct_executor(self)
+                    return True
+                if self._parked_node is not None:
+                    parked = self._parked_node
+                    self._parked_node = None
+                    parked_native = getattr(parked, "_direct_cpp_node", None)
+                    if parked_native is not None:
+                        self._native.remove_node(parked_native)
             current = node.executor
             if current is not None and current is not self:
                 current.remove_node(node)
             self._native.add_node(native)
             with self._nodes_lock:
                 self._nodes.append(node)
+                self._nodes_snapshot = tuple(self._nodes)
             node._set_direct_executor(self)
             return True
 
@@ -124,10 +138,27 @@ class DirectExecutor:
                 try:
                     self._nodes.remove(node)
                 except ValueError:
-                    return
+                    if self._parked_node is not node:
+                        return
+                    self._parked_node = None
+                else:
+                    self._nodes_snapshot = tuple(self._nodes)
             native = getattr(node, "_direct_cpp_node", None)
             if native is not None and not self._runtime.session.closed:
                 self._native.remove_node(native)
+
+    def park_node(self, node) -> None:
+        """Logically remove one temporary global node without native churn."""
+        with self._runtime.membership_lock:
+            with self._nodes_lock:
+                try:
+                    self._nodes.remove(node)
+                except ValueError:
+                    return
+                self._nodes_snapshot = tuple(self._nodes)
+                if self._parked_node is not None and self._parked_node is not node:
+                    raise RuntimeError("direct_cpp executor already has a parked node")
+                self._parked_node = node
 
     def get_nodes(self) -> list[Any]:
         with self._nodes_lock:
@@ -148,28 +179,28 @@ class DirectExecutor:
     def _enter_spin(self) -> None:
         if not self._spin_lock.acquire(blocking=False):
             raise RuntimeError("Executor is already spinning")
-        with self._state_lock:
-            if self._is_spinning:
-                self._spin_lock.release()
-                raise RuntimeError("Executor is already spinning")
-            self._is_spinning = True
+        self._is_spinning = True
 
     def _exit_spin(self) -> None:
-        with self._state_lock:
-            self._is_spinning = False
+        self._is_spinning = False
         self._spin_lock.release()
 
     def _spin_once_impl(self, timeout_sec=None) -> None:
-        if self._is_shutdown or not self._context.ok():
+        if self._is_shutdown:
             return
+        if not self._nodes_snapshot and self._parked_node is not None:
+            # Direct calls on an otherwise empty global executor must not run a
+            # node that was only cached between top-level spin_once calls.
+            self.remove_node(self._parked_node)
         timeout = _timeout_seconds(timeout_sec)
         if timeout is None or timeout < 0:
             self._native.spin_once()
         else:
             duration = cppyy.gbl.std.chrono.nanoseconds(int(timeout * 1e9))
             self._native.spin_once(duration)
-        for node in self.get_nodes():
-            node._poll_direct_clients()
+        for node in self._nodes_snapshot:
+            if node._direct_cpp_clients or node._direct_cpp_action_clients:
+                node._poll_direct_clients()
 
     def spin_once(self, timeout_sec=None) -> None:
         self._enter_spin()
@@ -222,6 +253,11 @@ class DirectExecutor:
                 self.remove_node(node)
                 if node.executor is self:
                     node._set_direct_executor(None)
+            if self._parked_node is not None:
+                parked = self._parked_node
+                self.remove_node(parked)
+                if parked.executor is self:
+                    parked._set_direct_executor(None)
         self._runtime.unregister_executor(self)
         return True
 

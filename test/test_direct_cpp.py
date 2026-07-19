@@ -52,6 +52,7 @@ def test_direct_cpp_public_single_threaded_executor_owns_exact_cpp_nodes():
     process = run_helper("_direct_cpp_executor_helper.py", timeout=240)
     assert process.returncode == 0, format_output(process)
     assert "DIRECT_CPP_PUBLIC_EXECUTOR_OWNERSHIP_OK" in process.stdout
+    assert "DIRECT_CPP_GLOBAL_SPIN_ONCE_PARKING_OK" in process.stdout
     assert "DIRECT_CPP_PUBLIC_EXECUTOR_CPP_DATA_OK" in process.stdout
     assert "DIRECT_CPP_PUBLIC_EXECUTOR_TRANSFER_OK" in process.stdout
     assert "DIRECT_CPP_PUBLIC_EXECUTOR_FAIL_CLOSED_OK" in process.stdout

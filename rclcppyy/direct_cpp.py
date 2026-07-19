@@ -1262,6 +1262,7 @@ def _select_direct_executor(executor):
 
 
 def _direct_spin_once(node, *, executor=None, timeout_sec=None):
+    using_global_executor = executor is None
     selected = _select_direct_executor(executor)
     node_was_added = False
     try:
@@ -1269,7 +1270,10 @@ def _direct_spin_once(node, *, executor=None, timeout_sec=None):
         selected.spin_once(timeout_sec=timeout_sec)
     finally:
         if node_was_added:
-            selected.remove_node(node)
+            if using_global_executor:
+                selected.park_node(node)
+            else:
+                selected.remove_node(node)
 
 
 def _direct_spin(node, executor=None):
@@ -1289,6 +1293,7 @@ def _direct_spin_until_future_complete(
     future_runtime = getattr(future, "_rclcppyy_direct_runtime", runtime)
     if future_runtime is not runtime:
         _unsupported("direct_cpp cannot spin a Future from a foreign context")
+    using_global_executor = executor is None
     selected = _select_direct_executor(executor)
     node_was_added = False
     try:
@@ -1296,7 +1301,10 @@ def _direct_spin_until_future_complete(
         selected.spin_until_future_complete(future, timeout_sec=timeout_sec)
     finally:
         if node_was_added:
-            selected.remove_node(node)
+            if using_global_executor:
+                selected.park_node(node)
+            else:
+                selected.remove_node(node)
 
 
 def activate(*, optimizations=(), interfaces=()) -> bool:
