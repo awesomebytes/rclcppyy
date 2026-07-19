@@ -20,6 +20,16 @@ class Result:
     pass
 
 
+class SharedFeedback(Feedback):
+    def __smartptr__(self):
+        return self
+
+
+class SharedResult(Result):
+    def __smartptr__(self):
+        return self
+
+
 class GoalId:
     def __init__(self, value=1):
         self.uuid = [value] + [0] * 15
@@ -95,16 +105,41 @@ class FakeNativeServer:
     def publish_feedback(self, token, feedback):
         self.calls.append(("feedback", token, feedback))
 
+    def make_feedback_shared(self):
+        return SharedFeedback()
+
+    def make_result_shared(self):
+        return SharedResult()
+
+    def publish_feedback_shared(self, token, feedback):
+        if not isinstance(feedback, SharedFeedback):
+            raise TypeError("feedback must come from the shared factory")
+        self.calls.append(("feedback_shared", token, feedback))
+
     def succeed(self, token, result):
         self.calls.append(("succeed", token, result))
+        self.states[token] = 4
+
+    def succeed_shared(self, token, result):
+        if not isinstance(result, SharedResult):
+            raise TypeError("result must come from the shared factory")
+        self.calls.append(("succeed_shared", token, result))
         self.states[token] = 4
 
     def canceled(self, token, result):
         self.calls.append(("canceled", token, result))
         self.states[token] = 5
 
+    def canceled_shared(self, token, result):
+        self.calls.append(("canceled_shared", token, result))
+        self.states[token] = 5
+
     def abort(self, token, result):
         self.calls.append(("abort", token, result))
+        self.states[token] = 6
+
+    def abort_shared(self, token, result):
+        self.calls.append(("abort_shared", token, result))
         self.states[token] = 6
 
     def forget(self, token):
@@ -254,6 +289,41 @@ def test_default_accepted_execution_defers_terminal_until_exact_result(
     assert not handle.is_active
     assert type(handle.request) is Goal
     assert type(handle.goal_id) is GoalId
+
+
+def test_explicit_shared_values_remove_only_adapter_copies(server_factory):
+    retained = []
+
+    def execute(handle):
+        feedback = handle.create_feedback_shared()
+        result = handle.create_result_shared()
+        assert type(feedback) is SharedFeedback
+        assert type(result) is SharedResult
+        handle.publish_feedback_shared(feedback)
+        with pytest.raises(TypeError, match="shared factory"):
+            handle.publish_feedback_shared(Feedback())
+        with pytest.raises(TypeError, match="create_result_shared"):
+            handle.succeed_shared(Result())
+        handle.succeed_shared(result)
+        retained.extend((feedback, result))
+        return result
+
+    server, _node, native, _session = server_factory(execute_callback=execute)
+    native.queue_goal(12)
+    server._poll_ready()
+    handle = server._goal_handles[12]
+
+    assert native.calls == [
+        ("execute", 12),
+        ("feedback_shared", 12, retained[0]),
+        ("succeed_shared", 12, retained[1]),
+    ]
+    assert handle.status == 4
+    assert retained[0].__smartptr__() is retained[0]
+    assert retained[1].__smartptr__() is retained[1]
+    server.close()
+    assert retained[0].__smartptr__() is retained[0]
+    assert retained[1].__smartptr__() is retained[1]
 
 
 @pytest.mark.parametrize(

@@ -305,6 +305,13 @@ def _report(
             "action-server Python crossings differ: %s != %s" %
             (state.python_crossings, expected))
     expected_operations = expected_cpp_operations(args.variant, state.total)
+    if args.shared_values:
+        expected_operations = dict(expected_operations)
+        expected_operations.update({
+            "adapter_message_deep_copies": 0,
+            "feedback_shared_handoffs": state.total * FEEDBACK_PER_GOAL,
+            "result_shared_handoffs": state.total,
+        })
     if cpp_operations != expected_operations:
         raise RuntimeError(
             "action-server C++ operations differ: %s != %s" %
@@ -429,19 +436,31 @@ def _source_compatible_lane(args, *, profile: str | None) -> int:
         time.sleep(0.02)
         prove_feedback_type = require_cpp and state.results_sent == 0
         for index in range(FEEDBACK_PER_GOAL):
-            feedback = LookupTransform.Feedback()
+            feedback = (
+                handle.create_feedback_shared()
+                if args.shared_values else LookupTransform.Feedback()
+            )
             if prove_feedback_type and index == 0 and type(
                     feedback) is not LookupTransform.Feedback:
                 raise RuntimeError("direct action-server feedback is not exact C++")
-            handle.publish_feedback(feedback)
+            if args.shared_values:
+                handle.publish_feedback_shared(feedback)
+            else:
+                handle.publish_feedback(feedback)
             state.feedback_sent += 1
             time.sleep(0.01)
         time.sleep(0.02)
-        result = LookupTransform.Result()
+        result = (
+            handle.create_result_shared()
+            if args.shared_values else LookupTransform.Result()
+        )
         result.transform.header.frame_id = phase
         result.transform.child_frame_id = str(sequence)
         result.error.error = TF2Error.NO_ERROR
-        handle.succeed()
+        if args.shared_values:
+            handle.succeed_shared(result)
+        else:
+            handle.succeed()
         state.finish_goal(phase, sequence)
         _debug("source execute callback complete %s %d" % (phase, sequence))
         return result
@@ -468,9 +487,16 @@ def _source_compatible_lane(args, *, profile: str | None) -> int:
             "feedback_value_submissions": int(stats.cpp_feedback_value_submissions),
             "result_value_submissions": int(stats.cpp_result_value_submissions),
             "adapter_message_deep_copies": int(
-                stats.cpp_feedback_value_submissions +
-                stats.cpp_result_value_submissions),
+                stats.cpp_feedback_adapter_copies +
+                stats.cpp_result_adapter_copies),
         }
+        if args.shared_values:
+            cpp_operations.update({
+                "feedback_shared_handoffs": int(
+                    stats.cpp_feedback_shared_handoffs),
+                "result_shared_handoffs": int(
+                    stats.cpp_result_shared_handoffs),
+            })
     else:
         cpp_operations = expected_cpp_operations(args.variant, state.total)
     server.destroy()
@@ -571,7 +597,7 @@ def _raw_lane(args) -> int:
         "feedback_value_submissions": int(stats.cpp_feedback_value_submissions),
         "result_value_submissions": int(stats.cpp_result_value_submissions),
         "adapter_message_deep_copies": int(
-            stats.cpp_feedback_value_submissions + stats.cpp_result_value_submissions),
+            stats.cpp_feedback_adapter_copies + stats.cpp_result_adapter_copies),
     }
     server.close()
     session.close()
@@ -860,6 +886,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--run-token")
     parser.add_argument("--warmup-goals", type=int)
     parser.add_argument("--measured-goals", type=int)
+    parser.add_argument("--shared-values", action="store_true")
     return parser
 
 
@@ -875,6 +902,9 @@ def main() -> int:
         raise SystemExit("action-server worker requires all lane arguments")
     if args.warmup_goals <= 0 or args.measured_goals <= 0:
         raise SystemExit("action-server goal counts must be positive")
+    if args.shared_values and args.variant != "direct-source-compatible":
+        raise SystemExit(
+            "--shared-values requires the direct-source-compatible variant")
     if args.variant == "stock-rclpy":
         return _source_compatible_lane(args, profile=None)
     if args.variant == "direct-source-compatible":

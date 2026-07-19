@@ -51,15 +51,24 @@ def main():
         raise AssertionError("a Python conversion or serialization boundary ran")
 
     native_action = importlib.import_module("rclcpp_kit.native_action")
+    kit = importlib.import_module("rclcpp_kit")
     bringup = importlib.import_module("rclcpp_kit.bringup_rclcpp")
+    product_bringup = importlib.import_module("rclcppyy.bringup_rclcpp")
+    product_node = importlib.import_module("rclcppyy.node")
     serialization = importlib.import_module("rclcpp_kit.serialization")
+    product_serialization = importlib.import_module("rclcppyy.serialization")
     rclpy_serialization = importlib.import_module("rclpy.serialization")
+    kit.convert_python_msg_to_cpp = forbidden_boundary
     native_action.convert_python_msg_to_cpp = forbidden_boundary
     bringup.convert_python_msg_to_cpp = forbidden_boundary
-    serialization.serialize_message = forbidden_boundary
-    serialization.deserialize_message = forbidden_boundary
-    rclpy_serialization.serialize_message = forbidden_boundary
-    rclpy_serialization.deserialize_message = forbidden_boundary
+    product_bringup.convert_python_msg_to_cpp = forbidden_boundary
+    product_node.convert_python_msg_to_cpp = forbidden_boundary
+    for module in (serialization, product_serialization, rclpy_serialization):
+        module.serialize_message = forbidden_boundary
+        module.deserialize_message = forbidden_boundary
+    for module in (serialization, product_serialization):
+        module.serialized_message_from_bytes = forbidden_boundary
+        module.serialized_message_to_bytes = forbidden_boundary
 
     retained = []
     feedback_messages = []
@@ -214,16 +223,28 @@ def main():
     success_result_future = success_handle.get_result_async()
     success_server_handle = deferred.pop("success")
     success_server_handle.executing()
-    for expected_count in range(1, 3):
-        feedback = LookupTransform.Feedback()
-        success_server_handle.publish_feedback(feedback)
-        spin_until(
-            lambda: len(feedback_messages) == expected_count,
-            "success feedback %d" % expected_count,
-        )
-    success_result = LookupTransform.Result()
-    success_result.transform.child_frame_id = "success-result"
-    success_server_handle.succeed(success_result)
+    feedback = LookupTransform.Feedback()
+    success_server_handle.publish_feedback(feedback)
+    spin_until(lambda: len(feedback_messages) == 1, "success feedback 1")
+    shared_feedback = success_server_handle.create_feedback_shared()
+    assert type(shared_feedback) is LookupTransform.Feedback
+    assert bool(shared_feedback.__smartptr__())
+    expect_failure(
+        lambda: success_server_handle.publish_feedback_shared(
+            LookupTransform.Feedback()),
+        "shared factory",
+    )
+    success_server_handle.publish_feedback_shared(shared_feedback)
+    spin_until(lambda: len(feedback_messages) == 2, "success feedback 2")
+    shared_result = success_server_handle.create_result_shared()
+    assert type(shared_result) is LookupTransform.Result
+    assert bool(shared_result.__smartptr__())
+    shared_result.transform.child_frame_id = "success-result"
+    expect_failure(
+        lambda: success_server_handle.succeed_shared(LookupTransform.Result()),
+        "create_result_shared",
+    )
+    success_server_handle.succeed_shared(shared_result)
     spin_until(success_result_future.done, "success result")
     success_response = success_result_future.result()
     spin_until(lambda: len(feedback_messages) == 2, "success feedback")
@@ -239,6 +260,8 @@ def main():
         success_handle.goal_id,
         success_response,
         *feedback_messages,
+        shared_feedback,
+        shared_result,
     ))
     print("DIRECT_CPP_ACTION_SERVER_SUCCESS_FEEDBACK_OK")
 
@@ -324,6 +347,10 @@ def main():
     assert stats.cpp_goal_shared_handoffs == 5
     assert stats.cpp_feedback_value_submissions == 2
     assert stats.cpp_result_value_submissions == 5
+    assert stats.cpp_feedback_adapter_copies == 1
+    assert stats.cpp_result_adapter_copies == 4
+    assert stats.cpp_feedback_shared_handoffs == 1
+    assert stats.cpp_result_shared_handoffs == 1
     assert stats.python_message_conversions == 0
     assert stats.python_serialization_calls == 0
     assert not server.callback_error_ready()
@@ -360,6 +387,9 @@ def main():
     gc.collect()
     assert any(int(value) for value in retained[0].uuid)
     assert str(retained[1].result.transform.child_frame_id) == "success-result"
+    assert bool(shared_feedback.__smartptr__())
+    assert bool(shared_result.__smartptr__())
+    assert str(shared_result.transform.child_frame_id) == "success-result"
     assert type(retained[-3]) is LookupTransform.Goal
     assert type(retained[-2]) is UUID
     assert str(retained[-1].result.transform.child_frame_id) == "deferred-result"

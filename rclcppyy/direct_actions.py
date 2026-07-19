@@ -1014,12 +1014,36 @@ class DirectServerGoalHandle:
     def execute(self, execute_callback=None):
         self._action_server.notify_execute(self, execute_callback)
 
+    def create_feedback_shared(self):
+        """Create exact C++ feedback with explicit shared ownership.
+
+        The value may be retained after publication. It must not be mutated
+        concurrently with ``publish_feedback_shared``.
+        """
+        self._require_available()
+        return self._action_server._native.make_feedback_shared()
+
+    def create_result_shared(self):
+        """Create an exact C++ result with explicit shared ownership.
+
+        The value may be retained after a terminal call. It must not be mutated
+        concurrently with that call.
+        """
+        self._require_available()
+        return self._action_server._native.make_result_shared()
+
     def publish_feedback(self, feedback):
         self._require_available()
         if not isinstance(feedback, self._action_server.action_type.Feedback):
             raise TypeError(
                 "feedback must be an actual direct_cpp C++ action Feedback")
         self._action_server._native.publish_feedback(self._token, feedback)
+
+    def publish_feedback_shared(self, feedback):
+        """Publish factory-created feedback without an adapter deep copy."""
+        self._require_available()
+        self._action_server._native.publish_feedback_shared(
+            self._token, feedback)
 
     def succeed(self, response=None):
         self._request_terminal("succeed", response)
@@ -1029,6 +1053,15 @@ class DirectServerGoalHandle:
 
     def canceled(self, response=None):
         self._request_terminal("canceled", response)
+
+    def succeed_shared(self, response):
+        self._request_terminal_shared("succeed", response)
+
+    def abort_shared(self, response):
+        self._request_terminal_shared("abort", response)
+
+    def canceled_shared(self, response):
+        self._request_terminal_shared("canceled", response)
 
     def _request_terminal(self, operation, response):
         self._require_available()
@@ -1050,6 +1083,31 @@ class DirectServerGoalHandle:
             self._pending_terminal = operation
         if response is not None:
             self._action_server._commit_terminal(self, operation, response)
+
+    def _request_terminal_shared(self, operation, response):
+        self._require_available()
+        if not isinstance(response, self._action_server.action_type.Result):
+            raise TypeError(
+                "response must be an actual direct_cpp C++ action Result")
+        pointer = getattr(response, "__smartptr__", lambda: None)()
+        if pointer is None or not bool(pointer):
+            raise TypeError(
+                "response must come from create_result_shared")
+        with self._lock:
+            if self._terminal_status is not None:
+                raise RuntimeError("direct_cpp action goal is already terminal")
+            if self._pending_terminal not in (None, operation):
+                raise RuntimeError(
+                    "direct_cpp action goal already has a pending terminal state")
+            previous = self._pending_terminal
+            self._pending_terminal = operation
+        try:
+            self._action_server._commit_terminal_shared(
+                self, operation, response)
+        except BaseException:
+            with self._lock:
+                self._pending_terminal = previous
+            raise
 
     def _require_available(self):
         if self._destroyed:
@@ -1432,6 +1490,24 @@ class DirectActionServer:
             elif handle._pending_terminal not in (None, operation):
                 raise RuntimeError("direct_cpp action goal has another terminal state")
             getattr(self._native, operation)(handle._token, result)
+            handle._pending_terminal = None
+            handle._terminal_status = _TERMINAL_STATUS[operation]
+
+    def _commit_terminal_shared(self, handle, operation, result):
+        self._validate_goal_handle(handle)
+        if operation not in _TERMINAL_STATUS:
+            raise ValueError("unknown direct action terminal operation")
+        if not isinstance(result, self.action_type.Result):
+            raise TypeError("terminal result must be an actual direct_cpp C++ Result")
+        pointer = getattr(result, "__smartptr__", lambda: None)()
+        if pointer is None or not bool(pointer):
+            raise TypeError("terminal result must come from create_result_shared")
+        with handle._lock:
+            if handle._terminal_status is not None:
+                raise RuntimeError("direct_cpp action goal is already terminal")
+            if handle._pending_terminal != operation:
+                raise RuntimeError("direct_cpp action goal has another terminal state")
+            getattr(self._native, operation + "_shared")(handle._token, result)
             handle._pending_terminal = None
             handle._terminal_status = _TERMINAL_STATUS[operation]
 

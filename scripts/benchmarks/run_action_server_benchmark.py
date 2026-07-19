@@ -92,6 +92,7 @@ def _server_argv(
     token: str,
     warmup_goals: int,
     measured_goals: int,
+    shared_values: bool = False,
 ) -> list[str]:
     if variant == "aot-staged":
         return [
@@ -104,7 +105,7 @@ def _server_argv(
             str(measured_goals),
             "server_under_test",
         ]
-    return [
+    command = [
         sys.executable,
         "-u",
         str(WORKER),
@@ -121,6 +122,9 @@ def _server_argv(
         "--measured-goals",
         str(measured_goals),
     ]
+    if shared_values:
+        command.append("--shared-values")
+    return command
 
 
 def _client_argv(
@@ -156,6 +160,7 @@ def _run_sample(
     warmup_goals: int = WARMUP_GOALS,
     measured_goals: int = MEASURED_GOALS,
     validate: bool = True,
+    shared_values: bool = False,
 ) -> dict:
     token = "action_server_" + uuid.uuid4().hex
     suffix = token[14:26]
@@ -177,6 +182,7 @@ def _run_sample(
                 token,
                 warmup_goals,
                 measured_goals,
+                shared_values,
             ),
             env,
         )
