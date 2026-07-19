@@ -127,10 +127,17 @@ def _invalid_handle(reason):
     raise InvalidHandle(reason)
 
 
-def _qos_profile_from_depth(depth):
+def _lower_entity_qos(qos_profile):
+    """Return native creation QoS and the normalized rclpy metadata value."""
+    from rclcpp_kit import direct_entities
     from rclpy.qos import QoSProfile
 
-    return QoSProfile(depth=depth)
+    rclcpp = _runtime().session.rclcpp
+    if isinstance(qos_profile, int):
+        native = direct_entities.qos_from_depth(rclcpp, qos_profile)
+        return native, QoSProfile(depth=qos_profile)
+    native = direct_entities.qos_from_profile(rclcpp, qos_profile)
+    return native, qos_profile
 
 
 class DirectPublisher:
@@ -609,14 +616,13 @@ class DirectNode:
         from rclcpp_kit import direct_entities
 
         direct_entities.resolve_supported_type(msg_type)
-        qos = direct_entities.qos_from_depth(
-            _runtime().session.rclcpp, qos_profile)
+        qos, normalized_qos = _lower_entity_qos(qos_profile)
         native = direct_entities.create_managed_publisher(
             self._require_node(), msg_type, str(topic), qos)
         publisher = DirectPublisher(
             msg_type,
             topic,
-            _qos_profile_from_depth(qos_profile),
+            normalized_qos,
             self._logger_name(),
             native,
         )
@@ -651,8 +657,7 @@ class DirectNode:
         if not callable(callback):
             raise TypeError("subscription callback must be callable")
         self._validate_subscription_callback(callback)
-        qos = direct_entities.qos_from_depth(
-            _runtime().session.rclcpp, qos_profile)
+        qos, normalized_qos = _lower_entity_qos(qos_profile)
         if "subscription_shared_lease" in _runtime().optimizations:
             from rclcpp_kit import direct_subscription_lease
 
@@ -665,7 +670,7 @@ class DirectNode:
             msg_type,
             topic,
             callback,
-            _qos_profile_from_depth(qos_profile),
+            normalized_qos,
             self._logger_name(),
             native,
         )

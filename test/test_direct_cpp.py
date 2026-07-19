@@ -22,6 +22,15 @@ def test_direct_cpp_source_compatible_pubsub_and_lifetime():
     assert "DIRECT_CPP_TEARDOWN_OK" in process.stdout
 
 
+def test_direct_cpp_qos_profiles_reach_native_endpoints_without_message_conversion():
+    process = run_helper("_direct_cpp_qos_helper.py", timeout=240)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_QOS_FAIL_CLOSED_OK" in process.stdout
+    assert "DIRECT_CPP_QOS_EXPLICIT_ENDPOINT_OK" in process.stdout
+    assert "DIRECT_CPP_QOS_SENSOR_ENDPOINT_OK" in process.stdout
+    assert "DIRECT_CPP_QOS_TEARDOWN_OK" in process.stdout
+
+
 def test_direct_cpp_opt_in_subscription_shared_lease():
     process = run_helper(
         "_direct_cpp_subscription_lease_helper.py", timeout=300)
