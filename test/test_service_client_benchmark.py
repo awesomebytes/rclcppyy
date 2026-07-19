@@ -158,7 +158,8 @@ def _sample(variant, index=0):
             else "rclcppyy_status_entity")
     else:
         artifact_name = (
-            "native_client" if variant == "native-python-orchestrated"
+            "native_client"
+            if variant in ("direct-cpp-rclcppyy", "native-python-orchestrated")
             else "cpp_state_machine")
         warmed["cache"] = {
             **_cache()["phases"]["warm"]["artifacts"][artifact_name],
@@ -166,6 +167,53 @@ def _sample(variant, index=0):
             "kind": spec["cache"],
         }
         warmed["entity_type"] = "rclcpp::Client<std_srvs::srv::SetBool>"
+        if variant == "direct-cpp-rclcppyy":
+            warmed["cache"]["source_id"] = "1" * 16
+            warmed["direct_cpp_proof"] = {
+                "profile": "direct_cpp",
+                "node_authority": "cpp",
+                "client_authority": "cpp",
+                "client_entity_type": "rclcpp::Client<std_srvs::srv::SetBool>",
+                "runtime_facade_node_count": 1,
+                "native_session_node_count": 1,
+                "native_node_identity_verified": True,
+                "request_representation": "actual_cpp",
+                "response_representation": "actual_cpp",
+                "future_type": "rclpy.task.Future",
+                "future_control": "per_operation_rclpy_task_future",
+                "request_handoff": "one_native_cpp_value_copy",
+                "response_handoff": "shared_cpp_response",
+                "python_request_crossings_per_call": 1,
+                "python_response_crossings_per_call": 1,
+                "python_message_conversions_per_call": 0,
+                "cpp_request_copies_per_call": 1,
+                "python_conversion_guard_installed": True,
+                "serialization_guards_installed": True,
+                "status_decision": {
+                    "id": "entity-00000002",
+                    "backend": "cpp",
+                    "reason": "direct typed rclcpp client with C++ service messages",
+                    "policies": [
+                        "direct_cpp", "direct_cpp_service", "no_conversion",
+                        "per_operation_future", "cpp_pending_state",
+                    ],
+                    "metadata": {
+                        "entity_type": "client",
+                        "service_name": service_name,
+                        "service_type": "std_srvs::srv::SetBool",
+                        "request_representation": "actual_cpp",
+                        "response_representation": "actual_cpp",
+                        "python_message_conversions": 0,
+                        "source_id": "1" * 16,
+                        "request_handoff": "one_native_cpp_value_copy",
+                        "response_handoff": "shared_cpp_response",
+                        "future_control": "per_operation_rclpy_task_future",
+                        "python_request_crossings_per_call": 1,
+                        "python_response_crossings_per_call": 1,
+                        "cpp_request_copies_per_call": 1,
+                    },
+                },
+            }
 
     total = WARMUP + MESSAGES
     latency = [100, 200, 300, 400]
@@ -192,6 +240,8 @@ def _sample(variant, index=0):
         "rss_guard": _rss_guard(),
         "latency_ns": latency,
     }
+    if variant == "direct-cpp-rclcppyy":
+        client_report["cpp_request_copies_measured"] = MESSAGES
     server_report = {
         "schema": protocol.SERVER_SCHEMA,
         "event": "report",
@@ -210,7 +260,7 @@ def _sample(variant, index=0):
         "correct": True,
         "teardown_clean": True,
     }
-    return {
+    sample = {
         "schema": protocol.SAMPLE_SCHEMA,
         "case_id": "%s__rep_1" % variant,
         "variant": variant,
@@ -265,6 +315,18 @@ def _sample(variant, index=0):
         "teardown_verified": True,
         "diagnostics": {},
     }
+    if variant == "direct-cpp-rclcppyy":
+        sample["client_teardown"]["direct_cpp_teardown"] = {
+            "endpoint_disappeared": True,
+            "client_closed": True,
+            "node_destroyed": True,
+            "context_shutdown": True,
+            "native_session_closed": True,
+            "native_session_released": True,
+            "native_executor_released": True,
+            "runtime_nodes_released": True,
+        }
+    return sample
 
 
 def _parameters():
@@ -292,6 +354,28 @@ def test_each_client_variant_satisfies_the_strict_contract(variant):
             client_authority="cpp"), "identity/topology"),
         ("compatible-rclcppyy", lambda row: row["client_warmed"][
             "backend_marker"].update(backend="cpp"), "authority marker"),
+        ("direct-cpp-rclcppyy", lambda row: row["client_warmed"][
+            "direct_cpp_proof"].update(response_representation="python"),
+         "representation or authority"),
+        ("direct-cpp-rclcppyy", lambda row: row["client_warmed"][
+            "direct_cpp_proof"]["status_decision"].update(backend="python"),
+         "status authority"),
+        ("direct-cpp-rclcppyy", lambda row: row["client_warmed"][
+            "direct_cpp_proof"].update(native_session_node_count=2),
+         "representation or authority"),
+        ("direct-cpp-rclcppyy", lambda row: row["client_warmed"][
+            "direct_cpp_proof"].update(python_conversion_guard_installed=False),
+         "representation or authority"),
+        ("direct-cpp-rclcppyy", lambda row: row["client_warmed"][
+            "direct_cpp_proof"].update(future_control="shared_future"),
+         "representation or authority"),
+        ("direct-cpp-rclcppyy", lambda row: row["client_warmed"]["cache"].update(
+            source_id="2" * 16), "source identity"),
+        ("direct-cpp-rclcppyy", lambda row: row["client_report"].update(
+            cpp_request_copies_measured=0), "crossing"),
+        ("direct-cpp-rclcppyy", lambda row: row["client_teardown"][
+            "direct_cpp_teardown"].update(native_session_closed=False),
+         "endpoint disappearance"),
         ("native-python-orchestrated", lambda row: row["client_report"].update(
             python_message_conversions_measured=1), "crossing"),
         ("native-cpp-state-machine", lambda row: row["client_report"].update(
@@ -347,14 +431,39 @@ def test_native_orchestration_uses_cpp_requests_without_conversion_bridge():
     assert "request = client.make_request()" in source
     assert "client.send(request)" in source
     assert "SetBool.Request" not in source
-    assert "convert_python_msg_to_cpp" not in inspect.getsource(worker)
+    assert "convert_python_msg_to_cpp" not in source
     assert set(protocol.VARIANTS) == {
         "stock-rclpy",
         "compatible-rclcppyy",
+        "direct-cpp-rclcppyy",
         "native-python-orchestrated",
         "native-cpp-state-machine",
         "aot-staged",
     }
+
+
+def test_direct_cpp_lane_uses_the_production_client_and_future_path():
+    source = inspect.getsource(worker._run_direct_cpp_client)
+    measured_call = source.split("    def call(value: bool)", 1)[1].split(
+        "    def verify_call(value: bool)", 1)[0]
+    assert 'active.enable_cpp_acceleration(profile="direct_cpp")' in source
+    assert "SetBool.Request(data=value)" in source
+    assert "type(request) is not SetBool.Request" in source
+    assert "client.call_async(request)" in source
+    assert "type(future) is not Future" in source
+    assert "rclpy.spin_until_future_complete(node, future" in source
+    assert "type(response) is not SetBool.Response" in source
+    assert "type(" not in measured_call
+    assert "final.cpp_request_copies - baseline.cpp_request_copies" in source
+    assert "convert_python_msg_to_cpp" not in source
+    guards = inspect.getsource(worker._install_direct_cpp_boundary_guards)
+    assert "bringup.convert_python_msg_to_cpp = forbidden_boundary" in guards
+    assert "native_client.convert_python_msg_to_cpp = forbidden_boundary" in guards
+    assert "serialization.serialize_message = forbidden_boundary" in guards
+    proof = inspect.getsource(worker._direct_cpp_client_proof)
+    assert "type(client._native.raw_client)" in proof
+    assert "runtime.nodes != [node]" in proof
+    assert "runtime.session.nodes != (node._direct_cpp_node,)" in proof
 
 
 def test_cpp_state_machine_has_no_python_per_request_callback():
@@ -426,13 +535,23 @@ def test_document_and_schema_forbid_claims_and_server_ranking(monkeypatch):
     schema = json.loads((
         REPO_ROOT / "schemas" / "service-client-benchmark-v1.schema.json"
     ).read_text(encoding="utf-8"))
+    jsonschema = pytest.importorskip("jsonschema")
+    jsonschema.Draft202012Validator.check_schema(schema)
+    jsonschema.validate(document, schema)
+    missing_direct_proof = json.loads(json.dumps(document))
+    direct = next(
+        row for row in missing_direct_proof["results"]
+        if row["variant"] == "direct-cpp-rclcppyy")
+    del direct["client_warmed"]["direct_cpp_proof"]
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(missing_direct_proof, schema)
     assert schema["properties"]["benchmark"]["properties"][
         "performance_claims_allowed"] == {"const": False}
     assert schema["properties"]["comparison"]["properties"][
         "interpretation_allowed"] == {"const": False}
     assert schema["properties"]["benchmark"]["properties"]["parameters"][
         "properties"]["requested_rmw"] == {"const": RMW}
-    assert len(schema["properties"]["results"]["items"]["allOf"]) == 5
+    assert len(schema["properties"]["results"]["items"]["allOf"]) == 6
 
 
 def test_all_client_variants_run_against_common_aot_server(tmp_path):
@@ -470,7 +589,7 @@ def test_all_client_variants_run_against_common_aot_server(tmp_path):
     assert len({
         pid for row in document["results"]
         for pid in (row["server_pid"], row["client_pid"])
-    }) == 10
+    }) == 12
     for row in document["results"]:
         assert row["client_report"]["total_requests"] == 6
         assert row["server_report"]["total_requests"] == 6
@@ -490,7 +609,12 @@ def test_all_client_variants_run_against_common_aot_server(tmp_path):
     assert crossings == {
         "stock-rclpy": (4, 4, 8),
         "compatible-rclcppyy": (4, 4, 8),
+        "direct-cpp-rclcppyy": (4, 4, 0),
         "native-python-orchestrated": (4, 4, 0),
         "native-cpp-state-machine": (0, 0, 0),
         "aot-staged": (0, 0, 0),
     }
+    direct = next(
+        row for row in document["results"]
+        if row["variant"] == "direct-cpp-rclcppyy")
+    assert direct["client_report"]["cpp_request_copies_measured"] == 4

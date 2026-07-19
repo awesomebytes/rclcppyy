@@ -1,7 +1,7 @@
 # Controlled service-client benchmark
 
 This benchmark characterizes client-side CPU cost for one fixed
-`std_srvs/srv/SetBool` service across five execution boundaries. It is a raw
+`std_srvs/srv/SetBool` service across six execution boundaries. It is a raw
 evidence generator, not a release gate or a source of performance claims. ROS 2
 Jazzy with CycloneDDS is the only accepted environment for this v1 protocol.
 
@@ -11,15 +11,22 @@ Jazzy with CycloneDDS is the only accepted environment for this v1 protocol.
 2. `compatible-rclcppyy`: the same Python client function, with compatible
    activation as the only setup difference. The client remains a
    Python-authoritative `rclpy.client.Client`.
-3. `native-python-orchestrated`: the existing managed native client with Python
+3. `direct-cpp-rclcppyy`: the production `direct_cpp` client behind the usual
+   `Node.create_client()`, `SetBool.Request(...)`, `call_async()`, and
+   `rclpy.spin_until_future_complete()` call shape. The node and client are C++
+   authoritative, Request and Response are the actual generated C++ types, and
+   each operation returns an actual `rclpy.task.Future`. There is one Python
+   request crossing, one Python response crossing, exactly one native C++ value
+   copy of the request, and no Python message conversion.
+4. `native-python-orchestrated`: the existing managed native client with Python
    orchestrating each request. It allocates and submits the direct shared C++
    `SetBool::Request`; no Python message conversion occurs. Exact managed-client
    counters record one Python request and response crossing per call.
-4. `native-cpp-state-machine`: a benchmark-private, content-addressed C++ client
+5. `native-cpp-state-machine`: a benchmark-private, content-addressed C++ client
    that owns graph verification, requests, waits, validation, and timing for the
    complete loop. There is no per-request Python crossing or Python message
    conversion.
-5. `aot-staged`: a conventional Release-mode C++ client.
+6. `aot-staged`: a conventional Release-mode C++ client.
 
 Every client talks to the same staged Release AOT C++ server. The service
 contract is exact: response `success` equals request `data`, and `message` is
@@ -46,6 +53,13 @@ RTT, and closed-loop requests per second. The common server process CPU is
 retained only as a drift diagnostic and is never ranked. Counts, input parity,
 response checksum, Python orchestration, request/response crossings, message
 conversions, exceptions, and pending requests are exact acceptance conditions.
+The direct C++ lane additionally records its status decision, C++ request and
+response representations, Future control model, handoff semantics, and measured
+C++ request-copy count. Request, Future, and response identities are checked
+during warmup, outside the timed loop. Fail-fast guards make any Python-message
+conversion or serialization call fail the sample. Its teardown proof requires
+endpoint disappearance, a closed client, a destroyed node, a stopped native
+executor, and a closed native session.
 
 After the client reports, the server stops its clock and tears down. Only then
 may the client continue; it must observe the service endpoint disappear before
@@ -63,6 +77,11 @@ separate temporary cache. Fresh cold and warm prewarm processes must prove a
 miss followed by a hit for identical managed-client and C++ state-machine
 artifacts before any sample runs. Compilation is excluded from measured samples,
 and both temporary trees are removed afterward.
+
+The direct C++ and managed Python-orchestrated lanes consume the same prewarmed
+managed-client artifact. This keeps compilation outside the sample and makes the
+comparison about the production Python-facing control path rather than cache
+state.
 
 ## Running
 

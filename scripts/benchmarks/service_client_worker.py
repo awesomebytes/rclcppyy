@@ -375,6 +375,85 @@ def _status_client_marker(snapshot: dict, service_name: str) -> dict:
     }
 
 
+def _direct_cpp_client_proof(snapshot: dict, client, node, guards: dict) -> dict:
+    from rclcppyy import direct_cpp
+
+    runtime = direct_cpp._runtime()
+    raw_client_type = str(getattr(type(client._native.raw_client), "__cpp_name__", ""))
+    if raw_client_type != "rclcpp::Client<std_srvs::srv::SetBool>":
+        raise RuntimeError("direct_cpp raw client C++ identity is invalid")
+    if runtime.nodes != [node] or runtime.session.nodes != (node._direct_cpp_node,):
+        raise RuntimeError("direct_cpp native node authority is invalid")
+    matches = [
+        record for record in snapshot["entities"]
+        if record["metadata"].get("entity_type") == "client"
+        and record["metadata"].get("service_name") == client.srv_name
+        and "direct_cpp_service" in record["policies"]
+    ]
+    if len(matches) != 1:
+        raise RuntimeError("direct_cpp client authority evidence is ambiguous")
+    metadata = matches[0]["metadata"]
+    expected = {
+        "request_representation": "actual_cpp",
+        "response_representation": "actual_cpp",
+        "python_message_conversions": 0,
+        "request_handoff": "one_native_cpp_value_copy",
+        "response_handoff": "shared_cpp_response",
+        "future_control": "per_operation_rclpy_task_future",
+        "python_request_crossings_per_call": 1,
+        "python_response_crossings_per_call": 1,
+        "cpp_request_copies_per_call": 1,
+    }
+    if matches[0]["backend"] != "cpp" or any(
+            metadata.get(name) != value for name, value in expected.items()):
+        raise RuntimeError("direct_cpp client status evidence is invalid")
+    return {
+        "profile": "direct_cpp",
+        "node_authority": "cpp",
+        "client_authority": "cpp",
+        "client_entity_type": raw_client_type,
+        "runtime_facade_node_count": len(runtime.nodes),
+        "native_session_node_count": len(runtime.session.nodes),
+        "native_node_identity_verified": True,
+        "request_representation": "actual_cpp",
+        "response_representation": "actual_cpp",
+        "future_type": "rclpy.task.Future",
+        "future_control": "per_operation_rclpy_task_future",
+        "request_handoff": "one_native_cpp_value_copy",
+        "response_handoff": "shared_cpp_response",
+        "python_request_crossings_per_call": 1,
+        "python_response_crossings_per_call": 1,
+        "python_message_conversions_per_call": 0,
+        "cpp_request_copies_per_call": 1,
+        **guards,
+        "status_decision": matches[0],
+    }
+
+
+def _install_direct_cpp_boundary_guards() -> dict:
+    import importlib
+
+    bringup = importlib.import_module("rclcpp_kit.bringup_rclcpp")
+    native_client = importlib.import_module("rclcpp_kit.native_client")
+    serialization = importlib.import_module("rclcpp_kit.serialization")
+
+    def forbidden_boundary(*_args, **_kwargs):
+        raise RuntimeError("direct_cpp used a forbidden conversion/serialization boundary")
+
+    bringup.convert_python_msg_to_cpp = forbidden_boundary
+    native_client.convert_python_msg_to_cpp = forbidden_boundary
+    serialization.serialize_message = forbidden_boundary
+    serialization.deserialize_message = forbidden_boundary
+    return {
+        "python_conversion_guard_installed": (
+            bringup.convert_python_msg_to_cpp is forbidden_boundary
+            and native_client.convert_python_msg_to_cpp is forbidden_boundary),
+        "serialization_guards_installed": (
+            serialization.serialize_message is forbidden_boundary
+            and serialization.deserialize_message is forbidden_boundary),
+    }
+
+
 def _verify_python_graph(node, server_node: str, service_name: str) -> None:
     deadline = time.monotonic() + 15.0
     while time.monotonic() < deadline:
@@ -567,6 +646,171 @@ def _run_python_client(args, activate: bool) -> tuple[dict, dict, bool]:
     return ready, report, bool(endpoint_gone and teardown_clean)
 
 
+def _run_direct_cpp_client(args) -> tuple[dict, dict, dict]:
+    import rclcppyy as active
+
+    active.enable_cpp_acceleration(profile="direct_cpp")
+    import cppyy
+    import rclpy
+    from rclpy.node import Node
+    from rclpy.qos import qos_profile_services_default
+    from rclpy.task import Future
+    from std_srvs.srv import SetBool
+
+    if SetBool.Request is not cppyy.gbl.std_srvs.srv.SetBool.Request or (
+            SetBool.Response is not cppyy.gbl.std_srvs.srv.SetBool.Response):
+        raise RuntimeError("direct_cpp did not install actual C++ SetBool values")
+    guards = _install_direct_cpp_boundary_guards()
+    if not all(guards.values()):
+        raise RuntimeError("direct_cpp boundary guards were not installed")
+
+    rclpy.init(args=[])
+    node = Node(args.node_name)
+    raw_node = node._direct_cpp_node
+    client = node.create_client(
+        SetBool, args.service_name, qos_profile=qos_profile_services_default)
+    endpoint_gone = False
+
+    def call(value: bool) -> int:
+        request = SetBool.Request(data=value)
+        future = client.call_async(request)
+        rclpy.spin_until_future_complete(node, future, timeout_sec=15.0)
+        if not future.done() or future.exception() is not None:
+            raise RuntimeError("direct_cpp client response failed or timed out")
+        response = future.result()
+        return _validate_response(value, response)
+
+    def verify_call(value: bool) -> int:
+        request = SetBool.Request(data=value)
+        if type(request) is not SetBool.Request:
+            raise RuntimeError("direct_cpp request is not the actual C++ value")
+        future = client.call_async(request)
+        if type(future) is not Future:
+            raise RuntimeError("direct_cpp did not return an rclpy.task.Future")
+        rclpy.spin_until_future_complete(node, future, timeout_sec=15.0)
+        if not future.done() or future.exception() is not None:
+            raise RuntimeError("direct_cpp client response failed or timed out")
+        response = future.result()
+        if type(response) is not SetBool.Response:
+            raise RuntimeError("direct_cpp response is not the actual C++ value")
+        return _validate_response(value, response)
+
+    try:
+        _verify_native_graph(raw_node, args.server_node, args.service_name)
+        if not client.wait_for_service(timeout_sec=1.0):
+            raise RuntimeError("verified direct_cpp service is not ready")
+        verify_call(True)
+        for sequence in range(2, args.warmup_requests + 1):
+            call(sequence % 2 == 1)
+        baseline = client.stats()
+        artifact = _artifact(
+            client.compile_result["so"], client.compile_result.get("cached", False),
+            client.compile_result.get("reason", "unknown"))
+        ready = _warmed(
+            args,
+            model="direct-cpp-rclpy-call-shape-client",
+            authority="cpp",
+            cache={
+                **artifact,
+                "state": "prebuilt",
+                "kind": "native-client",
+                "source_id": client.source_id,
+            },
+            entity_type="rclcpp::Client<std_srvs::srv::SetBool>",
+        )
+        ready["direct_cpp_proof"] = _direct_cpp_client_proof(
+            active.status(), client, node, guards)
+        _emit(ready)
+        _wait_control("START")
+        rss_baseline = _peak_rss_bytes()
+        cpu_start = time.process_time_ns()
+        wall_start = time.perf_counter_ns()
+        latencies = []
+        checksum = 0
+        true_measured = 0
+        for offset in range(1, args.messages + 1):
+            sequence = args.warmup_requests + offset
+            value = sequence % 2 == 1
+            started = time.perf_counter_ns()
+            checksum += call(value)
+            latencies.append(time.perf_counter_ns() - started)
+            true_measured += int(value)
+        elapsed_ns = time.perf_counter_ns() - wall_start
+        cpu_time_ns = time.process_time_ns() - cpu_start
+        rss_final = _peak_rss_bytes()
+        final = client.stats()
+        report = {
+            "total_requests": final.requests_sent,
+            "true_measured": true_measured,
+            "response_checksum": checksum,
+            "python_orchestration_requests_measured": args.messages,
+            "python_request_crossings_measured": (
+                final.python_request_crossings - baseline.python_request_crossings),
+            "python_response_crossings_measured": (
+                final.python_response_crossings - baseline.python_response_crossings),
+            "python_message_conversions_measured": 0,
+            "cpp_request_copies_measured": (
+                final.cpp_request_copies - baseline.cpp_request_copies),
+            "exceptions": final.exceptions,
+            "pending_requests": final.pending_requests,
+            "elapsed_ns": elapsed_ns,
+            "cpu_time_ns": cpu_time_ns,
+            "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
+            "rss_guard": _rss_guard(rss_baseline, rss_final),
+            "latency_ns": latencies,
+        }
+        _emit({
+            "schema": CLIENT_SCHEMA,
+            "event": "measured",
+            "variant": args.variant,
+            "run_token": args.run_token,
+            "pid": os.getpid(),
+            "process_group_id": os.getpgrp(),
+            "messages": args.messages,
+            **report,
+        })
+        _wait_control("TEARDOWN")
+        deadline = time.monotonic() + 15.0
+        while time.monotonic() < deadline and int(raw_node.count_services(
+                args.service_name)) != 0:
+            time.sleep(0.002)
+        endpoint_gone = (
+            int(raw_node.count_services(args.service_name)) == 0
+            and not client.service_is_ready())
+    finally:
+        try:
+            from rclcppyy import direct_cpp
+
+            runtime = direct_cpp._runtime()
+            session = runtime.session
+            node.destroy_client(client)
+            node.destroy_node()
+            if rclpy.ok():
+                rclpy.shutdown()
+            teardown_evidence = {
+                "endpoint_disappeared": bool(endpoint_gone),
+                "client_closed": bool(client.closed),
+                "node_destroyed": node._direct_cpp_node is None,
+                "context_shutdown": not rclpy.ok(),
+                "native_session_closed": bool(session.closed),
+                "native_session_released": runtime.session is None,
+                "native_executor_released": runtime.executor is None,
+                "runtime_nodes_released": runtime.nodes == [],
+            }
+        except Exception:
+            teardown_evidence = {
+                "endpoint_disappeared": bool(endpoint_gone),
+                "client_closed": False,
+                "node_destroyed": False,
+                "context_shutdown": False,
+                "native_session_closed": False,
+                "native_session_released": False,
+                "native_executor_released": False,
+                "runtime_nodes_released": False,
+            }
+    return ready, report, teardown_evidence
+
+
 def _run_native_orchestrated(args) -> tuple[dict, dict, bool]:
     from rclcpp_kit.native import native
     from std_srvs.srv import SetBool
@@ -740,10 +984,14 @@ def _run_native_state_machine(args) -> tuple[dict, dict, bool]:
 
 
 def _run_client(args) -> int:
+    direct_teardown = None
     if args.variant == "stock-rclpy":
         _, report, teardown = _run_python_client(args, False)
     elif args.variant == "compatible-rclcppyy":
         _, report, teardown = _run_python_client(args, True)
+    elif args.variant == "direct-cpp-rclcppyy":
+        _, report, direct_teardown = _run_direct_cpp_client(args)
+        teardown = all(direct_teardown.values())
     elif args.variant == "native-python-orchestrated":
         _, report, teardown = _run_native_orchestrated(args)
     else:
@@ -753,7 +1001,7 @@ def _run_client(args) -> int:
         and report["exceptions"] == 0
         and report["pending_requests"] == 0
     )
-    _emit({
+    teardown_event = {
         "schema": CLIENT_SCHEMA,
         "event": "teardown",
         "variant": args.variant,
@@ -762,7 +1010,10 @@ def _run_client(args) -> int:
         "process_group_id": os.getpgrp(),
         "endpoint_disappeared": teardown,
         "teardown_clean": teardown,
-    })
+    }
+    if direct_teardown is not None:
+        teardown_event["direct_cpp_teardown"] = direct_teardown
+    _emit(teardown_event)
     return 0 if correct and teardown else 2
 
 
@@ -770,8 +1021,8 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--prewarm", action="store_true")
     parser.add_argument("--variant", choices=(
-        "stock-rclpy", "compatible-rclcppyy", "native-python-orchestrated",
-        "native-cpp-state-machine"))
+        "stock-rclpy", "compatible-rclcppyy", "direct-cpp-rclcppyy",
+        "native-python-orchestrated", "native-cpp-state-machine"))
     parser.add_argument("--service-name")
     parser.add_argument("--node-name")
     parser.add_argument("--server-node")

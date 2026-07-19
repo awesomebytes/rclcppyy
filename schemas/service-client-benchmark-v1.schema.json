@@ -240,6 +240,7 @@
               "schema": {"const": "rclcppyy.service-client-client-event/v1"},
               "event": {"const": "measured"},
               "variant": {"$ref": "#/$defs/variant"},
+              "cpp_request_copies_measured": {"type": "integer", "minimum": 1},
               "exceptions": {"const": 0},
               "pending_requests": {"const": 0},
               "cpu_time_ns": {"type": "integer", "minimum": 0},
@@ -310,6 +311,108 @@
             "then": {"properties": {"client_warmed": {"properties": {"execution_model": {"const": "same-python-client-compatible-activation"}, "client_authority": {"const": "python"}}}}}
           },
           {
+            "if": {"properties": {"variant": {"const": "direct-cpp-rclcppyy"}}, "required": ["variant"]},
+            "then": {
+              "properties": {
+                "client_warmed": {
+                  "required": ["direct_cpp_proof"],
+                  "properties": {
+                    "execution_model": {"const": "direct-cpp-rclpy-call-shape-client"},
+                    "client_authority": {"const": "cpp"},
+                    "direct_cpp_proof": {
+                      "type": "object",
+                      "required": [
+                        "profile",
+                        "node_authority",
+                        "client_authority",
+                        "client_entity_type",
+                        "runtime_facade_node_count",
+                        "native_session_node_count",
+                        "native_node_identity_verified",
+                        "request_representation",
+                        "response_representation",
+                        "future_type",
+                        "future_control",
+                        "request_handoff",
+                        "response_handoff",
+                        "python_request_crossings_per_call",
+                        "python_response_crossings_per_call",
+                        "python_message_conversions_per_call",
+                        "cpp_request_copies_per_call",
+                        "python_conversion_guard_installed",
+                        "serialization_guards_installed",
+                        "status_decision"
+                      ],
+                      "properties": {
+                        "profile": {"const": "direct_cpp"},
+                        "node_authority": {"const": "cpp"},
+                        "client_authority": {"const": "cpp"},
+                        "client_entity_type": {"const": "rclcpp::Client<std_srvs::srv::SetBool>"},
+                        "runtime_facade_node_count": {"const": 1},
+                        "native_session_node_count": {"const": 1},
+                        "native_node_identity_verified": {"const": true},
+                        "request_representation": {"const": "actual_cpp"},
+                        "response_representation": {"const": "actual_cpp"},
+                        "future_type": {"const": "rclpy.task.Future"},
+                        "future_control": {"const": "per_operation_rclpy_task_future"},
+                        "request_handoff": {"const": "one_native_cpp_value_copy"},
+                        "response_handoff": {"const": "shared_cpp_response"},
+                        "python_request_crossings_per_call": {"const": 1},
+                        "python_response_crossings_per_call": {"const": 1},
+                        "python_message_conversions_per_call": {"const": 0},
+                        "cpp_request_copies_per_call": {"const": 1},
+                        "python_conversion_guard_installed": {"const": true},
+                        "serialization_guards_installed": {"const": true},
+                        "status_decision": {
+                          "type": "object",
+                          "required": ["id", "backend", "reason", "policies", "metadata"],
+                          "properties": {
+                            "id": {"type": "string", "pattern": "^entity-[0-9]{8}$"},
+                            "backend": {"const": "cpp"},
+                            "reason": {"const": "direct typed rclcpp client with C++ service messages"},
+                            "policies": {"const": ["direct_cpp", "direct_cpp_service", "no_conversion", "per_operation_future", "cpp_pending_state"]},
+                            "metadata": {"type": "object"}
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "client_report": {
+                  "required": ["cpp_request_copies_measured"]
+                },
+                "client_teardown": {
+                  "required": ["direct_cpp_teardown"],
+                  "properties": {
+                    "direct_cpp_teardown": {
+                      "type": "object",
+                      "required": [
+                        "endpoint_disappeared",
+                        "client_closed",
+                        "node_destroyed",
+                        "context_shutdown",
+                        "native_session_closed",
+                        "native_session_released",
+                        "native_executor_released",
+                        "runtime_nodes_released"
+                      ],
+                      "properties": {
+                        "endpoint_disappeared": {"const": true},
+                        "client_closed": {"const": true},
+                        "node_destroyed": {"const": true},
+                        "context_shutdown": {"const": true},
+                        "native_session_closed": {"const": true},
+                        "native_session_released": {"const": true},
+                        "native_executor_released": {"const": true},
+                        "runtime_nodes_released": {"const": true}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
             "if": {"properties": {"variant": {"const": "native-python-orchestrated"}}, "required": ["variant"]},
             "then": {"properties": {"client_warmed": {"properties": {"execution_model": {"const": "native-session-python-orchestrated-client"}, "client_authority": {"const": "cpp"}}}}}
           },
@@ -348,6 +451,7 @@
       "enum": [
         "stock-rclpy",
         "compatible-rclcppyy",
+        "direct-cpp-rclcppyy",
         "native-python-orchestrated",
         "native-cpp-state-machine",
         "aot-staged"

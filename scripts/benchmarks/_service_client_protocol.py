@@ -37,6 +37,16 @@ VARIANTS = {
         "response_crossing": 1,
         "message_conversions": 2,
     },
+    "direct-cpp-rclcppyy": {
+        "model": "direct-cpp-rclpy-call-shape-client",
+        "cache": "native-client",
+        "authority": "cpp",
+        "orchestration": 1,
+        "request_crossing": 1,
+        "response_crossing": 1,
+        "message_conversions": 0,
+        "cpp_request_copies": 1,
+    },
     "native-python-orchestrated": {
         "model": "native-session-python-orchestrated-client",
         "cache": "native-client",
@@ -322,7 +332,8 @@ def _validate_client_warmed(value: dict, sample: dict, cache: dict, rmw: str,
             raise ValueError("native client must use a warm artifact")
         _artifact(artifact, True)
         name = (
-            "native_client" if variant == "native-python-orchestrated"
+            "native_client"
+            if variant in ("direct-cpp-rclcppyy", "native-python-orchestrated")
             else "cpp_state_machine")
         expected = cache["phases"]["warm"]["artifacts"][name]
         if (artifact["path"], artifact["sha256"], artifact["size_bytes"]) != (
@@ -330,6 +341,67 @@ def _validate_client_warmed(value: dict, sample: dict, cache: dict, rmw: str,
             raise ValueError("native client artifact differs from warm manifest")
         if value.get("entity_type") != "rclcpp::Client<std_srvs::srv::SetBool>":
             raise ValueError("native client entity type is invalid")
+        if variant == "direct-cpp-rclcppyy":
+            if artifact.get("source_id") != cache["phases"]["warm"][
+                    "native_client_source_id"]:
+                raise ValueError("direct_cpp client source identity is invalid")
+            proof = value.get("direct_cpp_proof")
+            expected_proof = {
+                "profile": "direct_cpp",
+                "node_authority": "cpp",
+                "client_authority": "cpp",
+                "client_entity_type": "rclcpp::Client<std_srvs::srv::SetBool>",
+                "runtime_facade_node_count": 1,
+                "native_session_node_count": 1,
+                "native_node_identity_verified": True,
+                "request_representation": "actual_cpp",
+                "response_representation": "actual_cpp",
+                "future_type": "rclpy.task.Future",
+                "future_control": "per_operation_rclpy_task_future",
+                "request_handoff": "one_native_cpp_value_copy",
+                "response_handoff": "shared_cpp_response",
+                "python_request_crossings_per_call": 1,
+                "python_response_crossings_per_call": 1,
+                "python_message_conversions_per_call": 0,
+                "cpp_request_copies_per_call": 1,
+                "python_conversion_guard_installed": True,
+                "serialization_guards_installed": True,
+            }
+            if not isinstance(proof, dict) or set(proof) != {
+                    *expected_proof, "status_decision"} or any(
+                    proof.get(name) != expected_value
+                    for name, expected_value in expected_proof.items()):
+                raise ValueError("direct_cpp representation or authority proof is invalid")
+            decision = proof.get("status_decision")
+            expected_decision = {
+                "backend": "cpp",
+                "reason": "direct typed rclcpp client with C++ service messages",
+                "policies": [
+                    "direct_cpp", "direct_cpp_service", "no_conversion",
+                    "per_operation_future", "cpp_pending_state",
+                ],
+                "metadata": {
+                    "entity_type": "client",
+                    "service_name": sample["topology"]["service_name"],
+                    "service_type": "std_srvs::srv::SetBool",
+                    "request_representation": "actual_cpp",
+                    "response_representation": "actual_cpp",
+                    "python_message_conversions": 0,
+                    "source_id": artifact["source_id"],
+                    "request_handoff": "one_native_cpp_value_copy",
+                    "response_handoff": "shared_cpp_response",
+                    "future_control": "per_operation_rclpy_task_future",
+                    "python_request_crossings_per_call": 1,
+                    "python_response_crossings_per_call": 1,
+                    "cpp_request_copies_per_call": 1,
+                },
+            }
+            if not isinstance(decision, dict) or set(decision) != {
+                    "id", *expected_decision} or not re.fullmatch(
+                    r"entity-[0-9]{8}", str(decision.get("id", ""))) or any(
+                        decision.get(name) != expected_value
+                        for name, expected_value in expected_decision.items()):
+                raise ValueError("direct_cpp status authority evidence is invalid")
 
 
 def _validate_client_report(value: dict, sample: dict, warmup: int, messages: int) -> None:
@@ -354,6 +426,9 @@ def _validate_client_report(value: dict, sample: dict, warmup: int, messages: in
         "pending_requests": 0,
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
     }
+    if variant == "direct-cpp-rclcppyy":
+        exact["cpp_request_copies_measured"] = (
+            spec["cpp_request_copies"] * messages)
     if any(value.get(name) != expected for name, expected in exact.items()):
         raise ValueError("client count/parity/crossing evidence is invalid")
     latencies = value.get("latency_ns")
@@ -376,6 +451,17 @@ def _validate_teardown(value: dict, sample: dict) -> None:
         "endpoint_disappeared": True,
         "teardown_clean": True,
     }
+    if sample["variant"] == "direct-cpp-rclcppyy":
+        expected["direct_cpp_teardown"] = {
+            "endpoint_disappeared": True,
+            "client_closed": True,
+            "node_destroyed": True,
+            "context_shutdown": True,
+            "native_session_closed": True,
+            "native_session_released": True,
+            "native_executor_released": True,
+            "runtime_nodes_released": True,
+        }
     if value != expected:
         raise ValueError("client endpoint disappearance/teardown evidence is invalid")
 
