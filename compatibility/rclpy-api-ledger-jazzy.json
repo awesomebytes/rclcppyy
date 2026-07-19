@@ -54340,8 +54340,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -54363,7 +54365,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNode.create_rate",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -54475,8 +54477,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "timer.direct_cpp_first_slice"
+        ],
+        "rationale": "DirectNode.create_timer() builds a real rclcpp::GenericTimer on the node's own ROS clock (sim-time-aware, matching stock's create_timer(clock=None) default) via rclcpp_kit's create_clock_timer, entering the Python callback once per firing with no message conversion, serialization, or per-firing data copy. clock=None and clock=node.get_clock() are both honored; a standalone or foreign clock, or any unexpected keyword argument, fails closed before entity creation (create_timer's signature now matches stock's exactly, with no **options catch-all). Verified live: inspection (is_ready/time_until_next_call/time_since_last_call) matching stock semantics; a frozen, never-published /clock leaves a sim-period timer never firing while wall time passes well beyond it; advancing /clock in explicit steps fires the callback only once sim time crosses the period; a use_sim_time=False node's timer fires on system time within a bounded wall interval; and destroying the facade stops delivery while the executor keeps spinning (test/_direct_cpp_timer_helper.py, test/_direct_cpp_clock_timer_helper.py, test/test_direct_clock_timer.py). CPU-first evidence for this exact route is measured in scripts/benchmarks/run_clock_timer_benchmark.py. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -54498,7 +54502,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNode.create_timer",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -54960,8 +54964,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -54983,7 +54989,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNode.destroy_rate",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -55230,8 +55236,11 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.direct_cpp_node_clock",
+          "time.direct_cpp_sim_time"
+        ],
+        "rationale": "DirectNode.get_clock() retains one DirectClock/DirectROSClock per node, backed by the native foundation's NativeNodeClock -- the node's exact rclcpp::Clock (node clocks are always RCL_ROS_TIME). Proven live: isinstance/identity (one clock per node, the same object returned on every get_clock() call), a stock-time differential, native address identity against the node's own rclcpp::Clock, and clean teardown (test/test_direct_clock.py, test/_direct_cpp_clock_helper.py); use_sim_time activation and /clock-driven now() through the same retained clock, differentially matched against a stock rclpy sibling (test/test_direct_sim_time.py, test/_direct_cpp_sim_time_helper.py, test/_stock_sim_time_peer.py). This is the same clock every other accelerated clock/timer/rate surface routes through (sleep_for/sleep_until, create_timer's default, create_rate's anchor), and its CPU cost is exercised as part of the clock-timer benchmark's setup path (scripts/benchmarks/run_clock_timer_benchmark.py). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -55253,7 +55262,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNode.get_clock",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -60461,8 +60470,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -60484,7 +60495,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.Node.create_rate",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -60596,8 +60607,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "timer.direct_cpp_first_slice"
+        ],
+        "rationale": "DirectNode.create_timer() builds a real rclcpp::GenericTimer on the node's own ROS clock (sim-time-aware, matching stock's create_timer(clock=None) default) via rclcpp_kit's create_clock_timer, entering the Python callback once per firing with no message conversion, serialization, or per-firing data copy. clock=None and clock=node.get_clock() are both honored; a standalone or foreign clock, or any unexpected keyword argument, fails closed before entity creation (create_timer's signature now matches stock's exactly, with no **options catch-all). Verified live: inspection (is_ready/time_until_next_call/time_since_last_call) matching stock semantics; a frozen, never-published /clock leaves a sim-period timer never firing while wall time passes well beyond it; advancing /clock in explicit steps fires the callback only once sim time crosses the period; a use_sim_time=False node's timer fires on system time within a bounded wall interval; and destroying the facade stops delivery while the executor keeps spinning (test/_direct_cpp_timer_helper.py, test/_direct_cpp_clock_timer_helper.py, test/test_direct_clock_timer.py). CPU-first evidence for this exact route is measured in scripts/benchmarks/run_clock_timer_benchmark.py. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -60619,7 +60632,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.Node.create_timer",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -61081,8 +61094,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -61104,7 +61119,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.Node.destroy_rate",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -61351,8 +61366,11 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.direct_cpp_node_clock",
+          "time.direct_cpp_sim_time"
+        ],
+        "rationale": "DirectNode.get_clock() retains one DirectClock/DirectROSClock per node, backed by the native foundation's NativeNodeClock -- the node's exact rclcpp::Clock (node clocks are always RCL_ROS_TIME). Proven live: isinstance/identity (one clock per node, the same object returned on every get_clock() call), a stock-time differential, native address identity against the node's own rclcpp::Clock, and clean teardown (test/test_direct_clock.py, test/_direct_cpp_clock_helper.py); use_sim_time activation and /clock-driven now() through the same retained clock, differentially matched against a stock rclpy sibling (test/test_direct_sim_time.py, test/_direct_cpp_sim_time_helper.py, test/_stock_sim_time_peer.py). This is the same clock every other accelerated clock/timer/rate surface routes through (sleep_for/sleep_until, create_timer's default, create_rate's anchor), and its CPU cost is exercised as part of the clock-timer benchmark's setup path (scripts/benchmarks/run_clock_timer_benchmark.py). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -61374,7 +61392,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.Node.get_clock",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -69003,8 +69021,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -69026,7 +69046,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNode.create_rate",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -69138,8 +69158,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "timer.direct_cpp_first_slice"
+        ],
+        "rationale": "DirectNode.create_timer() builds a real rclcpp::GenericTimer on the node's own ROS clock (sim-time-aware, matching stock's create_timer(clock=None) default) via rclcpp_kit's create_clock_timer, entering the Python callback once per firing with no message conversion, serialization, or per-firing data copy. clock=None and clock=node.get_clock() are both honored; a standalone or foreign clock, or any unexpected keyword argument, fails closed before entity creation (create_timer's signature now matches stock's exactly, with no **options catch-all). Verified live: inspection (is_ready/time_until_next_call/time_since_last_call) matching stock semantics; a frozen, never-published /clock leaves a sim-period timer never firing while wall time passes well beyond it; advancing /clock in explicit steps fires the callback only once sim time crosses the period; a use_sim_time=False node's timer fires on system time within a bounded wall interval; and destroying the facade stops delivery while the executor keeps spinning (test/_direct_cpp_timer_helper.py, test/_direct_cpp_clock_timer_helper.py, test/test_direct_clock_timer.py). CPU-first evidence for this exact route is measured in scripts/benchmarks/run_clock_timer_benchmark.py. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -69161,7 +69183,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNode.create_timer",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -69623,8 +69645,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -69646,7 +69670,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNode.destroy_rate",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -69893,8 +69917,11 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.direct_cpp_node_clock",
+          "time.direct_cpp_sim_time"
+        ],
+        "rationale": "DirectNode.get_clock() retains one DirectClock/DirectROSClock per node, backed by the native foundation's NativeNodeClock -- the node's exact rclcpp::Clock (node clocks are always RCL_ROS_TIME). Proven live: isinstance/identity (one clock per node, the same object returned on every get_clock() call), a stock-time differential, native address identity against the node's own rclcpp::Clock, and clean teardown (test/test_direct_clock.py, test/_direct_cpp_clock_helper.py); use_sim_time activation and /clock-driven now() through the same retained clock, differentially matched against a stock rclpy sibling (test/test_direct_sim_time.py, test/_direct_cpp_sim_time_helper.py, test/_stock_sim_time_peer.py). This is the same clock every other accelerated clock/timer/rate surface routes through (sleep_for/sleep_until, create_timer's default, create_rate's anchor), and its CPU cost is exercised as part of the clock-timer benchmark's setup path (scripts/benchmarks/run_clock_timer_benchmark.py). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -69916,7 +69943,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNode.get_clock",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -75032,8 +75059,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -75055,7 +75084,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.Node.create_rate",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -75167,8 +75196,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "timer.direct_cpp_first_slice"
+        ],
+        "rationale": "DirectNode.create_timer() builds a real rclcpp::GenericTimer on the node's own ROS clock (sim-time-aware, matching stock's create_timer(clock=None) default) via rclcpp_kit's create_clock_timer, entering the Python callback once per firing with no message conversion, serialization, or per-firing data copy. clock=None and clock=node.get_clock() are both honored; a standalone or foreign clock, or any unexpected keyword argument, fails closed before entity creation (create_timer's signature now matches stock's exactly, with no **options catch-all). Verified live: inspection (is_ready/time_until_next_call/time_since_last_call) matching stock semantics; a frozen, never-published /clock leaves a sim-period timer never firing while wall time passes well beyond it; advancing /clock in explicit steps fires the callback only once sim time crosses the period; a use_sim_time=False node's timer fires on system time within a bounded wall interval; and destroying the facade stops delivery while the executor keeps spinning (test/_direct_cpp_timer_helper.py, test/_direct_cpp_clock_timer_helper.py, test/test_direct_clock_timer.py). CPU-first evidence for this exact route is measured in scripts/benchmarks/run_clock_timer_benchmark.py. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -75190,7 +75221,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.Node.create_timer",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -75607,8 +75638,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -75630,7 +75663,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.Node.destroy_rate",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -75877,8 +75910,11 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.direct_cpp_node_clock",
+          "time.direct_cpp_sim_time"
+        ],
+        "rationale": "DirectNode.get_clock() retains one DirectClock/DirectROSClock per node, backed by the native foundation's NativeNodeClock -- the node's exact rclcpp::Clock (node clocks are always RCL_ROS_TIME). Proven live: isinstance/identity (one clock per node, the same object returned on every get_clock() call), a stock-time differential, native address identity against the node's own rclcpp::Clock, and clean teardown (test/test_direct_clock.py, test/_direct_cpp_clock_helper.py); use_sim_time activation and /clock-driven now() through the same retained clock, differentially matched against a stock rclpy sibling (test/test_direct_sim_time.py, test/_direct_cpp_sim_time_helper.py, test/_stock_sim_time_peer.py). This is the same clock every other accelerated clock/timer/rate surface routes through (sleep_for/sleep_until, create_timer's default, create_rate's anchor), and its CPU cost is exercised as part of the clock-timer benchmark's setup path (scripts/benchmarks/run_clock_timer_benchmark.py). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -75900,7 +75936,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.Node.get_clock",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89431,8 +89467,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89454,7 +89492,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.create_rate",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89575,8 +89613,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "timer.direct_cpp_first_slice"
+        ],
+        "rationale": "DirectNode.create_timer() builds a real rclcpp::GenericTimer on the node's own ROS clock (sim-time-aware, matching stock's create_timer(clock=None) default) via rclcpp_kit's create_clock_timer, entering the Python callback once per firing with no message conversion, serialization, or per-firing data copy. clock=None and clock=node.get_clock() are both honored; a standalone or foreign clock, or any unexpected keyword argument, fails closed before entity creation (create_timer's signature now matches stock's exactly, with no **options catch-all). Verified live: inspection (is_ready/time_until_next_call/time_since_last_call) matching stock semantics; a frozen, never-published /clock leaves a sim-period timer never firing while wall time passes well beyond it; advancing /clock in explicit steps fires the callback only once sim time crosses the period; a use_sim_time=False node's timer fires on system time within a bounded wall interval; and destroying the facade stops delivery while the executor keeps spinning (test/_direct_cpp_timer_helper.py, test/_direct_cpp_clock_timer_helper.py, test/test_direct_clock_timer.py). CPU-first evidence for this exact route is measured in scripts/benchmarks/run_clock_timer_benchmark.py. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89598,7 +89638,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.create_timer",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -90045,8 +90085,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -90068,7 +90110,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.destroy_rate",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -90333,8 +90375,11 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.direct_cpp_node_clock",
+          "time.direct_cpp_sim_time"
+        ],
+        "rationale": "DirectNode.get_clock() retains one DirectClock/DirectROSClock per node, backed by the native foundation's NativeNodeClock -- the node's exact rclcpp::Clock (node clocks are always RCL_ROS_TIME). Proven live: isinstance/identity (one clock per node, the same object returned on every get_clock() call), a stock-time differential, native address identity against the node's own rclcpp::Clock, and clean teardown (test/test_direct_clock.py, test/_direct_cpp_clock_helper.py); use_sim_time activation and /clock-driven now() through the same retained clock, differentially matched against a stock rclpy sibling (test/test_direct_sim_time.py, test/_direct_cpp_sim_time_helper.py, test/_stock_sim_time_peer.py). This is the same clock every other accelerated clock/timer/rate surface routes through (sleep_for/sleep_until, create_timer's default, create_rate's anchor), and its CPU cost is exercised as part of the clock-timer benchmark's setup path (scripts/benchmarks/run_clock_timer_benchmark.py). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -90356,7 +90401,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.get_clock",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -96411,8 +96456,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "The rclpy.timer.Rate / rclpy.node.Rate class symbol itself is not patched by any profile -- exactly as rclpy.clock.Clock is not patched (time.direct_cpp_node_clock's own precedent): a directly-constructed stock Rate(timer, context=...) keeps running unmodified stock code, since it requires a stock Timer this facade never builds. The accelerated path lives entirely on DirectNode.create_rate()'s own DirectRate facade (see the exact_direct_cpp_authority rows for create_rate/destroy_rate), reached only through that method, never through this class symbol directly. Stock behavior, not accelerated."
       },
       "area": "node",
       "attribution": "stock",
@@ -96434,7 +96481,7 @@
       },
       "level": "symbol",
       "path": "rclpy.node.Rate",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -96459,8 +96506,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "The rclpy.timer.Rate / rclpy.node.Rate class symbol itself is not patched by any profile -- exactly as rclpy.clock.Clock is not patched (time.direct_cpp_node_clock's own precedent): a directly-constructed stock Rate(timer, context=...) keeps running unmodified stock code, since it requires a stock Timer this facade never builds. The accelerated path lives entirely on DirectNode.create_rate()'s own DirectRate facade (see the exact_direct_cpp_authority rows for create_rate/destroy_rate), reached only through that method, never through this class symbol directly. Stock behavior, not accelerated."
       },
       "area": "node",
       "attribution": "stock",
@@ -96482,7 +96531,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Rate.__init__",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -96507,8 +96556,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "The rclpy.timer.Rate / rclpy.node.Rate class symbol itself is not patched by any profile -- exactly as rclpy.clock.Clock is not patched (time.direct_cpp_node_clock's own precedent): a directly-constructed stock Rate(timer, context=...) keeps running unmodified stock code, since it requires a stock Timer this facade never builds. The accelerated path lives entirely on DirectNode.create_rate()'s own DirectRate facade (see the exact_direct_cpp_authority rows for create_rate/destroy_rate), reached only through that method, never through this class symbol directly. Stock behavior, not accelerated."
       },
       "area": "node",
       "attribution": "stock",
@@ -96530,7 +96581,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Rate.destroy",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -96555,8 +96606,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "The rclpy.timer.Rate / rclpy.node.Rate class symbol itself is not patched by any profile -- exactly as rclpy.clock.Clock is not patched (time.direct_cpp_node_clock's own precedent): a directly-constructed stock Rate(timer, context=...) keeps running unmodified stock code, since it requires a stock Timer this facade never builds. The accelerated path lives entirely on DirectNode.create_rate()'s own DirectRate facade (see the exact_direct_cpp_authority rows for create_rate/destroy_rate), reached only through that method, never through this class symbol directly. Stock behavior, not accelerated."
       },
       "area": "node",
       "attribution": "stock",
@@ -96578,7 +96631,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Rate.sleep",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -103723,8 +103776,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -103746,7 +103801,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Node.create_rate",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -103858,8 +103913,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "timer.direct_cpp_first_slice"
+        ],
+        "rationale": "DirectNode.create_timer() builds a real rclcpp::GenericTimer on the node's own ROS clock (sim-time-aware, matching stock's create_timer(clock=None) default) via rclcpp_kit's create_clock_timer, entering the Python callback once per firing with no message conversion, serialization, or per-firing data copy. clock=None and clock=node.get_clock() are both honored; a standalone or foreign clock, or any unexpected keyword argument, fails closed before entity creation (create_timer's signature now matches stock's exactly, with no **options catch-all). Verified live: inspection (is_ready/time_until_next_call/time_since_last_call) matching stock semantics; a frozen, never-published /clock leaves a sim-period timer never firing while wall time passes well beyond it; advancing /clock in explicit steps fires the callback only once sim time crosses the period; a use_sim_time=False node's timer fires on system time within a bounded wall interval; and destroying the facade stops delivery while the executor keeps spinning (test/_direct_cpp_timer_helper.py, test/_direct_cpp_clock_timer_helper.py, test/test_direct_clock_timer.py). CPU-first evidence for this exact route is measured in scripts/benchmarks/run_clock_timer_benchmark.py. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -103881,7 +103938,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Node.create_timer",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -104298,8 +104355,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -104321,7 +104380,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Node.destroy_rate",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -104568,8 +104627,11 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.direct_cpp_node_clock",
+          "time.direct_cpp_sim_time"
+        ],
+        "rationale": "DirectNode.get_clock() retains one DirectClock/DirectROSClock per node, backed by the native foundation's NativeNodeClock -- the node's exact rclcpp::Clock (node clocks are always RCL_ROS_TIME). Proven live: isinstance/identity (one clock per node, the same object returned on every get_clock() call), a stock-time differential, native address identity against the node's own rclcpp::Clock, and clean teardown (test/test_direct_clock.py, test/_direct_cpp_clock_helper.py); use_sim_time activation and /clock-driven now() through the same retained clock, differentially matched against a stock rclpy sibling (test/test_direct_sim_time.py, test/_direct_cpp_sim_time_helper.py, test/_stock_sim_time_peer.py). This is the same clock every other accelerated clock/timer/rate surface routes through (sleep_for/sleep_until, create_timer's default, create_rate's anchor), and its CPU cost is exercised as part of the clock-timer benchmark's setup path (scripts/benchmarks/run_clock_timer_benchmark.py). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -104591,7 +104653,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Node.get_clock",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -109608,8 +109670,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -109631,7 +109695,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Node.create_rate",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -109743,8 +109807,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "timer.direct_cpp_first_slice"
+        ],
+        "rationale": "DirectNode.create_timer() builds a real rclcpp::GenericTimer on the node's own ROS clock (sim-time-aware, matching stock's create_timer(clock=None) default) via rclcpp_kit's create_clock_timer, entering the Python callback once per firing with no message conversion, serialization, or per-firing data copy. clock=None and clock=node.get_clock() are both honored; a standalone or foreign clock, or any unexpected keyword argument, fails closed before entity creation (create_timer's signature now matches stock's exactly, with no **options catch-all). Verified live: inspection (is_ready/time_until_next_call/time_since_last_call) matching stock semantics; a frozen, never-published /clock leaves a sim-period timer never firing while wall time passes well beyond it; advancing /clock in explicit steps fires the callback only once sim time crosses the period; a use_sim_time=False node's timer fires on system time within a bounded wall interval; and destroying the facade stops delivery while the executor keeps spinning (test/_direct_cpp_timer_helper.py, test/_direct_cpp_clock_timer_helper.py, test/test_direct_clock_timer.py). CPU-first evidence for this exact route is measured in scripts/benchmarks/run_clock_timer_benchmark.py. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -109766,7 +109832,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Node.create_timer",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -110183,8 +110249,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -110206,7 +110274,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Node.destroy_rate",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -110453,8 +110521,11 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.direct_cpp_node_clock",
+          "time.direct_cpp_sim_time"
+        ],
+        "rationale": "DirectNode.get_clock() retains one DirectClock/DirectROSClock per node, backed by the native foundation's NativeNodeClock -- the node's exact rclcpp::Clock (node clocks are always RCL_ROS_TIME). Proven live: isinstance/identity (one clock per node, the same object returned on every get_clock() call), a stock-time differential, native address identity against the node's own rclcpp::Clock, and clean teardown (test/test_direct_clock.py, test/_direct_cpp_clock_helper.py); use_sim_time activation and /clock-driven now() through the same retained clock, differentially matched against a stock rclpy sibling (test/test_direct_sim_time.py, test/_direct_cpp_sim_time_helper.py, test/_stock_sim_time_peer.py). This is the same clock every other accelerated clock/timer/rate surface routes through (sleep_for/sleep_until, create_timer's default, create_rate's anchor), and its CPU cost is exercised as part of the clock-timer benchmark's setup path (scripts/benchmarks/run_clock_timer_benchmark.py). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -110476,7 +110547,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Node.get_clock",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -158865,8 +158936,10 @@
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "The rclpy.timer.Rate / rclpy.node.Rate class symbol itself is not patched by any profile -- exactly as rclpy.clock.Clock is not patched (time.direct_cpp_node_clock's own precedent): a directly-constructed stock Rate(timer, context=...) keeps running unmodified stock code, since it requires a stock Timer this facade never builds. The accelerated path lives entirely on DirectNode.create_rate()'s own DirectRate facade (see the exact_direct_cpp_authority rows for create_rate/destroy_rate), reached only through that method, never through this class symbol directly. Stock behavior, not accelerated."
       },
       "area": "timer",
       "attribution": "stock",
@@ -158888,7 +158961,7 @@
       },
       "level": "symbol",
       "path": "rclpy.timer.Rate",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -158908,8 +158981,10 @@
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "The rclpy.timer.Rate / rclpy.node.Rate class symbol itself is not patched by any profile -- exactly as rclpy.clock.Clock is not patched (time.direct_cpp_node_clock's own precedent): a directly-constructed stock Rate(timer, context=...) keeps running unmodified stock code, since it requires a stock Timer this facade never builds. The accelerated path lives entirely on DirectNode.create_rate()'s own DirectRate facade (see the exact_direct_cpp_authority rows for create_rate/destroy_rate), reached only through that method, never through this class symbol directly. Stock behavior, not accelerated."
       },
       "area": "timer",
       "attribution": "stock",
@@ -158931,7 +159006,7 @@
       },
       "level": "member",
       "path": "rclpy.timer.Rate.__init__",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -158951,8 +159026,10 @@
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "The rclpy.timer.Rate / rclpy.node.Rate class symbol itself is not patched by any profile -- exactly as rclpy.clock.Clock is not patched (time.direct_cpp_node_clock's own precedent): a directly-constructed stock Rate(timer, context=...) keeps running unmodified stock code, since it requires a stock Timer this facade never builds. The accelerated path lives entirely on DirectNode.create_rate()'s own DirectRate facade (see the exact_direct_cpp_authority rows for create_rate/destroy_rate), reached only through that method, never through this class symbol directly. Stock behavior, not accelerated."
       },
       "area": "timer",
       "attribution": "stock",
@@ -158974,7 +159051,7 @@
       },
       "level": "member",
       "path": "rclpy.timer.Rate.destroy",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -158994,8 +159071,10 @@
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "rate.direct_cpp"
+        ],
+        "rationale": "The rclpy.timer.Rate / rclpy.node.Rate class symbol itself is not patched by any profile -- exactly as rclpy.clock.Clock is not patched (time.direct_cpp_node_clock's own precedent): a directly-constructed stock Rate(timer, context=...) keeps running unmodified stock code, since it requires a stock Timer this facade never builds. The accelerated path lives entirely on DirectNode.create_rate()'s own DirectRate facade (see the exact_direct_cpp_authority rows for create_rate/destroy_rate), reached only through that method, never through this class symbol directly. Stock behavior, not accelerated."
       },
       "area": "timer",
       "attribution": "stock",
@@ -159017,7 +159096,7 @@
       },
       "level": "member",
       "path": "rclpy.timer.Rate.sleep",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -173464,12 +173543,12 @@
     "modules": 58,
     "signature_mismatches": 187,
     "statuses": {
-      "exact_direct_cpp_authority": 93,
+      "exact_direct_cpp_authority": 121,
       "explicit_fail_closed": 3,
       "missing_mismatch": 288,
       "mixed_control_direct_data": 0,
-      "unassessed": 2369,
-      "unchanged_stock_fallback": 1047
+      "unassessed": 2333,
+      "unchanged_stock_fallback": 1055
     },
     "stock_only_entries": 101,
     "stock_public_class_members": 3333,
