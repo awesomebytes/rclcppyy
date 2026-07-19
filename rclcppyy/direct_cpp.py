@@ -22,6 +22,7 @@ _MESSAGE_INSTALLATION = None
 _SERVICE_INSTALLATION = None
 _ACTION_INSTALLATION = None
 _ACTIVE_OPTIMIZATIONS = ()
+_ACTIVE_INTERFACES = ()
 _DEFAULT_SERVICE_QOS = object()
 
 
@@ -41,12 +42,13 @@ class _DirectContext:
 
 
 class _DirectRuntime:
-    def __init__(self, optimizations=()):
+    def __init__(self, optimizations=(), interfaces=()):
         self.session = None
         self.executor = None
         self.nodes = []
         self.context = _DirectContext(self)
         self.optimizations = tuple(optimizations)
+        self.interfaces = tuple(interfaces)
         self._shutting_down = False
 
     def init(self, arguments) -> None:
@@ -801,13 +803,13 @@ def _check_early_activation() -> None:
     if stale:
         raise RuntimeError(
             "direct_cpp must be enabled before importing: %s" % ", ".join(stale))
+    from rclcppyy.direct_actions import assert_early_imports as assert_action_imports
     from rclcppyy.direct_messages import assert_early_imports
     from rclcppyy.direct_services import assert_early_imports as assert_service_imports
-    from rclcppyy.direct_actions import assert_early_imports as assert_action_imports
 
-    assert_early_imports()
-    assert_service_imports()
     assert_action_imports()
+    assert_service_imports()
+    assert_early_imports()
 
 
 def _direct_init(
@@ -872,11 +874,15 @@ def _direct_spin_until_future_complete(
             return
 
 
-def activate(*, optimizations=()) -> bool:
+def activate(*, optimizations=(), interfaces=()) -> bool:
     """Install the complete first-slice surface, rolling back on any failure."""
-    global _ACTION_INSTALLATION, _ACTIVE, _ACTIVE_OPTIMIZATIONS
+    global _ACTION_INSTALLATION, _ACTIVE, _ACTIVE_INTERFACES
+    global _ACTIVE_OPTIMIZATIONS
     global _MESSAGE_INSTALLATION, _PATCHES, _RUNTIME, _SERVICE_INSTALLATION
     normalized_optimizations = tuple(sorted(set(optimizations)))
+    from rclcppyy import direct_actions, direct_messages, direct_services
+
+    normalized_interfaces = direct_messages.normalize_interfaces(interfaces)
     unknown = sorted(
         set(normalized_optimizations) - {"subscription_shared_lease"})
     if unknown:
@@ -888,13 +894,15 @@ def activate(*, optimizations=()) -> bool:
             raise RuntimeError(
                 "direct_cpp is already active with optimizations %r" %
                 (_ACTIVE_OPTIMIZATIONS,))
+        if normalized_interfaces != _ACTIVE_INTERFACES:
+            raise RuntimeError(
+                "direct_cpp is already active with interfaces %r" %
+                (_ACTIVE_INTERFACES,))
         return True
     _check_early_activation()
     _check_runtime()
 
-    from rclcppyy import direct_actions, direct_messages, direct_services
-
-    installation = direct_messages.install()
+    installation = direct_messages.install(normalized_interfaces)
     service_installation = None
     action_installation = None
     patches = []
@@ -907,7 +915,8 @@ def activate(*, optimizations=()) -> bool:
         import rclpy.action.server as action_server_module
         import rclpy.node as node_module
 
-        runtime = _DirectRuntime(normalized_optimizations)
+        runtime = _DirectRuntime(
+            normalized_optimizations, normalized_interfaces)
         replacements = (
             (node_module, "Node", DirectNode),
             (action_module, "ActionClient", direct_actions.DirectActionClient),
@@ -947,6 +956,7 @@ def activate(*, optimizations=()) -> bool:
     _ACTION_INSTALLATION = action_installation
     _PATCHES = tuple(patches)
     _ACTIVE_OPTIMIZATIONS = normalized_optimizations
+    _ACTIVE_INTERFACES = normalized_interfaces
     _ACTIVE = True
     record_decision(
         "operations",
@@ -957,6 +967,7 @@ def activate(*, optimizations=()) -> bool:
             "operation": "enable_cpp_acceleration",
             "profile": "direct_cpp",
             "optimizations": list(normalized_optimizations),
+            "requested_message_interfaces": list(normalized_interfaces),
             "message_types": [binding.cpp_type_name for binding in installation.bindings],
             "service_types": [service_installation.binding.cpp_type_name],
             "action_types": [action_installation.binding.cpp_types.cpp_name],

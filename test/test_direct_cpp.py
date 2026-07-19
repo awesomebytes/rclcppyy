@@ -25,6 +25,24 @@ def test_direct_cpp_opt_in_subscription_shared_lease():
     assert "DIRECT_CPP_SUBSCRIPTION_LEASE_REINIT_OK" in process.stdout
 
 
+def test_direct_cpp_registered_nested_message_uses_exact_cpp_lease():
+    process = run_helper(
+        "_direct_cpp_generic_message_helper.py", timeout=360)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_GENERIC_INTERFACE_FAIL_CLOSED_OK" in process.stdout
+    assert "DIRECT_CPP_GENERIC_CONSTRUCTORS_OK" in process.stdout
+    assert "DIRECT_CPP_GENERIC_NESTED_LEASE_OK" in process.stdout
+    assert "DIRECT_CPP_GENERIC_EVIDENCE_OK" in process.stdout
+    assert "DIRECT_CPP_GENERIC_RETAINED_TEARDOWN_OK" in process.stdout
+
+
+def test_direct_cpp_uninstalled_interface_fails_closed():
+    process = run_helper(
+        "_direct_cpp_missing_interface_helper.py", timeout=180)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_MISSING_INTERFACE_FAIL_CLOSED_OK" in process.stdout
+
+
 def test_direct_cpp_native_timer_and_bounded_spin():
     process = run_helper("_direct_cpp_timer_helper.py", timeout=180)
     assert process.returncode == 0, format_output(process)

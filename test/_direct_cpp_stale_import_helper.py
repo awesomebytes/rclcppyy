@@ -9,7 +9,7 @@ import rclcppyy
 try:
     rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
 except RuntimeError as exception:
-    assert "before importing supported messages" in str(exception)
+    assert "before importing generated messages" in str(exception)
 else:
     raise AssertionError("direct_cpp accepted a stale generated message class")
 
