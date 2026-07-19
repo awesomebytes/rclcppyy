@@ -27,9 +27,8 @@ import rclpy  # noqa: E402
 from action_msgs.msg import GoalStatus  # noqa: E402
 from action_msgs.srv import CancelGoal  # noqa: E402
 from ament_index_python.packages import get_package_prefix  # noqa: E402
-from rclpy.action import ActionClient, ActionServer  # noqa: E402
+from rclpy.action import ActionClient  # noqa: E402
 from rclpy.node import Node  # noqa: E402
-from rclcppyy.policy import BackendUnavailableError  # noqa: E402
 from rclcppyy_test_interfaces.action import (  # noqa: E402
     Accumulate,
     Accumulate_GetResult_Request,
@@ -107,16 +106,6 @@ try:
 
     rclpy.init(args=[])
     node = Node("direct_custom_action_%d" % os.getpid())
-    before = len(node.action_clients)
-    try:
-        ActionServer(node, Accumulate, prefix + "/accumulate", lambda goal: None)
-    except BackendUnavailableError:
-        pass
-    else:
-        raise AssertionError("direct custom action server was accepted")
-    assert len(node.action_clients) == before
-    print("DIRECT_CPP_GENERIC_ACTION_SERVER_FAIL_CLOSED_OK")
-
     client = ActionClient(node, Accumulate, prefix + "/accumulate")
     assert client.wait_for_server(timeout_sec=15.0)
 

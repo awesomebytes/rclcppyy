@@ -20,7 +20,7 @@ import rclpy  # noqa: E402
 from action_msgs.msg import GoalStatus  # noqa: E402
 from action_msgs.srv import CancelGoal  # noqa: E402
 from rclcppyy.policy import BackendUnavailableError  # noqa: E402
-from rclpy.action import ActionClient, ActionServer  # noqa: E402
+from rclpy.action import ActionClient  # noqa: E402
 from rclpy.action.client import ClientGoalHandle  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from rclpy.qos import QoSProfile  # noqa: E402
@@ -117,9 +117,7 @@ try:
     node = Node("direct_action_%d" % os.getpid())
 
     before = len(node.action_clients)
-    expect_failure(
-        lambda: ActionServer(node, LookupTransform, action_name, lambda goal: None))
-    assert len(node.action_clients) == before
+    assert len(node.action_servers) == 0
     expect_failure(
         lambda: ActionClient(
             node, LookupTransform, action_name, callback_group=object()))

@@ -199,8 +199,12 @@ class DirectExecutor:
             duration = cppyy.gbl.std.chrono.nanoseconds(int(timeout * 1e9))
             self._native.spin_once(duration)
         for node in self._nodes_snapshot:
-            if node._direct_cpp_clients or node._direct_cpp_action_clients:
-                node._poll_direct_clients()
+            if (
+                node._direct_cpp_clients
+                or node._direct_cpp_action_clients
+                or node._direct_cpp_action_servers
+            ):
+                node._poll_direct_entities()
 
     def spin_once(self, timeout_sec=None) -> None:
         self._enter_spin()

@@ -256,6 +256,21 @@ def test_direct_cpp_lookup_transform_action_client_and_cpp_envelopes():
     assert "DIRECT_CPP_ACTION_REINIT_TEARDOWN_OK" in process.stdout
 
 
+def test_direct_cpp_lookup_transform_action_server_exact_cpp_lifecycle():
+    process = run_helper("_direct_cpp_action_server_helper.py", timeout=360)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_ACTION_SERVER_P0_FAIL_CLOSED_OK" in process.stdout
+    assert "DIRECT_CPP_ACTION_SERVER_SUCCESS_FEEDBACK_OK" in process.stdout
+    assert "DIRECT_CPP_ACTION_SERVER_REJECT_ERROR_OK" in process.stdout
+    assert "DIRECT_CPP_ACTION_SERVER_CALLBACK_TEARDOWN_GUARD_OK" in process.stdout
+    assert "DIRECT_CPP_ACTION_SERVER_CANCEL_OK" in process.stdout
+    assert "DIRECT_CPP_ACTION_SERVER_DEFAULT_ABORT_OK" in process.stdout
+    assert "DIRECT_CPP_ACTION_SERVER_DEFERRED_GC_OK" in process.stdout
+    assert "DIRECT_CPP_ACTION_SERVER_EVIDENCE_OK" in process.stdout
+    assert "DIRECT_CPP_ACTION_SERVER_DEFERRED_CLOSE_OK" in process.stdout
+    assert "DIRECT_CPP_ACTION_SERVER_TEARDOWN_REINIT_OK" in process.stdout
+
+
 def test_direct_cpp_registered_custom_action_uses_aot_cpp_server(tmp_path):
     fixture = HERE / "fixtures" / "custom_interfaces"
     work = tmp_path / "custom-action"
@@ -306,7 +321,6 @@ def test_direct_cpp_registered_custom_action_uses_aot_cpp_server(tmp_path):
     )
     assert process.returncode == 0, format_output(process)
     assert "DIRECT_CPP_GENERIC_ACTION_ALIASES_OK" in process.stdout
-    assert "DIRECT_CPP_GENERIC_ACTION_SERVER_FAIL_CLOSED_OK" in process.stdout
     assert "DIRECT_CPP_GENERIC_ACTION_RUNPATH_OK" in process.stdout
     assert "DIRECT_CPP_GENERIC_ACTION_AOT_INTEROP_OK" in process.stdout
     assert "DIRECT_CPP_GENERIC_ACTION_EVIDENCE_OK" in process.stdout

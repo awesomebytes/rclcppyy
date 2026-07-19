@@ -187,6 +187,8 @@ class _DirectRuntime:
     def shutdown(self) -> None:
         if self.session is None:
             return
+        for node in tuple(self.nodes):
+            node._require_idle_action_server_callbacks("shut down the context")
         self._shutting_down = True
         for executor in tuple(self._executors):
             executor._runtime_shutdown()
@@ -652,6 +654,7 @@ class DirectNode:
         self._direct_cpp_clients = []
         self._direct_cpp_services = []
         self._direct_cpp_action_clients = []
+        self._direct_cpp_action_servers = []
         self._pre_set_parameters_callbacks = []
         self._on_set_parameters_callbacks = []
         self._post_set_parameters_callbacks = []
@@ -755,6 +758,10 @@ class DirectNode:
     @property
     def action_clients(self):
         return list(self._direct_cpp_action_clients)
+
+    @property
+    def action_servers(self):
+        return list(self._direct_cpp_action_servers)
 
     def get_name(self):
         return str(self._require_node().get_name())
@@ -1608,10 +1615,26 @@ class DirectNode:
         except ValueError:
             pass
 
+    def _discard_direct_action_server(self, action_server):
+        try:
+            self._direct_cpp_action_servers.remove(action_server)
+        except ValueError:
+            pass
+
+    def _require_idle_action_server_callbacks(self, operation):
+        for action_server in tuple(self._direct_cpp_action_servers):
+            with action_server._lock:
+                callback_active = bool(action_server._callback_depth)
+            if callback_active:
+                _unsupported(
+                    "direct_cpp cannot %s from an active action-server callback" %
+                    operation)
+
     def destroy_node(self):
         node = self._direct_cpp_node
         if node is None:
             return
+        self._require_idle_action_server_callbacks("destroy a node")
         self._close_parameter_callbacks()
         executor = self.executor
         if executor is not None:
@@ -1627,11 +1650,14 @@ class DirectNode:
             client.close()
         for service in tuple(self._direct_cpp_services):
             service.close()
+        for action_server in tuple(self._direct_cpp_action_servers):
+            action_server.close()
         for action_client in tuple(self._direct_cpp_action_clients):
             action_client.close()
         self._direct_cpp_timers.clear()
         self._direct_cpp_clients.clear()
         self._direct_cpp_services.clear()
+        self._direct_cpp_action_servers.clear()
         self._direct_cpp_action_clients.clear()
         self._release_callback_groups()
         _runtime().detach(self, node)
@@ -1649,11 +1675,14 @@ class DirectNode:
             client.close()
         for service in tuple(self._direct_cpp_services):
             service.close()
+        for action_server in tuple(self._direct_cpp_action_servers):
+            action_server.close()
         for action_client in tuple(self._direct_cpp_action_clients):
             action_client.close()
         self._direct_cpp_timers.clear()
         self._direct_cpp_clients.clear()
         self._direct_cpp_services.clear()
+        self._direct_cpp_action_servers.clear()
         self._direct_cpp_action_clients.clear()
         self._direct_cpp_publishers.clear()
         self._direct_cpp_subscriptions.clear()
@@ -1711,7 +1740,9 @@ class DirectNode:
             _unsupported("direct_cpp services and clients require default service QoS")
         return value
 
-    def _poll_direct_clients(self):
+    def _poll_direct_entities(self):
+        for action_server in tuple(self._direct_cpp_action_servers):
+            action_server._poll_ready()
         for client in tuple(self._direct_cpp_clients):
             client._poll_ready()
         for action_client in tuple(self._direct_cpp_action_clients):
@@ -2057,6 +2088,11 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
             ),
             (action_module, "ActionServer", direct_actions.DirectActionServer),
             (action_server_module, "ActionServer", direct_actions.DirectActionServer),
+            (
+                action_server_module,
+                "ServerGoalHandle",
+                direct_actions.DirectServerGoalHandle,
+            ),
             (rclpy, "init", _direct_init),
             (rclpy, "ok", _direct_ok),
             (rclpy, "shutdown", _direct_shutdown),
