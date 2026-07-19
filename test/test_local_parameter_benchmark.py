@@ -14,6 +14,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 BENCH_DIR = REPO_ROOT / "scripts" / "benchmarks"
+SCHEMA_PATH = REPO_ROOT / "schemas" / "local-parameter-benchmark-v1.schema.json"
 sys.path.insert(0, str(BENCH_DIR))
 
 
@@ -121,10 +122,21 @@ def test_document_is_cpu_first_strict_and_claims_disabled():
     assert len(document["summary"]["snapshot_materialization_ratios"]) == 3
     assert json.loads(protocol.dumps(document)) == document
 
+    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    assert schema["properties"]["benchmark"]["properties"][
+        "performance_claims_allowed"] == {"const": False}
+    assert schema["$defs"]["boundary_evidence"]["properties"][
+        "cdr_calls"] == {"const": 0}
+    jsonschema = pytest.importorskip("jsonschema")
+    jsonschema.Draft202012Validator.check_schema(schema)
+    jsonschema.validate(document, schema)
+
     invalid = json.loads(json.dumps(document))
     invalid["samples"][1]["boundary_evidence"]["serialization_calls"] = 1
     with pytest.raises(ValueError, match="forbidden conversion or serialization"):
         protocol.validate_document(invalid)
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(invalid, schema)
 
 
 def test_worker_keeps_setup_warmup_and_poison_outside_cpu_window():

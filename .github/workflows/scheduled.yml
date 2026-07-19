@@ -231,6 +231,10 @@ jobs:
             --output build/dedicated-benchmark/timer-executor.json
           pixi run action-client-bench \
             --output build/dedicated-benchmark/action-client.json
+          pixi run action-server-bench \
+            --output build/dedicated-benchmark/action-server.json
+          pixi run local-parameter-bench \
+            --output build/dedicated-benchmark/local-parameter.json
           pixi run fusion-pipeline-bench \
             --output build/dedicated-benchmark/fusion-pipeline.json
       - name: Gate repeated results against reviewed architecture budget

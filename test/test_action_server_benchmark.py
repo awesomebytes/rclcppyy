@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import importlib.util
+import json
 import os
 from pathlib import Path
 import sys
@@ -14,6 +15,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 BENCH_DIR = REPO_ROOT / "scripts" / "benchmarks"
+SCHEMA_PATH = REPO_ROOT / "schemas" / "action-server-benchmark-v1.schema.json"
 sys.path.insert(0, str(BENCH_DIR))
 
 
@@ -463,6 +465,24 @@ def test_complete_document_has_rotating_five_by_five_matrix_and_no_claims():
     document["claims"]["enabled"] = True
     with pytest.raises(ValueError, match="claims"):
         protocol.validate_document(document)
+
+
+def test_action_server_json_schema_matches_negative_contracts():
+    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    assert schema["properties"]["claims"]["const"]["enabled"] is False
+    assert schema["properties"]["parameters"]["properties"][
+        "requested_rmw"] == {"const": protocol.RMW}
+    assert schema["$defs"]["server_report"]["properties"][
+        "cpu_role"] == {"const": "server_under_test"}
+    jsonschema = pytest.importorskip("jsonschema")
+    jsonschema.Draft202012Validator.check_schema(schema)
+    jsonschema.validate(_document(), schema)
+
+    invalid = _document()
+    invalid["results"][1]["server_report"]["boundary_evidence"][
+        "python_serialization_calls"] = 1
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(invalid, schema)
 
 
 @pytest.mark.skipif(

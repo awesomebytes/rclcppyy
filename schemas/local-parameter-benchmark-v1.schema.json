@@ -1,0 +1,406 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/awesomebytes/rclcppyy/schemas/local-parameter-benchmark-v1.schema.json",
+  "title": "rclcppyy Jazzy/Cyclone local parameter benchmark v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generated_at",
+    "command",
+    "environment",
+    "benchmark",
+    "execution_order",
+    "samples",
+    "summary"
+  ],
+  "properties": {
+    "schema": {"const": "rclcppyy.local-parameter-benchmark/v1"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "command": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string"}
+    },
+    "environment": {"type": "object"},
+    "benchmark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "performance_claims_allowed",
+        "primary_metric",
+        "warmup_operations",
+        "measured_operations",
+        "repetitions",
+        "variants",
+        "workloads",
+        "execution_order_policy",
+        "setup_init_jit_excluded"
+      ],
+      "properties": {
+        "name": {"const": "local-parameter-cpu-characterization"},
+        "performance_claims_allowed": {"const": false},
+        "primary_metric": {"const": "process_cpu_ns_per_operation"},
+        "warmup_operations": {"type": "integer", "minimum": 1, "maximum": 100000},
+        "measured_operations": {"type": "integer", "minimum": 1, "maximum": 100000},
+        "repetitions": {"type": "integer", "minimum": 1, "maximum": 30},
+        "variants": {
+          "const": ["stock-rclpy", "direct-rclcppyy", "raw-rclcpp"]
+        },
+        "workloads": {
+          "const": ["declare", "get-native", "get-value-snapshot", "set-atomically"]
+        },
+        "execution_order_policy": {"const": "deterministic-rotating-variant"},
+        "setup_init_jit_excluded": {"const": true}
+      }
+    },
+    "execution_order": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 360,
+      "items": {"$ref": "#/$defs/order_item"}
+    },
+    "samples": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 360,
+      "items": {"$ref": "#/$defs/sample"}
+    },
+    "summary": {"$ref": "#/$defs/summary"}
+  },
+  "$defs": {
+    "variant": {
+      "enum": ["stock-rclpy", "direct-rclcppyy", "raw-rclcpp"]
+    },
+    "workload": {
+      "enum": ["declare", "get-native", "get-value-snapshot", "set-atomically"]
+    },
+    "positive_number": {"type": "number", "exclusiveMinimum": 0},
+    "order_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repetition", "workload", "variant"],
+      "properties": {
+        "repetition": {"type": "integer", "minimum": 0, "maximum": 29},
+        "workload": {"$ref": "#/$defs/workload"},
+        "variant": {"$ref": "#/$defs/variant"}
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fresh_process",
+        "setup_excluded",
+        "jit_excluded",
+        "warmup_completed",
+        "fixed_work",
+        "teardown_clean",
+        "ros_distribution",
+        "rmw_implementation"
+      ],
+      "properties": {
+        "fresh_process": {"const": true},
+        "setup_excluded": {"const": true},
+        "jit_excluded": {"const": true},
+        "warmup_completed": {"const": true},
+        "fixed_work": {"const": true},
+        "teardown_clean": {"const": true},
+        "cleanup_error": {"type": ["string", "null"]},
+        "ros_distribution": {"const": "jazzy"},
+        "rmw_implementation": {"const": "rmw_cyclonedds_cpp"},
+        "domain_id": {
+          "type": ["string", "null"],
+          "pattern": "^(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-2][0-9]|23[0-2])$"
+        }
+      }
+    },
+    "correctness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "completed_operations",
+        "expected_operations",
+        "exceptions",
+        "final_value",
+        "verified"
+      ],
+      "properties": {
+        "completed_operations": {"type": "integer", "minimum": 1, "maximum": 100000},
+        "expected_operations": {"type": "integer", "minimum": 1, "maximum": 100000},
+        "exceptions": {"const": 0},
+        "final_value": {"type": "integer"},
+        "verified": {"const": true}
+      }
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_metric",
+        "cpu_clock",
+        "process_cpu_time_ns",
+        "process_cpu_ns_per_operation",
+        "wall_time_ns",
+        "wall_ns_per_operation",
+        "operations_per_second"
+      ],
+      "properties": {
+        "primary_metric": {"const": "process_cpu_ns_per_operation"},
+        "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
+        "process_cpu_time_ns": {"type": "integer", "minimum": 1},
+        "process_cpu_ns_per_operation": {"$ref": "#/$defs/positive_number"},
+        "wall_time_ns": {"type": "integer", "minimum": 1},
+        "wall_ns_per_operation": {"$ref": "#/$defs/positive_number"},
+        "operations_per_second": {"$ref": "#/$defs/positive_number"}
+      }
+    },
+    "boundary_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "conversion_poison_installed",
+        "serialization_poison_installed",
+        "application_message_conversions",
+        "serialization_calls",
+        "cdr_calls",
+        "value_snapshot_in_cpu_window"
+      ],
+      "properties": {
+        "conversion_poison_installed": {"const": true},
+        "serialization_poison_installed": {"const": true},
+        "application_message_conversions": {"const": 0},
+        "serialization_calls": {"const": 0},
+        "cdr_calls": {"const": 0},
+        "value_snapshot_in_cpu_window": {"type": "boolean"}
+      }
+    },
+    "backend_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verified",
+        "operation_route",
+        "parameter_representation",
+        "exact_cpp_parameter",
+        "exact_cpp_node",
+        "exact_cpp_result",
+        "measured_parameter_values_exact_cpp",
+        "cpp_parameter_address",
+        "node_implementation"
+      ],
+      "properties": {
+        "verified": {"const": true},
+        "operation_route": {
+          "enum": [
+            "rclpy.node.Node.declare_parameter",
+            "rclpy.node.Node.get_parameter",
+            "rclpy.node.Node.get_parameter.value",
+            "rclpy.node.Node.set_parameters_atomically",
+            "rclcppyy.direct_cpp.DirectNode.declare_parameter",
+            "rclcppyy.direct_cpp.DirectNode.get_parameter",
+            "rclcppyy.direct_cpp.DirectNode.get_parameter.value",
+            "rclcppyy.direct_cpp.DirectNode.set_parameters_atomically",
+            "rclcpp_kit.native_parameters.declare_parameter",
+            "rclcpp_kit.native_parameters.get_parameter",
+            "rclcpp_kit.native_parameters.get_parameter.value_snapshot",
+            "rclcpp_kit.native_parameters.set_parameters_atomically"
+          ]
+        },
+        "parameter_representation": {
+          "enum": ["rclpy.parameter.Parameter", "rclcpp::Parameter"]
+        },
+        "exact_cpp_parameter": {"type": "boolean"},
+        "exact_cpp_node": {"type": "boolean"},
+        "exact_cpp_result": {"type": "boolean"},
+        "measured_parameter_values_exact_cpp": {"type": "boolean"},
+        "cpp_parameter_address": {"type": ["integer", "null"], "minimum": 1},
+        "parameter_implementation": {"type": ["string", "null"]},
+        "node_implementation": {"type": "string", "minLength": 1}
+      }
+    },
+    "sample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "variant",
+        "workload",
+        "repetition",
+        "order_index",
+        "pid",
+        "run_token",
+        "warmup_operations",
+        "measured_operations",
+        "runtime",
+        "correctness",
+        "timing",
+        "boundary_evidence",
+        "backend_evidence"
+      ],
+      "properties": {
+        "schema": {"const": "rclcppyy.local-parameter-sample/v1"},
+        "variant": {"$ref": "#/$defs/variant"},
+        "workload": {"$ref": "#/$defs/workload"},
+        "repetition": {"type": "integer", "minimum": 0, "maximum": 29},
+        "order_index": {"type": "integer", "minimum": 0, "maximum": 359},
+        "pid": {"type": "integer", "minimum": 1},
+        "run_token": {"type": "string", "minLength": 1},
+        "warmup_operations": {"type": "integer", "minimum": 1, "maximum": 100000},
+        "measured_operations": {"type": "integer", "minimum": 1, "maximum": 100000},
+        "runtime": {"$ref": "#/$defs/runtime"},
+        "correctness": {"$ref": "#/$defs/correctness"},
+        "timing": {"$ref": "#/$defs/timing"},
+        "boundary_evidence": {"$ref": "#/$defs/boundary_evidence"},
+        "backend_evidence": {"$ref": "#/$defs/backend_evidence"},
+        "stdout_diagnostics": {"type": "array", "items": {"type": "string"}},
+        "stderr_diagnostics": {"type": ["string", "null"]}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"workload": {"const": "get-value-snapshot"}},
+            "required": ["workload"]
+          },
+          "then": {
+            "properties": {
+              "boundary_evidence": {
+                "properties": {"value_snapshot_in_cpu_window": {"const": true}}
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "boundary_evidence": {
+                "properties": {"value_snapshot_in_cpu_window": {"const": false}}
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"variant": {"const": "stock-rclpy"}},
+            "required": ["variant"]
+          },
+          "then": {
+            "properties": {
+              "backend_evidence": {
+                "properties": {
+                  "parameter_representation": {"const": "rclpy.parameter.Parameter"},
+                  "exact_cpp_parameter": {"const": false},
+                  "exact_cpp_node": {"const": false},
+                  "exact_cpp_result": {"const": false},
+                  "measured_parameter_values_exact_cpp": {"const": false},
+                  "cpp_parameter_address": {"const": null}
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "backend_evidence": {
+                "properties": {
+                  "parameter_representation": {"const": "rclcpp::Parameter"},
+                  "exact_cpp_parameter": {"const": true},
+                  "exact_cpp_node": {"const": true},
+                  "measured_parameter_values_exact_cpp": {"const": true},
+                  "cpp_parameter_address": {"type": "integer", "minimum": 1},
+                  "parameter_implementation": {"const": "rclcpp::Parameter"},
+                  "node_implementation": {"const": "rclcpp::Node"}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "variant": {"enum": ["direct-rclcppyy", "raw-rclcpp"]},
+              "workload": {"const": "set-atomically"}
+            },
+            "required": ["variant", "workload"]
+          },
+          "then": {
+            "properties": {
+              "backend_evidence": {
+                "properties": {"exact_cpp_result": {"const": true}}
+              }
+            }
+          }
+        }
+      ]
+    },
+    "paired_ratio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repetition",
+        "workload",
+        "direct_over_stock_process_cpu",
+        "raw_over_stock_process_cpu"
+      ],
+      "properties": {
+        "repetition": {"type": "integer", "minimum": 0, "maximum": 29},
+        "workload": {"$ref": "#/$defs/workload"},
+        "direct_over_stock_process_cpu": {"$ref": "#/$defs/positive_number"},
+        "raw_over_stock_process_cpu": {"$ref": "#/$defs/positive_number"}
+      }
+    },
+    "median_ratio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["direct_over_stock_process_cpu", "raw_over_stock_process_cpu"],
+      "properties": {
+        "direct_over_stock_process_cpu": {"$ref": "#/$defs/positive_number"},
+        "raw_over_stock_process_cpu": {"$ref": "#/$defs/positive_number"}
+      }
+    },
+    "snapshot_ratio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repetition", "variant", "snapshot_over_native_get_process_cpu"],
+      "properties": {
+        "repetition": {"type": "integer", "minimum": 0, "maximum": 29},
+        "variant": {"$ref": "#/$defs/variant"},
+        "snapshot_over_native_get_process_cpu": {"$ref": "#/$defs/positive_number"}
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_metric",
+        "paired_cpu_ratios",
+        "median_cpu_ratios",
+        "snapshot_materialization_ratios"
+      ],
+      "properties": {
+        "primary_metric": {"const": "process_cpu_ns_per_operation"},
+        "paired_cpu_ratios": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 120,
+          "items": {"$ref": "#/$defs/paired_ratio"}
+        },
+        "median_cpu_ratios": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["declare", "get-native", "get-value-snapshot", "set-atomically"],
+          "properties": {
+            "declare": {"$ref": "#/$defs/median_ratio"},
+            "get-native": {"$ref": "#/$defs/median_ratio"},
+            "get-value-snapshot": {"$ref": "#/$defs/median_ratio"},
+            "set-atomically": {"$ref": "#/$defs/median_ratio"}
+          }
+        },
+        "snapshot_materialization_ratios": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 90,
+          "items": {"$ref": "#/$defs/snapshot_ratio"}
+        }
+      }
+    }
+  }
+}
