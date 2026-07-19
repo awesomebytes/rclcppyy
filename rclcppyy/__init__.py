@@ -18,6 +18,8 @@ from rclcppyy.policy import AccelerationPolicy, BackendUnavailableError
 
 
 _ACTIVE_PROFILE = None
+_ACTIVE_OPTIMIZATIONS = ()
+_SUPPORTED_OPTIMIZATIONS = frozenset(("subscription_shared_lease",))
 
 _MOVED_SUBMODULES = ("serialization", "rosbag2_cpp", "rosbag2_py_compat", "tf")
 _LAZY_EXPORTS = {
@@ -65,11 +67,30 @@ def __dir__():
     return sorted(set(globals()) | set(__all__))
 
 
+def _normalize_optimizations(optimizations):
+    if optimizations is None:
+        return ()
+    values = (optimizations,) if isinstance(optimizations, str) else optimizations
+    try:
+        selected = tuple(values)
+    except TypeError as exc:
+        raise TypeError("optimizations must be an iterable of strings") from exc
+    if any(not isinstance(value, str) or not value for value in selected):
+        raise TypeError("optimizations must contain only non-empty strings")
+    normalized = tuple(sorted(set(selected)))
+    unknown = sorted(set(normalized) - _SUPPORTED_OPTIMIZATIONS)
+    if unknown:
+        raise ValueError(
+            "unknown C++ acceleration optimization(s): %s" % ", ".join(unknown))
+    return normalized
+
+
 def enable_cpp_acceleration(
     patch_node=True,
     *,
     profile="compatible",
     warn_fallback=False,
+    optimizations=(),
 ):
     """
     Enable C++ acceleration for ROS2 Python code.
@@ -87,6 +108,8 @@ def enable_cpp_acceleration(
         profile (str): ``compatible``, ``publisher_cpp``, ``message_facade``,
                        ``required_cpp``, ``optimized``, or ``direct_cpp``.
         warn_fallback (bool): Warn once for each stock fallback reason.
+        optimizations (Iterable[str]): Explicit opt-in C++ optimizations. The
+            ``subscription_shared_lease`` option is valid only with ``direct_cpp``.
 
     Returns:
         bool: True if successful
@@ -96,24 +119,33 @@ def enable_cpp_acceleration(
         import rclcppyy; rclcppyy.enable_cpp_acceleration()
         ```
     """
-    global _ACTIVE_PROFILE
+    global _ACTIVE_OPTIMIZATIONS, _ACTIVE_PROFILE
+    normalized_optimizations = _normalize_optimizations(optimizations)
+    if normalized_optimizations and profile != "direct_cpp":
+        raise ValueError("C++ acceleration optimizations require profile='direct_cpp'")
     if _ACTIVE_PROFILE is not None:
         if profile != _ACTIVE_PROFILE:
             raise RuntimeError(
                 "rclcppyy is already active with profile %r" % _ACTIVE_PROFILE)
+        if normalized_optimizations != _ACTIVE_OPTIMIZATIONS:
+            raise RuntimeError(
+                "rclcppyy is already active with optimizations %r" %
+                (_ACTIVE_OPTIMIZATIONS,))
         return True
 
     if profile == "direct_cpp":
         from rclcppyy.direct_cpp import activate
 
-        result = activate()
+        result = activate(optimizations=normalized_optimizations)
         _ACTIVE_PROFILE = profile
+        _ACTIVE_OPTIMIZATIONS = normalized_optimizations
         return result
 
     from rclcppyy.monkey import patch_node_class, patch_ros2
 
     result = patch_ros2(profile=profile, warn_fallback=warn_fallback)
     _ACTIVE_PROFILE = profile
+    _ACTIVE_OPTIMIZATIONS = normalized_optimizations
 
     # Optionally patch the Node class directly
     if patch_node:

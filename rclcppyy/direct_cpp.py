@@ -21,6 +21,7 @@ _PATCHES = ()
 _MESSAGE_INSTALLATION = None
 _SERVICE_INSTALLATION = None
 _ACTION_INSTALLATION = None
+_ACTIVE_OPTIMIZATIONS = ()
 _DEFAULT_SERVICE_QOS = object()
 
 
@@ -40,11 +41,12 @@ class _DirectContext:
 
 
 class _DirectRuntime:
-    def __init__(self):
+    def __init__(self, optimizations=()):
         self.session = None
         self.executor = None
         self.nodes = []
         self.context = _DirectContext(self)
+        self.optimizations = tuple(optimizations)
         self._shutting_down = False
 
     def init(self, arguments) -> None:
@@ -465,10 +467,16 @@ class DirectNode:
             raise TypeError("subscription callback must be callable")
         qos = direct_entities.qos_from_depth(
             _runtime().session.rclcpp, qos_profile)
-        subscription = direct_entities.create_subscription(
-            self._require_node(), msg_type, str(topic), callback, qos)
+        if "subscription_shared_lease" in _runtime().optimizations:
+            from rclcpp_kit import direct_subscription_lease
+
+            subscription = direct_subscription_lease.create_subscription_lease(
+                self._require_node(), msg_type, str(topic), callback, qos)
+        else:
+            subscription = direct_entities.create_subscription(
+                self._require_node(), msg_type, str(topic), callback, qos)
         self._direct_cpp_subscriptions.append(subscription)
-        self._record_entity("subscription", topic, msg_type)
+        self._record_entity("subscription", topic, msg_type, subscription)
         return subscription.entity
 
     def create_timer(
@@ -620,6 +628,10 @@ class DirectNode:
             service.close()
         for action_client in tuple(self._direct_cpp_action_clients):
             action_client.close()
+        for subscription in tuple(self._direct_cpp_subscriptions):
+            close = getattr(subscription, "close", None)
+            if close is not None:
+                close()
         self._direct_cpp_timers.clear()
         self._direct_cpp_clients.clear()
         self._direct_cpp_services.clear()
@@ -638,6 +650,10 @@ class DirectNode:
             service.close()
         for action_client in tuple(self._direct_cpp_action_clients):
             action_client.close()
+        for subscription in tuple(self._direct_cpp_subscriptions):
+            close = getattr(subscription, "close", None)
+            if close is not None:
+                close()
         self._direct_cpp_timers.clear()
         self._direct_cpp_clients.clear()
         self._direct_cpp_services.clear()
@@ -721,7 +737,7 @@ class DirectNode:
             },
         )
 
-    def _record_entity(self, entity_type, topic, msg_type):
+    def _record_entity(self, entity_type, topic, msg_type, entity=None):
         policies = ["direct_cpp", "direct_cpp_message", "no_conversion"]
         metadata = {
             "entity_type": entity_type,
@@ -729,8 +745,30 @@ class DirectNode:
             "message_type": str(getattr(msg_type, "__cpp_name__", msg_type)),
         }
         if entity_type == "subscription":
-            policies.append("owning_cpp_callback_copy")
-            metadata["callback_handoff"] = "one_native_cpp_copy"
+            if getattr(entity, "creation_route", "") == (
+                "rclcpp_unique_ptr_subscription_lease"
+            ):
+                policies.extend((
+                    "subscription_shared_lease",
+                    "actual_cpp_message",
+                ))
+                metadata.update({
+                    "callback_handoff": "shared_cpp_message_lease",
+                    "subscription_creation_route": (
+                        "rclcpp_unique_ptr_subscription_lease"),
+                    "message_representation": "actual_cpp",
+                    "python_message_conversions": 0,
+                    "serialization_operations": 0,
+                    "message_deep_copies_per_callback": 0,
+                    "shared_control_blocks_per_callback": 1,
+                    "shared_owner_acquisitions_per_callback": 1,
+                    "owning_cpp_copy_count_at_creation": (
+                        entity.owning_cpp_copy_count),
+                    "lease_count_at_creation": entity.lease_count,
+                })
+            else:
+                policies.append("owning_cpp_callback_copy")
+                metadata["callback_handoff"] = "one_native_cpp_copy"
         record_decision(
             "entities",
             "cpp",
@@ -834,11 +872,22 @@ def _direct_spin_until_future_complete(
             return
 
 
-def activate() -> bool:
+def activate(*, optimizations=()) -> bool:
     """Install the complete first-slice surface, rolling back on any failure."""
-    global _ACTION_INSTALLATION, _ACTIVE, _MESSAGE_INSTALLATION, _PATCHES, _RUNTIME
-    global _SERVICE_INSTALLATION
+    global _ACTION_INSTALLATION, _ACTIVE, _ACTIVE_OPTIMIZATIONS
+    global _MESSAGE_INSTALLATION, _PATCHES, _RUNTIME, _SERVICE_INSTALLATION
+    normalized_optimizations = tuple(sorted(set(optimizations)))
+    unknown = sorted(
+        set(normalized_optimizations) - {"subscription_shared_lease"})
+    if unknown:
+        _unsupported(
+            "direct_cpp does not support optimization(s): %s" %
+            ", ".join(unknown))
     if _ACTIVE:
+        if normalized_optimizations != _ACTIVE_OPTIMIZATIONS:
+            raise RuntimeError(
+                "direct_cpp is already active with optimizations %r" %
+                (_ACTIVE_OPTIMIZATIONS,))
         return True
     _check_early_activation()
     _check_runtime()
@@ -858,7 +907,7 @@ def activate() -> bool:
         import rclpy.action.server as action_server_module
         import rclpy.node as node_module
 
-        runtime = _DirectRuntime()
+        runtime = _DirectRuntime(normalized_optimizations)
         replacements = (
             (node_module, "Node", DirectNode),
             (action_module, "ActionClient", direct_actions.DirectActionClient),
@@ -897,6 +946,7 @@ def activate() -> bool:
     _SERVICE_INSTALLATION = service_installation
     _ACTION_INSTALLATION = action_installation
     _PATCHES = tuple(patches)
+    _ACTIVE_OPTIMIZATIONS = normalized_optimizations
     _ACTIVE = True
     record_decision(
         "operations",
@@ -906,6 +956,7 @@ def activate() -> bool:
         metadata={
             "operation": "enable_cpp_acceleration",
             "profile": "direct_cpp",
+            "optimizations": list(normalized_optimizations),
             "message_types": [binding.cpp_type_name for binding in installation.bindings],
             "service_types": [service_installation.binding.cpp_type_name],
             "action_types": [action_installation.binding.cpp_types.cpp_name],

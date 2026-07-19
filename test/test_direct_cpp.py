@@ -14,6 +14,17 @@ def test_direct_cpp_source_compatible_pubsub_and_lifetime():
     assert "DIRECT_CPP_TEARDOWN_OK" in process.stdout
 
 
+def test_direct_cpp_opt_in_subscription_shared_lease():
+    process = run_helper(
+        "_direct_cpp_subscription_lease_helper.py", timeout=300)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_SUBSCRIPTION_LEASE_FAIL_CLOSED_OK" in process.stdout
+    assert "DIRECT_CPP_SUBSCRIPTION_LEASE_IDEMPOTENCE_OK" in process.stdout
+    assert "DIRECT_CPP_SUBSCRIPTION_LEASE_MESSAGES_OK" in process.stdout
+    assert "DIRECT_CPP_SUBSCRIPTION_LEASE_RETAINED_OK" in process.stdout
+    assert "DIRECT_CPP_SUBSCRIPTION_LEASE_REINIT_OK" in process.stdout
+
+
 def test_direct_cpp_native_timer_and_bounded_spin():
     process = run_helper("_direct_cpp_timer_helper.py", timeout=180)
     assert process.returncode == 0, format_output(process)
