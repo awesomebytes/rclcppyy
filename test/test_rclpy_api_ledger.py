@@ -198,6 +198,53 @@ def test_spoofed_facade_attributed_by_source_not_module(monkeypatch):
     assert ledger._attribution(member) == "direct_backend"
 
 
+def test_originates_in_rclcppyy_keeps_genuine_facade_drops_foreign_cppyy_symbol(
+    monkeypatch,
+):
+    module = types.ModuleType("rclpy.node")
+
+    class GenuineFacade:
+        """A genuine rclcppyy-origin backend facade installed at a public name."""
+
+    GenuineFacade.__module__ = "rclcppyy.direct_cpp"
+    module.GenuineFacade = GenuineFacade
+
+    class ForeignCppyySymbol:
+        """Stands in for a cppyy-wrapped rcl_interfaces re-export rebound here."""
+
+        __cpp_name__ = "rcl_interfaces::msg::ParameterDescriptor"
+
+    ForeignCppyySymbol.__module__ = "cppyy.gbl.rcl_interfaces.msg"
+    module.ForeignCppyySymbol = ForeignCppyySymbol
+
+    monkeypatch.setattr(ledger, "_rclcppyy_package_dir", lambda: "/fake/rclcppyy")
+
+    def fake_getsourcefile(_value):
+        raise TypeError("no source available")
+
+    monkeypatch.setattr(ledger.inspect, "getsourcefile", fake_getsourcefile)
+
+    assert ledger._is_public_symbol(module, "GenuineFacade", GenuineFacade) is True
+    assert ledger._is_public_symbol(
+        module, "ForeignCppyySymbol", ForeignCppyySymbol) is False
+
+    # build_ledger level: a foreign cppyy symbol excluded from observation (the
+    # same filtering _observe_module applies) produces no entry on either side.
+    symbols = [
+        ledger._symbol_descriptor(module, name, value)
+        for name, value in sorted(vars(module).items())
+        if ledger._is_public_symbol(module, name, value)
+    ]
+    assert [symbol["name"] for symbol in symbols] == ["GenuineFacade"]
+
+    stock = _observation("stock", [])
+    direct = _observation("direct", symbols)
+    document = ledger.build_ledger(stock, direct, _annotations(), _manifest())
+    entries_by_path = {entry["path"]: entry for entry in document["entries"]}
+    assert "rclpy.node.ForeignCppyySymbol" not in entries_by_path
+    assert "rclpy.node.GenuineFacade" in entries_by_path
+
+
 def test_attribution_absent_when_direct_missing():
     stock = _observation("stock", [_symbol("rclpy.node.operation")])
     direct = _observation("direct", [])

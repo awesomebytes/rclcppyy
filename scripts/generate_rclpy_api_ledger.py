@@ -195,6 +195,27 @@ def _attribution(value: Any) -> str:
     return "foreign"
 
 
+def _originates_in_rclcppyy(value: Any) -> bool:
+    """True only for objects genuinely defined in the rclcppyy package.
+
+    Separates a backend facade the direct profile installs at a public rclpy
+    name (kept) from a cppyy-wrapped foreign ROS message the direct message
+    installation rebinds over an otherwise stock convenience re-export
+    (dropped, symmetric with stock's origin gate).
+    """
+    origin = _origin(value) or ""
+    if origin.startswith("rclcppyy"):
+        return True
+    package_dir = _rclcppyy_package_dir()
+    if package_dir is None:
+        return False
+    try:
+        source = inspect.getsourcefile(value)
+    except (TypeError, OSError):
+        source = None
+    return source is not None and source.startswith(package_dir + os.sep)
+
+
 def _constant_value(value: Any) -> Any:
     if value is None or isinstance(value, (bool, int, float, str)):
         return value
@@ -245,7 +266,7 @@ def _is_public_symbol(module: Any, name: str, value: Any) -> bool:
         origin = _origin(value) or ""
         if origin == module.__name__ or origin.startswith("rclpy."):
             return True
-        return _attribution(value) == "direct_backend"
+        return _originates_in_rclcppyy(value)
     if kind == "constant":
         if name.isupper():
             return True
@@ -759,7 +780,9 @@ def build_ledger(
             ),
             "symbol_rule": (
                 "public rclpy-origin classes/functions, explicit __all__ exports, "
-                "uppercase constants, and rclpy-typed public constants"
+                "uppercase constants, rclpy-typed public constants, and "
+                "rclcppyy-origin backend facades installed at a public rclpy name "
+                "(a cppyy-wrapped foreign message re-export does not qualify)"
             ),
             "member_rule": (
                 "public class members plus explicitly declared rclpy-owned required "
