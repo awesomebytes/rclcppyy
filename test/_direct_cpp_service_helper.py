@@ -200,12 +200,9 @@ except BackendUnavailableError:
     pass
 else:
     raise AssertionError("direct synchronous client call was accepted")
-try:
-    rclpy.spin_until_future_complete(node, Future(), timeout_sec=0.0)
-except BackendUnavailableError:
-    pass
-else:
-    raise AssertionError("direct spin accepted a foreign Future")
+plain_future = Future()
+rclpy.spin_until_future_complete(node, plain_future, timeout_sec=0.0)
+assert not plain_future.done() and not plain_future.cancelled()
 missing_stats = missing.stats()
 assert missing_stats.requests_sent == 2
 assert missing_stats.canceled == 2

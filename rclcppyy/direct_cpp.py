@@ -8,7 +8,7 @@ import inspect
 import os
 import sys
 import threading
-import time
+import weakref
 
 import cppyy
 
@@ -45,11 +45,16 @@ class _DirectContext:
 class _DirectRuntime:
     def __init__(self, optimizations=(), interfaces=()):
         self.session = None
+        # Kept for compatibility with existing teardown assertions. Direct nodes
+        # are no longer attached to one hidden executor.
         self.executor = None
         self.nodes = []
         self.context = _DirectContext(self)
         self.optimizations = tuple(optimizations)
         self.interfaces = tuple(interfaces)
+        self.membership_lock = threading.RLock()
+        self._executors = weakref.WeakSet()
+        self._global_executor = None
         self._shutting_down = False
 
     def init(self, arguments) -> None:
@@ -59,7 +64,6 @@ class _DirectRuntime:
 
         self._shutting_down = False
         self.session = NativeSession(arguments=arguments).open()
-        self.executor = self.session.create_executor("single_threaded")
 
     def ok(self) -> bool:
         if self._shutting_down or self.session is None or self.session.closed:
@@ -73,50 +77,53 @@ class _DirectRuntime:
 
     def attach(self, facade, node) -> None:
         self.require_session()
-        self.executor.add_node(node)
-        self.nodes.append(facade)
+        with self.membership_lock:
+            self.nodes.append(facade)
 
     def detach(self, facade, node) -> None:
-        if facade in self.nodes:
-            self.nodes.remove(facade)
-        if self.session is not None and not self.session.closed:
-            self.session.release_node(node)
+        with self.membership_lock:
+            current = facade.executor
+            if current is not None:
+                current.remove_node(facade)
+                facade._set_direct_executor(None)
+            if facade in self.nodes:
+                self.nodes.remove(facade)
+            if self.session is not None and not self.session.closed:
+                self.session.release_node(node)
 
-    def spin_once(self, node, timeout_sec) -> None:
-        if node not in self.nodes or node._direct_cpp_node is None:
-            raise ValueError("node is not owned by the active direct_cpp context")
-        executor = self.executor
-        if executor is None or not self.ok():
+    def register_executor(self, executor) -> None:
+        with self.membership_lock:
+            self._executors.add(executor)
+
+    def unregister_executor(self, executor) -> None:
+        with self.membership_lock:
+            self._executors.discard(executor)
+            if self._global_executor is executor:
+                self._global_executor = None
+
+    def global_executor(self):
+        if not self.ok():
             raise RuntimeError("direct_cpp context is not initialized")
-        if timeout_sec is None or timeout_sec < 0:
-            executor.spin_once()
-        else:
-            duration = cppyy.gbl.std.chrono.nanoseconds(int(timeout_sec * 1e9))
-            executor.spin_once(duration)
-        for facade in tuple(self.nodes):
-            facade._poll_direct_clients()
+        with self.membership_lock:
+            if self._global_executor is None:
+                from rclcppyy.direct_executors import DirectSingleThreadedExecutor
 
-    def spin(self, node) -> None:
-        if node not in self.nodes or node._direct_cpp_node is None:
-            raise ValueError("node is not owned by the active direct_cpp context")
-        while self.ok():
-            try:
-                self.spin_once(node, 0.1)
-            except Exception:
-                if self._shutting_down or not self.ok():
-                    return
-                raise
+                self._global_executor = DirectSingleThreadedExecutor(
+                    context=self.context)
+            return self._global_executor
 
     def shutdown(self) -> None:
         if self.session is None:
             return
         self._shutting_down = True
-        if self.executor is not None:
-            self.executor.cancel()
+        for executor in tuple(self._executors):
+            executor._runtime_shutdown()
         for node in tuple(self.nodes):
             node._mark_runtime_shutdown()
         self.nodes.clear()
         self.session.close("rclcppyy direct_cpp shutdown")
+        self._executors.clear()
+        self._global_executor = None
         self.executor = None
         self.session = None
 
@@ -540,6 +547,7 @@ class DirectNode:
         session = _runtime().require_session()
         self._direct_cpp_node = session.create_node(
             str(node_name), namespace=str(namespace or ""))
+        self._direct_cpp_executor_ref = None
         self._direct_cpp_publishers = []
         self._direct_cpp_subscriptions = []
         self._direct_cpp_timers = []
@@ -558,6 +566,33 @@ class DirectNode:
     @property
     def context(self):
         return _runtime().context
+
+    @property
+    def executor(self):
+        if self._direct_cpp_executor_ref is None:
+            return None
+        return self._direct_cpp_executor_ref()
+
+    @executor.setter
+    def executor(self, new_executor):
+        current = self.executor
+        if current is new_executor:
+            return
+        if current is not None:
+            current.remove_node(self)
+        if new_executor is None:
+            self._set_direct_executor(None)
+            return
+        new_executor.add_node(self)
+
+    def _set_direct_executor(self, executor):
+        self._direct_cpp_executor_ref = (
+            None if executor is None else weakref.ref(executor))
+
+    def _wake_executor(self):
+        executor = self.executor
+        if executor is not None:
+            executor.wake()
 
     @property
     def publishers(self):
@@ -837,6 +872,10 @@ class DirectNode:
         node = self._direct_cpp_node
         if node is None:
             return
+        executor = self.executor
+        if executor is not None:
+            executor.remove_node(self)
+            self._set_direct_executor(None)
         while self._direct_cpp_publishers:
             self.destroy_publisher(self._direct_cpp_publishers[0])
         while self._direct_cpp_subscriptions:
@@ -875,6 +914,7 @@ class DirectNode:
         self._direct_cpp_action_clients.clear()
         self._direct_cpp_publishers.clear()
         self._direct_cpp_subscriptions.clear()
+        self._set_direct_executor(None)
         self._direct_cpp_node = None
 
     def _require_node(self):
@@ -1083,39 +1123,57 @@ def _direct_try_shutdown(*, context=None, uninstall_handlers=None):
         _direct_shutdown(context=context, uninstall_handlers=uninstall_handlers)
 
 
+def _direct_get_global_executor():
+    return _runtime().global_executor()
+
+
+def _select_direct_executor(executor):
+    from rclcppyy.direct_executors import DirectExecutor
+
+    selected = _direct_get_global_executor() if executor is None else executor
+    if not isinstance(selected, DirectExecutor):
+        _unsupported("direct_cpp requires a direct_cpp executor")
+    if selected.context is not _runtime().context:
+        _unsupported("direct_cpp executor and node contexts do not match")
+    return selected
+
+
 def _direct_spin_once(node, *, executor=None, timeout_sec=None):
-    if executor is not None:
-        _unsupported("direct_cpp first slice does not accept a public executor")
-    _runtime().spin_once(node, timeout_sec)
+    selected = _select_direct_executor(executor)
+    node_was_added = False
+    try:
+        node_was_added = selected.add_node(node)
+        selected.spin_once(timeout_sec=timeout_sec)
+    finally:
+        if node_was_added:
+            selected.remove_node(node)
 
 
 def _direct_spin(node, executor=None):
-    if executor is not None:
-        _unsupported("direct_cpp does not accept a public executor")
-    _runtime().spin(node)
+    selected = _select_direct_executor(executor)
+    try:
+        selected.add_node(node)
+        while selected.context.ok():
+            selected.spin_once()
+    finally:
+        selected.remove_node(node)
 
 
 def _direct_spin_until_future_complete(
     node, future, executor=None, timeout_sec=None
 ):
-    if executor is not None:
-        _unsupported("direct_cpp does not accept a public executor")
     runtime = _runtime()
-    if getattr(future, "_rclcppyy_direct_runtime", None) is not runtime:
-        _unsupported("direct_cpp can spin only a Future returned by a direct client")
-    if timeout_sec is None or timeout_sec < 0:
-        while runtime.ok() and not future.done() and not future.cancelled():
-            runtime.spin_once(node, None)
-        return
-    timeout = float(timeout_sec)
-    if not math.isfinite(timeout) or timeout < 0:
-        raise ValueError("timeout_sec must be finite, non-negative, or None")
-    deadline = time.monotonic() + timeout
-    while runtime.ok() and not future.done() and not future.cancelled():
-        remaining = max(0.0, deadline - time.monotonic())
-        runtime.spin_once(node, remaining)
-        if time.monotonic() >= deadline:
-            return
+    future_runtime = getattr(future, "_rclcppyy_direct_runtime", runtime)
+    if future_runtime is not runtime:
+        _unsupported("direct_cpp cannot spin a Future from a foreign context")
+    selected = _select_direct_executor(executor)
+    node_was_added = False
+    try:
+        node_was_added = selected.add_node(node)
+        selected.spin_until_future_complete(future, timeout_sec=timeout_sec)
+    finally:
+        if node_was_added:
+            selected.remove_node(node)
 
 
 def activate(*, optimizations=(), interfaces=()) -> bool:
@@ -1169,15 +1227,33 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         import rclpy.action as action_module
         import rclpy.action.client as action_client_module
         import rclpy.action.server as action_server_module
+        import rclpy.executors as executors_module
         import rclpy.node as node_module
         import rclpy.publisher as publisher_module
         import rclpy.subscription as subscription_module
 
         runtime = _DirectRuntime(
             normalized_optimizations, normalized_interfaces)
+        from rclcppyy.direct_executors import (
+            DirectExecutor,
+            DirectMultiThreadedExecutor,
+            DirectSingleThreadedExecutor,
+        )
+
         DirectSubscription.CallbackType = (
             subscription_module.Subscription.CallbackType)
         replacements = (
+            (executors_module, "Executor", DirectExecutor),
+            (
+                executors_module,
+                "SingleThreadedExecutor",
+                DirectSingleThreadedExecutor,
+            ),
+            (
+                executors_module,
+                "MultiThreadedExecutor",
+                DirectMultiThreadedExecutor,
+            ),
             (node_module, "Node", DirectNode),
             (publisher_module, "Publisher", DirectPublisher),
             (subscription_module, "Subscription", DirectSubscription),
@@ -1194,6 +1270,7 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
             (rclpy, "ok", _direct_ok),
             (rclpy, "shutdown", _direct_shutdown),
             (rclpy, "try_shutdown", _direct_try_shutdown),
+            (rclpy, "get_global_executor", _direct_get_global_executor),
             (rclpy, "spin_once", _direct_spin_once),
             (rclpy, "spin", _direct_spin),
             (rclpy, "spin_until_future_complete", _direct_spin_until_future_complete),
