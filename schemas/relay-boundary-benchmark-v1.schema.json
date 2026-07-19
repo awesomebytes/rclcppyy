@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/awesomebytes/rclcppyy/schemas/relay-boundary-benchmark-v1.schema.json",
-  "title": "rclcppyy controlled nine-lane relay boundary benchmark v1",
+  "title": "rclcppyy controlled eleven-lane relay boundary benchmark v1",
   "type": "object",
   "required": [
     "schema",
@@ -190,6 +190,21 @@
             "then": {"properties": {"relay_ready": {"properties": {"execution_model": {"const": "same-python-relay-stock-rclpy"}}}}}
           },
           {
+            "if": {"properties": {"variant": {"const": "stock-info-rclpy"}}, "required": ["variant"]},
+            "then": {
+              "properties": {
+                "relay_ready": {
+                  "required": ["message_info_proof"],
+                  "properties": {
+                    "execution_model": {"const": "same-python-relay-stock-rclpy-message-info"},
+                    "message_info_proof": {"$ref": "#/$defs/message_info_proof"}
+                  }
+                },
+                "relay_report": {"$ref": "#/$defs/message_info_report"}
+              }
+            }
+          },
+          {
             "if": {"properties": {"variant": {"const": "compatible-rclcppyy"}}, "required": ["variant"]},
             "then": {"properties": {"relay_ready": {"properties": {"execution_model": {"const": "same-python-relay-compatible-stock-publish"}}}}}
           },
@@ -258,6 +273,77 @@
                       }
                     }
                   }
+                }
+              }
+            }
+          },
+          {
+            "if": {"properties": {"variant": {"const": "direct-info-rclcppyy"}}, "required": ["variant"]},
+            "then": {
+              "properties": {
+                "relay_ready": {
+                  "required": ["direct_cpp_proof", "message_info_proof"],
+                  "properties": {
+                    "execution_model": {"const": "same-python-relay-direct-rclcpp-message-info"},
+                    "message_info_proof": {"$ref": "#/$defs/message_info_proof"},
+                    "direct_cpp_proof": {
+                      "type": "object",
+                      "required": [
+                        "actual_cpp_message_class",
+                        "message_cpp_name",
+                        "single_native_node_authority",
+                        "session_node_count",
+                        "callback_handoff",
+                        "subscription_creation_route",
+                        "publisher_call_route",
+                        "python_message_conversion_guarded",
+                        "serialization_guarded"
+                      ],
+                      "properties": {
+                        "actual_cpp_message_class": {"const": true},
+                        "message_cpp_name": {"const": "std_msgs::msg::UInt64_<std::allocator<void>>"},
+                        "single_native_node_authority": {"const": true},
+                        "session_node_count": {"const": 1},
+                        "callback_handoff": {"const": "one_native_cpp_copy"},
+                        "subscription_creation_route": {"const": "rclcpp_template_with_message_info"},
+                        "publisher_call_route": {"const": "managed_typed_holder"},
+                        "python_message_conversion_guarded": {"const": true},
+                        "serialization_guarded": {"const": true}
+                      }
+                    }
+                  }
+                },
+                "relay_report": {
+                  "allOf": [
+                    {"$ref": "#/$defs/message_info_report"},
+                    {
+                      "required": [
+                        "owning_cpp_callback_copies",
+                        "cpp_callback_messages",
+                        "non_cpp_callback_messages",
+                        "python_message_conversions",
+                        "serialization_operations",
+                        "boundary_guard_calls",
+                        "publisher_call_route"
+                      ],
+                      "properties": {
+                        "owning_cpp_callback_copies": {"type": "integer", "minimum": 1},
+                        "cpp_callback_messages": {"type": "integer", "minimum": 1},
+                        "non_cpp_callback_messages": {"const": 0},
+                        "python_message_conversions": {"const": 0},
+                        "serialization_operations": {"const": 0},
+                        "publisher_call_route": {"const": "managed_typed_holder"},
+                        "boundary_guard_calls": {
+                          "type": "object",
+                          "required": ["python_message_conversion", "serialization"],
+                          "properties": {
+                            "python_message_conversion": {"const": 0},
+                            "serialization": {"const": 0}
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -427,6 +513,7 @@
         "raw_medians",
         "paired_ratios_to_stock",
         "paired_ratios_to_aot",
+        "message_info_paired_medians",
         "interpretation_allowed",
         "note"
       ],
@@ -435,6 +522,7 @@
         "raw_medians": {"type": "object"},
         "paired_ratios_to_stock": {"type": "object"},
         "paired_ratios_to_aot": {"type": "object"},
+        "message_info_paired_medians": {"type": "object"},
         "note": {"type": "string", "minLength": 1}
       }
     },
@@ -444,9 +532,11 @@
     "variant": {
       "enum": [
         "stock-rclpy",
+        "stock-info-rclpy",
         "compatible-rclcppyy",
         "publisher-cpp-rclcppyy",
         "direct-cpp-rclcppyy",
+        "direct-info-rclcppyy",
         "direct-raw-publish-rclcppyy",
         "direct-lease-rclcppyy",
         "native-python-callback",
@@ -462,6 +552,38 @@
         "depth": {"const": 1},
         "reliability": {"const": "reliable"},
         "durability": {"const": "volatile"}
+      }
+    },
+    "message_info_keys": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "prefixItems": [
+        {"const": "publication_sequence_number"},
+        {"const": "received_timestamp"},
+        {"const": "reception_sequence_number"},
+        {"const": "source_timestamp"}
+      ]
+    },
+    "message_info_proof": {
+      "type": "object",
+      "required": ["callback_shape", "expected_marker_keys"],
+      "properties": {
+        "callback_shape": {"const": "message_and_info"},
+        "expected_marker_keys": {"$ref": "#/$defs/message_info_keys"}
+      }
+    },
+    "message_info_report": {
+      "type": "object",
+      "required": [
+        "message_info_callbacks",
+        "message_info_marker_keys",
+        "message_info_markers_valid"
+      ],
+      "properties": {
+        "message_info_callbacks": {"type": "integer", "minimum": 1},
+        "message_info_marker_keys": {"$ref": "#/$defs/message_info_keys"},
+        "message_info_markers_valid": {"const": true}
       }
     },
     "rss_guard": {

@@ -24,6 +24,12 @@ BACKEND_SCHEMA = "rclcppyy.benchmark-backend/v1"
 DIAGNOSTIC_SCHEMA = "rclcppyy.relay-boundary-diagnostic/v1"
 PROTOCOL_PREFIX = "@@RCLCPPYY_RELAY_BOUNDARY_V1@@"
 RSS_GUARD_LIMIT_BYTES = 64 * 1024 * 1024
+MESSAGE_INFO_KEYS = (
+    "publication_sequence_number",
+    "received_timestamp",
+    "reception_sequence_number",
+    "source_timestamp",
+)
 
 
 def _sha256(path: str | Path) -> str:
@@ -124,6 +130,9 @@ def _status_marker(
     callback_handoff = decision["metadata"].get("callback_handoff")
     if callback_handoff is not None:
         metadata["callback_handoff"] = callback_handoff
+    message_info = decision["metadata"].get("message_info")
+    if message_info is not None:
+        metadata["message_info"] = message_info
     return {
         "schema": BACKEND_SCHEMA,
         "role": role,
@@ -187,13 +196,15 @@ def _cleanup_python_relay(
 
 
 def _cleanup_direct_cpp_relay(
-        args, rclpy, runtime, stop_event, executor_thread, node) -> bool:
+        args, rclpy, runtime, executor, executor_thread, node) -> bool:
     errors = []
 
-    def cleanup_step(name, action):
+    def cleanup_step(name, action, *, require_true=False):
         _phase(args, name + "-before")
         try:
-            action()
+            result = action()
+            if require_true and result is not True:
+                raise RuntimeError("cleanup step returned %r" % (result,))
         except BaseException as exc:
             errors.append((name, type(exc).__name__, str(exc)))
             _phase(args, name + "-error", {
@@ -203,7 +214,11 @@ def _cleanup_direct_cpp_relay(
             return
         _phase(args, name + "-after")
 
-    stop_event.set()
+    cleanup_step(
+        "direct-executor-shutdown",
+        lambda: executor.shutdown(timeout_sec=2.0),
+        require_true=True,
+    )
     _phase(args, "direct-spin-thread-join-before")
     executor_thread.join(timeout=2.0)
     _phase(args, "direct-spin-thread-join-after", {
@@ -406,7 +421,8 @@ def _subscription_lease_artifact() -> dict:
 def _run_python_relay(
         args, *, profile: str | None,
         optimizations: tuple[str, ...] = (),
-        raw_native_publish: bool = False) -> tuple[dict, dict, bool]:
+        raw_native_publish: bool = False,
+        with_message_info: bool = False) -> tuple[dict, dict, bool]:
     rclcppyy = None
     if profile is not None:
         import rclcppyy as active_rclcppyy
@@ -423,6 +439,7 @@ def _run_python_relay(
         raise RuntimeError("raw native publish benchmark requires direct_cpp")
 
     import rclpy
+    from rclpy.executors import SingleThreadedExecutor
     from rclpy.node import Node
     from std_msgs.msg import UInt64
     import threading
@@ -454,7 +471,6 @@ def _run_python_relay(
             serialization.deserialize_message = forbid_boundary("serialization")
     else:
         from rclpy.context import Context
-        from rclpy.executors import SingleThreadedExecutor
         from rclpy.qos import (
             DurabilityPolicy,
             HistoryPolicy,
@@ -468,6 +484,8 @@ def _run_python_relay(
     last = 0
     non_cpp_callback_messages = 0
     callback_last_message_address = 0
+    message_info_callbacks = 0
+    message_info_marker_keys = None
     publish_marker = None
     spin_errors = []
     if use_direct_cpp:
@@ -506,37 +524,62 @@ def _run_python_relay(
         publish_message(UInt64(data=value * 2 + 1))
         published += 1
 
-    subscription = node.create_subscription(UInt64, args.input_topic, on_message, qos)
+    def on_message_with_info(message, info):
+        nonlocal message_info_callbacks, message_info_marker_keys
+        nonlocal received, published, checksum, last, non_cpp_callback_messages
+        nonlocal callback_last_message_address
+        if message_info_marker_keys is None:
+            if type(info) is not dict:
+                raise RuntimeError("MessageInfo callback did not receive a dictionary")
+            message_info_marker_keys = tuple(sorted(info))
+            if message_info_marker_keys != MESSAGE_INFO_KEYS:
+                raise RuntimeError("MessageInfo callback received unexpected metadata keys")
+        message_info_callbacks += 1
+        if use_direct_cpp and type(message) is not UInt64:
+            non_cpp_callback_messages += 1
+        if use_subscription_lease:
+            callback_last_message_address = int(cppyy.addressof(message))
+        value = int(message.data)
+        received += 1
+        checksum += value
+        last = value
+        publish_message(UInt64(data=value * 2 + 1))
+        published += 1
+
+    callback = on_message_with_info if with_message_info else on_message
+    subscription = node.create_subscription(
+        UInt64, args.input_topic, callback, qos)
     if use_direct_cpp:
         from rclcppyy import direct_cpp as direct_cpp_module
 
         runtime = direct_cpp_module._runtime()
-        stop_event = threading.Event()
-
-        def spin_direct_cpp():
-            while not stop_event.is_set():
-                try:
-                    rclpy.spin_once(node, timeout_sec=0.1)
-                except BaseException as exc:
-                    spin_errors.append((type(exc).__name__, str(exc)))
-                    return
-
-        executor = runtime.executor
-        executor_thread = threading.Thread(target=spin_direct_cpp, daemon=False)
+        executor = SingleThreadedExecutor(context=node.context)
+        if executor.add_node(node) is not True:
+            raise RuntimeError("direct_cpp executor did not accept its native node")
+        native_executor = executor.native_executor
         direct_subscription = subscription._native
         expected_creation_route = (
             "rclcpp_unique_ptr_subscription_lease"
-            if use_subscription_lease else "prebuilt_subscription_trampoline"
+            if use_subscription_lease else (
+                "rclcpp_template_with_message_info"
+                if with_message_info else "prebuilt_subscription_trampoline")
         )
         if direct_subscription.creation_route != expected_creation_route:
-            raise RuntimeError("direct_cpp subscription missed its prebuilt trampoline")
+            raise RuntimeError("direct_cpp subscription used an unexpected creation route")
     else:
         runtime = None
-        stop_event = None
+        native_executor = None
         direct_subscription = None
         executor = SingleThreadedExecutor(context=context)
         executor.add_node(node)
-        executor_thread = threading.Thread(target=executor.spin, daemon=False)
+
+    def spin_executor():
+        try:
+            executor.spin()
+        except BaseException as exc:
+            spin_errors.append((type(exc).__name__, str(exc)))
+
+    executor_thread = threading.Thread(target=spin_executor, daemon=False)
     executor_thread.start()
     if profile is not None:
         snapshot = rclcppyy.status()
@@ -553,6 +596,12 @@ def _run_python_relay(
         elif use_direct_cpp:
             if use_subscription_lease:
                 cache_evidence = _subscription_lease_artifact()
+            elif with_message_info:
+                cache_evidence = {
+                    "state": "process-warm",
+                    "kind": "direct-cpp-message-info-template",
+                    "prepared_before_measurement": True,
+                }
             else:
                 cache_evidence = _subscription_artifact()
                 cache_evidence["kind"] = "direct-cpp-subscription-trampoline"
@@ -568,14 +617,16 @@ def _run_python_relay(
         }
         cache_evidence = {
             "state": "not_applicable",
-            "kind": "stock-rclpy",
+            "kind": (
+                "stock-rclpy-message-info" if with_message_info
+                else "stock-rclpy"),
         }
     if use_direct_cpp:
         entity_types = {
             "node": _cpp_name(node._direct_cpp_node),
             "publisher": _cpp_name(publisher.native_entity),
             "subscription": _cpp_name(subscription.native_entity),
-            "executor": _cpp_name(executor),
+            "executor": _cpp_name(native_executor),
         }
         direct_cpp_proof = {
             "actual_cpp_message_class": True,
@@ -618,10 +669,14 @@ def _run_python_relay(
             if use_subscription_lease else (
                 "same-python-relay-direct-raw-rclcpp-publish"
                 if raw_native_publish else {
-                None: "same-python-relay-stock-rclpy",
+                None: (
+                    "same-python-relay-stock-rclpy-message-info"
+                    if with_message_info else "same-python-relay-stock-rclpy"),
                 "compatible": "same-python-relay-compatible-stock-publish",
                 "publisher_cpp": "same-python-relay-explicit-publisher-cpp",
-                "direct_cpp": "same-python-relay-direct-rclcpp",
+                "direct_cpp": (
+                    "same-python-relay-direct-rclcpp-message-info"
+                    if with_message_info else "same-python-relay-direct-rclcpp"),
                 }[profile])
         ),
         "cache": cache_evidence,
@@ -630,6 +685,11 @@ def _run_python_relay(
     }
     if direct_cpp_proof is not None:
         ready["direct_cpp_proof"] = direct_cpp_proof
+    if with_message_info:
+        ready["message_info_proof"] = {
+            "callback_shape": "message_and_info",
+            "expected_marker_keys": list(MESSAGE_INFO_KEYS),
+        }
     teardown_clean = False
     try:
         _emit(ready)
@@ -674,7 +734,7 @@ def _run_python_relay(
     finally:
         if use_direct_cpp:
             teardown_clean = _cleanup_direct_cpp_relay(
-                args, rclpy, runtime, stop_event, executor_thread, node)
+                args, rclpy, runtime, executor, executor_thread, node)
         else:
             teardown_clean = _cleanup_python_relay(
                 args, executor, executor_thread, node, subscription, publisher,
@@ -724,6 +784,13 @@ def _run_python_relay(
                 "callback_last_message_address": callback_last_message_address,
             })
         counters.update(direct_counters)
+    if with_message_info:
+        counters.update({
+            "message_info_callbacks": message_info_callbacks,
+            "message_info_marker_keys": list(message_info_marker_keys or ()),
+            "message_info_markers_valid": (
+                message_info_marker_keys == MESSAGE_INFO_KEYS),
+        })
     return ready, counters, teardown_clean
 
 
@@ -900,6 +967,9 @@ def _run_fused(args) -> tuple[dict, dict, bool]:
 def _run_relay(args) -> int:
     if args.variant == "stock-rclpy":
         _ready, counters, teardown_clean = _run_python_relay(args, profile=None)
+    elif args.variant == "stock-info-rclpy":
+        _ready, counters, teardown_clean = _run_python_relay(
+            args, profile=None, with_message_info=True)
     elif args.variant == "compatible-rclcppyy":
         _ready, counters, teardown_clean = _run_python_relay(
             args, profile="compatible")
@@ -909,6 +979,9 @@ def _run_relay(args) -> int:
     elif args.variant == "direct-cpp-rclcppyy":
         _ready, counters, teardown_clean = _run_python_relay(
             args, profile="direct_cpp")
+    elif args.variant == "direct-info-rclcppyy":
+        _ready, counters, teardown_clean = _run_python_relay(
+            args, profile="direct_cpp", with_message_info=True)
     elif args.variant == "direct-raw-publish-rclcppyy":
         _ready, counters, teardown_clean = _run_python_relay(
             args, profile="direct_cpp", raw_native_publish=True)
@@ -947,8 +1020,9 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--prewarm", action="store_true")
     parser.add_argument(
         "--variant", choices=(
-            "stock-rclpy", "compatible-rclcppyy", "publisher-cpp-rclcppyy",
-            "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+            "stock-rclpy", "stock-info-rclpy", "compatible-rclcppyy",
+            "publisher-cpp-rclcppyy", "direct-cpp-rclcppyy",
+            "direct-info-rclcppyy", "direct-raw-publish-rclcppyy",
             "direct-lease-rclcppyy",
             "native-python-callback", "native-fused"))
     parser.add_argument("--input-topic")

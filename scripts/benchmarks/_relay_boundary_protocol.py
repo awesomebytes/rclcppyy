@@ -24,6 +24,11 @@ VARIANTS = {
         "cache_kind": "stock-rclpy",
         "python_crossings": True,
     },
+    "stock-info-rclpy": {
+        "execution_model": "same-python-relay-stock-rclpy-message-info",
+        "cache_kind": "stock-rclpy-message-info",
+        "python_crossings": True,
+    },
     "compatible-rclcppyy": {
         "execution_model": "same-python-relay-compatible-stock-publish",
         "cache_kind": "compatible-stock-publish-authority",
@@ -37,6 +42,11 @@ VARIANTS = {
     "direct-cpp-rclcppyy": {
         "execution_model": "same-python-relay-direct-rclcpp",
         "cache_kind": "direct-cpp-subscription-trampoline",
+        "python_crossings": True,
+    },
+    "direct-info-rclcppyy": {
+        "execution_model": "same-python-relay-direct-rclcpp-message-info",
+        "cache_kind": "direct-cpp-message-info-template",
         "python_crossings": True,
     },
     "direct-raw-publish-rclcppyy": {
@@ -79,11 +89,18 @@ ENDPOINT_ROLES = (
 )
 METRICS = (
     "relay_cpu_ns_per_message",
+    "combined_cpu_ns_per_message",
     "latency_p50_ns",
     "latency_p95_ns",
     "latency_p99_ns",
     "latency_max_ns",
     "throughput_messages_per_second",
+)
+MESSAGE_INFO_KEYS = (
+    "publication_sequence_number",
+    "received_timestamp",
+    "reception_sequence_number",
+    "source_timestamp",
 )
 RSS_GUARD_LIMIT_BYTES = 64 * 1024 * 1024
 SHA256_PATTERN = re.compile(r"^[a-f0-9]{64}$")
@@ -281,8 +298,8 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
     if variant == "aot-staged":
         if artifact != {"state": "prebuilt", "kind": "aot-binary"}:
             raise ValueError("AOT relay cache evidence is invalid")
-    elif variant == "stock-rclpy":
-        if artifact != {"state": "not_applicable", "kind": "stock-rclpy"}:
+    elif variant in ("stock-rclpy", "stock-info-rclpy"):
+        if artifact != {"state": "not_applicable", "kind": spec["cache_kind"]}:
             raise ValueError("stock relay cache evidence is invalid")
     elif variant == "compatible-rclcppyy":
         if artifact != {
@@ -295,6 +312,12 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
                 "kind": "publisher-cpp-borrowed-publish-route",
                 "prepared_before_measurement": True}:
             raise ValueError("publisher_cpp relay warm-route evidence is invalid")
+    elif variant == "direct-info-rclcppyy":
+        if artifact != {
+                "state": "process-warm",
+                "kind": "direct-cpp-message-info-template",
+                "prepared_before_measurement": True}:
+            raise ValueError("direct_cpp MessageInfo warm-route evidence is invalid")
     elif variant in (
             "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
             "direct-lease-rclcppyy"):
@@ -329,11 +352,13 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
             raise ValueError("fused relay source id differs from the warm manifest")
     entity_types = ready.get("entity_types")
     if variant in (
-            "stock-rclpy", "compatible-rclcppyy", "publisher-cpp-rclcppyy",
-            "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+            "stock-rclpy", "stock-info-rclpy", "compatible-rclcppyy",
+            "publisher-cpp-rclcppyy", "direct-cpp-rclcppyy",
+            "direct-info-rclcppyy", "direct-raw-publish-rclcppyy",
             "direct-lease-rclcppyy"):
         if variant in (
-                "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+                "direct-cpp-rclcppyy", "direct-info-rclcppyy",
+                "direct-raw-publish-rclcppyy",
                 "direct-lease-rclcppyy"):
             if not isinstance(entity_types, dict) or set(entity_types) != {
                     "node", "publisher", "subscription", "executor"} or any(
@@ -341,6 +366,7 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
                 raise ValueError("direct_cpp concrete C++ entity identities are invalid")
             proof = ready.get("direct_cpp_proof")
             lease = variant == "direct-lease-rclcppyy"
+            with_message_info = variant == "direct-info-rclcppyy"
             expected_proof = {
                 "actual_cpp_message_class": True,
                 "message_cpp_name": "std_msgs::msg::UInt64_<std::allocator<void>>",
@@ -350,7 +376,9 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
                     "shared_cpp_message_lease" if lease else "one_native_cpp_copy"),
                 "subscription_creation_route": (
                     "rclcpp_unique_ptr_subscription_lease"
-                    if lease else "prebuilt_subscription_trampoline"),
+                    if lease else (
+                        "rclcpp_template_with_message_info"
+                        if with_message_info else "prebuilt_subscription_trampoline")),
                 "publisher_call_route": (
                     "raw_rclcpp_entity"
                     if variant == "direct-raw-publish-rclcppyy"
@@ -373,11 +401,13 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
             "publisher": (
                 "cpp" if variant in (
                     "publisher-cpp-rclcppyy", "direct-cpp-rclcppyy",
+                    "direct-info-rclcppyy",
                     "direct-raw-publish-rclcppyy", "direct-lease-rclcppyy")
                 else "python"),
             "subscriber": (
                 "cpp" if variant in (
-                    "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+                    "direct-cpp-rclcppyy", "direct-info-rclcppyy",
+                    "direct-raw-publish-rclcppyy",
                     "direct-lease-rclcppyy") else "python"),
         }
         for role, marker in markers.items():
@@ -387,14 +417,16 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
             if marker.get("backend") != expected_backends[role]:
                 raise ValueError("Python relay backend marker selected the wrong route")
             expected_evidence = (
-                "stock_rclpy_entity" if variant == "stock-rclpy"
+                "stock_rclpy_entity" if variant in (
+                    "stock-rclpy", "stock-info-rclpy")
                 else "rclcppyy_status_entity"
             )
             if marker.get("evidence") != expected_evidence or not isinstance(
                     marker.get("metadata"), dict):
                 raise ValueError("Python relay backend marker evidence is invalid")
         if variant in (
-                "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+                "direct-cpp-rclcppyy", "direct-info-rclcppyy",
+                "direct-raw-publish-rclcppyy",
                 "direct-lease-rclcppyy"):
             publisher_metadata = markers["publisher"]["metadata"]
             subscriber_metadata = markers["subscriber"]["metadata"]
@@ -414,6 +446,15 @@ def _validate_ready(ready: dict, sample: dict, requested_rmw: str, build: dict, 
             if subscriber_metadata.get("callback_handoff") != expected_handoff or (
                     required_policy not in subscriber_metadata.get("policies", ())):
                 raise ValueError("direct_cpp callback handoff status evidence is invalid")
+            if variant == "direct-info-rclcppyy" and (
+                    subscriber_metadata.get("message_info") is not True or
+                    "native_message_info" not in subscriber_metadata.get("policies", ())):
+                raise ValueError("direct_cpp native MessageInfo status evidence is invalid")
+        if variant in ("stock-info-rclpy", "direct-info-rclcppyy"):
+            if ready.get("message_info_proof") != {
+                    "callback_shape": "message_and_info",
+                    "expected_marker_keys": list(MESSAGE_INFO_KEYS)}:
+                raise ValueError("relay MessageInfo callback proof is invalid")
     elif variant != "aot-staged":
         if not isinstance(entity_types, dict) or any(
                 "rclcpp" not in value for value in entity_types.values()):
@@ -444,13 +485,14 @@ def _validate_report(report: dict, sample: dict, warmup: int, messages: int) -> 
             "python_boundary_crossings") != crossings:
         raise ValueError("relay Python-boundary count is invalid")
     if variant in (
-            "stock-rclpy", "compatible-rclcppyy", "publisher-cpp-rclcppyy",
-            "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
+            "stock-rclpy", "stock-info-rclpy", "compatible-rclcppyy",
+            "publisher-cpp-rclcppyy", "direct-cpp-rclcppyy",
+            "direct-info-rclcppyy", "direct-raw-publish-rclcppyy",
             "direct-lease-rclcppyy",
             "native-python-callback", "aot-staged"):
         if report.get("checksum") != expected_input_checksum(total) or report.get("last") != total:
             raise ValueError("relay input checksum evidence is invalid")
-    if variant in ("stock-rclpy", "compatible-rclcppyy"):
+    if variant in ("stock-rclpy", "stock-info-rclpy", "compatible-rclcppyy"):
         if report.get("publish_operation_marker") is not None or report.get(
                 "fallback_publish_operations") != 0 or report.get(
                 "last_publish_backend") != "python":
@@ -471,7 +513,9 @@ def _validate_report(report: dict, sample: dict, warmup: int, messages: int) -> 
             raise ValueError("publisher_cpp relay operation aggregates are invalid")
         if not _is_nonnegative_int(report.get("status_dropped_operation_records")):
             raise ValueError("publisher_cpp relay dropped-status evidence is invalid")
-    if variant in ("direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy"):
+    if variant in (
+            "direct-cpp-rclcppyy", "direct-info-rclcppyy",
+            "direct-raw-publish-rclcppyy"):
         if report.get("owning_cpp_callback_copies") != total or report.get(
                 "cpp_callback_messages") != total or report.get(
                 "non_cpp_callback_messages") != 0:
@@ -494,6 +538,11 @@ def _validate_report(report: dict, sample: dict, warmup: int, messages: int) -> 
             else "managed_typed_holder")
         if report.get("publisher_call_route") != expected_route:
             raise ValueError("direct_cpp publisher callable route is invalid")
+    if variant in ("stock-info-rclpy", "direct-info-rclcppyy"):
+        if report.get("message_info_callbacks") != total or report.get(
+                "message_info_marker_keys") != list(MESSAGE_INFO_KEYS) or report.get(
+                "message_info_markers_valid") is not True:
+            raise ValueError("relay MessageInfo metadata markers are invalid")
     if variant == "direct-lease-rclcppyy":
         if report.get("owning_cpp_callback_copies") != 0 or report.get(
                 "subscription_leases") != total or report.get(
@@ -702,6 +751,10 @@ def validate_sample(sample: dict, parameters: dict, build: dict, cache: dict) ->
     if timing.get("driver_cpu_time_ns") != driver_cpu or timing.get(
             "driver_cpu_ns_per_message") != driver_cpu / messages:
         raise ValueError("relay-boundary driver CPU evidence is invalid")
+    combined_cpu = relay_cpu + driver_cpu
+    if timing.get("combined_cpu_time_ns") != combined_cpu or timing.get(
+            "combined_cpu_ns_per_message") != combined_cpu / messages:
+        raise ValueError("relay-boundary combined CPU evidence is invalid")
     if timing.get("elapsed_ns") != driver["elapsed_ns"]:
         raise ValueError("relay-boundary elapsed timing is invalid")
     expected_throughput = messages * 1e9 / driver["elapsed_ns"]
@@ -718,6 +771,7 @@ def _metric(sample: dict, name: str) -> float:
     timing = sample["timing"]
     paths = {
         "relay_cpu_ns_per_message": timing["relay_cpu_ns_per_message"],
+        "combined_cpu_ns_per_message": timing["combined_cpu_ns_per_message"],
         "latency_p50_ns": timing["latency_ns"]["p50"],
         "latency_p95_ns": timing["latency_ns"]["p95"],
         "latency_p99_ns": timing["latency_ns"]["p99"],
@@ -760,10 +814,45 @@ def summarize(results: list[dict], variants: list[str]) -> dict:
                 for metric in METRICS
             }
         return paired
+
+    def paired_medians(candidate_variant, reference_variant):
+        candidate = by_variant_repetition.get(candidate_variant, {})
+        reference = by_variant_repetition.get(reference_variant, {})
+        repetitions = sorted(set(candidate) & set(reference))
+        ratios = {}
+        deltas = {}
+        for metric in METRICS:
+            paired_ratios = []
+            paired_deltas = []
+            for repetition in repetitions:
+                candidate_value = _metric(candidate[repetition], metric)
+                reference_value = _metric(reference[repetition], metric)
+                paired_ratios.append(
+                    candidate_value / reference_value
+                    if reference_value != 0 else None)
+                paired_deltas.append(candidate_value - reference_value)
+            numeric_ratios = [value for value in paired_ratios if value is not None]
+            ratios[metric] = (
+                statistics.median(numeric_ratios) if numeric_ratios else None)
+            deltas[metric] = (
+                statistics.median(paired_deltas) if paired_deltas else None)
+        return {
+            "candidate": candidate_variant,
+            "reference": reference_variant,
+            "paired_repetitions": repetitions,
+            "median_ratios": ratios,
+            "median_deltas": deltas,
+        }
     return {
         "raw_medians": medians,
         "paired_ratios_to_stock": paired_to("stock-rclpy"),
         "paired_ratios_to_aot": paired_to("aot-staged"),
+        "message_info_paired_medians": {
+            "direct_info_to_stock_info": paired_medians(
+                "direct-info-rclcppyy", "stock-info-rclpy"),
+            "direct_info_increment_over_direct_message_only": paired_medians(
+                "direct-info-rclcppyy", "direct-cpp-rclcppyy"),
+        },
         "interpretation_allowed": False,
         "note": (
             "Stock, compatible, publisher_cpp, and direct_cpp use one Python relay implementation. "
@@ -771,7 +860,9 @@ def summarize(results: list[dict], variants: list[str]) -> dict:
             "publisher_cpp opts into same-handle C++ publishing; direct_cpp uses actual C++ messages "
             "and entities with a managed/raw publisher A/B and either one owning native callback "
             "copy or one shared ownership lease "
-            "over the received allocation. All ratios are "
+            "over the received allocation. MessageInfo medians pair the direct and stock info "
+            "lanes and isolate direct metadata overhead against the direct message-only lane. "
+            "All ratios are "
             "descriptive: lower is better for CPU and latency, higher is better for throughput. No "
             "threshold, ranking, or winner is selected."
         ),
@@ -803,6 +894,7 @@ def build_document(
                 "latency": "same-process AOT driver steady-clock observations; nearest-rank percentiles",
                 "relay_cpu": "relay-owned CLOCK_PROCESS_CPUTIME_ID delta",
                 "driver_cpu": "driver-owned CLOCK_PROCESS_CPUTIME_ID delta",
+                "combined_cpu": "relay plus driver CLOCK_PROCESS_CPUTIME_ID deltas",
                 "memory": "post-warmup peak-RSS growth is a bounded guard only; it is never ranked",
                 "comparison": "paired by repetition with rotating execution order",
             },
@@ -914,7 +1006,7 @@ def write(document: dict, path: Path) -> None:
 
 
 __all__ = [
-    "DRIVER_SCHEMA", "QOS", "RELAY_SCHEMA", "SAMPLE_SCHEMA", "SCHEMA_ID",
+    "DRIVER_SCHEMA", "MESSAGE_INFO_KEYS", "QOS", "RELAY_SCHEMA", "SAMPLE_SCHEMA", "SCHEMA_ID",
     "VARIANTS", "build_document", "dumps", "expected_input_checksum",
     "expected_output_checksum", "latency_summary", "nearest_rank", "summarize",
     "transformed", "validate_document", "validate_prewarm", "validate_sample", "write",

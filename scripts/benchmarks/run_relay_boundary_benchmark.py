@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the controlled nine-variant ROS relay-boundary benchmark."""
+"""Run the controlled ROS relay-boundary benchmark."""
 
 from __future__ import annotations
 
@@ -417,13 +417,19 @@ def _run_sample(
             request_stack_dump=variant in (
                 "compatible-rclcppyy", "publisher-cpp-rclcppyy",
                 "direct-cpp-rclcppyy", "direct-raw-publish-rclcppyy",
-                "direct-lease-rclcppyy"))
+                "direct-info-rclcppyy", "direct-lease-rclcppyy"))
         _write_control(driver, "TEARDOWN", "AOT driver")
         driver_teardown, driver_teardown_diagnostics = _read_document(
             driver, timeout, "AOT driver teardown")
         driver_finish = _finish(driver, timeout, "AOT driver")
         relay_finish = _finish(relay, timeout, "%s relay" % variant)
         relay_cpu_ns = report.get("cpu_time_ns")
+        driver_cpu_ns = driver_result.get("cpu_time_ns")
+        combined_cpu_ns = (
+            relay_cpu_ns + driver_cpu_ns
+            if isinstance(relay_cpu_ns, int) and isinstance(driver_cpu_ns, int)
+            else None
+        )
         timing = {
             "elapsed_ns": driver_result.get("elapsed_ns"),
             "throughput_messages_per_second": (
@@ -433,8 +439,10 @@ def _run_sample(
             "relay_cpu_time_ns": relay_cpu_ns,
             "relay_cpu_ns_per_message": (
                 relay_cpu_ns / messages if isinstance(relay_cpu_ns, int) else None),
-            "driver_cpu_time_ns": driver_result.get("cpu_time_ns"),
-            "driver_cpu_ns_per_message": driver_result.get("cpu_time_ns", 0) / messages,
+            "driver_cpu_time_ns": driver_cpu_ns,
+            "driver_cpu_ns_per_message": driver_cpu_ns / messages,
+            "combined_cpu_time_ns": combined_cpu_ns,
+            "combined_cpu_ns_per_message": combined_cpu_ns / messages,
             "latency_ns": latency_summary(driver_result.get("latency_ns", [])),
         }
         sample = {
@@ -509,14 +517,15 @@ def _parse_variants(value: str | None) -> list[str]:
 
 def _print_table(results: list[dict]) -> None:
     print("\nCharacterization only: raw metrics are not performance claims.")
-    print("  %-28s %3s %12s %12s %12s %12s" % (
-        "variant", "rep", "relay cpu", "p50 ns", "p99 ns", "msg/s"))
-    print("  " + "-" * 86)
+    print("  %-28s %3s %12s %12s %12s %12s %12s" % (
+        "variant", "rep", "relay cpu", "combined cpu", "p50 ns", "p99 ns", "msg/s"))
+    print("  " + "-" * 101)
     for row in results:
         timing = row["timing"]
-        print("  %-28s %3d %12.1f %12d %12d %12.1f" % (
+        print("  %-28s %3d %12.1f %12.1f %12d %12d %12.1f" % (
             row["variant"], row["repetition"],
-            timing["relay_cpu_ns_per_message"], timing["latency_ns"]["p50"],
+            timing["relay_cpu_ns_per_message"],
+            timing["combined_cpu_ns_per_message"], timing["latency_ns"]["p50"],
             timing["latency_ns"]["p99"], timing["throughput_messages_per_second"],
         ))
 
