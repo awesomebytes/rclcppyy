@@ -211,8 +211,17 @@ through `rclcpp`. `Parameter`, `ParameterValue`, descriptors, ranges, list resul
 and set results are actual generated C++ aliases. Non-C++ control messages,
 descriptors, callback results, and parameter objects fail before mutation. The
 public `.value` property is the explicit Python snapshot boundary. Parameter
-overrides and related Node constructor options, undeclare, descriptor mutation,
-parameter events/services, and remote parameter clients remain fail-closed or
+overrides passed to `DirectNode` must likewise be exact direct/native Parameter
+objects. They are lowered without a value snapshot into `rclcpp::NodeOptions`,
+together with local CLI arguments and the global-arguments, rosout, parameter
+service, logger service, undeclared-parameter, and automatic-declaration flags.
+The active direct runtime context is accepted; a foreign context, malformed
+arguments, non-native overrides, and non-boolean flags reject before either the
+runtime or native session records a node. Live Jazzy/Cyclone tests prove local and
+global remaps, CLI parameter overrides, deferred and automatic override
+declaration, implicit declaration, and the requested rosout/parameter/logger graph
+state with conversion and serialization paths poisoned. Undeclare, descriptor
+mutation, graph-event waiting, and remote parameter clients remain fail-closed or
 uncovered. The stock/direct/raw CPU benchmark exists, but its repeated
 characterization has not yet been run, so no parameter performance result is
 claimed.

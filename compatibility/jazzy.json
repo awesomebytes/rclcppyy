@@ -138,6 +138,17 @@
       "notes": "Direct construction and get_name are tested; broader Node behavior is covered by individual entries."
     },
     {
+      "id": "node.direct_cpp_options",
+      "area": "node",
+      "api": "profile=direct_cpp DirectNode context, CLI arguments, parameter overrides, and rclcpp::NodeOptions flags",
+      "support": "experimental",
+      "backend": "cpp",
+      "fallback": "none",
+      "default": false,
+      "evidence": ["test/test_direct_node_options.py", "test/_direct_cpp_node_options_helper.py", "rclcppyy/direct_cpp.py", "docs/backend-selection.md"],
+      "notes": "On Jazzy/Cyclone, DirectNode lowers the active runtime context, local CLI arguments, exact direct/native Parameter overrides, use_global_arguments, enable_rosout, start_parameter_services, allow_undeclared_parameters, automatically_declare_parameters_from_overrides, and enable_logger_service to rclcpp::NodeOptions. Foreign contexts, malformed arguments, non-native overrides, and non-boolean flags reject before runtime or NativeSession node ownership changes. Live graph and parameter evidence covers local/global remaps, CLI overrides, deferred/automatic/implicit declaration, rosout, parameter services, and logger services with conversion and serialization paths poisoned."
+    },
+    {
       "id": "node.graph_identity",
       "area": "node",
       "api": "Node name/namespace and endpoint identity observed through the ROS graph",
@@ -509,7 +520,7 @@
       "fallback": "none",
       "default": false,
       "evidence": ["test/test_direct_parameters.py", "test/_direct_cpp_parameters_helper.py", "rclcppyy/direct_parameters.py", "rclcppyy/direct_cpp.py", "scripts/benchmarks/_local_parameter_benchmark_protocol.py", "scripts/benchmarks/local_parameter_benchmark_worker.py", "scripts/benchmarks/run_local_parameter_benchmark.py", "test/test_local_parameter_benchmark.py", "docs/backend-selection.md"],
-      "notes": "On Jazzy/Cyclone, each rclpy-shaped Parameter facade owns one rclcpp::Parameter and local DirectNode parameter operations retain native rclcpp node authority. Parameter, ParameterValue, ParameterDescriptor, range, ListParametersResult, and SetParametersResult imports are actual generated C++ aliases; non-C++ control messages, descriptors, and callback results fail before mutation. Python values are materialized only by the explicit .value property. All ten parameter kinds, empty typed arrays, native pre/on/post callbacks, rejection, callback errors, retained lifetime, teardown, and reinitialization pass with converter, serializer, and CDR tripwires at zero. Undeclare, descriptor mutation, constructor overrides/options, parameter events/services and remote clients remain uncovered or fail closed. The CPU-first stock/direct/raw benchmark harness covers declare, native-object get, explicit value snapshot, and atomic set, but only its bounded smoke has run; no performance claim exists until the repeated characterization is reviewed."
+      "notes": "On Jazzy/Cyclone, each rclpy-shaped Parameter facade owns one rclcpp::Parameter and local DirectNode parameter operations retain native rclcpp node authority. Parameter, ParameterValue, ParameterDescriptor, range, ListParametersResult, and SetParametersResult imports are actual generated C++ aliases; non-C++ control messages, descriptors, and callback results fail before mutation. Python values are materialized only by the explicit .value property. All ten parameter kinds, empty typed arrays, native pre/on/post callbacks, rejection, callback errors, retained lifetime, teardown, and reinitialization pass with converter, serializer, and CDR tripwires at zero. Exact direct/native constructor overrides and the undeclared/automatic-declaration policies are covered by node.direct_cpp_options. Undeclare, descriptor mutation, parameter-event observation, and remote clients remain uncovered or fail closed. The CPU-first stock/direct/raw benchmark harness covers declare, native-object get, explicit value snapshot, and atomic set, but only its bounded smoke has run; no performance claim exists until the repeated characterization is reviewed."
     },
     {
       "id": "parameter.remote",
