@@ -138,6 +138,17 @@
       "notes": "Activated and stock scenarios expose the same single requested node and endpoint identity; no companion node is created."
     },
     {
+      "id": "node.direct_cpp_graph_surface",
+      "area": "node",
+      "api": "profile=direct_cpp graph names/types, endpoint counts, name resolution, and wait_for_node",
+      "support": "experimental",
+      "backend": "cpp",
+      "fallback": "none",
+      "default": false,
+      "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_graph_helper.py", "rclcppyy/direct_cpp.py", "docs/backend-selection.md"],
+      "notes": "The direct Node delegates topic/service names and types, node names/namespaces/enclaves, fully-qualified node names, per-node publisher/subscriber/service/client names and types, endpoint counts, topic/service expansion and remapping, and wait_for_node to its exact rclcpp graph/topics/services interfaces. Only graph metadata strings and containers are shaped into the documented Python list/tuple results; application message data remains generated C++. Valid remapping, missing-node exception identity, four native endpoint kinds, conversion/serialization poison, and teardown pass on Jazzy/Cyclone. TopicEndpointInfo/QoS graph results and graph-event waiting remain uncovered."
+    },
+    {
       "id": "node.subclass_existing_alias",
       "area": "node",
       "api": "Existing subclasses of a Node alias imported before activation",

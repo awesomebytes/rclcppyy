@@ -193,6 +193,13 @@ values and returns a C++ response, with one request copy and one response
 assignment. These copies and Python crossings are explicit status evidence; no
 Python message conversion is involved.
 
+Common graph queries use the same native node authority: topic/service names and
+types, node names/namespaces/enclaves, per-node endpoint types, publisher/
+subscriber/service/client counts, topic/service resolution, and `wait_for_node`.
+Only graph metadata strings and containers are converted to the documented Python
+return shape. Endpoint-info/QoS graph objects and graph-event waiting remain
+fail-closed.
+
 The default direct action registry contains `tf2_msgs/action/LookupTransform`.
 Explicitly registered installed actions use the common `ActionClient`,
 `send_goal_async`, feedback callback, result, and cancellation surface. Goal,
