@@ -1880,6 +1880,19 @@ class DirectNode:
         )
         return timer
 
+    def create_rate(self, frequency, clock=None):
+        if frequency <= 0:
+            raise ValueError("frequency must be > 0")
+        if clock is not None and clock is not self.get_clock():
+            _unsupported(
+                "direct_cpp create_rate honors only the node's own clock or "
+                "None; standalone/foreign clocks are not supported")
+        from rclcppyy.direct_clock import DirectRate
+
+        period_ns = int(1e9 / frequency)
+        return DirectRate(
+            self._clock_sleeper(), self.get_clock(), period_ns, _runtime().context)
+
     def create_client(
         self,
         srv_type,
@@ -1958,6 +1971,14 @@ class DirectNode:
                 del self._direct_cpp_timers[index]
                 return True
         return False
+
+    def destroy_rate(self, rate):
+        from rclcppyy.direct_clock import DirectRate
+
+        if not isinstance(rate, DirectRate):
+            raise TypeError("destroy_rate requires a direct_cpp Rate object")
+        rate.destroy()
+        return True
 
     def destroy_publisher(self, publisher):
         for index, candidate in enumerate(self._direct_cpp_publishers):

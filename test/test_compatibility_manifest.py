@@ -24,17 +24,17 @@ def test_jazzy_manifest_is_valid_and_inventory_is_explicit():
 
     assert summary["schema"] == "rclcppyy.compatibility/v2"
     assert summary["ros_distribution"] == "jazzy"
-    assert summary["entries"] == 77
+    assert summary["entries"] == 78
     assert summary["support"] == {
         "certified": 36,
-        "experimental": 21,
+        "experimental": 22,
         "stock_authoritative": 16,
         "unassessed": 3,
         "unsupported": 1,
     }
     assert summary["backend"] == {
         "cpp": 19,
-        "mixed": 8,
+        "mixed": 9,
         "none": 4,
         "python": 46,
     }

@@ -11,6 +11,12 @@ exception: a node-bound clock runs them over the node's native
 ``NativeClockSleeper`` (ROS-time-aware, context-interruptible); a clock built
 without a ``sleeper_provider`` (e.g. ``DirectClock._wrap`` used bare in a
 fast unit test) still fails the same sleep calls closed.
+
+``DirectNode.create_rate()`` is the only supported construction path for
+``DirectRate``, a fixed-rate sleeper built over that same node sleeper. The
+``rclpy.timer.Rate`` symbol itself is not patched -- a directly-constructed
+stock ``Rate`` keeps running unmodified stock code -- exactly as
+``rclpy.clock.Clock``/``ROSClock`` are not patched above.
 """
 
 from __future__ import annotations
@@ -18,6 +24,7 @@ from __future__ import annotations
 from typing import Any
 
 import rclpy.clock as _stock_clock
+import rclpy.timer as _stock_timer
 from rclpy.clock_type import ClockType
 
 from rclcppyy.policy import BackendUnavailableError
@@ -151,4 +158,47 @@ def wrap_node_clock(
     return DirectClock._wrap(native_node_clock, sleeper_provider=sleeper_provider)
 
 
-__all__ = ["DirectClock", "DirectROSClock", "wrap_node_clock"]
+class DirectRate(_stock_timer.Rate):
+    """A stock-``Rate``-shaped fixed-rate sleeper over the node's sleeper.
+
+    Built only by ``DirectNode.create_rate()``. Stock's ``Rate`` wraps a
+    ``Timer`` whose callback sets a ``threading.Event``, so ``sleep()``
+    blocks forever without a spinning executor; this facade instead sleeps
+    directly on the node's ``NativeClockSleeper`` with its own fixed-rate
+    bookkeeping (the ``rclcpp::Rate`` algorithm), so it sleeps correctly with
+    or without one -- a documented behavioral superset, never a deficit.
+    """
+
+    def __init__(self, sleeper: Any, clock: Any, period_ns: int, context: Any) -> None:
+        # Deliberately does not call super().__init__: stock's Rate.__init__
+        # requires a stock Timer, and this facade owns none.
+        self._sleeper = sleeper
+        self._clock = clock
+        self._period_ns = period_ns
+        self._context = context
+        self._next_ns = clock.now().nanoseconds + period_ns
+        self._destroyed = False
+
+    def sleep(self) -> None:
+        from rclpy.exceptions import ROSInterruptException
+
+        if self._destroyed:
+            raise RuntimeError("Rate cannot sleep because it has been destroyed")
+        if not self._context.ok():
+            raise ROSInterruptException()
+        self._sleeper.sleep_until(self._next_ns)
+        self._next_ns += self._period_ns
+        now_ns = self._clock.now().nanoseconds
+        if now_ns > self._next_ns + self._period_ns:
+            # rclcpp::Rate's catch-up guard: after a long stall, resync to
+            # now + one period instead of bursting zero-length sleeps to
+            # close the gap against the original schedule.
+            self._next_ns = now_ns + self._period_ns
+        if not self._context.ok():
+            raise ROSInterruptException()
+
+    def destroy(self) -> None:
+        self._destroyed = True
+
+
+__all__ = ["DirectClock", "DirectROSClock", "DirectRate", "wrap_node_clock"]

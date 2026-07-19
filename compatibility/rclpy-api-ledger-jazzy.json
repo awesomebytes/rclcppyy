@@ -53668,19 +53668,29 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, frequency: float, clock: Optional[rclpy.clock.Clock] = None) -> rclpy.timer.Rate"
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNode.create_rate",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -54278,19 +54288,29 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, rate: rclpy.timer.Rate) -> bool"
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNode.destroy_rate",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -59769,19 +59789,29 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, frequency: float, clock: Optional[rclpy.clock.Clock] = None) -> rclpy.timer.Rate"
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.Node.create_rate",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -60379,19 +60409,29 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, rate: rclpy.timer.Rate) -> bool"
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.Node.destroy_rate",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -68291,19 +68331,29 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, frequency: float, clock: Optional[rclpy.clock.Clock] = None) -> rclpy.timer.Rate"
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNode.create_rate",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -68901,19 +68951,29 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, rate: rclpy.timer.Rate) -> bool"
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNode.destroy_rate",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -74300,19 +74360,29 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, frequency: float, clock: Optional[rclpy.clock.Clock] = None) -> rclpy.timer.Rate"
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.node.Node.create_rate",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -74865,19 +74935,29 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, rate: rclpy.timer.Rate) -> bool"
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.node.Node.destroy_rate",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -88679,19 +88759,29 @@
           "node.subclass_existing_alias"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, frequency: float, clock: Optional[rclpy.clock.Clock] = None) -> rclpy.timer.Rate"
+        }
+      },
       "level": "member",
       "path": "rclpy.node.Node.create_rate",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89283,19 +89373,29 @@
           "node.subclass_existing_alias"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, rate: rclpy.timer.Rate) -> bool"
+        }
+      },
       "level": "member",
       "path": "rclpy.node.Node.destroy_rate",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -102951,19 +103051,29 @@
           "parameter.value_and_event_helpers"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, frequency: float, clock: Optional[rclpy.clock.Clock] = None) -> rclpy.timer.Rate"
+        }
+      },
       "level": "member",
       "path": "rclpy.parameter_client.Node.create_rate",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -103516,19 +103626,29 @@
           "parameter.value_and_event_helpers"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, rate: rclpy.timer.Rate) -> bool"
+        }
+      },
       "level": "member",
       "path": "rclpy.parameter_client.Node.destroy_rate",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -108816,19 +108936,29 @@
           "parameter.value_and_event_helpers"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, frequency: float, clock: Optional[rclpy.clock.Clock] = None) -> rclpy.timer.Rate"
+        }
+      },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Node.create_rate",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -109381,19 +109511,29 @@
           "parameter.value_and_event_helpers"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, rate: rclpy.timer.Rate) -> bool"
+        }
+      },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Node.destroy_rate",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -156285,6 +156425,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156327,6 +156468,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156369,6 +156511,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156411,6 +156554,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156453,6 +156597,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156495,6 +156640,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156537,6 +156683,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156579,6 +156726,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156621,6 +156769,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156663,6 +156812,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156705,6 +156855,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156747,6 +156898,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156789,6 +156941,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156831,6 +156984,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156873,6 +157027,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156915,6 +157070,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156957,6 +157113,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -156999,6 +157156,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157041,6 +157199,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157083,6 +157242,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157125,6 +157285,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157167,6 +157328,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157209,6 +157371,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157251,6 +157414,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157293,6 +157457,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157335,6 +157500,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157377,6 +157543,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157419,6 +157586,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157461,6 +157629,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157503,6 +157672,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157543,6 +157713,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157585,6 +157756,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157627,6 +157799,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157669,6 +157842,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157711,6 +157885,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157751,6 +157926,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157793,6 +157969,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157835,6 +158012,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157877,6 +158055,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157919,6 +158098,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -157961,6 +158141,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -158003,6 +158184,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -158045,6 +158227,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -158087,6 +158270,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -158129,6 +158313,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -158171,6 +158356,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -158213,6 +158399,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -158255,6 +158442,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -158297,6 +158485,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -158339,6 +158528,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -158381,6 +158571,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -158423,6 +158614,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -158465,6 +158657,7 @@
     {
       "annotation": {
         "area_manifest_entry_ids": [
+          "rate.direct_cpp",
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
@@ -172073,7 +172266,7 @@
     "ros_distribution": "jazzy"
   },
   "summary": {
-    "direct_backend_entries": 734,
+    "direct_backend_entries": 748,
     "direct_only_entries": 0,
     "generated_interface_aliases": 21,
     "ledger_entries": 3800,
@@ -172082,12 +172275,12 @@
     "statuses": {
       "exact_direct_cpp_authority": 93,
       "explicit_fail_closed": 3,
-      "missing_mismatch": 309,
+      "missing_mismatch": 295,
       "mixed_control_direct_data": 0,
-      "unassessed": 2598,
+      "unassessed": 2612,
       "unchanged_stock_fallback": 797
     },
-    "stock_only_entries": 115,
+    "stock_only_entries": 101,
     "stock_public_class_members": 3333,
     "stock_public_symbols": 467,
     "superset_violations": 0,
