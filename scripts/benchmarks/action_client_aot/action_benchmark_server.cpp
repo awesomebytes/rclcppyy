@@ -105,8 +105,8 @@ std::string qos_json()
          "\"reliability\":\"reliable\",\"durability\":\"volatile\"},"
          "\"cancel_service\":{\"history\":\"keep_last\",\"depth\":10,"
          "\"reliability\":\"reliable\",\"durability\":\"volatile\"},"
-         "\"feedback_topic\":{\"history\":\"system_default\",\"depth\":0,"
-         "\"reliability\":\"system_default\",\"durability\":\"system_default\"},"
+         "\"feedback_topic\":{\"history\":\"keep_last\",\"depth\":10,"
+         "\"reliability\":\"reliable\",\"durability\":\"volatile\"},"
          "\"status_topic\":{\"history\":\"keep_last\",\"depth\":1,"
          "\"reliability\":\"reliable\",\"durability\":\"transient_local\"}}";
 }
@@ -333,8 +333,7 @@ int main(int argc, char ** argv)
       }
     });
     while (rclcpp::ok() && !stop.load(std::memory_order_acquire)) {
-      executor.spin_some(2ms);
-      std::this_thread::sleep_for(100us);
+      executor.spin_once(2ms);
     }
     if (control.joinable()) {
       control.join();
@@ -369,13 +368,16 @@ int main(int argc, char ** argv)
               << rss_json(report.rss_baseline, report.rss_final)
               << ",\"python_crossings\":{\"goal_decision\":0,"
               << "\"accepted_goal\":0,\"execute\":0,\"total\":0},"
+              << "\"python_crossing_semantics\":\"callback_entries_only\","
               << "\"cpp_value_operations\":{\"known\":true,"
               << "\"goal_shared_handoffs\":0,\"goal_id_materializations\":0,"
               << "\"feedback_value_submissions\":0,\"result_value_submissions\":0,"
               << "\"adapter_message_deep_copies\":0},"
-              << "\"boundary_evidence\":{\"exact_generated_cpp\":true,"
+              << "\"boundary_evidence\":{\"proof\":\"cpp-only-process\","
+              << "\"exact_generated_cpp\":true,"
               << "\"python_message_conversions\":0,\"python_serialization_calls\":0,"
-              << "\"adapter_cdr_roundtrips\":0,\"tripwires_armed\":false}"
+              << "\"adapter_cdr_roundtrips\":0,\"tripwires_armed\":false,"
+              << "\"tripwire_surfaces\":[]}"
               << ",\"teardown_clean\":true}" << std::endl;
     return 0;
   } catch (const std::exception & error) {

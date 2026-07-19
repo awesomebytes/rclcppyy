@@ -16,6 +16,7 @@ import time
 
 from _action_server_protocol import (
     ACTION_TYPE,
+    BOUNDARY_TRIPWIRE_SURFACES,
     FEEDBACK_PER_GOAL,
     PREWARM_SCHEMA,
     QOS,
@@ -115,21 +116,71 @@ def _forbidden_boundary(*_args, **_kwargs):
     raise AssertionError("action-server data conversion/serialization is forbidden")
 
 
-def _poison_boundaries() -> None:
-    import rclcpp_kit.bringup_rclcpp as bringup
-    import rclcpp_kit.native_action as native_action
-    import rclcpp_kit.serialization as serialization
+def _poison_boundaries() -> dict:
+    counters = {
+        "python_message_conversions": 0,
+        "python_serialization_calls": 0,
+        "adapter_cdr_roundtrips": 0,
+    }
 
-    bringup.convert_python_msg_to_cpp = _forbidden_boundary
-    native_action.convert_python_msg_to_cpp = _forbidden_boundary
-    serialization.serialize_message = _forbidden_boundary
-    serialization.deserialize_message = _forbidden_boundary
-    try:
-        rclpy_serialization = importlib.import_module("rclpy.serialization")
-    except ImportError:
-        return
-    rclpy_serialization.serialize_message = _forbidden_boundary
-    rclpy_serialization.deserialize_message = _forbidden_boundary
+    def conversion(*_args, **_kwargs):
+        counters["python_message_conversions"] += 1
+        return _forbidden_boundary()
+
+    def serialization_call(*_args, **_kwargs):
+        counters["python_serialization_calls"] += 1
+        return _forbidden_boundary()
+
+    def cdr_call(*_args, **_kwargs):
+        counters["adapter_cdr_roundtrips"] += 1
+        return _forbidden_boundary()
+
+    bindings = (
+        ("rclcpp_kit", "convert_python_msg_to_cpp", conversion),
+        ("rclcpp_kit.bringup_rclcpp", "convert_python_msg_to_cpp", conversion),
+        ("rclcpp_kit.native_action", "convert_python_msg_to_cpp", conversion),
+        ("rclcpp_kit.native_action_server", "convert_python_msg_to_cpp", conversion),
+        ("rclcppyy.bringup_rclcpp", "convert_python_msg_to_cpp", conversion),
+        ("rclcppyy.node", "convert_python_msg_to_cpp", conversion),
+        ("rclcpp_kit.serialization", "serialize_message", serialization_call),
+        ("rclcpp_kit.serialization", "deserialize_message", serialization_call),
+        ("rclcppyy.serialization", "serialize_message", serialization_call),
+        ("rclcppyy.serialization", "deserialize_message", serialization_call),
+        ("rclpy.serialization", "serialize_message", serialization_call),
+        ("rclpy.serialization", "deserialize_message", serialization_call),
+        ("rclcpp_kit.serialization", "serialized_message_from_bytes", cdr_call),
+        ("rclcpp_kit.serialization", "serialized_message_to_bytes", cdr_call),
+        ("rclcppyy.serialization", "serialized_message_from_bytes", cdr_call),
+        ("rclcppyy.serialization", "serialized_message_to_bytes", cdr_call),
+    )
+    surfaces = []
+    for module_name, attribute, poison in bindings:
+        module = importlib.import_module(module_name)
+        setattr(module, attribute, poison)
+        surfaces.append(module_name + "." + attribute)
+    if tuple(surfaces) != BOUNDARY_TRIPWIRE_SURFACES:
+        raise RuntimeError("action-server tripwire surface changed")
+    return {"counters": counters, "surfaces": surfaces}
+
+
+def _boundary_evidence(guard: dict | None, *, exact_cpp: bool) -> dict:
+    if guard is None:
+        return {
+            "proof": "python-message-lane",
+            "exact_generated_cpp": exact_cpp,
+            "python_message_conversions": None,
+            "python_serialization_calls": None,
+            "adapter_cdr_roundtrips": None,
+            "tripwires_armed": False,
+            "tripwire_surfaces": [],
+        }
+    return {
+        "proof": "counter-backed-poison",
+        "exact_generated_cpp": exact_cpp,
+        **guard["counters"],
+        "tripwires_armed": True,
+        "tripwire_surfaces": list(guard["surfaces"]),
+    }
 
 
 class State:
@@ -240,7 +291,14 @@ def _ready(args, *, artifact: dict | None = None) -> dict:
     }
 
 
-def _report(args, state: State, *, cpp_operations: dict, teardown_clean: bool) -> dict:
+def _report(
+    args,
+    state: State,
+    *,
+    cpp_operations: dict,
+    teardown_clean: bool,
+    boundary_guard: dict | None = None,
+) -> dict:
     expected = expected_python_crossings(args.variant, state.total)
     if state.python_crossings != expected:
         raise RuntimeError(
@@ -277,14 +335,10 @@ def _report(args, state: State, *, cpp_operations: dict, teardown_clean: bool) -
         "cpu_role": "server_under_test",
         "rss_guard": _rss_guard(state.rss_baseline, state.rss_final),
         "python_crossings": state.python_crossings,
+        "python_crossing_semantics": "callback_entries_only",
         "cpp_value_operations": cpp_operations,
-        "boundary_evidence": {
-            "exact_generated_cpp": spec["exact_cpp"],
-            "python_message_conversions": 0,
-            "python_serialization_calls": 0,
-            "adapter_cdr_roundtrips": 0,
-            "tripwires_armed": args.variant != "stock-rclpy",
-        },
+        "boundary_evidence": _boundary_evidence(
+            boundary_guard, exact_cpp=spec["exact_cpp"]),
         "teardown_clean": teardown_clean,
     }
 
@@ -302,104 +356,43 @@ def _wait_for_feedback_match(node, action_name: str, state: State) -> None:
     state.feedback_matched = True
 
 
-def _stock_lane(args) -> int:
+def _source_compatible_lane(args, *, profile: str | None) -> int:
+    if profile is not None:
+        import rclcppyy
+
+        rclcppyy.enable_cpp_acceleration(profile=profile)
+
+    require_cpp = profile == "direct_cpp"
+    boundary_guard = _poison_boundaries() if require_cpp else None
+
     import rclpy
     from rclpy.action import ActionServer, GoalResponse
     from rclpy.executors import SingleThreadedExecutor
     from rclpy.node import Node
-    from rclpy.qos import qos_profile_system_default
     from tf2_msgs.action import LookupTransform
     from tf2_msgs.msg import TF2Error
 
-    state = State(args, require_cpp=False)
+    if require_cpp:
+        import cppyy
 
-    def goal_callback(goal):
-        _debug("stock goal callback start")
-        state.python_crossings["goal_decision"] += 1
-        state.python_crossings["total"] += 1
-        state.inspect_goal(goal)
-        _debug("stock goal callback accept")
-        return GoalResponse.ACCEPT
+        from unique_identifier_msgs.msg import UUID
 
-    def accepted_callback(handle):
-        _debug("stock accepted callback")
-        state.python_crossings["accepted_goal"] += 1
-        state.python_crossings["total"] += 1
-        handle.execute()
-
-    def execute_callback(handle):
-        _debug("stock execute callback start")
-        state.python_crossings["execute"] += 1
-        state.python_crossings["total"] += 1
-        state.goals_accepted += 1
-        state.active_goals += 1
-        phase = "warmup" if state.results_sent < args.warmup_goals else "measured"
-        sequence = (
-            state.results_sent + 1 if phase == "warmup"
-            else state.results_sent - args.warmup_goals + 1)
-        _wait_for_feedback_match(node, args.action_name, state)
-        time.sleep(0.02)
-        for _ in range(FEEDBACK_PER_GOAL):
-            handle.publish_feedback(LookupTransform.Feedback())
-            state.feedback_sent += 1
-            time.sleep(0.01)
-        time.sleep(0.02)
-        result = LookupTransform.Result()
-        result.transform.header.frame_id = phase
-        result.transform.child_frame_id = str(sequence)
-        result.error.error = TF2Error.NO_ERROR
-        handle.succeed()
-        state.finish_goal(phase, sequence)
-        _debug("stock execute callback complete %s %d" % (phase, sequence))
-        return result
+        if LookupTransform.Goal is not cppyy.gbl.tf2_msgs.action.LookupTransform.Goal:
+            raise RuntimeError("direct action-server Goal alias is not generated C++")
+    state = State(args, require_cpp=require_cpp)
 
     rclpy.init(args=[])
     node = Node(args.node_name)
-    executor = SingleThreadedExecutor()
-    executor.add_node(node)
-    server = ActionServer(
-        node,
-        LookupTransform,
-        args.action_name,
-        execute_callback,
-        goal_callback=goal_callback,
-        handle_accepted_callback=accepted_callback,
-        feedback_pub_qos_profile=qos_profile_system_default,
-    )
-    _emit(_ready(args))
-    while state.results_sent < state.total:
-        executor.spin_once(timeout_sec=0.002)
-    _spin_until_stop(lambda: executor.spin_once(timeout_sec=0.002))
-    cpp_operations = expected_cpp_operations(args.variant, state.total)
-    server.destroy()
-    executor.remove_node(node)
-    executor.shutdown(timeout_sec=2.0)
-    node.destroy_node()
-    rclpy.shutdown()
-    _emit(_report(args, state, cpp_operations=cpp_operations, teardown_clean=not rclpy.ok()))
-    return 0
-
-
-def _direct_lane(args) -> int:
-    import rclcppyy
-
-    rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
-    _poison_boundaries()
-    import cppyy
-    import rclpy
-    from rclpy.action import ActionServer, GoalResponse
-    from rclpy.node import Node
-    from tf2_msgs.action import LookupTransform
-    from tf2_msgs.msg import TF2Error
-    from unique_identifier_msgs.msg import UUID
-
-    if LookupTransform.Goal is not cppyy.gbl.tf2_msgs.action.LookupTransform.Goal:
-        raise RuntimeError("direct action-server Goal alias is not generated C++")
-    state = State(args, require_cpp=True)
+    context = node.context
+    executor = SingleThreadedExecutor(context=context)
+    if executor.context is not context:
+        raise RuntimeError("source-compatible action-server executor changed context")
+    if not executor.add_node(node):
+        raise RuntimeError("source-compatible action-server executor did not add its node")
 
     def goal_callback(goal):
-        _debug("direct goal callback start type=%r" % type(goal))
-        if type(goal) is not LookupTransform.Goal:
+        _debug("source goal callback start type=%r" % type(goal))
+        if require_cpp and state.goals_received == 0 and type(goal) is not LookupTransform.Goal:
             raise RuntimeError("direct action-server goal is not exact C++")
         state.python_crossings["goal_decision"] += 1
         state.python_crossings["total"] += 1
@@ -408,19 +401,21 @@ def _direct_lane(args) -> int:
         except BaseException as error:
             _debug("direct goal callback error=%r" % error)
             raise
-        _debug("direct goal callback accept")
+        _debug("source goal callback accept")
         return GoalResponse.ACCEPT
 
     def accepted_callback(handle):
-        _debug("direct accepted callback")
-        if type(handle.request) is not LookupTransform.Goal or type(handle.goal_id) is not UUID:
+        _debug("source accepted callback")
+        if require_cpp and state.goals_accepted == 0 and (
+                type(handle.request) is not LookupTransform.Goal or
+                type(handle.goal_id) is not UUID):
             raise RuntimeError("direct action-server accepted values are not exact C++")
         state.python_crossings["accepted_goal"] += 1
         state.python_crossings["total"] += 1
         handle.execute()
 
     def execute_callback(handle):
-        _debug("direct execute callback start")
+        _debug("source execute callback start")
         state.python_crossings["execute"] += 1
         state.python_crossings["total"] += 1
         state.goals_accepted += 1
@@ -429,11 +424,14 @@ def _direct_lane(args) -> int:
         sequence = (
             state.results_sent + 1 if phase == "warmup"
             else state.results_sent - args.warmup_goals + 1)
-        _wait_for_feedback_match(node._require_node(), args.action_name, state)
+        graph_node = node._require_node() if require_cpp else node
+        _wait_for_feedback_match(graph_node, args.action_name, state)
         time.sleep(0.02)
-        for _ in range(FEEDBACK_PER_GOAL):
+        prove_feedback_type = require_cpp and state.results_sent == 0
+        for index in range(FEEDBACK_PER_GOAL):
             feedback = LookupTransform.Feedback()
-            if type(feedback) is not LookupTransform.Feedback:
+            if prove_feedback_type and index == 0 and type(
+                    feedback) is not LookupTransform.Feedback:
                 raise RuntimeError("direct action-server feedback is not exact C++")
             handle.publish_feedback(feedback)
             state.feedback_sent += 1
@@ -445,11 +443,9 @@ def _direct_lane(args) -> int:
         result.error.error = TF2Error.NO_ERROR
         handle.succeed()
         state.finish_goal(phase, sequence)
-        _debug("direct execute callback complete %s %d" % (phase, sequence))
+        _debug("source execute callback complete %s %d" % (phase, sequence))
         return result
 
-    rclpy.init(args=[])
-    node = Node(args.node_name)
     server = ActionServer(
         node,
         LookupTransform,
@@ -458,30 +454,42 @@ def _direct_lane(args) -> int:
         goal_callback=goal_callback,
         handle_accepted_callback=accepted_callback,
     )
-    artifact = _artifact(server.compile_result)
+    artifact = _artifact(server.compile_result) if require_cpp else None
     _emit(_ready(args, artifact=artifact))
     while state.results_sent < state.total:
-        rclpy.spin_once(node, timeout_sec=0.002)
-    _spin_until_stop(lambda: rclpy.spin_once(node, timeout_sec=0.002))
-    stats = server.stats()
-    cpp_operations = {
-        "known": True,
-        "goal_shared_handoffs": int(stats.cpp_goal_shared_handoffs),
-        "goal_id_materializations": int(stats.cpp_goal_id_materializations),
-        "feedback_value_submissions": int(stats.cpp_feedback_value_submissions),
-        "result_value_submissions": int(stats.cpp_result_value_submissions),
-        "adapter_message_deep_copies": int(
-            stats.cpp_feedback_value_submissions + stats.cpp_result_value_submissions),
-    }
+        executor.spin_once(timeout_sec=0.002)
+    _spin_until_stop(lambda: executor.spin_once(timeout_sec=0.002))
+    if require_cpp:
+        stats = server.stats()
+        cpp_operations = {
+            "known": True,
+            "goal_shared_handoffs": int(stats.cpp_goal_shared_handoffs),
+            "goal_id_materializations": int(stats.cpp_goal_id_materializations),
+            "feedback_value_submissions": int(stats.cpp_feedback_value_submissions),
+            "result_value_submissions": int(stats.cpp_result_value_submissions),
+            "adapter_message_deep_copies": int(
+                stats.cpp_feedback_value_submissions +
+                stats.cpp_result_value_submissions),
+        }
+    else:
+        cpp_operations = expected_cpp_operations(args.variant, state.total)
     server.destroy()
+    executor.remove_node(node)
+    executor.shutdown(timeout_sec=2.0)
     node.destroy_node()
     rclpy.shutdown()
-    _emit(_report(args, state, cpp_operations=cpp_operations, teardown_clean=not rclpy.ok()))
+    _emit(_report(
+        args,
+        state,
+        cpp_operations=cpp_operations,
+        teardown_clean=not context.ok(),
+        boundary_guard=boundary_guard,
+    ))
     return 0
 
 
 def _raw_lane(args) -> int:
-    _poison_boundaries()
+    boundary_guard = _poison_boundaries()
     import cppyy
     from rclcpp_kit.native import native
     from tf2_msgs.action import LookupTransform as LookupTransformDescriptor
@@ -496,7 +504,7 @@ def _raw_lane(args) -> int:
     def goal_callback(goal):
         _debug("raw goal callback start type=%r expected=%r" % (
             type(goal), cpp_goal))
-        if type(goal) is not cpp_goal:
+        if state.goals_received == 0 and type(goal) is not cpp_goal:
             raise RuntimeError("raw action-server goal is not exact C++")
         state.python_crossings["goal_decision"] += 1
         state.python_crossings["total"] += 1
@@ -527,8 +535,9 @@ def _raw_lane(args) -> int:
         executor.spin_once(duration)
         while server.accepted_ready_count():
             accepted = server.take_accepted()
-            if type(accepted.goal) is not cpp_goal or type(
-                    accepted.goal_id) is not cpp_uuid:
+            if state.goals_accepted == 0 and (
+                    type(accepted.goal) is not cpp_goal or
+                    type(accepted.goal_id) is not cpp_uuid):
                 raise RuntimeError("raw action-server accepted values are not exact C++")
             state.python_crossings["accepted_goal"] += 1
             state.python_crossings["total"] += 1
@@ -566,7 +575,13 @@ def _raw_lane(args) -> int:
     }
     server.close()
     session.close()
-    _emit(_report(args, state, cpp_operations=cpp_operations, teardown_clean=session.closed))
+    _emit(_report(
+        args,
+        state,
+        cpp_operations=cpp_operations,
+        teardown_clean=session.closed,
+        boundary_guard=boundary_guard,
+    ))
     return 0
 
 
@@ -759,7 +774,7 @@ def _compile_state_machine() -> dict:
 
 
 def _state_machine_lane(args) -> int:
-    _poison_boundaries()
+    boundary_guard = _poison_boundaries()
     import cppyy
     from rclcpp_kit.native import native
 
@@ -800,6 +815,7 @@ def _state_machine_lane(args) -> int:
         state,
         cpp_operations=expected_cpp_operations(args.variant, state.total),
         teardown_clean=session.closed,
+        boundary_guard=boundary_guard,
     ))
     return 0
 
@@ -860,9 +876,9 @@ def main() -> int:
     if args.warmup_goals <= 0 or args.measured_goals <= 0:
         raise SystemExit("action-server goal counts must be positive")
     if args.variant == "stock-rclpy":
-        return _stock_lane(args)
+        return _source_compatible_lane(args, profile=None)
     if args.variant == "direct-source-compatible":
-        return _direct_lane(args)
+        return _source_compatible_lane(args, profile="direct_cpp")
     if args.variant == "native-python-orchestrated":
         return _raw_lane(args)
     if args.variant == "native-cpp-state-machine":

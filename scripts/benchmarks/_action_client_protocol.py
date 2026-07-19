@@ -26,6 +26,24 @@ REPETITIONS = 5
 RSS_LIMIT_BYTES = 128 * 1024 * 1024
 SHA256_PATTERN = re.compile(r"^[a-f0-9]{64}$")
 TOKEN_PATTERN = re.compile(r"^action_[a-f0-9]{32}$")
+BOUNDARY_TRIPWIRE_SURFACES = (
+    "rclcpp_kit.convert_python_msg_to_cpp",
+    "rclcpp_kit.bringup_rclcpp.convert_python_msg_to_cpp",
+    "rclcpp_kit.native_action.convert_python_msg_to_cpp",
+    "rclcpp_kit.native_action_server.convert_python_msg_to_cpp",
+    "rclcppyy.bringup_rclcpp.convert_python_msg_to_cpp",
+    "rclcppyy.node.convert_python_msg_to_cpp",
+    "rclcpp_kit.serialization.serialize_message",
+    "rclcpp_kit.serialization.deserialize_message",
+    "rclcppyy.serialization.serialize_message",
+    "rclcppyy.serialization.deserialize_message",
+    "rclpy.serialization.serialize_message",
+    "rclpy.serialization.deserialize_message",
+    "rclcpp_kit.serialization.serialized_message_from_bytes",
+    "rclcpp_kit.serialization.serialized_message_to_bytes",
+    "rclcppyy.serialization.serialized_message_from_bytes",
+    "rclcppyy.serialization.serialized_message_to_bytes",
+)
 
 QOS = {
     "goal_service": {
@@ -41,8 +59,8 @@ QOS = {
         "reliability": "reliable", "durability": "volatile",
     },
     "feedback_topic": {
-        "history": "system_default", "depth": 0,
-        "reliability": "system_default", "durability": "system_default",
+        "history": "keep_last", "depth": 10,
+        "reliability": "reliable", "durability": "volatile",
     },
     "status_topic": {
         "history": "keep_last", "depth": 1,
@@ -408,6 +426,40 @@ def _validate_client_report(event: dict, sample: dict) -> None:
     }
     if any(event.get(key) != value for key, value in exact.items()):
         raise ValueError("action client report violates the exact contract")
+    if variant in (
+            "direct-source-compatible", "native-python-orchestrated",
+            "native-cpp-state-machine"):
+        boundary = {
+            "proof": "counter-backed-poison",
+            "exact_generated_cpp": True,
+            "tripwires_armed": True,
+            "tripwire_surfaces": list(BOUNDARY_TRIPWIRE_SURFACES),
+            "python_message_conversions": 0,
+            "python_serialization_calls": 0,
+            "adapter_cdr_roundtrips": 0,
+        }
+    elif variant == "aot-staged":
+        boundary = {
+            "proof": "cpp-only-process",
+            "exact_generated_cpp": True,
+            "tripwires_armed": False,
+            "tripwire_surfaces": [],
+            "python_message_conversions": 0,
+            "python_serialization_calls": 0,
+            "adapter_cdr_roundtrips": 0,
+        }
+    else:
+        boundary = {
+            "proof": "python-message-lane",
+            "exact_generated_cpp": False,
+            "tripwires_armed": False,
+            "tripwire_surfaces": [],
+            "python_message_conversions": None,
+            "python_serialization_calls": None,
+            "adapter_cdr_roundtrips": None,
+        }
+    if event.get("boundary_evidence") != boundary:
+        raise ValueError("action client boundary evidence is invalid")
     if not _positive_int(event.get("cpu_time_ns")) or not _positive_int(
             event.get("wall_duration_ns")):
         raise ValueError("action client timing evidence is invalid")
@@ -457,6 +509,27 @@ def _validate_server_report(event: dict, sample: dict) -> None:
         "exceptions": 0,
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
         "cpu_role": "drift_diagnostic_only",
+        "python_crossings": {
+            "goal_decision": 0, "accepted_goal": 0, "execute": 0, "total": 0,
+        },
+        "python_crossing_semantics": "callback_entries_only",
+        "cpp_value_operations": {
+            "known": True,
+            "goal_shared_handoffs": 0,
+            "goal_id_materializations": 0,
+            "feedback_value_submissions": 0,
+            "result_value_submissions": 0,
+            "adapter_message_deep_copies": 0,
+        },
+        "boundary_evidence": {
+            "proof": "cpp-only-process",
+            "exact_generated_cpp": True,
+            "python_message_conversions": 0,
+            "python_serialization_calls": 0,
+            "adapter_cdr_roundtrips": 0,
+            "tripwires_armed": False,
+            "tripwire_surfaces": [],
+        },
         "teardown_clean": True,
     }
     if any(event.get(key) != value for key, value in exact.items()):
@@ -532,6 +605,8 @@ def validate_sample(sample: dict, cache: dict, build: dict) -> None:
         "process_group_id": sample["client_pid"],
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
         "measurement_reset": True,
+        "measurement_window_started": False,
+        "protocol_emission_excluded": True,
     }:
         raise ValueError("action client ARMED evidence is invalid")
     _validate_client_report(sample.get("client_report"), sample)

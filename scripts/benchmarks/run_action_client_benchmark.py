@@ -442,12 +442,13 @@ def _run_sample(
             if psutil.Process(process.pid).children(recursive=True):
                 raise RuntimeError("action %s retained setup children" % role)
         ready_graph = observer.wait_ready(server_node, client_node, action_name, timeout)
-        _write_control(client, "START", "action client")
+        _write_control(client, "ARM", "action client")
         client_armed, values = _read_document(client, timeout, "action client ARMED")
         diagnostics["client"].extend(values)
         if client_armed.get("event") != "armed" or client_armed.get("cpu_clock") != (
                 "CLOCK_PROCESS_CPUTIME_ID"):
             raise RuntimeError("action client emitted invalid ARMED evidence")
+        _write_control(client, "MEASURE", "action client")
         client_report, values = _read_document(client, timeout, "action client report")
         diagnostics["client"].extend(values)
         if client_report.get("event") != "report":

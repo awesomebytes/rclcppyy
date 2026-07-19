@@ -336,6 +336,30 @@
         "total": {"type": "integer", "minimum": 0}
       }
     },
+    "boundary_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proof", "exact_generated_cpp", "tripwires_armed", "tripwire_surfaces",
+        "python_message_conversions", "python_serialization_calls",
+        "adapter_cdr_roundtrips"
+      ],
+      "properties": {
+        "proof": {
+          "enum": ["python-message-lane", "counter-backed-poison", "cpp-only-process"]
+        },
+        "exact_generated_cpp": {"type": "boolean"},
+        "tripwires_armed": {"type": "boolean"},
+        "tripwire_surfaces": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        },
+        "python_message_conversions": {"type": ["integer", "null"], "minimum": 0},
+        "python_serialization_calls": {"type": ["integer", "null"], "minimum": 0},
+        "adapter_cdr_roundtrips": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
     "client_ready": {
       "type": "object",
       "required": [
@@ -404,7 +428,7 @@
         "warmup_goals", "measured_goals", "goals_sent", "goals_accepted",
         "goals_rejected", "feedback_received", "feedback_dropped", "results_received",
         "terminal_succeeded", "sequence_checksum", "last_sequence", "active_goals",
-        "pending_operations", "exceptions", "python_crossings",
+        "pending_operations", "exceptions", "python_crossings", "boundary_evidence",
         "no_python_message_conversion", "cpu_time_ns", "cpu_clock", "wall_duration_ns",
         "latency_ns", "rss_guard", "orchestration_poll_count", "teardown_clean",
         "executor_thread_joined"
@@ -428,6 +452,7 @@
         "pending_operations": {"const": 0},
         "exceptions": {"const": 0},
         "python_crossings": {"$ref": "#/$defs/crossings"},
+        "boundary_evidence": {"$ref": "#/$defs/boundary_evidence"},
         "cpu_time_ns": {"type": "integer", "minimum": 1},
         "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
         "wall_duration_ns": {"type": "integer", "minimum": 1},
@@ -518,12 +543,17 @@
         "client_ready": {"$ref": "#/$defs/client_ready"},
         "client_armed": {
           "type": "object",
-          "required": ["schema", "event", "cpu_clock", "measurement_reset"],
+          "required": [
+            "schema", "event", "cpu_clock", "measurement_reset",
+            "measurement_window_started", "protocol_emission_excluded"
+          ],
           "properties": {
             "schema": {"const": "rclcppyy.action-client-event/v1"},
             "event": {"const": "armed"},
             "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
-            "measurement_reset": {"const": true}
+            "measurement_reset": {"const": true},
+            "measurement_window_started": {"const": false},
+            "protocol_emission_excluded": {"const": true}
           }
         },
         "client_report": {"$ref": "#/$defs/client_report"},

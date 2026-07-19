@@ -449,7 +449,8 @@
       "additionalProperties": false,
       "required": [
         "schema", "event", "variant", "run_token", "pid", "process_group_id",
-        "cpu_clock", "measurement_reset"
+        "cpu_clock", "measurement_reset", "measurement_window_started",
+        "protocol_emission_excluded"
       ],
       "properties": {
         "schema": {"const": "rclcppyy.action-client-event/v1"},
@@ -459,7 +460,9 @@
         "pid": {"type": "integer", "minimum": 1},
         "process_group_id": {"type": "integer", "minimum": 1},
         "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
-        "measurement_reset": {"const": true}
+        "measurement_reset": {"const": true},
+        "measurement_window_started": {"const": false},
+        "protocol_emission_excluded": {"const": true}
       }
     },
     "client_report": {
@@ -470,7 +473,7 @@
         "warmup_goals", "measured_goals", "goals_sent", "goals_accepted",
         "goals_rejected", "feedback_received", "feedback_dropped", "results_received",
         "terminal_succeeded", "sequence_checksum", "last_sequence", "active_goals",
-        "pending_operations", "exceptions", "python_crossings",
+        "pending_operations", "exceptions", "python_crossings", "boundary_evidence",
         "no_python_message_conversion", "cpu_time_ns", "cpu_clock", "wall_duration_ns",
         "latency_ns", "rss_guard", "orchestration_poll_count", "teardown_clean",
         "executor_thread_joined"
@@ -498,6 +501,19 @@
         "exceptions": {"const": 0},
         "python_crossings": {
           "const": {"goal": 0, "feedback": 0, "result": 0, "total": 0}
+        },
+        "boundary_evidence": {
+          "allOf": [
+            {"$ref": "#/$defs/boundary"},
+            {
+              "const": {
+                "proof": "cpp-only-process", "exact_generated_cpp": true,
+                "tripwires_armed": false, "tripwire_surfaces": [],
+                "python_message_conversions": 0, "python_serialization_calls": 0,
+                "adapter_cdr_roundtrips": 0
+              }
+            }
+          ]
         },
         "no_python_message_conversion": {"const": true},
         "cpu_time_ns": {"type": "integer", "minimum": 1},
@@ -538,19 +554,47 @@
         "adapter_message_deep_copies": {"type": "integer", "minimum": 0}
       }
     },
+    "tripwire_surface_set": {
+      "const": [
+        "rclcpp_kit.convert_python_msg_to_cpp",
+        "rclcpp_kit.bringup_rclcpp.convert_python_msg_to_cpp",
+        "rclcpp_kit.native_action.convert_python_msg_to_cpp",
+        "rclcpp_kit.native_action_server.convert_python_msg_to_cpp",
+        "rclcppyy.bringup_rclcpp.convert_python_msg_to_cpp",
+        "rclcppyy.node.convert_python_msg_to_cpp",
+        "rclcpp_kit.serialization.serialize_message",
+        "rclcpp_kit.serialization.deserialize_message",
+        "rclcppyy.serialization.serialize_message",
+        "rclcppyy.serialization.deserialize_message",
+        "rclpy.serialization.serialize_message",
+        "rclpy.serialization.deserialize_message",
+        "rclcpp_kit.serialization.serialized_message_from_bytes",
+        "rclcpp_kit.serialization.serialized_message_to_bytes",
+        "rclcppyy.serialization.serialized_message_from_bytes",
+        "rclcppyy.serialization.serialized_message_to_bytes"
+      ]
+    },
     "boundary": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "exact_generated_cpp", "python_message_conversions",
-        "python_serialization_calls", "adapter_cdr_roundtrips", "tripwires_armed"
+        "proof", "exact_generated_cpp", "python_message_conversions",
+        "python_serialization_calls", "adapter_cdr_roundtrips", "tripwires_armed",
+        "tripwire_surfaces"
       ],
       "properties": {
+        "proof": {
+          "enum": ["python-message-lane", "counter-backed-poison", "cpp-only-process"]
+        },
         "exact_generated_cpp": {"type": "boolean"},
-        "python_message_conversions": {"const": 0},
-        "python_serialization_calls": {"const": 0},
-        "adapter_cdr_roundtrips": {"const": 0},
-        "tripwires_armed": {"type": "boolean"}
+        "python_message_conversions": {"type": ["integer", "null"], "minimum": 0},
+        "python_serialization_calls": {"type": ["integer", "null"], "minimum": 0},
+        "adapter_cdr_roundtrips": {"type": ["integer", "null"], "minimum": 0},
+        "tripwires_armed": {"type": "boolean"},
+        "tripwire_surfaces": {
+          "type": "array", "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        }
       }
     },
     "server_report": {
@@ -562,7 +606,8 @@
         "goals_rejected", "feedback_sent", "results_sent", "terminal_succeeded",
         "warmup_checksum", "measured_checksum", "active_goals", "pending_operations",
         "exceptions", "cpu_time_ns", "cpu_clock", "cpu_role", "rss_guard",
-        "python_crossings", "cpp_value_operations", "boundary_evidence", "teardown_clean"
+        "python_crossings", "python_crossing_semantics", "cpp_value_operations",
+        "boundary_evidence", "teardown_clean"
       ],
       "properties": {
         "schema": {"const": "rclcppyy.action-server-event/v1"},
@@ -589,6 +634,7 @@
         "cpu_role": {"const": "server_under_test"},
         "rss_guard": {"$ref": "#/$defs/rss"},
         "python_crossings": {"$ref": "#/$defs/python_crossings"},
+        "python_crossing_semantics": {"const": "callback_entries_only"},
         "cpp_value_operations": {"$ref": "#/$defs/cpp_operations"},
         "boundary_evidence": {"$ref": "#/$defs/boundary"},
         "teardown_clean": {"const": true}
@@ -698,9 +744,10 @@
                   },
                   "boundary_evidence": {
                     "const": {
-                      "exact_generated_cpp": false, "python_message_conversions": 0,
-                      "python_serialization_calls": 0, "adapter_cdr_roundtrips": 0,
-                      "tripwires_armed": false
+                      "proof": "python-message-lane", "exact_generated_cpp": false,
+                      "python_message_conversions": null,
+                      "python_serialization_calls": null, "adapter_cdr_roundtrips": null,
+                      "tripwires_armed": false, "tripwire_surfaces": []
                     }
                   }
                 }
@@ -740,10 +787,14 @@
                     }
                   },
                   "boundary_evidence": {
-                    "const": {
-                      "exact_generated_cpp": true, "python_message_conversions": 0,
-                      "python_serialization_calls": 0, "adapter_cdr_roundtrips": 0,
-                      "tripwires_armed": true
+                    "properties": {
+                      "proof": {"const": "counter-backed-poison"},
+                      "exact_generated_cpp": {"const": true},
+                      "python_message_conversions": {"const": 0},
+                      "python_serialization_calls": {"const": 0},
+                      "adapter_cdr_roundtrips": {"const": 0},
+                      "tripwires_armed": {"const": true},
+                      "tripwire_surfaces": {"$ref": "#/$defs/tripwire_surface_set"}
                     }
                   }
                 }
@@ -783,10 +834,14 @@
                     }
                   },
                   "boundary_evidence": {
-                    "const": {
-                      "exact_generated_cpp": true, "python_message_conversions": 0,
-                      "python_serialization_calls": 0, "adapter_cdr_roundtrips": 0,
-                      "tripwires_armed": true
+                    "properties": {
+                      "proof": {"const": "counter-backed-poison"},
+                      "exact_generated_cpp": {"const": true},
+                      "python_message_conversions": {"const": 0},
+                      "python_serialization_calls": {"const": 0},
+                      "adapter_cdr_roundtrips": {"const": 0},
+                      "tripwires_armed": {"const": true},
+                      "tripwire_surfaces": {"$ref": "#/$defs/tripwire_surface_set"}
                     }
                   }
                 }
@@ -826,10 +881,14 @@
                     }
                   },
                   "boundary_evidence": {
-                    "const": {
-                      "exact_generated_cpp": true, "python_message_conversions": 0,
-                      "python_serialization_calls": 0, "adapter_cdr_roundtrips": 0,
-                      "tripwires_armed": true
+                    "properties": {
+                      "proof": {"const": "counter-backed-poison"},
+                      "exact_generated_cpp": {"const": true},
+                      "python_message_conversions": {"const": 0},
+                      "python_serialization_calls": {"const": 0},
+                      "adapter_cdr_roundtrips": {"const": 0},
+                      "tripwires_armed": {"const": true},
+                      "tripwire_surfaces": {"$ref": "#/$defs/tripwire_surface_set"}
                     }
                   }
                 }
@@ -868,9 +927,10 @@
                   },
                   "boundary_evidence": {
                     "const": {
-                      "exact_generated_cpp": true, "python_message_conversions": 0,
+                      "proof": "cpp-only-process", "exact_generated_cpp": true,
+                      "python_message_conversions": 0,
                       "python_serialization_calls": 0, "adapter_cdr_roundtrips": 0,
-                      "tripwires_armed": false
+                      "tripwires_armed": false, "tripwire_surfaces": []
                     }
                   }
                 }

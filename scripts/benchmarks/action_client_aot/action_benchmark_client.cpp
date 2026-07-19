@@ -113,8 +113,8 @@ std::string qos_json()
          "\"reliability\":\"reliable\",\"durability\":\"volatile\"},"
          "\"cancel_service\":{\"history\":\"keep_last\",\"depth\":10,"
          "\"reliability\":\"reliable\",\"durability\":\"volatile\"},"
-         "\"feedback_topic\":{\"history\":\"system_default\",\"depth\":0,"
-         "\"reliability\":\"system_default\",\"durability\":\"system_default\"},"
+         "\"feedback_topic\":{\"history\":\"keep_last\",\"depth\":10,"
+         "\"reliability\":\"reliable\",\"durability\":\"volatile\"},"
          "\"status_topic\":{\"history\":\"keep_last\",\"depth\":1,"
          "\"reliability\":\"reliable\",\"durability\":\"transient_local\"}}";
 }
@@ -185,6 +185,10 @@ public:
     measured_checksum_ = 0;
     last_sequence_ = 0;
     rss_baseline_ = peak_rss_bytes();
+  }
+
+  void start_measurement()
+  {
     wall_start_ns_ = steady_ns();
     cpu_start_ns_ = process_cpu_ns();
   }
@@ -357,8 +361,8 @@ int main(int argc, char ** argv)
               << ",\"warmup_terminal_success\":" << warmup
               << ",\"active_goals\":0,\"pending_operations\":0}" << std::endl;
     std::string command;
-    if (!std::getline(std::cin, command) || command != "START") {
-      throw std::runtime_error("AOT action client expected START");
+    if (!std::getline(std::cin, command) || command != "ARM") {
+      throw std::runtime_error("AOT action client expected ARM");
     }
     loop.arm();
     std::cout << kPrefix
@@ -367,7 +371,12 @@ int main(int argc, char ** argv)
               << ",\"run_token\":" << quote(token) << ",\"pid\":" << getpid()
               << ",\"process_group_id\":" << getpgrp()
               << ",\"cpu_clock\":\"CLOCK_PROCESS_CPUTIME_ID\","
-              << "\"measurement_reset\":true}" << std::endl;
+              << "\"measurement_reset\":true,\"measurement_window_started\":false,"
+              << "\"protocol_emission_excluded\":true}" << std::endl;
+    if (!std::getline(std::cin, command) || command != "MEASURE") {
+      throw std::runtime_error("AOT action client expected MEASURE");
+    }
+    loop.start_measurement();
     loop.run_phase("measured", measured, true);
     loop.finish();
     const auto cpu_time = loop.cpu_time_ns();
@@ -401,7 +410,12 @@ int main(int argc, char ** argv)
               << ",\"sequence_checksum\":" << checksum << ",\"last_sequence\":" << last
               << ",\"active_goals\":0,\"pending_operations\":0,\"exceptions\":" << exceptions
               << ",\"python_crossings\":{\"goal\":0,\"feedback\":0,\"result\":0,\"total\":0},"
-              << "\"no_python_message_conversion\":true,\"cpu_time_ns\":" << cpu_time
+              << "\"no_python_message_conversion\":true,"
+              << "\"boundary_evidence\":{\"proof\":\"cpp-only-process\","
+              << "\"exact_generated_cpp\":true,\"tripwires_armed\":false,"
+              << "\"tripwire_surfaces\":[],\"python_message_conversions\":0,"
+              << "\"python_serialization_calls\":0,\"adapter_cdr_roundtrips\":0},"
+              << "\"cpu_time_ns\":" << cpu_time
               << ",\"cpu_clock\":\"CLOCK_PROCESS_CPUTIME_ID\",\"wall_duration_ns\":" << wall_time
               << ",\"latency_ns\":{\"send_to_accept\":" << accept
               << ",\"send_to_first_feedback\":" << feedback

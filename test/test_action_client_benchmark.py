@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import sys
+import types
 import uuid
 
 import pytest
@@ -28,6 +29,7 @@ def _load(name):
 
 protocol = _load("_action_client_protocol")
 runner = _load("run_action_client_benchmark")
+worker = _load("action_client_worker")
 DIGEST = "a" * 64
 
 
@@ -101,6 +103,40 @@ def _rss():
 
 def _latency():
     return {"p50": 100, "p95": 200, "p99": 300, "max": 400}
+
+
+def _boundary(variant):
+    if variant in (
+            "direct-source-compatible", "native-python-orchestrated",
+            "native-cpp-state-machine"):
+        return {
+            "proof": "counter-backed-poison",
+            "exact_generated_cpp": True,
+            "tripwires_armed": True,
+            "tripwire_surfaces": list(protocol.BOUNDARY_TRIPWIRE_SURFACES),
+            "python_message_conversions": 0,
+            "python_serialization_calls": 0,
+            "adapter_cdr_roundtrips": 0,
+        }
+    if variant == "aot-staged":
+        return {
+            "proof": "cpp-only-process",
+            "exact_generated_cpp": True,
+            "tripwires_armed": False,
+            "tripwire_surfaces": [],
+            "python_message_conversions": 0,
+            "python_serialization_calls": 0,
+            "adapter_cdr_roundtrips": 0,
+        }
+    return {
+        "proof": "python-message-lane",
+        "exact_generated_cpp": False,
+        "tripwires_armed": False,
+        "tripwire_surfaces": [],
+        "python_message_conversions": None,
+        "python_serialization_calls": None,
+        "adapter_cdr_roundtrips": None,
+    }
 
 
 def _sample(variant, repetition=1, index=0):
@@ -226,6 +262,7 @@ def _sample(variant, repetition=1, index=0):
         "exceptions": 0,
         "python_crossings": protocol.expected_crossings(variant, total),
         "no_python_message_conversion": spec["no_python_message_conversion"],
+        "boundary_evidence": _boundary(variant),
         "cpu_time_ns": 5_000_000,
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
         "wall_duration_ns": 6_000_000_000,
@@ -259,6 +296,27 @@ def _sample(variant, repetition=1, index=0):
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
         "cpu_role": "drift_diagnostic_only",
         "rss_guard": _rss(),
+        "python_crossings": {
+            "goal_decision": 0, "accepted_goal": 0, "execute": 0, "total": 0,
+        },
+        "python_crossing_semantics": "callback_entries_only",
+        "cpp_value_operations": {
+            "known": True,
+            "goal_shared_handoffs": 0,
+            "goal_id_materializations": 0,
+            "feedback_value_submissions": 0,
+            "result_value_submissions": 0,
+            "adapter_message_deep_copies": 0,
+        },
+        "boundary_evidence": {
+            "proof": "cpp-only-process",
+            "exact_generated_cpp": True,
+            "python_message_conversions": 0,
+            "python_serialization_calls": 0,
+            "adapter_cdr_roundtrips": 0,
+            "tripwires_armed": False,
+            "tripwire_surfaces": [],
+        },
         "teardown_clean": True,
     }
     observation = {"observed": True, "observations": 2, "elapsed_ns": 100}
@@ -307,6 +365,8 @@ def _sample(variant, repetition=1, index=0):
             "process_group_id": client_pid,
             "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
             "measurement_reset": True,
+            "measurement_window_started": False,
+            "protocol_emission_excluded": True,
         },
         "client_report": client_report,
         "server_report": server_report,
@@ -400,10 +460,60 @@ def test_goal_identity_checksum_latency_and_crossings_are_fixed():
     assert protocol.expected_crossings("native-cpp-state-machine", 520)["total"] == 0
 
 
-def test_python_action_controls_pin_system_default_feedback_qos():
+def test_action_feedback_qos_is_the_public_reliable_depth_ten_default():
     worker_source = (BENCH_DIR / "action_client_worker.py").read_text(
         encoding="utf-8")
-    assert "feedback_sub_qos_profile=qos_profile_system_default" in worker_source
+    assert protocol.QOS["feedback_topic"] == {
+        "history": "keep_last",
+        "depth": 10,
+        "reliability": "reliable",
+        "durability": "volatile",
+    }
+    assert "qos_profile_system_default" not in worker_source
+    assert "feedback_sub_qos_profile=" not in worker_source
+
+
+def test_source_compatible_client_uses_one_public_executor_setup():
+    source = (BENCH_DIR / "action_client_worker.py").read_text(encoding="utf-8")
+    assert source.count("def _source_compatible_lane(") == 1
+    assert "def _direct_source_compatible_lane(" not in source
+    assert "context = node.context" in source
+    assert "SingleThreadedExecutor(context=context)" in source
+    assert "executor.add_node(node)" in source
+
+
+def test_exact_client_boundary_poison_is_counter_backed(monkeypatch):
+    modules = {}
+
+    def fake_import(name):
+        return modules.setdefault(name, types.SimpleNamespace())
+
+    monkeypatch.setattr(worker.importlib, "import_module", fake_import)
+    guard = worker._install_boundary_poison()
+    assert guard["surfaces"] == list(protocol.BOUNDARY_TRIPWIRE_SURFACES)
+    for surface in guard["surfaces"]:
+        module_name, attribute = surface.rsplit(".", 1)
+        with pytest.raises(AssertionError):
+            getattr(modules[module_name], attribute)()
+    assert guard["counters"] == {
+        "python_message_conversions": 6,
+        "python_serialization_calls": 6,
+        "adapter_cdr_roundtrips": 4,
+    }
+
+
+def test_action_measurement_control_excludes_armed_protocol_output():
+    runner_source = (BENCH_DIR / "run_action_client_benchmark.py").read_text(
+        encoding="utf-8")
+    worker_source = (BENCH_DIR / "action_client_worker.py").read_text(
+        encoding="utf-8")
+    aot_source = (
+        BENCH_DIR / "action_client_aot" / "action_benchmark_client.cpp"
+    ).read_text(encoding="utf-8")
+    assert '_write_control(client, "ARM", "action client")' in runner_source
+    assert '_write_control(client, "MEASURE", "action client")' in runner_source
+    assert '!= "ARM"' in worker_source and '!= "MEASURE"' in worker_source
+    assert 'command != "ARM"' in aot_source and 'command != "MEASURE"' in aot_source
 
 
 @pytest.mark.parametrize("variant", tuple(protocol.VARIANTS))
@@ -436,6 +546,10 @@ def test_each_action_lane_satisfies_the_exact_sample_contract(variant):
         ("stock-rclpy", ("server_report", "cpu_role"), "primary"),
         ("compatible-rclcppyy", ("client_ready", "cache", "state"), "prebuilt"),
         ("native-python-orchestrated", ("client_ready", "cache", "hit"), False),
+        ("native-python-orchestrated", (
+            "client_report", "boundary_evidence", "python_serialization_calls"), 1),
+        ("direct-source-compatible", (
+            "client_report", "boundary_evidence", "tripwire_surfaces"), []),
         ("native-cpp-state-machine", ("client_report", "python_crossings", "goal"), 1),
         ("aot-staged", ("client_ready", "cache", "state"), "process_warm"),
     ],
@@ -514,6 +628,7 @@ def test_action_schema_encodes_negative_contracts():
     assert report["feedback_received"]["const"] == 1560
     assert report["cpu_clock"]["const"] == "CLOCK_PROCESS_CPUTIME_ID"
     assert report["active_goals"]["const"] == 0
+    assert report["boundary_evidence"]["$ref"] == "#/$defs/boundary_evidence"
 
 
 def test_action_json_schema_accepts_fixture_and_rejects_claims_when_available():
@@ -593,9 +708,10 @@ def test_live_cyclone_all_action_lanes(tmp_path, monkeypatch):
                         client, 60.0, "action smoke client ready")
                     assert client_ready["warmup_feedback"] == 3
                     observer.wait_ready(server_node, client_node, action_name, 20.0)
-                    runner._write_control(client, "START", "action smoke client")
+                    runner._write_control(client, "ARM", "action smoke client")
                     armed, _ = runner._read_document(
                         client, 60.0, "action smoke client armed")
+                    runner._write_control(client, "MEASURE", "action smoke client")
                     report, _ = runner._read_document(
                         client, 60.0, "action smoke client report")
                     runner._finish(client, 60.0, "action smoke client")
@@ -616,6 +732,9 @@ def test_live_cyclone_all_action_lanes(tmp_path, monkeypatch):
                     assert report["python_crossings"]["total"] == expected
                     assert report["active_goals"] == 0
                     assert report["feedback_dropped"] == 0
+                    if protocol.VARIANTS[variant]["no_python_message_conversion"]:
+                        assert report["boundary_evidence"][
+                            "python_message_conversions"] == 0
                     assert server_report["results_sent"] == 3
                     assert server_report["feedback_sent"] == 9
                     assert server_report["cpu_role"] == "drift_diagnostic_only"

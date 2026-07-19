@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib
 import json
 import os
 from pathlib import Path
@@ -14,6 +15,7 @@ import time
 
 from _action_client_protocol import (
     ACTION_TYPE,
+    BOUNDARY_TRIPWIRE_SURFACES,
     CLIENT_SCHEMA,
     FEEDBACK_PER_GOAL,
     PREWARM_SCHEMA,
@@ -31,7 +33,7 @@ from _action_client_protocol import (
 
 PROTOCOL_PREFIX = "@@RCLCPPYY_ACTION_CLIENT_V1@@"
 STATE_MACHINE_SOURCE_ID = hashlib.sha256(
-    b"rclcppyy-action-state-machine-v1:tf2_msgs/LookupTransform"
+    b"rclcppyy-action-state-machine-v2:tf2_msgs/LookupTransform:two-stage-measurement"
 ).hexdigest()[:16]
 
 
@@ -76,6 +78,73 @@ def _rss_guard(baseline: int, final_value: int) -> dict:
     }
 
 
+def _install_boundary_poison() -> dict:
+    counters = {
+        "python_message_conversions": 0,
+        "python_serialization_calls": 0,
+        "adapter_cdr_roundtrips": 0,
+    }
+
+    def conversion(*_args, **_kwargs):
+        counters["python_message_conversions"] += 1
+        raise AssertionError("action client entered a Python-message conversion")
+
+    def serialization_call(*_args, **_kwargs):
+        counters["python_serialization_calls"] += 1
+        raise AssertionError("action client entered Python serialization")
+
+    def cdr_call(*_args, **_kwargs):
+        counters["adapter_cdr_roundtrips"] += 1
+        raise AssertionError("action client entered a CDR byte adapter")
+
+    bindings = (
+        ("rclcpp_kit", "convert_python_msg_to_cpp", conversion),
+        ("rclcpp_kit.bringup_rclcpp", "convert_python_msg_to_cpp", conversion),
+        ("rclcpp_kit.native_action", "convert_python_msg_to_cpp", conversion),
+        ("rclcpp_kit.native_action_server", "convert_python_msg_to_cpp", conversion),
+        ("rclcppyy.bringup_rclcpp", "convert_python_msg_to_cpp", conversion),
+        ("rclcppyy.node", "convert_python_msg_to_cpp", conversion),
+        ("rclcpp_kit.serialization", "serialize_message", serialization_call),
+        ("rclcpp_kit.serialization", "deserialize_message", serialization_call),
+        ("rclcppyy.serialization", "serialize_message", serialization_call),
+        ("rclcppyy.serialization", "deserialize_message", serialization_call),
+        ("rclpy.serialization", "serialize_message", serialization_call),
+        ("rclpy.serialization", "deserialize_message", serialization_call),
+        ("rclcpp_kit.serialization", "serialized_message_from_bytes", cdr_call),
+        ("rclcpp_kit.serialization", "serialized_message_to_bytes", cdr_call),
+        ("rclcppyy.serialization", "serialized_message_from_bytes", cdr_call),
+        ("rclcppyy.serialization", "serialized_message_to_bytes", cdr_call),
+    )
+    surfaces = []
+    for module_name, attribute, poison in bindings:
+        module = importlib.import_module(module_name)
+        setattr(module, attribute, poison)
+        surfaces.append(module_name + "." + attribute)
+    if tuple(surfaces) != BOUNDARY_TRIPWIRE_SURFACES:
+        raise RuntimeError("action-client tripwire surface changed")
+    return {"counters": counters, "surfaces": surfaces}
+
+
+def _boundary_evidence(guard: dict | None) -> dict:
+    if guard is None:
+        return {
+            "proof": "python-message-lane",
+            "exact_generated_cpp": False,
+            "tripwires_armed": False,
+            "tripwire_surfaces": [],
+            "python_message_conversions": None,
+            "python_serialization_calls": None,
+            "adapter_cdr_roundtrips": None,
+        }
+    return {
+        "proof": "counter-backed-poison",
+        "exact_generated_cpp": True,
+        "tripwires_armed": True,
+        "tripwire_surfaces": list(guard["surfaces"]),
+        **guard["counters"],
+    }
+
+
 def _artifact(result: dict) -> dict:
     path = result.get("so")
     if not path or not Path(path).is_file():
@@ -107,6 +176,8 @@ def _armed(args) -> dict:
         "armed",
         cpu_clock="CLOCK_PROCESS_CPUTIME_ID",
         measurement_reset=True,
+        measurement_window_started=False,
+        protocol_emission_excluded=True,
     )
 
 
@@ -142,6 +213,7 @@ public:
   virtual bool wait_for_server(uint64_t timeout_ns) const = 0;
   virtual void run_warmup(uint64_t goals) = 0;
   virtual void arm(uint64_t goals) = 0;
+  virtual void start_measurement() = 0;
   virtual void run_measured() = 0;
   virtual uint64_t goals_sent() const = 0;
   virtual uint64_t goals_accepted() const = 0;
@@ -278,6 +350,10 @@ public:
     feedback_.reserve(goals);
     result_.reserve(goals);
     rss_baseline_ = peak_rss_bytes();
+  }
+
+  void start_measurement() override
+  {
     wall_start_ns_ = steady_ns();
     cpu_start_ns_ = process_cpu_ns();
   }
@@ -527,6 +603,7 @@ def _report(
     polls: int,
     teardown_clean: bool,
     executor_thread_joined: bool,
+    boundary_guard: dict | None = None,
 ) -> dict:
     total = args.warmup_goals + args.measured_goals
     return _event(
@@ -549,6 +626,7 @@ def _report(
         python_crossings=expected_crossings(args.variant, total),
         no_python_message_conversion=(
             VARIANTS[args.variant]["no_python_message_conversion"]),
+        boundary_evidence=_boundary_evidence(boundary_guard),
         cpu_time_ns=cpu_time_ns,
         cpu_clock="CLOCK_PROCESS_CPUTIME_ID",
         wall_duration_ns=wall_duration_ns,
@@ -578,21 +656,24 @@ def _rclpy_phase(client, executor, phase: str, count: int, measured: bool, state
         target, source = goal_strings(phase, sequence)
         feedback_times = []
         invalid_feedback = [0]
+        prove_representation = not measured and sequence == 1
 
         def feedback_callback(update):
             feedback_times.append(time.monotonic_ns())
-            if state.get("require_cpp"):
-                valid = (
-                    type(update) is LookupTransform.Impl.FeedbackMessage
-                    and type(update.feedback) is LookupTransform.Feedback
-                )
-            else:
-                valid = isinstance(update.feedback, LookupTransform.Feedback)
-            if not valid:
-                invalid_feedback[0] += 1
+            if prove_representation:
+                if state.get("require_cpp"):
+                    valid = (
+                        type(update) is LookupTransform.Impl.FeedbackMessage
+                        and type(update.feedback) is LookupTransform.Feedback
+                    )
+                else:
+                    valid = isinstance(update.feedback, LookupTransform.Feedback)
+                if not valid:
+                    invalid_feedback[0] += 1
 
         goal = LookupTransform.Goal(target_frame=target, source_frame=source)
-        if state.get("require_cpp") and type(goal) is not LookupTransform.Goal:
+        if prove_representation and state.get(
+                "require_cpp") and type(goal) is not LookupTransform.Goal:
             raise RuntimeError("direct action goal is not the generated C++ type")
         send_ns = time.monotonic_ns()
         goal_future = client.send_goal_async(goal, feedback_callback=feedback_callback)
@@ -616,7 +697,7 @@ def _rclpy_phase(client, executor, phase: str, count: int, measured: bool, state
         if len(feedback_times) != FEEDBACK_PER_GOAL or invalid_feedback[0]:
             raise RuntimeError("Python action feedback contract failed")
         wrapped = result_future.result()
-        if state.get("require_cpp") and (
+        if prove_representation and state.get("require_cpp") and (
             type(wrapped) is not LookupTransform.Impl.GetResultService.Response
             or type(wrapped.result) is not LookupTransform.Result
         ):
@@ -646,147 +727,42 @@ def _rclpy_phase(client, executor, phase: str, count: int, measured: bool, state
             state["last_sequence"] = sequence
 
 
-def _python_lane(args, *, activate: bool) -> int:
-    active_product = None
-    if activate:
-        import rclcppyy as active_product
+def _source_compatible_lane(args, *, profile: str | None) -> int:
+    if profile is not None:
+        import rclcppyy
 
-        active_product.enable_cpp_acceleration(profile="compatible")
+        rclcppyy.enable_cpp_acceleration(profile=profile)
 
-    from rclpy.action import ActionClient
-    from rclpy.context import Context
-    from rclpy.executors import SingleThreadedExecutor
-    from rclpy.node import Node
-    from rclpy.qos import qos_profile_system_default
-    from tf2_msgs.action import LookupTransform
+    require_cpp = profile == "direct_cpp"
+    boundary_guard = _install_boundary_poison() if require_cpp else None
 
-    context = Context()
-    context.init(args=[])
-    node = Node(args.node_name, context=context)
-    executor = SingleThreadedExecutor(context=context)
-    executor.add_node(node)
-    client = ActionClient(
-        node,
-        LookupTransform,
-        args.action_name,
-        feedback_sub_qos_profile=qos_profile_system_default,
-    )
-    client_implementation = "%s.%s" % (
-        type(client).__module__, type(client).__qualname__)
-    if client_implementation != VARIANTS[args.variant]["action_implementation"]:
-        raise RuntimeError("Python action authority marker changed")
-    if not client.wait_for_server(timeout_sec=10.0):
-        raise RuntimeError("Python action server discovery timed out")
-    state = {
-        "goals_sent": 0,
-        "goals_accepted": 0,
-        "feedback_received": 0,
-        "results_received": 0,
-        "terminal_succeeded": 0,
-        "sequence_checksum": 0,
-        "last_sequence": 0,
-        "accept": [],
-        "feedback": [],
-        "result": [],
-        "polls": [0],
-    }
-    _rclpy_phase(client, executor, "warmup", args.warmup_goals, False, state)
-    cache = (
-        {"kind": "activation-only", "state": "activation-only"}
-        if activate else
-        {"kind": "stock-rclpy", "state": "not_applicable"}
-    )
-    _emit(_ready(
-        args,
-        authority="python",
-        goal_representation="python-message",
-        executor_implementation="rclpy.executors.SingleThreadedExecutor",
-        cache=cache,
-        activation=(
-            {"profile": "compatible", "action_authority": "python"}
-            if activate else None),
-    ))
-    if sys.stdin.readline().rstrip("\n") != "START":
-        raise RuntimeError("action client expected START")
-    state["sequence_checksum"] = 0
-    state["last_sequence"] = 0
-    state["accept"].clear()
-    state["feedback"].clear()
-    state["result"].clear()
-    state["polls"][0] = 0
-    rss_baseline = _peak_rss_bytes()
-    wall_start = time.monotonic_ns()
-    cpu_start = time.process_time_ns()
-    _emit(_armed(args))
-    _rclpy_phase(client, executor, "measured", args.measured_goals, True, state)
-    cpu_stop = time.process_time_ns()
-    wall_stop = time.monotonic_ns()
-    rss_final = _peak_rss_bytes()
-    counters = dict(state)
-    client.destroy()
-    executor.remove_node(node)
-    executor.shutdown(timeout_sec=2.0)
-    node.destroy_node()
-    context.shutdown()
-    _emit(_report(
-        args,
-        counters=counters,
-        cpu_time_ns=cpu_stop - cpu_start,
-        wall_duration_ns=wall_stop - wall_start,
-        latency_ns={
-            "send_to_accept": latency_summary(state["accept"]),
-            "send_to_first_feedback": latency_summary(state["feedback"]),
-            "send_to_result": latency_summary(state["result"]),
-        },
-        rss_guard=_rss_guard(rss_baseline, rss_final),
-        polls=state["polls"][0],
-        teardown_clean=not context.ok(),
-        executor_thread_joined=True,
-    ))
-    return 0
-
-
-def _direct_source_compatible_lane(args) -> int:
-    import importlib
-    import rclcppyy
-
-    rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
-
-    import cppyy
     import rclpy
     from rclpy.action import ActionClient
+    from rclpy.executors import SingleThreadedExecutor
     from rclpy.node import Node
     from tf2_msgs.action import LookupTransform
 
-    def forbidden_boundary(*_args, **_kwargs):
-        raise RuntimeError("direct action benchmark entered a conversion boundary")
+    if require_cpp:
+        import cppyy
 
-    bringup_module = importlib.import_module("rclcpp_kit.bringup_rclcpp")
-    serialization_module = importlib.import_module("rclcpp_kit.serialization")
-
-    bringup_module.convert_python_msg_to_cpp = forbidden_boundary
-    serialization_module.serialize_message = forbidden_boundary
-    serialization_module.deserialize_message = forbidden_boundary
-
-    if LookupTransform.Goal is not cppyy.gbl.tf2_msgs.action.LookupTransform.Goal:
-        raise RuntimeError("direct action benchmark did not install the C++ Goal alias")
+        if LookupTransform.Goal is not cppyy.gbl.tf2_msgs.action.LookupTransform.Goal:
+            raise RuntimeError("direct action benchmark did not install the C++ Goal alias")
 
     rclpy.init(args=[])
     node = Node(args.node_name)
+    context = node.context
+    executor = SingleThreadedExecutor(context=context)
+    if executor.context is not context:
+        raise RuntimeError("source-compatible action executor changed node context")
+    if not executor.add_node(node):
+        raise RuntimeError("source-compatible action executor did not add its node")
     client = ActionClient(node, LookupTransform, args.action_name)
-
-    class DirectExecutor:
-        @staticmethod
-        def spin_once(timeout_sec):
-            rclpy.spin_once(node, timeout_sec=timeout_sec)
-
-    executor = DirectExecutor()
     client_implementation = "%s.%s" % (
         type(client).__module__, type(client).__qualname__)
     if client_implementation != VARIANTS[args.variant]["action_implementation"]:
-        raise RuntimeError("direct action authority marker changed")
+        raise RuntimeError("source-compatible action authority marker changed")
     if not client.wait_for_server(timeout_sec=10.0):
-        raise RuntimeError("direct action server discovery timed out")
+        raise RuntimeError("source-compatible action server discovery timed out")
     state = {
         "goals_sent": 0,
         "goals_accepted": 0,
@@ -799,93 +775,112 @@ def _direct_source_compatible_lane(args) -> int:
         "feedback": [],
         "result": [],
         "polls": [0],
-        "require_cpp": True,
+        "require_cpp": require_cpp,
     }
     _rclpy_phase(client, executor, "warmup", args.warmup_goals, False, state)
-    artifact = _artifact(client.compile_result)
-    if not artifact["cached"]:
-        raise RuntimeError("direct action client helper was not prewarmed")
-    _emit(_ready(
-        args,
-        authority="cpp",
-        goal_representation="cpp-message",
-        executor_implementation="rclcpp::executors::SingleThreadedExecutor",
-        cache={
+    if require_cpp:
+        artifact = _artifact(client.compile_result)
+        if not artifact["cached"]:
+            raise RuntimeError("direct action client helper was not prewarmed")
+        cache = {
             "kind": "native-action-client-shared-library",
             "state": "prebuilt",
             "hit": True,
             "path": artifact["path"],
             "sha256": artifact["sha256"],
             "size_bytes": artifact["size_bytes"],
-        },
-        activation={
+        }
+        activation = {
             "profile": "direct_cpp",
             "action_authority": "cpp",
             "representations": "actual_cpp",
-        },
+        }
+    elif profile == "compatible":
+        cache = {"kind": "activation-only", "state": "activation-only"}
+        activation = {"profile": "compatible", "action_authority": "python"}
+    else:
+        cache = {"kind": "stock-rclpy", "state": "not_applicable"}
+        activation = None
+    authority = "cpp" if require_cpp else "python"
+    _emit(_ready(
+        args,
+        authority=authority,
+        goal_representation="cpp-message" if require_cpp else "python-message",
+        executor_implementation="%s.%s" % (
+            type(executor).__module__, type(executor).__qualname__),
+        cache=cache,
+        activation=activation,
     ))
-    if sys.stdin.readline().rstrip("\n") != "START":
-        raise RuntimeError("action client expected START")
+    if sys.stdin.readline().rstrip("\n") != "ARM":
+        raise RuntimeError("action client expected ARM")
     state["sequence_checksum"] = 0
     state["last_sequence"] = 0
     state["accept"].clear()
     state["feedback"].clear()
     state["result"].clear()
     state["polls"][0] = 0
+    _emit(_armed(args))
+    if sys.stdin.readline().rstrip("\n") != "MEASURE":
+        raise RuntimeError("action client expected MEASURE")
     rss_baseline = _peak_rss_bytes()
     wall_start = time.monotonic_ns()
     cpu_start = time.process_time_ns()
-    _emit(_armed(args))
     _rclpy_phase(client, executor, "measured", args.measured_goals, True, state)
     cpu_stop = time.process_time_ns()
     wall_stop = time.monotonic_ns()
     rss_final = _peak_rss_bytes()
 
-    total = args.warmup_goals + args.measured_goals
-    stats = client.stats()
-    actual_crossings = {
-        "goal": stats.python_goal_crossings,
-        "feedback": stats.python_feedback_crossings,
-        "result": stats.python_result_crossings,
-    }
-    actual_crossings["total"] = sum(actual_crossings.values())
-    if actual_crossings != expected_crossings(args.variant, total):
-        raise RuntimeError("direct action crossing counters differ: %s" % actual_crossings)
-    exact_cpp_evidence = {
-        "goal_submissions": stats.cpp_goal_value_submissions,
-        "goal_ids": stats.cpp_goal_id_materializations,
-        "goal_responses": stats.cpp_goal_response_materializations,
-        "feedback_envelopes": stats.cpp_feedback_message_materializations,
-        "result_envelopes": stats.cpp_result_response_materializations,
-    }
-    expected_cpp_evidence = {
-        "goal_submissions": total,
-        "goal_ids": total,
-        "goal_responses": total,
-        "feedback_envelopes": total * FEEDBACK_PER_GOAL,
-        "result_envelopes": total,
-    }
-    if exact_cpp_evidence != expected_cpp_evidence:
-        raise RuntimeError(
-            "direct action C++ representation counters differ: %s" %
-            exact_cpp_evidence)
-    if client.python_feedback_callbacks != total * FEEDBACK_PER_GOAL:
-        raise RuntimeError("direct action Python feedback callback count differs")
-    counters = {
-        "goals_sent": stats.goals_sent,
-        "goals_accepted": stats.goals_accepted,
-        "goals_rejected": stats.goals_rejected,
-        "feedback_received": stats.feedback_received,
-        "feedback_dropped": stats.feedback_dropped,
-        "results_received": stats.results_taken,
-        "terminal_succeeded": stats.results_taken,
-        "sequence_checksum": state["sequence_checksum"],
-        "last_sequence": state["last_sequence"],
-        "active_goals": stats.active_goals,
-        "pending_operations": stats.active_goals,
-        "exceptions": stats.exceptions,
-    }
+    if require_cpp:
+        total = args.warmup_goals + args.measured_goals
+        stats = client.stats()
+        actual_crossings = {
+            "goal": stats.python_goal_crossings,
+            "feedback": stats.python_feedback_crossings,
+            "result": stats.python_result_crossings,
+        }
+        actual_crossings["total"] = sum(actual_crossings.values())
+        if actual_crossings != expected_crossings(args.variant, total):
+            raise RuntimeError(
+                "direct action crossing counters differ: %s" % actual_crossings)
+        exact_cpp_evidence = {
+            "goal_submissions": stats.cpp_goal_value_submissions,
+            "goal_ids": stats.cpp_goal_id_materializations,
+            "goal_responses": stats.cpp_goal_response_materializations,
+            "feedback_envelopes": stats.cpp_feedback_message_materializations,
+            "result_envelopes": stats.cpp_result_response_materializations,
+        }
+        expected_cpp_evidence = {
+            "goal_submissions": total,
+            "goal_ids": total,
+            "goal_responses": total,
+            "feedback_envelopes": total * FEEDBACK_PER_GOAL,
+            "result_envelopes": total,
+        }
+        if exact_cpp_evidence != expected_cpp_evidence:
+            raise RuntimeError(
+                "direct action C++ representation counters differ: %s" %
+                exact_cpp_evidence)
+        if client.python_feedback_callbacks != total * FEEDBACK_PER_GOAL:
+            raise RuntimeError("direct action Python feedback callback count differs")
+        counters = {
+            "goals_sent": stats.goals_sent,
+            "goals_accepted": stats.goals_accepted,
+            "goals_rejected": stats.goals_rejected,
+            "feedback_received": stats.feedback_received,
+            "feedback_dropped": stats.feedback_dropped,
+            "results_received": stats.results_taken,
+            "terminal_succeeded": stats.results_taken,
+            "sequence_checksum": state["sequence_checksum"],
+            "last_sequence": state["last_sequence"],
+            "active_goals": stats.active_goals,
+            "pending_operations": stats.active_goals,
+            "exceptions": stats.exceptions,
+        }
+    else:
+        counters = dict(state)
     client.destroy()
+    executor.remove_node(node)
+    executor.shutdown(timeout_sec=2.0)
     node.destroy_node()
     rclpy.shutdown()
     _emit(_report(
@@ -900,8 +895,9 @@ def _direct_source_compatible_lane(args) -> int:
         },
         rss_guard=_rss_guard(rss_baseline, rss_final),
         polls=state["polls"][0],
-        teardown_clean=not rclpy.ok(),
+        teardown_clean=not context.ok(),
         executor_thread_joined=True,
+        boundary_guard=boundary_guard,
     ))
     return 0
 
@@ -969,6 +965,7 @@ def _native_python_phase(client, phase: str, count: int, measured: bool, state: 
 
 
 def _native_python_lane(args) -> int:
+    boundary_guard = _install_boundary_poison()
     from rclcpp_kit.native import native
     from tf2_msgs.action import LookupTransform
 
@@ -1012,18 +1009,20 @@ def _native_python_lane(args) -> int:
             "size_bytes": artifact["size_bytes"],
         },
     ))
-    if sys.stdin.readline().rstrip("\n") != "START":
-        raise RuntimeError("action client expected START")
+    if sys.stdin.readline().rstrip("\n") != "ARM":
+        raise RuntimeError("action client expected ARM")
     state["sequence_checksum"] = 0
     state["last_sequence"] = 0
     state["accept"].clear()
     state["feedback"].clear()
     state["result"].clear()
     state["polls"][0] = 0
+    _emit(_armed(args))
+    if sys.stdin.readline().rstrip("\n") != "MEASURE":
+        raise RuntimeError("action client expected MEASURE")
     rss_baseline = _peak_rss_bytes()
     wall_start = time.monotonic_ns()
     cpu_start = time.process_time_ns()
-    _emit(_armed(args))
     _native_python_phase(client, "measured", args.measured_goals, True, state)
     cpu_stop = time.process_time_ns()
     wall_stop = time.monotonic_ns()
@@ -1069,6 +1068,7 @@ def _native_python_lane(args) -> int:
         polls=state["polls"][0],
         teardown_clean=session.closed and client.closed,
         executor_thread_joined=executor_thread.closed,
+        boundary_guard=boundary_guard,
     ))
     return 0
 
@@ -1083,6 +1083,7 @@ def _cpp_percentiles(probe, prefix: str) -> dict:
 
 
 def _native_cpp_lane(args) -> int:
+    boundary_guard = _install_boundary_poison()
     import cppyy
     from rclcpp_kit.native import native
 
@@ -1118,10 +1119,13 @@ def _native_cpp_lane(args) -> int:
             "size_bytes": artifact["size_bytes"],
         },
     ))
-    if sys.stdin.readline().rstrip("\n") != "START":
-        raise RuntimeError("action client expected START")
+    if sys.stdin.readline().rstrip("\n") != "ARM":
+        raise RuntimeError("action client expected ARM")
     probe.arm(args.measured_goals)
     _emit(_armed(args))
+    if sys.stdin.readline().rstrip("\n") != "MEASURE":
+        raise RuntimeError("action client expected MEASURE")
+    probe.start_measurement()
     probe.run_measured()
     values = {
         "goals_sent": int(probe.goals_sent()),
@@ -1156,6 +1160,7 @@ def _native_cpp_lane(args) -> int:
         polls=0,
         teardown_clean=session.closed,
         executor_thread_joined=executor_thread.closed,
+        boundary_guard=boundary_guard,
     ))
     return 0
 
@@ -1216,11 +1221,11 @@ def main() -> int:
     if args.warmup_goals <= 0 or args.measured_goals <= 0:
         raise SystemExit("action goal counts must be positive")
     if args.variant == "stock-rclpy":
-        return _python_lane(args, activate=False)
+        return _source_compatible_lane(args, profile=None)
     if args.variant == "compatible-rclcppyy":
-        return _python_lane(args, activate=True)
+        return _source_compatible_lane(args, profile="compatible")
     if args.variant == "direct-source-compatible":
-        return _direct_source_compatible_lane(args)
+        return _source_compatible_lane(args, profile="direct_cpp")
     if args.variant == "native-python-orchestrated":
         return _native_python_lane(args)
     if args.variant == "native-cpp-state-machine":

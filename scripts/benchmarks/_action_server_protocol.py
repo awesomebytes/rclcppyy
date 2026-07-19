@@ -10,6 +10,7 @@ import re
 
 from _action_client_protocol import (
     ACTION_TYPE,
+    BOUNDARY_TRIPWIRE_SURFACES,
     CLIENT_SCHEMA,
     FEEDBACK_PER_GOAL,
     MEASURED_GOALS,
@@ -294,6 +295,7 @@ def _validate_server_report(event: dict, sample: dict) -> None:
         "cpu_role": "server_under_test",
         "teardown_clean": True,
         "python_crossings": expected_python_crossings(sample["variant"], total),
+        "python_crossing_semantics": "callback_entries_only",
         "cpp_value_operations": expected_cpp_operations(sample["variant"], total),
     }
     if any(event.get(key) != expected for key, expected in exact.items()):
@@ -303,15 +305,38 @@ def _validate_server_report(event: dict, sample: dict) -> None:
     _validate_rss(event.get("rss_guard"))
     boundary = event.get("boundary_evidence")
     spec = VARIANTS[sample["variant"]]
-    expected_boundary = {
-        "exact_generated_cpp": spec["exact_cpp"],
-        "python_message_conversions": 0,
-        "python_serialization_calls": 0,
-        "adapter_cdr_roundtrips": 0,
-        "tripwires_armed": sample["variant"] in (
+    if sample["variant"] in (
             "direct-source-compatible", "native-python-orchestrated",
-            "native-cpp-state-machine"),
-    }
+            "native-cpp-state-machine"):
+        expected_boundary = {
+            "proof": "counter-backed-poison",
+            "exact_generated_cpp": True,
+            "python_message_conversions": 0,
+            "python_serialization_calls": 0,
+            "adapter_cdr_roundtrips": 0,
+            "tripwires_armed": True,
+            "tripwire_surfaces": list(BOUNDARY_TRIPWIRE_SURFACES),
+        }
+    elif sample["variant"] == "aot-staged":
+        expected_boundary = {
+            "proof": "cpp-only-process",
+            "exact_generated_cpp": True,
+            "python_message_conversions": 0,
+            "python_serialization_calls": 0,
+            "adapter_cdr_roundtrips": 0,
+            "tripwires_armed": False,
+            "tripwire_surfaces": [],
+        }
+    else:
+        expected_boundary = {
+            "proof": "python-message-lane",
+            "exact_generated_cpp": spec["exact_cpp"],
+            "python_message_conversions": None,
+            "python_serialization_calls": None,
+            "adapter_cdr_roundtrips": None,
+            "tripwires_armed": False,
+            "tripwire_surfaces": [],
+        }
     if boundary != expected_boundary:
         raise ValueError("action-server representation boundary evidence is invalid")
 
@@ -361,6 +386,15 @@ def _validate_client(event: dict, sample: dict, report: bool) -> None:
         "exceptions": 0,
         "python_crossings": {"goal": 0, "feedback": 0, "result": 0, "total": 0},
         "no_python_message_conversion": True,
+        "boundary_evidence": {
+            "proof": "cpp-only-process",
+            "exact_generated_cpp": True,
+            "tripwires_armed": False,
+            "tripwire_surfaces": [],
+            "python_message_conversions": 0,
+            "python_serialization_calls": 0,
+            "adapter_cdr_roundtrips": 0,
+        },
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
         "orchestration_poll_count": 0,
         "teardown_clean": True,
@@ -449,6 +483,8 @@ def validate_sample(sample: dict, cache: dict) -> None:
         "process_group_id": sample["client_pid"],
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
         "measurement_reset": True,
+        "measurement_window_started": False,
+        "protocol_emission_excluded": True,
     }:
         raise ValueError("common AOT client ARMED evidence is invalid")
     _validate_client(sample.get("client_report"), sample, True)

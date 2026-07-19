@@ -211,12 +211,13 @@ def _run_sample(
                 raise RuntimeError("action-server %s retained setup children" % role)
         ready_graph = observer.wait_ready(
             server_node, client_node, action_name, timeout)
-        _write_control(client, "START", "common AOT action client")
+        _write_control(client, "ARM", "common AOT action client")
         client_armed, values = _read_document(
             client, timeout, "common AOT action client ARMED")
         diagnostics["client"].extend(values)
         if client_armed.get("event") != "armed":
             raise RuntimeError("common AOT client emitted invalid ARMED evidence")
+        _write_control(client, "MEASURE", "common AOT action client")
         client_report, values = _read_document(
             client, timeout, "common AOT action client REPORT")
         diagnostics["client"].extend(values)

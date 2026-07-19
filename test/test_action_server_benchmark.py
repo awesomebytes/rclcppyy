@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import sys
+import types
 import uuid
 
 import pytest
@@ -28,6 +29,7 @@ def _load(name):
 
 protocol = _load("_action_server_protocol")
 runner = _load("run_action_server_benchmark")
+worker = _load("action_server_worker")
 DIGEST = "a" * 64
 
 
@@ -119,6 +121,40 @@ def _route(variant):
         "path": artifact["path"],
         "sha256": artifact["sha256"],
         "size_bytes": artifact["size_bytes"],
+    }
+
+
+def _server_boundary(variant):
+    if variant in (
+            "direct-source-compatible", "native-python-orchestrated",
+            "native-cpp-state-machine"):
+        return {
+            "proof": "counter-backed-poison",
+            "exact_generated_cpp": True,
+            "python_message_conversions": 0,
+            "python_serialization_calls": 0,
+            "adapter_cdr_roundtrips": 0,
+            "tripwires_armed": True,
+            "tripwire_surfaces": list(protocol.BOUNDARY_TRIPWIRE_SURFACES),
+        }
+    if variant == "aot-staged":
+        return {
+            "proof": "cpp-only-process",
+            "exact_generated_cpp": True,
+            "python_message_conversions": 0,
+            "python_serialization_calls": 0,
+            "adapter_cdr_roundtrips": 0,
+            "tripwires_armed": False,
+            "tripwire_surfaces": [],
+        }
+    return {
+        "proof": "python-message-lane",
+        "exact_generated_cpp": False,
+        "python_message_conversions": None,
+        "python_serialization_calls": None,
+        "adapter_cdr_roundtrips": None,
+        "tripwires_armed": False,
+        "tripwire_surfaces": [],
     }
 
 
@@ -214,6 +250,15 @@ def _sample(variant, repetition=1, index=0):
         "exceptions": 0,
         "python_crossings": {"goal": 0, "feedback": 0, "result": 0, "total": 0},
         "no_python_message_conversion": True,
+        "boundary_evidence": {
+            "proof": "cpp-only-process",
+            "exact_generated_cpp": True,
+            "tripwires_armed": False,
+            "tripwire_surfaces": [],
+            "python_message_conversions": 0,
+            "python_serialization_calls": 0,
+            "adapter_cdr_roundtrips": 0,
+        },
         "cpu_time_ns": 3_000_000,
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
         "wall_duration_ns": 4_000_000_000,
@@ -247,16 +292,9 @@ def _sample(variant, repetition=1, index=0):
         "cpu_role": "server_under_test",
         "rss_guard": _rss(),
         "python_crossings": protocol.expected_python_crossings(variant, total),
+        "python_crossing_semantics": "callback_entries_only",
         "cpp_value_operations": protocol.expected_cpp_operations(variant, total),
-        "boundary_evidence": {
-            "exact_generated_cpp": spec["exact_cpp"],
-            "python_message_conversions": 0,
-            "python_serialization_calls": 0,
-            "adapter_cdr_roundtrips": 0,
-            "tripwires_armed": variant in (
-                "direct-source-compatible", "native-python-orchestrated",
-                "native-cpp-state-machine"),
-        },
+        "boundary_evidence": _server_boundary(variant),
         "teardown_clean": True,
     }
     observation = {"observed": True, "observations": 1, "elapsed_ns": 100}
@@ -304,6 +342,8 @@ def _sample(variant, repetition=1, index=0):
             "process_group_id": client_pid,
             "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
             "measurement_reset": True,
+            "measurement_window_started": False,
+            "protocol_emission_excluded": True,
         },
         "client_report": client_report,
         "server_report": server_report,
@@ -403,7 +443,7 @@ def test_action_server_fixed_cpu_contract_and_boundaries():
         "native-cpp-state-machine", 520)["total"] == 0
 
 
-def test_action_server_sources_pin_primary_role_and_stock_feedback_qos():
+def test_action_server_sources_pin_primary_role_and_public_feedback_qos():
     runner_source = (BENCH_DIR / "run_action_server_benchmark.py").read_text(
         encoding="utf-8")
     worker_source = (BENCH_DIR / "action_server_worker.py").read_text(
@@ -412,9 +452,51 @@ def test_action_server_sources_pin_primary_role_and_stock_feedback_qos():
         BENCH_DIR / "action_client_aot" / "action_benchmark_server.cpp"
     ).read_text(encoding="utf-8")
     assert '"server_under_test",' in runner_source
-    assert "feedback_pub_qos_profile=qos_profile_system_default" in worker_source
+    assert protocol.QOS["feedback_topic"]["depth"] == 10
+    assert protocol.QOS["feedback_topic"]["reliability"] == "reliable"
+    assert "qos_profile_system_default" not in worker_source
+    assert "feedback_pub_qos_profile=" not in worker_source
     assert 'cpu_role != "drift_diagnostic_only"' in aot_source
     assert 'cpu_role != "server_under_test"' in aot_source
+
+
+def test_source_compatible_server_uses_one_public_executor_setup():
+    source = (BENCH_DIR / "action_server_worker.py").read_text(encoding="utf-8")
+    assert source.count("def _source_compatible_lane(") == 1
+    assert "def _stock_lane(" not in source
+    assert "def _direct_lane(" not in source
+    assert "context = node.context" in source
+    assert "SingleThreadedExecutor(context=context)" in source
+    assert "executor.spin_once(timeout_sec=0.002)" in source
+
+
+def test_exact_server_boundary_poison_is_counter_backed(monkeypatch):
+    modules = {}
+
+    def fake_import(name):
+        return modules.setdefault(name, types.SimpleNamespace())
+
+    monkeypatch.setattr(worker.importlib, "import_module", fake_import)
+    guard = worker._poison_boundaries()
+    assert guard["surfaces"] == list(protocol.BOUNDARY_TRIPWIRE_SURFACES)
+    for surface in guard["surfaces"]:
+        module_name, attribute = surface.rsplit(".", 1)
+        with pytest.raises(AssertionError):
+            getattr(modules[module_name], attribute)()
+    assert guard["counters"] == {
+        "python_message_conversions": 6,
+        "python_serialization_calls": 6,
+        "adapter_cdr_roundtrips": 4,
+    }
+
+
+def test_aot_server_uses_blocking_spin_once_without_poll_sleep():
+    source = (
+        BENCH_DIR / "action_client_aot" / "action_benchmark_server.cpp"
+    ).read_text(encoding="utf-8")
+    assert "executor.spin_once(2ms);" in source
+    assert "executor.spin_some(2ms);" not in source
+    assert "std::this_thread::sleep_for(100us);" not in source
 
 
 @pytest.mark.parametrize("variant", tuple(protocol.VARIANTS))
@@ -432,6 +514,8 @@ def test_each_action_server_lane_satisfies_strict_sample_contract(variant):
             "server_report", "boundary_evidence", "exact_generated_cpp"), False),
         ("direct-source-compatible", (
             "server_report", "boundary_evidence", "python_message_conversions"), 1),
+        ("direct-source-compatible", (
+            "server_report", "boundary_evidence", "tripwire_surfaces"), []),
         ("native-python-orchestrated", (
             "server_report", "cpp_value_operations", "goal_shared_handoffs"), 0),
         ("native-cpp-state-machine", (
@@ -474,6 +558,15 @@ def test_action_server_json_schema_matches_negative_contracts():
         "requested_rmw"] == {"const": protocol.RMW}
     assert schema["$defs"]["server_report"]["properties"][
         "cpu_role"] == {"const": "server_under_test"}
+    armed = schema["$defs"]["client_armed"]
+    assert armed["properties"]["measurement_window_started"] == {
+        "const": False}
+    assert armed["properties"]["protocol_emission_excluded"] == {
+        "const": True}
+    assert schema["$defs"]["tripwire_surface_set"]["const"] == list(
+        protocol.BOUNDARY_TRIPWIRE_SURFACES)
+    assert schema["$defs"]["server_report"]["properties"][
+        "python_crossing_semantics"] == {"const": "callback_entries_only"}
     jsonschema = pytest.importorskip("jsonschema")
     jsonschema.Draft202012Validator.check_schema(schema)
     jsonschema.validate(_document(), schema)
@@ -481,6 +574,11 @@ def test_action_server_json_schema_matches_negative_contracts():
     invalid = _document()
     invalid["results"][1]["server_report"]["boundary_evidence"][
         "python_serialization_calls"] = 1
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(invalid, schema)
+
+    invalid = _document()
+    invalid["results"][0]["client_armed"]["measurement_window_started"] = True
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate(invalid, schema)
 
