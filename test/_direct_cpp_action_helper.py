@@ -116,6 +116,13 @@ try:
     assert client.wait_for_server(timeout_sec=15.0)
     assert server.poll() is None
 
+    native_stats = client._native.stats
+
+    def forbidden_hot_path_stats():
+        raise AssertionError("full action stats materialized on the executor hot path")
+
+    client._native.stats = forbidden_hot_path_stats
+
     def feedback_callback(message):
         assert type(message) is LookupTransform.Impl.FeedbackMessage
         assert type(message.feedback) is LookupTransform.Feedback
@@ -154,6 +161,7 @@ try:
         for message in retained_feedback
     )
     retained_values.extend((handle.goal_id, handle.stamp, result_response))
+    client._native.stats = native_stats
     print("DIRECT_CPP_ACTION_SUCCESS_OK")
 
     rejected_future = client.send_goal_async(LookupTransform.Goal(

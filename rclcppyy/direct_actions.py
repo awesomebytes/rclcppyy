@@ -541,9 +541,14 @@ class DirectActionClient:
             return
         self._poll_goal_responses()
         self._poll_feedback()
+        self._check_feedback_overflow()
         self._poll_cancel_responses()
         self._poll_results()
-        dropped = int(self._native.stats().feedback_dropped)
+
+    def _check_feedback_overflow(self):
+        if not self._handles:
+            return
+        dropped = self._native.feedback_dropped_count()
         if dropped != self._last_feedback_dropped:
             previous = self._last_feedback_dropped
             self._last_feedback_dropped = dropped
