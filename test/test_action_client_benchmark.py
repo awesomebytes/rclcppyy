@@ -400,6 +400,12 @@ def test_goal_identity_checksum_latency_and_crossings_are_fixed():
     assert protocol.expected_crossings("native-cpp-state-machine", 520)["total"] == 0
 
 
+def test_python_action_controls_pin_system_default_feedback_qos():
+    worker_source = (BENCH_DIR / "action_client_worker.py").read_text(
+        encoding="utf-8")
+    assert "feedback_sub_qos_profile=qos_profile_system_default" in worker_source
+
+
 @pytest.mark.parametrize("variant", tuple(protocol.VARIANTS))
 def test_each_action_lane_satisfies_the_exact_sample_contract(variant):
     protocol.validate_sample(_sample(variant), _cache(), _build())
@@ -612,6 +618,7 @@ def test_live_cyclone_all_action_lanes(tmp_path, monkeypatch):
                     assert report["feedback_dropped"] == 0
                     assert server_report["results_sent"] == 3
                     assert server_report["feedback_sent"] == 9
+                    assert server_report["cpu_role"] == "drift_diagnostic_only"
                 finally:
                     runner._stop_process(client)
                     runner._stop_process(server)

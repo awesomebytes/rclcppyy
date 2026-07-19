@@ -242,6 +242,7 @@ def _sample(variant, repetition=1, index=0):
         "exceptions": 0,
         "cpu_time_ns": 2_000_000,
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
+        "cpu_role": "server_under_test",
         "rss_guard": _rss(),
         "python_crossings": protocol.expected_python_crossings(variant, total),
         "cpp_value_operations": protocol.expected_cpp_operations(variant, total),
@@ -400,6 +401,20 @@ def test_action_server_fixed_cpu_contract_and_boundaries():
         "native-cpp-state-machine", 520)["total"] == 0
 
 
+def test_action_server_sources_pin_primary_role_and_stock_feedback_qos():
+    runner_source = (BENCH_DIR / "run_action_server_benchmark.py").read_text(
+        encoding="utf-8")
+    worker_source = (BENCH_DIR / "action_server_worker.py").read_text(
+        encoding="utf-8")
+    aot_source = (
+        BENCH_DIR / "action_client_aot" / "action_benchmark_server.cpp"
+    ).read_text(encoding="utf-8")
+    assert '"server_under_test",' in runner_source
+    assert "feedback_pub_qos_profile=qos_profile_system_default" in worker_source
+    assert 'cpu_role != "drift_diagnostic_only"' in aot_source
+    assert 'cpu_role != "server_under_test"' in aot_source
+
+
 @pytest.mark.parametrize("variant", tuple(protocol.VARIANTS))
 def test_each_action_server_lane_satisfies_strict_sample_contract(variant):
     protocol.validate_sample(_sample(variant), _cache())
@@ -419,6 +434,7 @@ def test_each_action_server_lane_satisfies_strict_sample_contract(variant):
             "server_report", "cpp_value_operations", "goal_shared_handoffs"), 0),
         ("native-cpp-state-machine", (
             "server_report", "python_crossings", "execute"), 1),
+        ("aot-staged", ("server_report", "cpu_role"), "drift_diagnostic_only"),
         ("aot-staged", ("server_ready", "cache", "state"), "process_warm"),
         ("aot-staged", ("topology", "common_aot_client"), False),
     ],
@@ -497,6 +513,7 @@ def test_live_cyclone_action_server_lanes_use_one_aot_client(tmp_path, monkeypat
                 assert report["feedback_sent"] == 9
                 assert report["measured_checksum"] == 3
                 assert report["cpu_time_ns"] > 0
+                assert report["cpu_role"] == "server_under_test"
                 assert sample["client_report"]["feedback_received"] == 9
                 if protocol.VARIANTS[variant]["exact_cpp"]:
                     assert report["boundary_evidence"]["exact_generated_cpp"]

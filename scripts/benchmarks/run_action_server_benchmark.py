@@ -69,10 +69,10 @@ def _prewarm(cache_root: Path, env: dict, timeout: float) -> dict:
         _run_command(command, env=env, timeout=timeout, label="warm server prewarm"),
         "warm server prewarm",
     )
-    validate_prewarm(cold, expect_hit=False)
-    validate_prewarm(warm, expect_hit=True)
     cold["stdout_diagnostics"] = cold_diagnostics
     warm["stdout_diagnostics"] = warm_diagnostics
+    validate_prewarm(cold, expect_hit=False)
+    validate_prewarm(warm, expect_hit=True)
     return {
         "isolated_root": True,
         "autopch_disabled": True,
@@ -102,6 +102,7 @@ def _server_argv(
             variant,
             str(warmup_goals),
             str(measured_goals),
+            "server_under_test",
         ]
     return [
         sys.executable,

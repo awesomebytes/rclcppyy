@@ -291,6 +291,7 @@ def _validate_server_report(event: dict, sample: dict) -> None:
         "pending_operations": 0,
         "exceptions": 0,
         "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID",
+        "cpu_role": "server_under_test",
         "teardown_clean": True,
         "python_crossings": expected_python_crossings(sample["variant"], total),
         "cpp_value_operations": expected_cpp_operations(sample["variant"], total),

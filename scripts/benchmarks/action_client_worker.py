@@ -657,6 +657,7 @@ def _python_lane(args, *, activate: bool) -> int:
     from rclpy.context import Context
     from rclpy.executors import SingleThreadedExecutor
     from rclpy.node import Node
+    from rclpy.qos import qos_profile_system_default
     from tf2_msgs.action import LookupTransform
 
     context = Context()
@@ -664,7 +665,12 @@ def _python_lane(args, *, activate: bool) -> int:
     node = Node(args.node_name, context=context)
     executor = SingleThreadedExecutor(context=context)
     executor.add_node(node)
-    client = ActionClient(node, LookupTransform, args.action_name)
+    client = ActionClient(
+        node,
+        LookupTransform,
+        args.action_name,
+        feedback_sub_qos_profile=qos_profile_system_default,
+    )
     client_implementation = "%s.%s" % (
         type(client).__module__, type(client).__qualname__)
     if client_implementation != VARIANTS[args.variant]["action_implementation"]:

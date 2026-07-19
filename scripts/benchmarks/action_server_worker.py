@@ -307,6 +307,7 @@ def _stock_lane(args) -> int:
     from rclpy.action import ActionServer, GoalResponse
     from rclpy.executors import SingleThreadedExecutor
     from rclpy.node import Node
+    from rclpy.qos import qos_profile_system_default
     from tf2_msgs.action import LookupTransform
     from tf2_msgs.msg import TF2Error
 
@@ -363,6 +364,7 @@ def _stock_lane(args) -> int:
         execute_callback,
         goal_callback=goal_callback,
         handle_accepted_callback=accepted_callback,
+        feedback_pub_qos_profile=qos_profile_system_default,
     )
     _emit(_ready(args))
     while state.results_sent < state.total:

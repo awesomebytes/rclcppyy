@@ -279,8 +279,10 @@ std::string rss_json(std::uint64_t baseline, std::uint64_t final_value)
 
 int main(int argc, char ** argv)
 {
-  if (argc != 7) {
-    std::cerr << "usage: action_benchmark_server NODE ACTION TOKEN VARIANT WARMUP MEASURED\n";
+  if (argc != 7 && argc != 8) {
+    std::cerr
+      << "usage: action_benchmark_server NODE ACTION TOKEN VARIANT WARMUP MEASURED "
+      << "[drift_diagnostic_only|server_under_test]\n";
     return 2;
   }
   const std::string node_name(argv[1]);
@@ -289,6 +291,11 @@ int main(int argc, char ** argv)
   const std::string variant(argv[4]);
   const auto warmup = parse_count(argv[5]);
   const auto measured = parse_count(argv[6]);
+  const std::string cpu_role = argc == 8 ? argv[7] : "drift_diagnostic_only";
+  if (cpu_role != "drift_diagnostic_only" && cpu_role != "server_under_test") {
+    std::cerr << "action benchmark server error: unsupported CPU role\n";
+    return 2;
+  }
   rclcpp::init(0, nullptr);
   try {
     auto node = std::make_shared<rclcpp::Node>(node_name);
@@ -358,7 +365,7 @@ int main(int argc, char ** argv)
               << ",\"pending_operations\":0,\"exceptions\":" << report.exceptions
               << ",\"cpu_time_ns\":" << report.cpu_stop_ns - report.cpu_start_ns
               << ",\"cpu_clock\":\"CLOCK_PROCESS_CPUTIME_ID\","
-              << "\"cpu_role\":\"drift_diagnostic_only\",\"rss_guard\":"
+              << "\"cpu_role\":" << quote(cpu_role) << ",\"rss_guard\":"
               << rss_json(report.rss_baseline, report.rss_final)
               << ",\"python_crossings\":{\"goal_decision\":0,"
               << "\"accepted_goal\":0,\"execute\":0,\"total\":0},"
