@@ -8,6 +8,7 @@ import inspect
 import os
 import sys
 import threading
+import time
 import weakref
 
 import cppyy
@@ -29,6 +30,19 @@ _DEFAULT_SERVICE_QOS = object()
 
 def _unsupported(reason: str):
     raise BackendUnavailableError(reason)
+
+
+def _cpp_string(value) -> str:
+    if isinstance(value, bytes):
+        return value.decode()
+    return str(value)
+
+
+def _graph_names_and_types(values) -> list[tuple[str, list[str]]]:
+    return [
+        (_cpp_string(row.first), [_cpp_string(value) for value in row.second])
+        for row in values
+    ]
 
 
 class _DirectContext:
@@ -687,6 +701,152 @@ class DirectNode:
 
     def get_logger(self):
         return self._require_node().get_logger()
+
+    def _graph_interface(self):
+        return self._require_node().get_node_graph_interface()
+
+    def get_topic_names_and_types(self, no_demangle: bool = False):
+        return _graph_names_and_types(
+            self._graph_interface().get_topic_names_and_types(no_demangle))
+
+    def get_service_names_and_types(self):
+        return _graph_names_and_types(
+            self._graph_interface().get_service_names_and_types())
+
+    def get_node_names_and_namespaces(self):
+        return [
+            (_cpp_string(row.first), _cpp_string(row.second))
+            for row in self._graph_interface().get_node_names_and_namespaces()
+        ]
+
+    def get_node_names(self):
+        return [name for name, _namespace in self.get_node_names_and_namespaces()]
+
+    def get_fully_qualified_node_names(self):
+        return [
+            namespace + ("" if namespace.endswith("/") else "/") + name
+            for name, namespace in self.get_node_names_and_namespaces()
+        ]
+
+    def get_node_names_and_namespaces_with_enclaves(self):
+        return [
+            tuple(_cpp_string(row[index]) for index in range(3))
+            for row in self._graph_interface().get_node_names_with_enclaves()
+        ]
+
+    def _names_and_types_by_node(
+        self,
+        method_name: str,
+        kind: str,
+        node_name: str,
+        node_namespace: str,
+        no_demangle=None,
+    ):
+        from rclpy._rclpy_pybind11 import NodeNameNonExistentError
+        from rclpy.validate_namespace import validate_namespace
+        from rclpy.validate_node_name import validate_node_name
+
+        validate_node_name(node_name)
+        validate_namespace(node_namespace)
+        identity = (str(node_name), str(node_namespace))
+        if identity not in self.get_node_names_and_namespaces():
+            raise NodeNameNonExistentError(
+                "cannot get %s names and types for nonexistent node: error not set"
+                % kind
+            )
+        method = getattr(self._graph_interface(), method_name)
+        arguments = (
+            (node_name, node_namespace)
+            if no_demangle is None
+            else (node_name, node_namespace, no_demangle)
+        )
+        try:
+            return _graph_names_and_types(method(*arguments))
+        except Exception:
+            if identity not in self.get_node_names_and_namespaces():
+                raise NodeNameNonExistentError(
+                    "cannot get %s names and types for nonexistent node: error not set"
+                    % kind
+                ) from None
+            raise
+
+    def get_publisher_names_and_types_by_node(
+        self, node_name: str, node_namespace: str, no_demangle: bool = False
+    ):
+        return self._names_and_types_by_node(
+            "get_publisher_names_and_types_by_node",
+            "publisher",
+            node_name,
+            node_namespace,
+            no_demangle,
+        )
+
+    def get_subscriber_names_and_types_by_node(
+        self, node_name: str, node_namespace: str, no_demangle: bool = False
+    ):
+        return self._names_and_types_by_node(
+            "get_subscriber_names_and_types_by_node",
+            "subscriber",
+            node_name,
+            node_namespace,
+            no_demangle,
+        )
+
+    def get_service_names_and_types_by_node(
+        self, node_name: str, node_namespace: str
+    ):
+        return self._names_and_types_by_node(
+            "get_service_names_and_types_by_node",
+            "service",
+            node_name,
+            node_namespace,
+        )
+
+    def get_client_names_and_types_by_node(
+        self, node_name: str, node_namespace: str
+    ):
+        return self._names_and_types_by_node(
+            "get_client_names_and_types_by_node",
+            "client",
+            node_name,
+            node_namespace,
+        )
+
+    def resolve_topic_name(self, topic: str, *, only_expand: bool = False) -> str:
+        interface = self._require_node().get_node_topics_interface()
+        return _cpp_string(interface.resolve_topic_name(topic, only_expand))
+
+    def resolve_service_name(
+        self, service: str, *, only_expand: bool = False
+    ) -> str:
+        interface = self._require_node().get_node_services_interface()
+        return _cpp_string(interface.resolve_service_name(service, only_expand))
+
+    def count_publishers(self, topic_name: str) -> int:
+        topic = self.resolve_topic_name(topic_name, only_expand=True)
+        return int(self._graph_interface().count_publishers(topic))
+
+    def count_subscribers(self, topic_name: str) -> int:
+        topic = self.resolve_topic_name(topic_name, only_expand=True)
+        return int(self._graph_interface().count_subscribers(topic))
+
+    def count_clients(self, service_name: str) -> int:
+        service = self.resolve_service_name(service_name, only_expand=True)
+        return int(self._graph_interface().count_clients(service))
+
+    def count_services(self, service_name: str) -> int:
+        service = self.resolve_service_name(service_name, only_expand=True)
+        return int(self._graph_interface().count_services(service))
+
+    def wait_for_node(self, fully_qualified_node_name: str, timeout: float) -> bool:
+        if not fully_qualified_node_name.startswith("/"):
+            fully_qualified_node_name = "/" + fully_qualified_node_name
+        started = time.time()
+        found = False
+        while time.time() - started < timeout and not found:
+            found = fully_qualified_node_name in self.get_fully_qualified_node_names()
+            time.sleep(0.1)
+        return found
 
     def create_publisher(
         self,

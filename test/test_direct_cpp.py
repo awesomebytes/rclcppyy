@@ -71,6 +71,14 @@ def test_direct_cpp_callback_groups_bind_native_entities():
     assert "DIRECT_CPP_CALLBACK_GROUP_TEARDOWN_OK" in process.stdout
 
 
+def test_direct_cpp_graph_queries_use_native_rclcpp_authority():
+    process = run_helper("_direct_cpp_graph_helper.py", timeout=240)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_GRAPH_CPP_AUTHORITY_OK" in process.stdout
+    assert "DIRECT_CPP_GRAPH_RCLPY_SHAPE_OK" in process.stdout
+    assert "DIRECT_CPP_GRAPH_TEARDOWN_OK" in process.stdout
+
+
 def test_direct_cpp_qos_profiles_reach_native_endpoints_without_message_conversion():
     process = run_helper("_direct_cpp_qos_helper.py", timeout=240)
     assert process.returncode == 0, format_output(process)
