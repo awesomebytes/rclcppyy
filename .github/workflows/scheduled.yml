@@ -49,7 +49,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: 941d6ce225f3d9b7196367da4508fd72ab4c2ded
+          ref: 948fd3d6b4d9a8283f568214ce1eaa2529edf03d
           path: _deps/cppyy_kit
       - name: Verify architecture
         run: test "$(uname -m)" = "${{ matrix.machine }}"
@@ -179,7 +179,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: 941d6ce225f3d9b7196367da4508fd72ab4c2ded
+          ref: 948fd3d6b4d9a8283f568214ce1eaa2529edf03d
           path: _deps/cppyy_kit
       - uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
         with:
@@ -235,6 +235,8 @@ jobs:
             --output build/dedicated-benchmark/action-server.json
           pixi run local-parameter-bench \
             --output build/dedicated-benchmark/local-parameter.json
+          pixi run remote-parameter-bench \
+            --output build/dedicated-benchmark/remote-parameter.json
           pixi run fusion-pipeline-bench \
             --output build/dedicated-benchmark/fusion-pipeline.json
       - name: Gate repeated results against reviewed architecture budget
