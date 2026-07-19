@@ -197,7 +197,9 @@ Common graph queries use the same native node authority: topic/service names and
 types, node names/namespaces/enclaves, per-node endpoint types, publisher/
 subscriber/service/client counts, topic/service resolution, and `wait_for_node`.
 Only graph metadata strings and containers are converted to the documented Python
-return shape. Endpoint-info/QoS graph objects and graph-event waiting remain
+return shape. Publisher/subscription endpoint queries return real rclpy
+`TopicEndpointInfo` control objects populated from native node identity, generated
+type hash, endpoint kind, GID, and full RMW QoS. Graph-event waiting remains
 fail-closed.
 
 The default direct action registry contains `tf2_msgs/action/LookupTransform`.
