@@ -168,7 +168,10 @@ assert node.string_subscription.qos_profile.depth == 10
 assert node.string_publisher.event_handlers == []
 assert node.string_subscription.event_handlers == []
 assert node.string_subscription.callback == node.strings.append
-assert node.string_subscription.callback_group is None
+assert node.string_publisher.callback_group is node.default_callback_group
+assert node.string_subscription.callback_group is node.default_callback_group
+assert node.default_callback_group.has_entity(node.string_publisher)
+assert node.default_callback_group.has_entity(node.string_subscription)
 assert node.string_subscription.raw is False
 assert node.string_subscription._callback_type is (
     Subscription.CallbackType.MessageOnly)

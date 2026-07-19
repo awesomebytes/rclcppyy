@@ -150,12 +150,15 @@ def _lower_entity_qos(qos_profile):
 class DirectPublisher:
     """rclpy-shaped metadata and lifetime around a typed C++ publisher."""
 
-    def __init__(self, msg_type, topic, qos_profile, logger_name, native):
+    def __init__(
+        self, msg_type, topic, qos_profile, logger_name, native, callback_group
+    ):
         self._native = native
         self._closed = False
         self.msg_type = msg_type
         self.topic = str(native.entity().get_topic_name())
         self.qos_profile = qos_profile
+        self.callback_group = callback_group
         self.event_handlers = []
         self._logger_name = str(logger_name)
         # This is a cppyy-bound ManagedPublisher<MessageT>::publish overload.
@@ -235,6 +238,7 @@ class DirectSubscription:
         qos_profile,
         logger_name,
         native,
+        callback_group,
         with_message_info=False,
     ):
         self._native = native
@@ -242,7 +246,7 @@ class DirectSubscription:
         self.msg_type = msg_type
         self.topic = str(native.entity.get_topic_name())
         self._callback = callback
-        self.callback_group = None
+        self.callback_group = callback_group
         self._executor_event = False
         self.qos_profile = qos_profile
         self.raw = False
@@ -316,7 +320,15 @@ class DirectSubscription:
 class DirectClient:
     """Small rclpy-style facade over one managed typed ``rclcpp`` client."""
 
-    def __init__(self, node, service_type, service_name, qos_profile, native_client):
+    def __init__(
+        self,
+        node,
+        service_type,
+        service_name,
+        qos_profile,
+        native_client,
+        callback_group,
+    ):
         self._node = node
         self._native = native_client
         self._pending = {}
@@ -326,7 +338,7 @@ class DirectClient:
         self.srv_type = service_type
         self.srv_name = str(native_client.raw_client.get_service_name())
         self.qos_profile = qos_profile
-        self.callback_group = None
+        self.callback_group = callback_group
 
     @property
     def service_name(self):
@@ -462,14 +474,14 @@ class DirectService:
     """Small rclpy-style facade over one typed C++ service callback bridge."""
 
     def __init__(
-        self, service_type, callback, qos_profile, native_service
+        self, service_type, callback, qos_profile, native_service, callback_group
     ):
         self._native = native_service
         self._closed = False
         self.srv_type = service_type
         self.srv_name = str(native_service.raw_service.get_service_name())
         self.callback = callback
-        self.callback_group = None
+        self.callback_group = callback_group
         self.qos_profile = qos_profile
 
     @property
@@ -553,6 +565,15 @@ class DirectNode:
         self._direct_cpp_node = session.create_node(
             str(node_name), namespace=str(namespace or ""))
         self._direct_cpp_executor_ref = None
+        from rclcppyy.direct_callback_groups import DirectCallbackGroup
+
+        native_default_group = (
+            self._direct_cpp_node.get_node_base_interface()
+            .get_default_callback_group()
+        )
+        self._default_callback_group = DirectCallbackGroup._default_for(
+            self, native_default_group)
+        self._direct_cpp_callback_groups = [self._default_callback_group]
         self._direct_cpp_publishers = []
         self._direct_cpp_subscriptions = []
         self._direct_cpp_timers = []
@@ -598,6 +619,38 @@ class DirectNode:
         executor = self.executor
         if executor is not None:
             executor.wake()
+
+    @property
+    def default_callback_group(self):
+        return self._default_callback_group
+
+    @property
+    def callback_groups(self):
+        return tuple(self._direct_cpp_callback_groups)
+
+    def _retain_callback_group(self, callback_group):
+        if callback_group not in self._direct_cpp_callback_groups:
+            self._direct_cpp_callback_groups.append(callback_group)
+
+    def _resolve_callback_group(self, callback_group):
+        from rclcppyy.direct_callback_groups import DirectCallbackGroup
+
+        if callback_group is None:
+            return self._default_callback_group, None
+        selected = callback_group
+        if not isinstance(selected, DirectCallbackGroup):
+            raise TypeError("callback_group must be a direct_cpp CallbackGroup")
+        return selected, selected._bind(self)
+
+    def _discard_group_entity(self, entity):
+        callback_group = getattr(entity, "callback_group", None)
+        if callback_group is not None:
+            callback_group.discard_entity(entity)
+
+    def _release_callback_groups(self):
+        for callback_group in tuple(self._direct_cpp_callback_groups):
+            callback_group._unbind(self)
+        self._direct_cpp_callback_groups.clear()
 
     @property
     def publishers(self):
@@ -647,7 +700,6 @@ class DirectNode:
         publisher_class=None,
     ):
         requested = {
-            "callback_group": callback_group is not None,
             "event_callbacks": event_callbacks is not None,
             "qos_overriding_options": qos_overriding_options is not None,
             "publisher_class": publisher_class is not None,
@@ -657,15 +709,23 @@ class DirectNode:
 
         direct_entities.resolve_supported_type(msg_type)
         qos, normalized_qos = _lower_entity_qos(qos_profile)
+        group, native_group = self._resolve_callback_group(callback_group)
         native = direct_entities.create_managed_publisher(
-            self._require_node(), msg_type, str(topic), qos)
+            self._require_node(),
+            msg_type,
+            str(topic),
+            qos,
+            callback_group=native_group,
+        )
         publisher = DirectPublisher(
             msg_type,
             topic,
             normalized_qos,
             self._logger_name(),
             native,
+            group,
         )
+        group.add_entity(publisher)
         self._direct_cpp_publishers.append(publisher)
         self._record_entity("publisher", topic, msg_type)
         return publisher
@@ -684,7 +744,6 @@ class DirectNode:
         content_filter_options=None,
     ):
         requested = {
-            "callback_group": callback_group is not None,
             "event_callbacks": event_callbacks is not None,
             "qos_overriding_options": qos_overriding_options is not None,
             "raw": bool(raw),
@@ -698,6 +757,7 @@ class DirectNode:
             raise TypeError("subscription callback must be callable")
         with_message_info = self._validate_subscription_callback(callback)
         qos, normalized_qos = _lower_entity_qos(qos_profile)
+        group, native_group = self._resolve_callback_group(callback_group)
         if "subscription_shared_lease" in _runtime().optimizations:
             from rclcpp_kit import direct_subscription_lease
 
@@ -708,6 +768,7 @@ class DirectNode:
                 callback,
                 qos,
                 with_message_info=with_message_info,
+                callback_group=native_group,
             )
         else:
             native = direct_entities.create_subscription(
@@ -717,6 +778,7 @@ class DirectNode:
                 callback,
                 qos,
                 with_message_info=with_message_info,
+                callback_group=native_group,
             )
         subscription = DirectSubscription(
             msg_type,
@@ -725,8 +787,10 @@ class DirectNode:
             normalized_qos,
             self._logger_name(),
             native,
+            group,
             with_message_info,
         )
+        group.add_entity(subscription)
         self._direct_cpp_subscriptions.append(subscription)
         self._record_entity(
             "subscription",
@@ -747,7 +811,6 @@ class DirectNode:
         **options,
     ):
         requested = {
-            "callback_group": callback_group is not None,
             "clock": clock is not None,
             "autostart": autostart is not True,
             **{str(name): True for name in options},
@@ -769,8 +832,15 @@ class DirectNode:
 
         from rclcpp_kit import direct_entities
 
+        group, native_group = self._resolve_callback_group(callback_group)
         timer = direct_entities.create_wall_timer(
-            self._require_node(), period_ns, callback)
+            self._require_node(),
+            period_ns,
+            callback,
+            callback_group=native_group,
+        )
+        timer.callback_group = group
+        group.add_entity(timer)
         self._direct_cpp_timers.append(timer)
         record_decision(
             "entities",
@@ -800,12 +870,17 @@ class DirectNode:
 
         binding = direct_services.resolve_supported_type(
             srv_type, _SERVICE_INSTALLATION)
-        if callback_group is not None:
-            _unsupported("direct_cpp clients do not support callback_group")
         qos = self._require_default_service_qos(qos_profile)
+        group, native_group = self._resolve_callback_group(callback_group)
         native_client = _runtime().require_session().create_native_client(
-            self._require_node(), srv_type, str(srv_name))
-        client = DirectClient(self, srv_type, str(srv_name), qos, native_client)
+            self._require_node(),
+            srv_type,
+            str(srv_name),
+            callback_group=native_group,
+        )
+        client = DirectClient(
+            self, srv_type, str(srv_name), qos, native_client, group)
+        group.add_entity(client)
         self._direct_cpp_clients.append(client)
         self._record_service_entity(
             "client", client.srv_name, binding, client)
@@ -824,8 +899,6 @@ class DirectNode:
 
         binding = direct_services.resolve_supported_type(
             srv_type, _SERVICE_INSTALLATION)
-        if callback_group is not None:
-            _unsupported("direct_cpp services do not support callback_group")
         qos = self._require_default_service_qos(qos_profile)
         if not callable(callback):
             raise TypeError("service callback must be callable")
@@ -839,10 +912,17 @@ class DirectNode:
         except (TypeError, ValueError) as exc:
             raise TypeError(
                 "direct_cpp service callback must accept request and response") from exc
+        group, native_group = self._resolve_callback_group(callback_group)
         native_service = _runtime().require_session().create_python_service(
-            self._require_node(), srv_type, str(srv_name), callback)
+            self._require_node(),
+            srv_type,
+            str(srv_name),
+            callback,
+            callback_group=native_group,
+        )
         service = DirectService(
-            srv_type, callback, qos, native_service)
+            srv_type, callback, qos, native_service, group)
+        group.add_entity(service)
         self._direct_cpp_services.append(service)
         self._record_service_entity(
             "service", service.srv_name, binding, service)
@@ -851,6 +931,7 @@ class DirectNode:
     def destroy_timer(self, timer):
         for index, candidate in enumerate(self._direct_cpp_timers):
             if timer is candidate:
+                self._discard_group_entity(candidate)
                 candidate.destroy()
                 del self._direct_cpp_timers[index]
                 return True
@@ -860,6 +941,7 @@ class DirectNode:
         for index, candidate in enumerate(self._direct_cpp_publishers):
             if publisher is candidate:
                 del self._direct_cpp_publishers[index]
+                self._discard_group_entity(candidate)
                 return candidate._close()
         return False
 
@@ -867,12 +949,14 @@ class DirectNode:
         for index, candidate in enumerate(self._direct_cpp_subscriptions):
             if subscription is candidate:
                 del self._direct_cpp_subscriptions[index]
+                self._discard_group_entity(candidate)
                 return candidate._close()
         return False
 
     def destroy_client(self, client):
         for index, candidate in enumerate(self._direct_cpp_clients):
             if client is candidate:
+                self._discard_group_entity(candidate)
                 candidate.close()
                 del self._direct_cpp_clients[index]
                 return True
@@ -881,6 +965,7 @@ class DirectNode:
     def destroy_service(self, service):
         for index, candidate in enumerate(self._direct_cpp_services):
             if service is candidate:
+                self._discard_group_entity(candidate)
                 candidate.close()
                 del self._direct_cpp_services[index]
                 return True
@@ -916,6 +1001,7 @@ class DirectNode:
         self._direct_cpp_clients.clear()
         self._direct_cpp_services.clear()
         self._direct_cpp_action_clients.clear()
+        self._release_callback_groups()
         _runtime().detach(self, node)
         self._direct_cpp_node = None
 
@@ -938,6 +1024,7 @@ class DirectNode:
         self._direct_cpp_action_clients.clear()
         self._direct_cpp_publishers.clear()
         self._direct_cpp_subscriptions.clear()
+        self._release_callback_groups()
         self._set_direct_executor(None)
         self._direct_cpp_node = None
 
@@ -1114,6 +1201,7 @@ def _check_runtime() -> None:
 def _check_early_activation() -> None:
     stale = sorted(
         name for name in (
+            "rclpy.callback_groups",
             "rclpy.executors",
             "rclpy.node",
             "rclpy.publisher",
@@ -1262,6 +1350,7 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         import rclpy.action as action_module
         import rclpy.action.client as action_client_module
         import rclpy.action.server as action_server_module
+        import rclpy.callback_groups as callback_groups_module
         import rclpy.executors as executors_module
         import rclpy.node as node_module
         import rclpy.publisher as publisher_module
@@ -1274,10 +1363,26 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
             DirectMultiThreadedExecutor,
             DirectSingleThreadedExecutor,
         )
+        from rclcppyy.direct_callback_groups import (
+            DirectCallbackGroup,
+            DirectMutuallyExclusiveCallbackGroup,
+            DirectReentrantCallbackGroup,
+        )
 
         DirectSubscription.CallbackType = (
             subscription_module.Subscription.CallbackType)
         replacements = (
+            (callback_groups_module, "CallbackGroup", DirectCallbackGroup),
+            (
+                callback_groups_module,
+                "MutuallyExclusiveCallbackGroup",
+                DirectMutuallyExclusiveCallbackGroup,
+            ),
+            (
+                callback_groups_module,
+                "ReentrantCallbackGroup",
+                DirectReentrantCallbackGroup,
+            ),
             (executors_module, "Executor", DirectExecutor),
             (
                 executors_module,

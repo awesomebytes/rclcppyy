@@ -61,6 +61,15 @@ def test_direct_cpp_public_single_threaded_executor_owns_exact_cpp_nodes():
     assert "DIRECT_CPP_PUBLIC_EXECUTOR_TEARDOWN_OK" in process.stdout
 
 
+def test_direct_cpp_callback_groups_bind_native_entities():
+    process = run_helper("_direct_cpp_callback_group_helper.py", timeout=360)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_CALLBACK_GROUP_NATIVE_OWNERSHIP_OK" in process.stdout
+    assert "DIRECT_CPP_CALLBACK_GROUP_CROSS_NODE_FAIL_CLOSED_OK" in process.stdout
+    assert "DIRECT_CPP_CALLBACK_GROUP_EXECUTION_OK" in process.stdout
+    assert "DIRECT_CPP_CALLBACK_GROUP_TEARDOWN_OK" in process.stdout
+
+
 def test_direct_cpp_qos_profiles_reach_native_endpoints_without_message_conversion():
     process = run_helper("_direct_cpp_qos_helper.py", timeout=240)
     assert process.returncode == 0, format_output(process)

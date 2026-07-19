@@ -547,8 +547,6 @@ class DirectActionClient:
         binding = resolve_supported_type(action_type)
         if getattr(node, "_direct_cpp_node", None) is None:
             raise TypeError("direct_cpp ActionClient requires a direct_cpp Node")
-        if callback_group is not None:
-            _unsupported("direct_cpp action clients do not support callback_group")
         self._validate_qos(
             goal_service_qos_profile,
             result_service_qos_profile,
@@ -562,6 +560,7 @@ class DirectActionClient:
 
         from rclcppyy.direct_cpp import _runtime
 
+        group, native_group = node._resolve_callback_group(callback_group)
         self._node = node
         self._action_type = action_type
         self._action_name = name
@@ -570,8 +569,10 @@ class DirectActionClient:
             node._require_node(),
             action_type,
             name,
+            callback_group=native_group,
             feedback_capacity=_FEEDBACK_CAPACITY,
         )
+        self.callback_group = group
         self._lock = threading.RLock()
         self._goal_futures = {}
         self._result_futures = {}
@@ -585,6 +586,7 @@ class DirectActionClient:
         self._python_feedback_callbacks = 0
         self._closed = False
         node._direct_cpp_action_clients.append(self)
+        group.add_entity(self)
         record_decision(
             "entities",
             "cpp",
@@ -910,6 +912,7 @@ class DirectActionClient:
         self._cancel_futures.clear()
         self._handles.clear()
         self._feedback_callbacks.clear()
+        self.callback_group.discard_entity(self)
         self._node._discard_direct_action_client(self)
         return True
 
