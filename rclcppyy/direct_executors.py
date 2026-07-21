@@ -364,6 +364,22 @@ class DirectExecutor(metaclass=_DirectSurface):
             ):
                 node._poll_direct_entities()
 
+    def _drain_and_raise_callback_exceptions(self) -> None:
+        """Drain the owned nodes' contained callback-exception sinks
+        (defect A -- see docs/plans/PLAN-mte-unlock.md) and re-raise the
+        first captured exception on the calling spin/pump thread, matching
+        stock's ``future.result()`` re-raise semantics. Every node's sink
+        is drained regardless -- only the first exception is raised, but
+        none are left behind to resurface on a later drain.
+        """
+        first = None
+        for node in self._nodes_snapshot:
+            for exc, _origin_node in node._drain_callback_exceptions():
+                if first is None:
+                    first = exc
+        if first is not None:
+            raise first
+
     def _spin_once_impl(self, timeout_sec=None) -> None:
         if self._is_shutdown:
             return
@@ -382,6 +398,10 @@ class DirectExecutor(metaclass=_DirectSurface):
             duration = cppyy.gbl.std.chrono.nanoseconds(int(timeout * 1e9))
             self._native.spin_once(duration)
         self._poll_nodes()
+        # A contained callback exception (defect A) no longer crosses the
+        # cppyy boundary from spin_once() above -- re-raise it here instead,
+        # preserving today's propagate-out-of-spin_once() observable.
+        self._drain_and_raise_callback_exceptions()
 
     def _run_native_background(self, stop_predicate) -> None:
         """Spin native concurrent dispatch on a managed C++ thread, pumping
@@ -438,17 +458,27 @@ class DirectExecutor(metaclass=_DirectSurface):
                     )
                 self._drive_tasks()
                 self._poll_nodes()
+                # A contained callback exception (defect A) is recorded to
+                # the owning node's sink instead of crossing the cppyy
+                # boundary off the native worker thread that ran it; drain
+                # and re-raise it here on the pump thread. _record_callback_
+                # exception() also wakes this loop, so a fresh exception is
+                # usually seen well before the next poll_interval tick.
+                self._drain_and_raise_callback_exceptions()
                 self._wake_event.wait(poll_interval)
                 self._wake_event.clear()
         finally:
             self._background_thread = None
             thread.close()
             if thread.exceptions:
-                # Best-effort signal only: rclcpp::MultiThreadedExecutor::run
-                # has no callback try/catch, so an escaping exception's
-                # object/traceback is already lost by the time it is counted
-                # here (documented differential -- see the executor slice
-                # plan; precise re-raise defers to the entity dispatch seam).
+                # Backstop only, for whatever still escapes the containment
+                # shim applied at the create_subscription/create_timer/
+                # create_service hand-offs -- e.g. a raise inside the
+                # suite-internal owning-copy construction, which is not a
+                # user callback and not covered by that shim (documented
+                # differential, PLAN-mte-unlock.md risk 2). The escaping
+                # exception's object/traceback is already lost by the time
+                # it is counted here, so this can only report a count.
                 raise RuntimeError(
                     "%d direct_cpp MultiThreadedExecutor callback(s) raised "
                     "on a native worker thread" % thread.exceptions
@@ -530,6 +560,8 @@ class DirectExecutor(metaclass=_DirectSurface):
                     parked._set_direct_executor(None)
         self._runtime.unregister_executor(self)
         if background is not None and background.exceptions:
+            # Same backstop-only case as in _run_native_background above --
+            # a raise the containment shim never saw, counted late.
             raise RuntimeError(
                 "%d direct_cpp MultiThreadedExecutor callback(s) raised on a "
                 "native worker thread before shutdown" % background.exceptions

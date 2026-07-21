@@ -73,22 +73,47 @@ def test_direct_cpp_multi_threaded_executor_dispatch_correctness_wake_and_teardo
     assert "DIRECT_CPP_MTE_ALL_OK" in process.stdout
 
 
-def test_direct_cpp_multi_threaded_executor_callback_exception_currently_aborts_process():
-    """Documents the CURRENT process-abort behavior for a raising Python
-    callback under real ``MultiThreadedExecutor`` dispatch -- the reason
-    public construction is fail-closed this wave (see
-    ``rclcppyy.direct_executors._MULTI_THREADED_FAIL_CLOSED_REASON`` and the
-    queued callback-exception containment task). If this ever starts
-    passing with a clean exit, that is a behavior change (for better --
-    contained -- or worse -- silent) that must be investigated and this
-    test updated, not silently left broken.
+def test_direct_cpp_multi_threaded_executor_callback_exception_contained_and_reraised():
+    """Proves the defect-A fix (docs/plans/PLAN-mte-unlock.md Slice 2): a
+    raising Python callback under real ``MultiThreadedExecutor`` dispatch no
+    longer crosses into C++ off a native worker thread and aborts the
+    process. It is instead captured into the owning node's exception sink
+    at the product hand-off (``create_subscription`` et al. in
+    ``direct_cpp.py``) and re-raised, with its exact type and message, on
+    the executor's own spin thread -- while a non-raising peer callback
+    keeps dispatching in the same run. This test previously documented the
+    opposite (a process abort); see its own prior revision if that history
+    is needed.
     """
     process = run_helper(
         "_direct_cpp_multi_threaded_executor_exception_crash_helper.py",
         timeout=60,
     )
     assert "MTE_EXCEPTION_CRASH_READY" in process.stdout, format_output(process)
-    assert "MTE_EXCEPTION_CRASH_DID_NOT_ABORT" not in process.stdout, (
+    assert (
+        "MTE_EXCEPTION_CRASH_CONTAINED_AND_RERAISED" in process.stdout
+    ), format_output(process)
+    assert "MTE_EXCEPTION_CRASH_DID_NOT_ABORT" in process.stdout, (
         format_output(process)
     )
-    assert process.returncode != 0, format_output(process)
+    assert process.returncode == 0, format_output(process)
+
+
+def test_direct_cpp_single_threaded_executor_callback_exception_still_propagates():
+    """Regression guard for the defect-A containment shim (Slice 2 test
+    plan): a raising subscription callback under ``SingleThreadedExecutor``
+    must still propagate out of ``spin_once()`` with its exact type and
+    message, unchanged from before the shim existed -- see
+    ``_direct_cpp_single_threaded_executor_exception_propagation_helper.py``.
+    """
+    process = run_helper(
+        "_direct_cpp_single_threaded_executor_exception_propagation_helper.py",
+        timeout=60,
+    )
+    assert (
+        "SINGLE_THREADED_EXCEPTION_PROPAGATION_READY" in process.stdout
+    ), format_output(process)
+    assert (
+        "SINGLE_THREADED_EXCEPTION_PROPAGATION_OK" in process.stdout
+    ), format_output(process)
+    assert process.returncode == 0, format_output(process)

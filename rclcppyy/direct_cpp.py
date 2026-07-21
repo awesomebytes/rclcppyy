@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
+import functools
 import math
 import inspect
 import os
@@ -783,6 +784,13 @@ class DirectNode:
         self._direct_cpp_services = []
         self._direct_cpp_action_clients = []
         self._direct_cpp_action_servers = []
+        # Callback-containment sink (defect A -- see PLAN-mte-unlock.md): the
+        # shim applied at create_subscription/create_timer/create_service
+        # hand-off points records a raise here instead of letting it cross
+        # back into C++ from a native worker thread; the owning executor
+        # drains and re-raises on its own spin/pump thread.
+        self._direct_cpp_exception_sink_lock = threading.Lock()
+        self._direct_cpp_exception_sink = []
         self._direct_cpp_clock = None
         self._direct_cpp_sleeper = None
         self._pre_set_parameters_callbacks = []
@@ -861,6 +869,64 @@ class DirectNode:
         executor = self.executor
         if executor is not None:
             executor.wake()
+
+    def _record_callback_exception(self, exc) -> None:
+        """Record a callback exception contained at a product hand-off
+        point (see ``_contain_callback_exceptions``/
+        ``_contain_service_callback_exceptions`` below) for the owning
+        executor to drain and re-raise on its own spin/pump thread. Never
+        raises itself -- that would defeat the containment this exists for.
+        """
+        with self._direct_cpp_exception_sink_lock:
+            self._direct_cpp_exception_sink.append((exc, self))
+        self._wake_executor()
+
+    def _drain_callback_exceptions(self):
+        """Return and clear this node's captured callback exceptions."""
+        with self._direct_cpp_exception_sink_lock:
+            drained = self._direct_cpp_exception_sink
+            self._direct_cpp_exception_sink = []
+        return drained
+
+    def _contain_callback_exceptions(self, callback):
+        """Wrap a void-style user callback (subscription/timer) so a raise
+        is captured into this node's exception sink instead of crossing
+        back into C++ as an uncaught exception on a native worker thread
+        (defect A -- see docs/plans/PLAN-mte-unlock.md). The owning
+        executor drains the sink and re-raises the first captured
+        exception on the spin/pump thread, matching stock's
+        ``future.result()`` re-raise semantics.
+        """
+        @functools.wraps(callback)
+        def _contained(*args, **kwargs):
+            try:
+                return callback(*args, **kwargs)
+            except Exception as exc:
+                self._record_callback_exception(exc)
+                return None
+
+        return _contained
+
+    def _contain_service_callback_exceptions(self, callback):
+        """Like ``_contain_callback_exceptions``, but for a service
+        callback's ``(request, response) -> response`` contract: on a
+        contained raise, the original (untouched) ``response`` is returned
+        so the suite's dispatch bridge still receives a well-typed
+        response to commit. Stock rclpy sends no reply at all when a
+        service callback raises; this backend cannot suppress the native
+        reply without a suite change, so a default-valued response is the
+        closest safe containment (a documented differential, not a parity
+        claim).
+        """
+        @functools.wraps(callback)
+        def _contained(request, response):
+            try:
+                return callback(request, response)
+            except Exception as exc:
+                self._record_callback_exception(exc)
+                return response
+
+        return _contained
 
     @property
     def default_callback_group(self):
@@ -1774,6 +1840,13 @@ class DirectNode:
         with_message_info = self._validate_subscription_callback(callback)
         qos, normalized_qos = _lower_entity_qos(qos_profile)
         group, native_group = self._resolve_callback_group(callback_group)
+        # Contain the user callback before it becomes a native std::function
+        # (defect A -- see docs/plans/PLAN-mte-unlock.md): a raise inside it
+        # is captured into this node's exception sink instead of crossing
+        # back into C++ off a native MultiThreadedExecutor worker thread.
+        # DirectSubscription below keeps the original, unwrapped callback
+        # for introspection parity.
+        contained_callback = self._contain_callback_exceptions(callback)
         if "subscription_shared_lease" in _runtime().optimizations:
             from rclcpp_kit import direct_subscription_lease
 
@@ -1781,7 +1854,7 @@ class DirectNode:
                 self._require_node(),
                 msg_type,
                 str(topic),
-                callback,
+                contained_callback,
                 qos,
                 with_message_info=with_message_info,
                 callback_group=native_group,
@@ -1791,7 +1864,7 @@ class DirectNode:
                 self._require_node(),
                 msg_type,
                 str(topic),
-                callback,
+                contained_callback,
                 qos,
                 with_message_info=with_message_info,
                 callback_group=native_group,
@@ -1848,10 +1921,13 @@ class DirectNode:
         from rclcpp_kit import direct_entities
 
         group, native_group = self._resolve_callback_group(callback_group)
+        # Contain the user callback before it becomes a native std::function
+        # -- same rationale as create_subscription above.
+        contained_callback = self._contain_callback_exceptions(callback)
         timer = direct_entities.create_clock_timer(
             self._require_node(),
             period_ns,
-            callback,
+            contained_callback,
             callback_group=native_group,
             autostart=autostart,
         )
@@ -1946,11 +2022,16 @@ class DirectNode:
             raise TypeError(
                 "direct_cpp service callback must accept request and response") from exc
         group, native_group = self._resolve_callback_group(callback_group)
+        # Contain the user callback before it becomes a native std::function
+        # -- same rationale as create_subscription; the service variant
+        # preserves the (request, response) -> response contract on a
+        # contained raise (see _contain_service_callback_exceptions).
+        contained_callback = self._contain_service_callback_exceptions(callback)
         native_service = _runtime().require_session().create_python_service(
             self._require_node(),
             srv_type,
             str(srv_name),
-            callback,
+            contained_callback,
             callback_group=native_group,
         )
         service = DirectService(
