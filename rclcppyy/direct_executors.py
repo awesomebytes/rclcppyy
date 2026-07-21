@@ -72,6 +72,13 @@ def _multi_threaded_construction_test_only():
         _MultiThreadedConstructionGuard.allowed = previous
 
 
+# Bound on how long _run_native_background() waits for a freshly launched
+# ExecutorThread's std::thread to report itself running before failing
+# loud. Native thread scheduling is normally near-instant; this only fires
+# if something is badly wrong, never as a routine silent teardown path.
+_NATIVE_SPIN_STARTUP_TIMEOUT_SEC = 10.0
+
+
 def _resolve_num_threads(num_threads: Any) -> int:
     """Resolve ``num_threads`` with the exact stock ``MultiThreadedExecutor``
     semantics: ``None`` queries CPU affinity (falling back to ``cpu_count()``,
@@ -150,6 +157,10 @@ class DirectExecutor(metaclass=_DirectSurface):
         # Live only while a MultiThreadedExecutor background pump (spin() /
         # spin_until_future_complete()) is running; see _run_native_background.
         self._background_thread = None
+        # True only while _run_native_background() is between calling
+        # start_executor() and recording the result in _background_thread --
+        # closes the wake-cancel window described on wake() below.
+        self._native_spin_starting = False
         runtime.register_executor(self)
 
     @property
@@ -266,11 +277,15 @@ class DirectExecutor(metaclass=_DirectSurface):
         self._wake_event.set()
         if self._is_shutdown:
             return
-        if self._background_thread is not None:
-            # A live MultiThreadedExecutor background pump dispatches
-            # subscription/timer/service callbacks natively on its own C++
-            # threads; cancel() would stop that dispatch outright, so the
-            # wake event alone is enough to nudge the Python pump loop.
+        if self._background_thread is not None or self._native_spin_starting:
+            # A live (or just-launching) MultiThreadedExecutor background
+            # pump dispatches subscription/timer/service callbacks natively
+            # on its own C++ threads; cancel() would stop that dispatch
+            # outright, so the wake event alone is enough to nudge the
+            # Python pump loop. ``_native_spin_starting`` covers the window
+            # between start_executor() launching the native std::thread and
+            # ``_background_thread`` being recorded, during which a cancel()
+            # here would otherwise stop a spin that has barely begun.
             return
         self._native.cancel()
 
@@ -379,6 +394,13 @@ class DirectExecutor(metaclass=_DirectSurface):
         entity callback directly. ``_wake_event.wait()`` is a GIL-releasing
         block so the native threads are never starved of the interpreter.
         """
+        # start_executor() only enqueues the native std::thread's launch --
+        # the OS can schedule it and it can set ExecutorThread::running_ true
+        # before this Python frame's next line runs. Claim the "a background
+        # pump owns this executor" state before that call so a wake() firing
+        # in that window is covered even before ``thread`` exists to assign
+        # to ``_background_thread`` (see wake() above).
+        self._native_spin_starting = True
         thread = self._runtime.require_session().start_executor(self._native)
         # close() blocks on joining the native ExecutorThread's std::thread,
         # which itself may be waiting on a worker thread that needs the GIL
@@ -387,14 +409,33 @@ class DirectExecutor(metaclass=_DirectSurface):
         # that worker thread can never complete -- a permanent deadlock.
         thread._implementation.close.__release_gil__ = True
         self._background_thread = thread
+        self._native_spin_starting = False
         poll_interval = 0.02
+        # ExecutorThread's running_ flips true only once the OS has actually
+        # scheduled its thread lambda (rclcpp_kit native.py), strictly after
+        # start_executor() has already returned here -- so a False reading
+        # before that happens means "not started yet", not "already
+        # stopped". Exit the loop only once running was observed True and
+        # has since gone False (a genuine end); a bounded startup deadline
+        # keeps a native thread that never starts from hanging this pump
+        # forever, failing loud instead of silently tearing the executor
+        # down before it dispatches anything.
+        started = False
+        startup_deadline = time.monotonic() + _NATIVE_SPIN_STARTUP_TIMEOUT_SEC
         try:
-            while (
-                self._context.ok()
-                and not self._is_shutdown
-                and not stop_predicate()
-                and thread.running
-            ):
+            while self._context.ok() and not self._is_shutdown and not stop_predicate():
+                if thread.running:
+                    started = True
+                elif started:
+                    break
+                elif time.monotonic() >= startup_deadline:
+                    raise RuntimeError(
+                        "direct_cpp MultiThreadedExecutor native worker "
+                        "thread did not report itself running within %.1fs "
+                        "of start_executor(); failing loud instead of "
+                        "silently tearing down before any dispatch"
+                        % _NATIVE_SPIN_STARTUP_TIMEOUT_SEC
+                    )
                 self._drive_tasks()
                 self._poll_nodes()
                 self._wake_event.wait(poll_interval)
