@@ -420,6 +420,57 @@ def _extract_content_filter(content_filter_options):
     )
 
 
+# The only policy-kind set the suite ever attaches (QosOverridingOptions::
+# with_default_policies() -- rclcpp_kit.direct_entities' own
+# _validate_qos_overriding accepts nothing but a plain bool and always maps
+# True to exactly this set). Set, not sequence, comparison: with_default_
+# policies() and an equivalent explicit QoSOverridingOptions(policy_kinds=...)
+# construction must be recognized identically regardless of member order.
+_QOS_OVERRIDING_DEFAULT_POLICY_KINDS = frozenset(("history", "depth", "reliability"))
+
+
+def _extract_qos_overriding(qos_overriding_options):
+    """Translate a stock ``QoSOverridingOptions`` into the suite's plain
+    ``qos_overriding`` bool. ``None`` means no QoS overriding requested.
+
+    Only ``with_default_policies()`` (or an equivalent explicit
+    ``QoSOverridingOptions(policy_kinds=(HISTORY, DEPTH, RELIABILITY))``, no
+    ``callback``, no ``entity_id``) is supported this wave -- the suite has
+    no attachment point for a custom policy-kind subset, a validation
+    callback, or an ``entity_id`` (recorded suite gap,
+    PLAN-qos-events-product.md S3). Accepting a narrower/different request
+    and silently applying the full default set instead would over-claim, so
+    anything outside that exact shape fails closed instead.
+    """
+    if qos_overriding_options is None:
+        return False
+    from rclpy.qos_overriding_options import QoSOverridingOptions
+
+    if not isinstance(qos_overriding_options, QoSOverridingOptions):
+        raise TypeError(
+            "qos_overriding_options must be a QoSOverridingOptions or None, "
+            "got %s" % type(qos_overriding_options).__name__
+        )
+    policy_kinds = frozenset(
+        kind.name.lower() for kind in qos_overriding_options.policy_kinds)
+    if (
+        policy_kinds != _QOS_OVERRIDING_DEFAULT_POLICY_KINDS
+        or qos_overriding_options.callback is not None
+        or qos_overriding_options.entity_id is not None
+    ):
+        _unsupported(
+            "direct_cpp subscription qos_overriding_options only supports "
+            "with_default_policies() (history, depth, reliability; no "
+            "callback, no entity_id) this wave; got policy_kinds=%s, "
+            "callback=%r, entity_id=%r" % (
+                sorted(policy_kinds),
+                qos_overriding_options.callback,
+                qos_overriding_options.entity_id,
+            )
+        )
+    return True
+
+
 class DirectPublisher(metaclass=_DirectSurface):
     """rclpy-shaped metadata and lifetime around a typed C++ publisher."""
 
@@ -2051,7 +2102,6 @@ class DirectNode:
         content_filter_options=None,
     ):
         requested = {
-            "qos_overriding_options": qos_overriding_options is not None,
             "raw": bool(raw),
         }
         self._reject_entity_options("subscription", requested)
@@ -2064,6 +2114,7 @@ class DirectNode:
         raw_events = _extract_event_callbacks(
             event_callbacks, _SUBSCRIPTION_EVENT_FIELDS, SubscriptionEventCallbacks)
         content_filter = _extract_content_filter(content_filter_options)
+        qos_overriding = _extract_qos_overriding(qos_overriding_options)
         with_message_info = self._validate_subscription_callback(callback)
         qos, normalized_qos = _lower_entity_qos(qos_profile)
         group, native_group = self._resolve_callback_group(callback_group)
@@ -2083,6 +2134,7 @@ class DirectNode:
         if (
             not contained_events
             and content_filter is None
+            and not qos_overriding
             and "subscription_shared_lease" in _runtime().optimizations
         ):
             from rclcpp_kit import direct_subscription_lease
@@ -2098,9 +2150,10 @@ class DirectNode:
             )
         else:
             # The shared-lease optimization has no event-callback/content-
-            # filter parameter; an event-bearing or content-filtered
-            # subscription always takes this route below, even when the
-            # optimization is otherwise active for this node.
+            # filter/qos-overriding parameter; an event-bearing,
+            # content-filtered, or qos-overriding subscription always takes
+            # this route below, even when the optimization is otherwise
+            # active for this node.
             try:
                 native = direct_entities.create_subscription(
                     self._require_node(),
@@ -2112,6 +2165,7 @@ class DirectNode:
                     callback_group=native_group,
                     event_callbacks=contained_events or None,
                     content_filter=content_filter,
+                    qos_overriding=qos_overriding,
                 )
             except direct_entities.QoSEventUnsupported as exc:
                 from rclpy.event_handler import UnsupportedEventTypeError
