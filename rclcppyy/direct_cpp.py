@@ -332,6 +332,57 @@ def _direct_node_options(
     return options, len(native_overrides)
 
 
+# Canonical event-callback field order -- matches the suite's own
+# _PUBLISHER_EVENT_NAMES / _SUBSCRIPTION_EVENT_NAMES (rclcpp_kit.direct_entities),
+# which mirrors rclcpp's event_handler.hpp ordering.
+_PUBLISHER_EVENT_FIELDS = (
+    "deadline", "liveliness", "incompatible_qos", "incompatible_type", "matched",
+)
+_SUBSCRIPTION_EVENT_FIELDS = (
+    "deadline", "liveliness", "incompatible_qos", "message_lost",
+    "incompatible_type", "matched",
+)
+
+
+def _extract_event_callbacks(event_callbacks, fields, expected_type):
+    """Translate a stock ``PublisherEventCallbacks``/``SubscriptionEventCallbacks``
+    instance into ``{event_name: callable}``, keeping only the fields the
+    caller actually set -- the same fields stock's own
+    ``create_event_handlers`` reads off the container one at a time
+    (``rclpy.event_handler``). ``None`` means no event callbacks requested.
+    """
+    if event_callbacks is None:
+        return {}
+    if not isinstance(event_callbacks, expected_type):
+        raise TypeError(
+            "event_callbacks must be a %s or None, got %s" %
+            (expected_type.__qualname__, type(event_callbacks).__name__)
+        )
+    extracted = {}
+    for name in fields:
+        callback = getattr(event_callbacks, name)
+        if callback is not None:
+            extracted[name] = callback
+    return extracted
+
+
+class _DirectEventHandler:
+    """Introspection-only facade entry for one registered QoS event callback.
+
+    Stock exposes ``Publisher.event_handlers``/``Subscription.event_handlers``
+    as a list of executor-visible ``Waitable`` objects (rclpy.event_handler);
+    dispatch here is fully native (suite-owned; no Python-side Waitable ever
+    exists), so this mirrors only what an unchanged app reads off each entry:
+    the original callback, plus the event name for identification.
+    """
+
+    __slots__ = ("event_type", "callback")
+
+    def __init__(self, event_type, callback):
+        self.event_type = event_type
+        self.callback = callback
+
+
 class DirectPublisher(metaclass=_DirectSurface):
     """rclpy-shaped metadata and lifetime around a typed C++ publisher."""
 
@@ -1898,23 +1949,40 @@ class DirectNode:
         publisher_class=None,
     ):
         requested = {
-            "event_callbacks": event_callbacks is not None,
             "qos_overriding_options": qos_overriding_options is not None,
             "publisher_class": publisher_class is not None,
         }
         self._reject_entity_options("publisher", requested)
         from rclcpp_kit import direct_entities
+        from rclpy.event_handler import PublisherEventCallbacks
 
         direct_entities.resolve_supported_type(msg_type)
+        raw_events = _extract_event_callbacks(
+            event_callbacks, _PUBLISHER_EVENT_FIELDS, PublisherEventCallbacks)
         qos, normalized_qos = _lower_entity_qos(qos_profile)
         group, native_group = self._resolve_callback_group(callback_group)
-        native = direct_entities.create_managed_publisher(
-            self._require_node(),
-            msg_type,
-            str(topic),
-            qos,
-            callback_group=native_group,
-        )
+        # Every event callback dispatches on a native MTE worker exactly like
+        # a subscription/timer callback -- route it through the same
+        # containment shim (defect A, PLAN-mte-unlock.md) so a raise is
+        # captured instead of crossing back into C++ uncaught, and so the
+        # in-flight/quiescence counter sees it while dispatching.
+        contained_events = {
+            name: self._contain_callback_exceptions(event_callback)
+            for name, event_callback in raw_events.items()
+        }
+        try:
+            native = direct_entities.create_managed_publisher(
+                self._require_node(),
+                msg_type,
+                str(topic),
+                qos,
+                callback_group=native_group,
+                event_callbacks=contained_events or None,
+            )
+        except direct_entities.QoSEventUnsupported as exc:
+            from rclpy.event_handler import UnsupportedEventTypeError
+
+            raise UnsupportedEventTypeError(str(exc)) from exc
         publisher = DirectPublisher(
             msg_type,
             topic,
@@ -1923,6 +1991,10 @@ class DirectNode:
             native,
             group,
         )
+        publisher.event_handlers = [
+            _DirectEventHandler(name, raw_events[name])
+            for name in _PUBLISHER_EVENT_FIELDS if name in raw_events
+        ]
         group.add_entity(publisher)
         self._direct_cpp_publishers.append(publisher)
         self._record_entity("publisher", topic, msg_type)
@@ -1942,17 +2014,19 @@ class DirectNode:
         content_filter_options=None,
     ):
         requested = {
-            "event_callbacks": event_callbacks is not None,
             "qos_overriding_options": qos_overriding_options is not None,
             "raw": bool(raw),
             "content_filter_options": content_filter_options is not None,
         }
         self._reject_entity_options("subscription", requested)
         from rclcpp_kit import direct_entities
+        from rclpy.event_handler import SubscriptionEventCallbacks
 
         direct_entities.resolve_supported_type(msg_type)
         if not callable(callback):
             raise TypeError("subscription callback must be callable")
+        raw_events = _extract_event_callbacks(
+            event_callbacks, _SUBSCRIPTION_EVENT_FIELDS, SubscriptionEventCallbacks)
         with_message_info = self._validate_subscription_callback(callback)
         qos, normalized_qos = _lower_entity_qos(qos_profile)
         group, native_group = self._resolve_callback_group(callback_group)
@@ -1963,7 +2037,16 @@ class DirectNode:
         # DirectSubscription below keeps the original, unwrapped callback
         # for introspection parity.
         contained_callback = self._contain_callback_exceptions(callback)
-        if "subscription_shared_lease" in _runtime().optimizations:
+        # Event callbacks dispatch on a native MTE worker exactly like the
+        # subscription callback above -- same shim, same rationale.
+        contained_events = {
+            name: self._contain_callback_exceptions(event_callback)
+            for name, event_callback in raw_events.items()
+        }
+        if (
+            not contained_events
+            and "subscription_shared_lease" in _runtime().optimizations
+        ):
             from rclcpp_kit import direct_subscription_lease
 
             native = direct_subscription_lease.create_subscription_lease(
@@ -1976,15 +2059,24 @@ class DirectNode:
                 callback_group=native_group,
             )
         else:
-            native = direct_entities.create_subscription(
-                self._require_node(),
-                msg_type,
-                str(topic),
-                contained_callback,
-                qos,
-                with_message_info=with_message_info,
-                callback_group=native_group,
-            )
+            # The shared-lease optimization has no event-callback parameter;
+            # an event-bearing subscription always takes this route below,
+            # even when the optimization is otherwise active for this node.
+            try:
+                native = direct_entities.create_subscription(
+                    self._require_node(),
+                    msg_type,
+                    str(topic),
+                    contained_callback,
+                    qos,
+                    with_message_info=with_message_info,
+                    callback_group=native_group,
+                    event_callbacks=contained_events or None,
+                )
+            except direct_entities.QoSEventUnsupported as exc:
+                from rclpy.event_handler import UnsupportedEventTypeError
+
+                raise UnsupportedEventTypeError(str(exc)) from exc
         subscription = DirectSubscription(
             msg_type,
             topic,
@@ -1995,6 +2087,10 @@ class DirectNode:
             group,
             with_message_info,
         )
+        subscription.event_handlers = [
+            _DirectEventHandler(name, raw_events[name])
+            for name in _SUBSCRIPTION_EVENT_FIELDS if name in raw_events
+        ]
         group.add_entity(subscription)
         self._direct_cpp_subscriptions.append(subscription)
         self._record_entity(
