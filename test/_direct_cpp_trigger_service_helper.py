@@ -114,7 +114,11 @@ while time.monotonic() < deadline:
 else:
     raise AssertionError("Trigger service callback exception was not propagated")
 assert not error_future.done()
-assert error_service.stats().exceptions == 1
+# A contained raise still commits the untouched response object to the
+# native reply (see the "service reply-on-contained-raise" disclosure in
+# compatibility/jazzy.json's executor.direct_cpp_multi_threaded entry), so
+# nothing reaches the C++ callback lambda uncaught here.
+assert error_service.stats().exceptions == 0
 assert node.destroy_client(error_client)
 assert error_future.cancelled()
 assert node.destroy_service(error_service)

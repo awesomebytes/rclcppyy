@@ -180,11 +180,18 @@ while True:
     assert time.monotonic() < deadline
 assert not error_future.done() and not error_future.cancelled()
 error_stats = error_service.stats()
-assert error_stats.requests == 0
-assert error_stats.exceptions == 1
+# A contained raise still commits the untouched response object to the
+# native reply (see the "service reply-on-contained-raise" disclosure in
+# compatibility/jazzy.json's executor.direct_cpp_multi_threaded entry):
+# requests/response_cpp_copies count the commit, not the Python outcome,
+# and exceptions here only counts what still reaches the C++ callback
+# lambda uncaught -- which is nothing, since the containment shim already
+# caught it before this point.
+assert error_stats.requests == 1
+assert error_stats.exceptions == 0
 assert error_stats.python_callback_crossings == 1
 assert error_stats.request_cpp_copies == 1
-assert error_stats.response_cpp_copies == 0
+assert error_stats.response_cpp_copies == 1
 assert node.destroy_client(error_client)
 assert error_future.cancelled()
 assert node.destroy_service(error_service)
