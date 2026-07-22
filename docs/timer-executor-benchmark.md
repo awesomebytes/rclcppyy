@@ -20,16 +20,30 @@ It produces raw evidence with performance claims disabled.
 5. `direct-raw-ste-control`: the same direct timer and callback driven directly by
    a `NativeSession` raw `rclcpp::executors::SingleThreadedExecutor`, matching the
    former hidden-executor hot path.
-6. `native-python-callback`: managed `rclcpp` timer and executor entering Python
+6. `direct-public-mte`: the same direct timer and callback driven by the public
+   `rclpy.executors.MultiThreadedExecutor` (`num_threads=2`, un-fail-closed in
+   Slice 3 of the MultiThreadedExecutor-unlock plan) using
+   `add_node`/`spin_once`/`remove_node`. One worker drains the single ready
+   callback per `spin_once()` call, so the workload shape matches every other
+   lane exactly; this measures MultiThreadedExecutor's per-firing overhead, not
+   concurrent dispatch.
+7. `direct-raw-mte-control`: the same direct timer and callback driven directly by
+   a `NativeSession` raw `rclcpp::executors::MultiThreadedExecutor` (2 threads),
+   the MultiThreadedExecutor analogue of `direct-raw-ste-control`.
+8. `native-python-callback`: managed `rclcpp` timer and executor entering Python
    once per firing.
-7. `native-cpp-callback`: content-addressed C++ timer callback with no per-firing
+9. `native-cpp-callback`: content-addressed C++ timer callback with no per-firing
    Python crossing.
-8. `aot-staged`: conventional Release-mode `rclcpp` executable.
+10. `aot-staged`: conventional Release-mode `rclcpp` executable.
 
 The compatible lane is not an acceleration claim. The direct lane keeps the
 unchanged Python callback workload while changing timer and executor authority.
 The two C++ callback lanes keep
 all recurrence and timing state in C++ and report zero per-firing Python crossings.
+The MultiThreadedExecutor lanes join the general rotating order rather than the
+paired STE gate below: no CPU-ratio gate is defined for them and none is implied
+by their presence -- claims stay disabled for this comparison exactly as for
+every other lane.
 
 ## Fixed contract
 
@@ -76,7 +90,7 @@ excludes all compilation and prewarming from samples.
 
 ## Running
 
-Run the fixed 80-sample matrix only on a quiet host:
+Run the fixed 100-sample matrix only on a quiet host:
 
 ```bash
 RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
@@ -95,3 +109,60 @@ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
   --characterization-only \
   --output build/timer-executor-characterization.json
 ```
+
+## Results (2026-07-22, MultiThreadedExecutor lanes added)
+
+The first full 100-sample run since `direct-public-mte`/`direct-raw-mte-control`
+were added, run in `--characterization-only` mode: run-to-run CPU variance on
+this host has been documented at up to 2.2x on an identical script, and the
+standing project policy is that CPU-threshold enforcement and any speedup
+claim wait for dedicated quiet runners regardless of a given host's state at
+run time. All ten lanes emitted their full 10/10 repetitions with zero
+failures. No claims are made from these numbers; they are raw evidence only.
+
+Median `worker_cpu_ns_per_firing` per lane (nanoseconds, n=10 each):
+
+| Lane | Median | Min | Max |
+|---|---|---|---|
+| `stock-rclpy` | 142043.5 | 117160.5 | 151455.5 |
+| `compatible-rclcppyy` | 133034.8 | 111893.5 | 155429.7 |
+| `direct-cpp-rclcppyy` | 39703.7 | 33297.5 | 47929.7 |
+| `direct-public-ste` | 30746.4 | 25867.6 | 38691.0 |
+| `direct-raw-ste-control` | 26407.0 | 24133.6 | 32032.4 |
+| `direct-public-mte` | 35431.4 | 29883.1 | 41794.3 |
+| `direct-raw-mte-control` | 29157.7 | 24580.0 | 35359.9 |
+| `native-python-callback` | 30580.3 | 25333.0 | 38827.1 |
+| `native-cpp-callback` | 13715.2 | 11240.1 | 15765.2 |
+| `aot-staged` | 12487.8 | 8985.5 | 14921.9 |
+
+Public/raw median CPU ratios (characterization only, no gate enforced for
+either pair):
+
+- STE: `direct-public-ste` / `direct-raw-ste-control` = **1.1643** (absolute
+  latency p99 median ratio 0.9719). Prior evidence on record for this pair:
+  wave-0 recorded ~1.279x; an uncommitted 5-repetition exploratory pass earlier
+  this engagement measured 1.4247x. This run's 1.1643x sits inside the same
+  rough band as both priors, above the enforced gate's 1.03 limit in all three
+  measurements -- consistent with run-to-run variance on this host rather than
+  a step change in either direction.
+- MTE: `direct-public-mte` / `direct-raw-mte-control` = **1.2152**. The same
+  uncommitted exploratory pass measured 1.1232x over 5 repetitions. Both
+  measurements land in the same 1.1-1.3x range as the STE pair; nothing in
+  this evidence indicates the now-public `MultiThreadedExecutor` construction
+  path carries meaningfully different per-firing overhead than the
+  `SingleThreadedExecutor` path already characterized here. This is
+  characterization evidence, not a parity or regression claim -- no CPU
+  gate is defined for the MTE pair, and none is implied by reporting these
+  numbers.
+
+Both lanes use `spin_once()` against a single ready callback per call (as do
+all other lanes in this matrix), so this measures MultiThreadedExecutor's
+per-firing dispatch overhead under that workload shape, not genuine
+concurrent multi-callback throughput -- see Slice 3's own true-parallelism
+proofs (`test_direct_executor.py`) for that separate question.
+
+Full raw artifact: `build/timer-executor-characterization.json` (100 samples,
+0 failures), sha256 `8172857537f855198b1a035bc3cca6dbea0418ba5e5f071297395b8ff82ccd2a`.
+Since `build/` evidence has been lost once in this project's history, a
+byte-identical copy (same sha256) plus its own `.sha256` file was also
+retained outside `build/` for this run.

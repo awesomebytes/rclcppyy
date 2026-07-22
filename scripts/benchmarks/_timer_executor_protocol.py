@@ -23,6 +23,7 @@ PERIOD_NS = 1_000_000
 WARMUP_FIRINGS = 500
 MEASURED_FIRINGS = 5_000
 REPETITIONS = 10
+MTE_THREADS = 2
 REGRESSION_REQUIRED_PAIRS = 10
 REGRESSION_CPU_RATIO_LIMIT = 1.03
 REGRESSION_VARIANTS = ("direct-public-ste", "direct-raw-ste-control")
@@ -42,6 +43,8 @@ VARIANTS = {
         "callback_language": "python",
         "cache_kind": "stock-rclpy",
         "python_crossings_per_firing": 1,
+        "executor_kind": "single_threaded",
+        "executor_threads": 1,
     },
     "compatible-rclcppyy": {
         "execution_model": "compatible-activation-stock-python-timer-executor",
@@ -50,6 +53,8 @@ VARIANTS = {
         "callback_language": "python",
         "cache_kind": "activation-only",
         "python_crossings_per_firing": 1,
+        "executor_kind": "single_threaded",
+        "executor_threads": 1,
     },
     "direct-cpp-rclcppyy": {
         "execution_model": "direct-rclcpp-wall-timer-python-callback",
@@ -59,6 +64,8 @@ VARIANTS = {
         "cache_kind": "direct-rclcpp-runtime",
         "python_crossings_per_firing": 1,
         "executor_surface": "rclpy-spin-once",
+        "executor_kind": "single_threaded",
+        "executor_threads": 1,
     },
     "direct-public-ste": {
         "execution_model": "direct-rclcpp-wall-timer-public-ste-python-callback",
@@ -68,6 +75,8 @@ VARIANTS = {
         "cache_kind": "direct-rclcpp-runtime",
         "python_crossings_per_firing": 1,
         "executor_surface": "rclpy-public-single-threaded-executor",
+        "executor_kind": "single_threaded",
+        "executor_threads": 1,
     },
     "direct-raw-ste-control": {
         "execution_model": "direct-rclcpp-wall-timer-raw-ste-python-callback",
@@ -77,6 +86,30 @@ VARIANTS = {
         "cache_kind": "direct-rclcpp-runtime",
         "python_crossings_per_firing": 1,
         "executor_surface": "native-session-raw-single-threaded-executor",
+        "executor_kind": "single_threaded",
+        "executor_threads": 1,
+    },
+    "direct-public-mte": {
+        "execution_model": "direct-rclcpp-wall-timer-public-mte-python-callback",
+        "timer_authority": "cpp",
+        "executor_authority": "cpp",
+        "callback_language": "python",
+        "cache_kind": "direct-rclcpp-runtime",
+        "python_crossings_per_firing": 1,
+        "executor_surface": "rclpy-public-multi-threaded-executor",
+        "executor_kind": "multi_threaded",
+        "executor_threads": MTE_THREADS,
+    },
+    "direct-raw-mte-control": {
+        "execution_model": "direct-rclcpp-wall-timer-raw-mte-python-callback",
+        "timer_authority": "cpp",
+        "executor_authority": "cpp",
+        "callback_language": "python",
+        "cache_kind": "direct-rclcpp-runtime",
+        "python_crossings_per_firing": 1,
+        "executor_surface": "native-session-raw-multi-threaded-executor",
+        "executor_kind": "multi_threaded",
+        "executor_threads": MTE_THREADS,
     },
     "native-python-callback": {
         "execution_model": "managed-rclcpp-wall-timer-python-callback",
@@ -85,6 +118,8 @@ VARIANTS = {
         "callback_language": "python",
         "cache_kind": "managed-rclcpp-runtime",
         "python_crossings_per_firing": 1,
+        "executor_kind": "single_threaded",
+        "executor_threads": 1,
     },
     "native-cpp-callback": {
         "execution_model": "content-addressed-rclcpp-wall-timer-cpp-callback",
@@ -93,6 +128,8 @@ VARIANTS = {
         "callback_language": "cpp",
         "cache_kind": "timer-probe-shared-library",
         "python_crossings_per_firing": 0,
+        "executor_kind": "single_threaded",
+        "executor_threads": 1,
     },
     "aot-staged": {
         "execution_model": "conventional-release-aot-rclcpp-wall-timer",
@@ -101,6 +138,8 @@ VARIANTS = {
         "callback_language": "cpp",
         "cache_kind": "aot-binary",
         "python_crossings_per_firing": 0,
+        "executor_kind": "single_threaded",
+        "executor_threads": 1,
     },
 }
 
@@ -251,7 +290,9 @@ def validate_build(build: dict) -> None:
 
 
 def _validate_marker(
-        marker: dict, *, authority: str, kind: str, expected_clock: str = "steady") -> None:
+        marker: dict, *, authority: str, kind: str, expected_clock: str = "steady",
+        expected_executor_kind: str = "single_threaded",
+        expected_executor_threads: int = 1) -> None:
     if not isinstance(marker, dict) or marker.get("authority") != authority:
         raise ValueError("timer/executor authority marker is invalid")
     if not isinstance(marker.get("implementation"), str) or not marker["implementation"]:
@@ -259,8 +300,9 @@ def _validate_marker(
     if kind == "timer":
         if marker.get("clock") != expected_clock or marker.get("period_ns") != PERIOD_NS:
             raise ValueError("timer clock or period marker is invalid")
-    elif marker.get("kind") != "single_threaded" or marker.get("threads") != 1:
-        raise ValueError("executor must be single-threaded")
+    elif marker.get("kind") != expected_executor_kind or marker.get(
+            "threads") != expected_executor_threads:
+        raise ValueError("executor kind/thread-count marker is invalid")
 
 
 def _validate_ready(ready: dict, sample: dict, cache: dict) -> None:
@@ -286,7 +328,9 @@ def _validate_ready(ready: dict, sample: dict, cache: dict) -> None:
         ready.get("timer_marker"), authority=spec["timer_authority"], kind="timer",
         expected_clock="ros" if variant in DIRECT_VARIANTS else "steady")
     _validate_marker(
-        ready.get("executor_marker"), authority=spec["executor_authority"], kind="executor")
+        ready.get("executor_marker"), authority=spec["executor_authority"], kind="executor",
+        expected_executor_kind=spec["executor_kind"],
+        expected_executor_threads=spec["executor_threads"])
     if ready["timer_marker"].get("callback_language") != spec["callback_language"]:
         raise ValueError("timer callback-language marker is invalid")
     artifact = ready.get("cache")
@@ -337,9 +381,14 @@ def _validate_ready(ready: dict, sample: dict, cache: dict) -> None:
         if not ready["timer_marker"]["implementation"].startswith(
                 "rclcpp::GenericTimer<"):
             raise ValueError("direct timer marker is not a native rclcpp clock timer")
+        expected_executor_prefix = (
+            "rclcpp::executors::MultiThreadedExecutor"
+            if spec["executor_kind"] == "multi_threaded"
+            else "rclcpp::executors::SingleThreadedExecutor"
+        )
         if not ready[
                 "executor_marker"]["implementation"].startswith(
-                "rclcpp::executors::SingleThreadedExecutor"):
+                expected_executor_prefix):
             raise ValueError("direct executor marker is not the session native executor")
     elif artifact.get("state") not in ("not_applicable", "process_warm"):
         raise ValueError("timer cache state is invalid")

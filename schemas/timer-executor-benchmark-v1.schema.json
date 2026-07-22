@@ -48,6 +48,8 @@
             "direct-cpp-rclcppyy",
             "direct-public-ste",
             "direct-raw-ste-control",
+            "direct-public-mte",
+            "direct-raw-mte-control",
             "native-python-callback",
             "native-cpp-callback",
             "aot-staged"
@@ -61,8 +63,8 @@
         "ros_distro": {"const": "jazzy"},
         "execution_order": {
           "type": "array",
-          "minItems": 80,
-          "maxItems": 80,
+          "minItems": 100,
+          "maxItems": 100,
           "uniqueItems": true,
           "items": {"type": "string"}
         }
@@ -133,6 +135,8 @@
         "direct-cpp-rclcppyy",
         "direct-public-ste",
         "direct-raw-ste-control",
+        "direct-public-mte",
+        "direct-raw-mte-control",
         "native-python-callback",
         "native-cpp-callback",
         "aot-staged"
@@ -317,8 +321,8 @@
         "clock": {"enum": ["steady", "ros"]},
         "period_ns": {"const": 1000000},
         "callback_language": {"enum": ["python", "cpp"]},
-        "kind": {"const": "single_threaded"},
-        "threads": {"const": 1}
+        "kind": {"enum": ["single_threaded", "multi_threaded"]},
+        "threads": {"type": "integer", "minimum": 1}
       }
     },
     "direct_activation": {

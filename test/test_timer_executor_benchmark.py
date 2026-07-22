@@ -112,6 +112,11 @@ def _sample(variant, repetition=1, index=0):
             "state": "process_warm",
             "kind": "direct-rclcpp-runtime",
         }
+        native_executor_type = (
+            "rclcpp::executors::MultiThreadedExecutor"
+            if spec["executor_kind"] == "multi_threaded"
+            else "rclcpp::executors::SingleThreadedExecutor"
+        )
         activation = {
             "profile": "direct_cpp",
             "timer_status_backend": "cpp",
@@ -120,7 +125,7 @@ def _sample(variant, repetition=1, index=0):
             "callback_handoff": "direct_std_function",
             "executor_session_owned": True,
             "native_timer_type": "rclcpp::GenericTimer<std::function<void()>,nullptr>",
-            "native_executor_type": "rclcpp::executors::SingleThreadedExecutor",
+            "native_executor_type": native_executor_type,
             "executor_surface": spec["executor_surface"],
         }
     elif variant == "native-python-callback":
@@ -164,8 +169,8 @@ def _sample(variant, repetition=1, index=0):
         "executor_marker": {
             "authority": spec["executor_authority"],
             "implementation": "fixture::SingleThreadedExecutor",
-            "kind": "single_threaded",
-            "threads": 1,
+            "kind": spec["executor_kind"],
+            "threads": spec["executor_threads"],
         },
         "cache": cache_marker,
     }
@@ -174,7 +179,10 @@ def _sample(variant, repetition=1, index=0):
             "rclcpp::GenericTimer<std::function<void()>,nullptr>")
         ready["timer_marker"]["clock"] = "ros"
         ready["executor_marker"]["implementation"] = (
-            "rclcpp::executors::SingleThreadedExecutor")
+            "rclcpp::executors::MultiThreadedExecutor"
+            if spec["executor_kind"] == "multi_threaded"
+            else "rclcpp::executors::SingleThreadedExecutor"
+        )
     if activation is not None:
         ready["activation"] = activation
 
@@ -441,13 +449,15 @@ def test_cache_contract_rejects_invalid_cold_warm_evidence(path, value):
 def test_complete_document_and_rotating_order_validate():
     document = _document()
     protocol.validate_document(document)
-    assert len(document["results"]) == 80
-    assert document["parameters"]["execution_order"][:8] == [
+    assert len(document["results"]) == 100
+    assert document["parameters"]["execution_order"][:10] == [
         "direct-public-ste__rep_1",
         "direct-raw-ste-control__rep_1",
         "stock-rclpy__rep_1",
         "compatible-rclcppyy__rep_1",
         "direct-cpp-rclcppyy__rep_1",
+        "direct-public-mte__rep_1",
+        "direct-raw-mte-control__rep_1",
         "native-python-callback__rep_1",
         "native-cpp-callback__rep_1",
         "aot-staged__rep_1",

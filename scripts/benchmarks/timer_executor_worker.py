@@ -15,6 +15,7 @@ import time
 from _timer_executor_protocol import (
     EVENT_SCHEMA,
     MASK64,
+    MTE_THREADS,
     PERIOD_NS,
     PREWARM_SCHEMA,
     RECURRENCE_INCREMENT,
@@ -299,7 +300,7 @@ def _direct_cpp_python_callback(args) -> int:
     active_product.enable_cpp_acceleration(profile="direct_cpp")
 
     import rclpy
-    from rclpy.executors import SingleThreadedExecutor
+    from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
     from rclpy.node import Node
     from rclcppyy import direct_cpp
 
@@ -323,6 +324,27 @@ def _direct_cpp_python_callback(args) -> int:
         import cppyy
 
         native_executor = runtime.session.create_executor("single_threaded")
+        native_executor.add_node(node._direct_cpp_node)
+
+        def spin_once(timeout_sec):
+            duration = cppyy.gbl.std.chrono.nanoseconds(int(timeout_sec * 1e9))
+            native_executor.spin_once(duration)
+            node._poll_direct_entities()
+
+    elif args.variant == "direct-public-mte":
+        executor = MultiThreadedExecutor(num_threads=MTE_THREADS, context=node.context)
+        if not executor.add_node(node):
+            raise RuntimeError("public direct MTE did not acquire the benchmark node")
+        native_executor = executor.native_executor
+
+        def spin_once(timeout_sec):
+            executor.spin_once(timeout_sec=timeout_sec)
+
+    elif args.variant == "direct-raw-mte-control":
+        import cppyy
+
+        native_executor = runtime.session.create_executor(
+            "multi_threaded", threads=MTE_THREADS)
         native_executor.add_node(node._direct_cpp_node)
 
         def spin_once(timeout_sec):
@@ -415,8 +437,8 @@ def _direct_cpp_python_callback(args) -> int:
         executor_marker={
             "authority": "cpp",
             "implementation": executor_type,
-            "kind": "single_threaded",
-            "threads": 1,
+            "kind": VARIANTS[args.variant]["executor_kind"],
+            "threads": VARIANTS[args.variant]["executor_threads"],
         },
         cache={"state": "process_warm", "kind": "direct-rclcpp-runtime"},
         activation=activation,
@@ -441,10 +463,10 @@ def _direct_cpp_python_callback(args) -> int:
     post_cancel = measured["count"] - canceled_count
     timer_canceled = timer.is_canceled()
     timer_destroyed = node.destroy_timer(timer)
-    if args.variant == "direct-public-ste":
+    if args.variant in ("direct-public-ste", "direct-public-mte"):
         executor.remove_node(node)
         executor_shutdown = executor.shutdown(timeout_sec=2.0)
-    elif args.variant == "direct-raw-ste-control":
+    elif args.variant in ("direct-raw-ste-control", "direct-raw-mte-control"):
         native_executor.remove_node(node._direct_cpp_node)
         executor_shutdown = node.executor is None
     else:
@@ -978,6 +1000,8 @@ def main() -> int:
         "direct-cpp-rclcppyy",
         "direct-public-ste",
         "direct-raw-ste-control",
+        "direct-public-mte",
+        "direct-raw-mte-control",
     ):
         return _direct_cpp_python_callback(args)
     if args.variant == "native-python-callback":
