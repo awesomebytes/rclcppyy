@@ -725,6 +725,54 @@ class DirectService:
         return True
 
 
+# Self-destroy detection (Slice 2.5, docs/plans/PLAN-mte-unlock.md Addendum):
+# a per-thread set of nodes the calling thread is currently dispatching a
+# callback for. destroy_node()/destroy_*() consult this to tell "an external
+# thread is destroying me" (safe to wait for quiescence) from "I am
+# destroying myself from inside my own callback" (waiting for my own
+# in-flight count would self-deadlock -- must defer instead).
+#
+# Status (Addendum v3/v3.1): this in-flight-counter/quiescence machinery
+# alone cannot make destroy-under-dispatch safe -- it is blind to the
+# pre-shim "marshal window" (a worker committed to dispatch, cppyy still
+# marshaling, before this counter increments). The suite's native-owned
+# callable lifetime (ManagedCallbackEntityImpl + the callable-lifetime
+# reaper, cppyy_kit 6d60a85/cc70d1b/9ff96fd) is what actually closes that
+# window. This machinery stays load-bearing for ordering/semantics and
+# defect-A exception draining, and as defense-in-depth (it also keeps the
+# reaper's release queue quieter by avoiding unnecessary racing) -- not
+# ripped out, just no longer the sole safety argument.
+_dispatch_marker = threading.local()
+
+# Bound on how long destroy_node()/destroy_*() wait for a node's in-flight
+# callback count to reach zero before freeing anything. On timeout this
+# fails loud rather than freeing a callable a worker might still be
+# invoking -- leak-safe beats crash-safe (Addendum risk 2).
+_DESTROY_QUIESCENCE_TIMEOUT_SEC = 10.0
+
+
+def _enter_dispatch(node) -> None:
+    nodes = getattr(_dispatch_marker, "nodes", None)
+    if nodes is None:
+        nodes = set()
+        _dispatch_marker.nodes = nodes
+    nodes.add(node)
+
+
+def _exit_dispatch(node) -> None:
+    nodes = getattr(_dispatch_marker, "nodes", None)
+    if nodes is not None:
+        nodes.discard(node)
+
+
+def _is_dispatching_for(node) -> bool:
+    """True if the calling thread is already inside a callback dispatched
+    for ``node`` -- a destroy_*() call reaching here is a self-destroy that
+    must defer to the owning executor's pump instead of waiting in place."""
+    nodes = getattr(_dispatch_marker, "nodes", None)
+    return nodes is not None and node in nodes
+
+
 class DirectNode:
     """Small rclpy-style facade whose data-plane entities are real C++ objects."""
 
@@ -791,6 +839,15 @@ class DirectNode:
         # drains and re-raises on its own spin/pump thread.
         self._direct_cpp_exception_sink_lock = threading.Lock()
         self._direct_cpp_exception_sink = []
+        # In-flight callback counter (Slice 2.5 -- see PLAN-mte-unlock.md
+        # Addendum): bumped by the containment shims around every native-
+        # worker-dispatched user callback (subscription/timer/service, and
+        # action callbacks via DirectActionServer._invoke_callback).
+        # destroy_node()/destroy_*() wait for this to reach zero before
+        # freeing an entity's callable, so nothing is freed while a worker
+        # might still be invoking it.
+        self._direct_cpp_in_flight_cv = threading.Condition()
+        self._direct_cpp_in_flight_count = 0
         self._direct_cpp_clock = None
         self._direct_cpp_sleeper = None
         self._pre_set_parameters_callbacks = []
@@ -888,6 +945,47 @@ class DirectNode:
             self._direct_cpp_exception_sink = []
         return drained
 
+    def _enter_in_flight(self) -> None:
+        with self._direct_cpp_in_flight_cv:
+            self._direct_cpp_in_flight_count += 1
+
+    def _exit_in_flight(self) -> None:
+        with self._direct_cpp_in_flight_cv:
+            self._direct_cpp_in_flight_count -= 1
+            if self._direct_cpp_in_flight_count <= 0:
+                self._direct_cpp_in_flight_cv.notify_all()
+
+    def _wait_quiescent(self, timeout: float) -> bool:
+        """Block until this node has no in-flight callback, or return False
+        on timeout. The caller must not free anything on a False return --
+        leak-safe beats crash-safe (PLAN-mte-unlock.md Addendum risk 2)."""
+        deadline = time.monotonic() + timeout
+        with self._direct_cpp_in_flight_cv:
+            while self._direct_cpp_in_flight_count > 0:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    return self._direct_cpp_in_flight_count <= 0
+                self._direct_cpp_in_flight_cv.wait(timeout=remaining)
+            return True
+
+    def _defer_teardown(self, teardown) -> None:
+        """Enqueue ``teardown`` on the owning executor's pump instead of
+        running it here. Called only for a self-destroy (the current thread
+        is already dispatching a callback for this node, per
+        ``_is_dispatching_for``): waiting for our own in-flight count to
+        reach zero from inside our own dispatch would self-deadlock. The
+        pump thread drains this queue once genuinely quiescent -- see
+        ``DirectExecutor._drain_deferred_teardown``.
+        """
+        executor = self.executor
+        if executor is None:
+            # No owning executor to defer to -- shouldn't normally happen
+            # while dispatching, but run synchronously rather than drop the
+            # request outright.
+            teardown()
+            return
+        executor._enqueue_deferred_teardown(teardown)
+
     def _contain_callback_exceptions(self, callback):
         """Wrap a void-style user callback (subscription/timer) so a raise
         is captured into this node's exception sink instead of crossing
@@ -896,14 +994,24 @@ class DirectNode:
         executor drains the sink and re-raises the first captured
         exception on the spin/pump thread, matching stock's
         ``future.result()`` re-raise semantics.
+
+        Also bumps this node's in-flight counter and the calling thread's
+        self-destroy marker around the call (Slice 2.5, Addendum Q1) --
+        every native-worker-dispatched user callback funnels through here
+        or through ``_contain_service_callback_exceptions``.
         """
         @functools.wraps(callback)
         def _contained(*args, **kwargs):
+            self._enter_in_flight()
+            _enter_dispatch(self)
             try:
                 return callback(*args, **kwargs)
             except Exception as exc:
                 self._record_callback_exception(exc)
                 return None
+            finally:
+                _exit_dispatch(self)
+                self._exit_in_flight()
 
         return _contained
 
@@ -917,14 +1025,22 @@ class DirectNode:
         reply without a suite change, so a default-valued response is the
         closest safe containment (a documented differential, not a parity
         claim).
+
+        Also bumps the in-flight counter and self-destroy marker exactly
+        as ``_contain_callback_exceptions`` does -- see Slice 2.5.
         """
         @functools.wraps(callback)
         def _contained(request, response):
+            self._enter_in_flight()
+            _enter_dispatch(self)
             try:
                 return callback(request, response)
             except Exception as exc:
                 self._record_callback_exception(exc)
                 return response
+            finally:
+                _exit_dispatch(self)
+                self._exit_in_flight()
 
         return _contained
 
@@ -2042,9 +2158,34 @@ class DirectNode:
             "service", service.srv_name, binding, service)
         return service
 
+    def _quiesce_or_raise(self, what: str) -> None:
+        """Wait for this node to have no in-flight callback before freeing
+        ``what``, or fail loud on timeout (Slice 2.5 -- see
+        PLAN-mte-unlock.md Addendum: destroying a callable while a worker
+        might still be invoking it is the defect-A-adjacent UAF class that
+        crashed the self-destroy probe). Never called from the thread that
+        is itself dispatching for this node -- callers must defer instead
+        (``_is_dispatching_for`` / ``_defer_teardown``)."""
+        if not self._wait_quiescent(_DESTROY_QUIESCENCE_TIMEOUT_SEC):
+            raise RuntimeError(
+                "direct_cpp node still has an in-flight callback after "
+                "%.1fs; refusing to free %s (leak-safe beats crash-safe -- "
+                "PLAN-mte-unlock.md Addendum risk 2)"
+                % (_DESTROY_QUIESCENCE_TIMEOUT_SEC, what)
+            )
+
     def destroy_timer(self, timer):
+        if timer not in self._direct_cpp_timers:
+            return False
+        if _is_dispatching_for(self):
+            self._defer_teardown(lambda: self._destroy_timer_now(timer))
+            return True
+        return self._destroy_timer_now(timer)
+
+    def _destroy_timer_now(self, timer) -> bool:
         for index, candidate in enumerate(self._direct_cpp_timers):
             if timer is candidate:
+                self._quiesce_or_raise("a timer")
                 self._discard_group_entity(candidate)
                 candidate.destroy()
                 del self._direct_cpp_timers[index]
@@ -2068,8 +2209,17 @@ class DirectNode:
         return False
 
     def destroy_subscription(self, subscription):
+        if subscription not in self._direct_cpp_subscriptions:
+            return False
+        if _is_dispatching_for(self):
+            self._defer_teardown(lambda: self._destroy_subscription_now(subscription))
+            return True
+        return self._destroy_subscription_now(subscription)
+
+    def _destroy_subscription_now(self, subscription) -> bool:
         for index, candidate in enumerate(self._direct_cpp_subscriptions):
             if subscription is candidate:
+                self._quiesce_or_raise("a subscription")
                 del self._direct_cpp_subscriptions[index]
                 self._discard_group_entity(candidate)
                 return candidate._close()
@@ -2085,8 +2235,17 @@ class DirectNode:
         return False
 
     def destroy_service(self, service):
+        if service not in self._direct_cpp_services:
+            return False
+        if _is_dispatching_for(self):
+            self._defer_teardown(lambda: self._destroy_service_now(service))
+            return True
+        return self._destroy_service_now(service)
+
+    def _destroy_service_now(self, service) -> bool:
         for index, candidate in enumerate(self._direct_cpp_services):
             if service is candidate:
+                self._quiesce_or_raise("a service")
                 self._discard_group_entity(candidate)
                 candidate.close()
                 del self._direct_cpp_services[index]
@@ -2118,16 +2277,33 @@ class DirectNode:
         node = self._direct_cpp_node
         if node is None:
             return
-        self._require_idle_action_server_callbacks("destroy a node")
-        self._close_parameter_callbacks()
+        if _is_dispatching_for(self):
+            self._defer_teardown(self._destroy_node_now)
+            return
+        self._destroy_node_now()
+
+    def _destroy_node_now(self) -> None:
+        """The actual destroy_node() teardown, run only once this node is
+        known (or has been waited) quiescent -- either directly, from an
+        external thread, or deferred to the owning executor's pump after a
+        self-destroy (Slice 2.5, PLAN-mte-unlock.md Addendum Q2/Q3). Detach
+        from the executor natively *before* waiting, so no worker collects
+        this node's entities again while we wait for the ones already
+        checked out to finish.
+        """
+        node = self._direct_cpp_node
+        if node is None:
+            return
         executor = self.executor
         if executor is not None:
             executor.remove_node(self)
             self._set_direct_executor(None)
+        self._quiesce_or_raise("a node's entities")
+        self._close_parameter_callbacks()
         while self._direct_cpp_publishers:
             self.destroy_publisher(self._direct_cpp_publishers[0])
         while self._direct_cpp_subscriptions:
-            self.destroy_subscription(self._direct_cpp_subscriptions[0])
+            self._destroy_subscription_now(self._direct_cpp_subscriptions[0])
         for timer in tuple(self._direct_cpp_timers):
             timer.destroy()
         for client in tuple(self._direct_cpp_clients):

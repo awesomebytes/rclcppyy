@@ -161,6 +161,14 @@ class DirectExecutor(metaclass=_DirectSurface):
         # start_executor() and recording the result in _background_thread --
         # closes the wake-cancel window described on wake() below.
         self._native_spin_starting = False
+        # Deferred node-teardown requests (Slice 2.5, docs/plans/
+        # PLAN-mte-unlock.md Addendum Q3): a callback that destroys its own
+        # node cannot wait for its own in-flight count to reach zero
+        # without self-deadlocking, so DirectNode._defer_teardown() enqueues
+        # here instead; the spin/pump loop drains this at the top of every
+        # cycle on a thread that CAN safely block on quiescence.
+        self._deferred_teardown_lock = threading.Lock()
+        self._deferred_teardown_queue: list[Any] = []
         runtime.register_executor(self)
 
     @property
@@ -380,6 +388,27 @@ class DirectExecutor(metaclass=_DirectSurface):
         if first is not None:
             raise first
 
+    def _enqueue_deferred_teardown(self, teardown) -> None:
+        """Called by ``DirectNode._defer_teardown`` when a callback destroys
+        its own node (Slice 2.5): record the teardown for this spin/pump
+        loop to run once genuinely quiescent, instead of running it here on
+        the dispatching thread (which would self-deadlock waiting on its
+        own in-flight count)."""
+        with self._deferred_teardown_lock:
+            self._deferred_teardown_queue.append(teardown)
+        self.wake()
+
+    def _drain_deferred_teardown(self) -> None:
+        """Run any teardown requests enqueued by a self-destroying callback.
+        Safe to block here (e.g. on ``DirectNode._wait_quiescent``): this
+        runs on the spin/pump thread, never on the native worker thread
+        that was dispatching when the destroy was requested."""
+        with self._deferred_teardown_lock:
+            pending = self._deferred_teardown_queue
+            self._deferred_teardown_queue = []
+        for teardown in pending:
+            teardown()
+
     def _spin_once_impl(self, timeout_sec=None) -> None:
         if self._is_shutdown:
             return
@@ -387,6 +416,7 @@ class DirectExecutor(metaclass=_DirectSurface):
             # Direct calls on an otherwise empty global executor must not run a
             # node that was only cached between top-level spin_once calls.
             self.remove_node(self._parked_node)
+        self._drain_deferred_teardown()
         # Ready tasks are driven before the native step: a task that resolves
         # the future a spin_until_future_complete() caller is waiting on
         # should end that loop without waiting on an unrelated native event.
@@ -456,6 +486,12 @@ class DirectExecutor(metaclass=_DirectSurface):
                         "silently tearing down before any dispatch"
                         % _NATIVE_SPIN_STARTUP_TIMEOUT_SEC
                     )
+                # A self-destroying callback (Slice 2.5) enqueued its own
+                # node's teardown here instead of running it in place; this
+                # pump thread can safely block waiting for that node's
+                # in-flight count to reach zero, unlike the worker thread
+                # that deferred it.
+                self._drain_deferred_teardown()
                 self._drive_tasks()
                 self._poll_nodes()
                 # A contained callback exception (defect A) is recorded to

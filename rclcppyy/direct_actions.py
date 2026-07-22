@@ -1360,11 +1360,24 @@ class DirectActionServer(metaclass=_DirectSurface):
             self._callback_errors.append(error)
 
     def _invoke_callback(self, name, callback, argument):
+        # Also bump the owning node's shared in-flight counter (Slice 2.5,
+        # docs/plans/PLAN-mte-unlock.md Addendum risk 4): generalizes this
+        # action server's own _callback_depth gate into the same mechanism
+        # destroy_node()/destroy_*() wait on, rather than duplicating a
+        # second gate. _callback_depth itself is kept -- close()/
+        # _service_pending_close() still use it for this entity's own
+        # deferred-close semantics.
+        enter_in_flight = getattr(self._node, "_enter_in_flight", None)
+        exit_in_flight = getattr(self._node, "_exit_in_flight", None)
         with self._lock:
             self._callback_depth += 1
+        if enter_in_flight is not None:
+            enter_in_flight()
         try:
             return _sync_result(name, callback, argument)
         finally:
+            if exit_in_flight is not None:
+                exit_in_flight()
             with self._lock:
                 self._callback_depth -= 1
 
