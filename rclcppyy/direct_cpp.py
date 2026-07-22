@@ -383,6 +383,43 @@ class _DirectEventHandler:
         self.callback = callback
 
 
+class ContentFilterUnsupportedError(RuntimeError):
+    """A requested content-filtered subscription cannot be honored by the
+    active RMW.
+
+    Stock rclpy has no exception for this case: on an RMW that cannot content-
+    filter (Cyclone, the production default), stock silently returns an
+    *unfiltered* subscription -- the caller's filter expression is dropped
+    without any signal. That silent narrowing is exactly the fail-closed
+    hazard rclcppyy refuses to reproduce; this is the deliberate, documented
+    stricter-than-stock divergence (PLAN-qos-events-product.md S3/S6#3): the
+    suite's own ``ContentFilterUnsupported`` (raised only after probing the
+    just-created entity's ``is_cft_enabled()``, so no unfiltered subscription
+    is ever handed back under the guise of filtering) is translated to this
+    public rclcppyy-surface type rather than silently degrading.
+    """
+
+
+def _extract_content_filter(content_filter_options):
+    """Translate a stock ``ContentFilterOptions`` NamedTuple into the suite's
+    ``(filter_expression, expression_parameters)`` pair. ``None`` means no
+    content filter requested.
+    """
+    if content_filter_options is None:
+        return None
+    from rclpy.subscription_content_filter_options import ContentFilterOptions
+
+    if not isinstance(content_filter_options, ContentFilterOptions):
+        raise TypeError(
+            "content_filter_options must be a ContentFilterOptions or None, "
+            "got %s" % type(content_filter_options).__name__
+        )
+    return (
+        content_filter_options.filter_expression,
+        tuple(content_filter_options.expression_parameters),
+    )
+
+
 class DirectPublisher(metaclass=_DirectSurface):
     """rclpy-shaped metadata and lifetime around a typed C++ publisher."""
 
@@ -2016,7 +2053,6 @@ class DirectNode:
         requested = {
             "qos_overriding_options": qos_overriding_options is not None,
             "raw": bool(raw),
-            "content_filter_options": content_filter_options is not None,
         }
         self._reject_entity_options("subscription", requested)
         from rclcpp_kit import direct_entities
@@ -2027,6 +2063,7 @@ class DirectNode:
             raise TypeError("subscription callback must be callable")
         raw_events = _extract_event_callbacks(
             event_callbacks, _SUBSCRIPTION_EVENT_FIELDS, SubscriptionEventCallbacks)
+        content_filter = _extract_content_filter(content_filter_options)
         with_message_info = self._validate_subscription_callback(callback)
         qos, normalized_qos = _lower_entity_qos(qos_profile)
         group, native_group = self._resolve_callback_group(callback_group)
@@ -2045,6 +2082,7 @@ class DirectNode:
         }
         if (
             not contained_events
+            and content_filter is None
             and "subscription_shared_lease" in _runtime().optimizations
         ):
             from rclcpp_kit import direct_subscription_lease
@@ -2059,9 +2097,10 @@ class DirectNode:
                 callback_group=native_group,
             )
         else:
-            # The shared-lease optimization has no event-callback parameter;
-            # an event-bearing subscription always takes this route below,
-            # even when the optimization is otherwise active for this node.
+            # The shared-lease optimization has no event-callback/content-
+            # filter parameter; an event-bearing or content-filtered
+            # subscription always takes this route below, even when the
+            # optimization is otherwise active for this node.
             try:
                 native = direct_entities.create_subscription(
                     self._require_node(),
@@ -2072,11 +2111,14 @@ class DirectNode:
                     with_message_info=with_message_info,
                     callback_group=native_group,
                     event_callbacks=contained_events or None,
+                    content_filter=content_filter,
                 )
             except direct_entities.QoSEventUnsupported as exc:
                 from rclpy.event_handler import UnsupportedEventTypeError
 
                 raise UnsupportedEventTypeError(str(exc)) from exc
+            except direct_entities.ContentFilterUnsupported as exc:
+                raise ContentFilterUnsupportedError(str(exc)) from exc
         subscription = DirectSubscription(
             msg_type,
             topic,
