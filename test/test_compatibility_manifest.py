@@ -27,15 +27,15 @@ def test_jazzy_manifest_is_valid_and_inventory_is_explicit():
     assert summary["entries"] == 80
     assert summary["support"] == {
         "certified": 36,
-        "experimental": 23,
+        "experimental": 24,
         "stock_authoritative": 16,
         "unassessed": 3,
-        "unsupported": 2,
+        "unsupported": 1,
     }
     assert summary["backend"] == {
-        "cpp": 20,
+        "cpp": 21,
         "mixed": 9,
-        "none": 5,
+        "none": 4,
         "python": 46,
     }
     assert summary["upstream_contract"] == {

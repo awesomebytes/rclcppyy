@@ -23,7 +23,7 @@ def test_direct_cpp_executor_surface_matches_stock_signatures():
         in process.stdout
     )
     assert (
-        "DIRECT_CPP_EXECUTOR_SURFACE_MULTI_THREADED_FAIL_CLOSED_OK"
+        "DIRECT_CPP_EXECUTOR_SURFACE_MULTI_THREADED_CONSTRUCTS_AND_DISPATCHES_OK"
         in process.stdout
     )
     assert "DIRECT_CPP_EXECUTOR_SURFACE_TEARDOWN_OK" in process.stdout
@@ -71,6 +71,36 @@ def test_direct_cpp_multi_threaded_executor_dispatch_correctness_wake_and_teardo
     assert "DIRECT_CPP_MTE_WAKE_OK" in process.stdout
     assert "DIRECT_CPP_MTE_TEARDOWN_OK" in process.stdout
     assert "DIRECT_CPP_MTE_ALL_OK" in process.stdout
+
+
+def test_direct_cpp_multi_threaded_executor_true_parallelism():
+    """True-parallelism proof for Slice 3 (PLAN-mte-unlock.md un-fail-close):
+    reentrant groups dispatch two entities in genuine temporal overlap
+    (a threading.Barrier(2) only releases under real concurrency, peak
+    in-flight == 2), a mutually-exclusive group serializes (peak == 1, a
+    short-timeout barrier must break), and two different exclusive groups
+    still run concurrently (cross-group control, rules out a false
+    negative). Was a one-time, uncommitted evidence script pending the
+    suite-level zero-dispatch race Slice 1 fixed; now a committed,
+    non-flaky test through the public MultiThreadedExecutor constructor.
+    """
+    process = run_helper(
+        "_direct_cpp_multi_threaded_executor_parallelism_characterization.py",
+        timeout=180,
+    )
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_MTE_REENTRANT_PARALLEL_OK" in process.stdout, (
+        format_output(process)
+    )
+    assert "DIRECT_CPP_MTE_EXCLUSIVE_SERIALIZED_OK" in process.stdout, (
+        format_output(process)
+    )
+    assert "DIRECT_CPP_MTE_CROSS_GROUP_CONCURRENT_OK" in process.stdout, (
+        format_output(process)
+    )
+    assert (
+        "DIRECT_CPP_MTE_PARALLELISM_CHARACTERIZATION_COMPLETE" in process.stdout
+    ), format_output(process)
 
 
 def test_direct_cpp_multi_threaded_executor_callback_exception_contained_and_reraised():

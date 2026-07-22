@@ -57,7 +57,7 @@ def test_direct_cpp_public_single_threaded_executor_owns_exact_cpp_nodes():
     assert "DIRECT_CPP_GLOBAL_SPIN_ONCE_PARKING_OK" in process.stdout
     assert "DIRECT_CPP_PUBLIC_EXECUTOR_CPP_DATA_OK" in process.stdout
     assert "DIRECT_CPP_PUBLIC_EXECUTOR_TRANSFER_OK" in process.stdout
-    assert "DIRECT_CPP_PUBLIC_EXECUTOR_FAIL_CLOSED_OK" in process.stdout
+    assert "DIRECT_CPP_PUBLIC_EXECUTOR_MULTI_THREADED_OWNERSHIP_OK" in process.stdout
     assert "DIRECT_CPP_PUBLIC_EXECUTOR_CONTEXT_OK" in process.stdout
     assert "DIRECT_CPP_PUBLIC_EXECUTOR_SHUTDOWN_WAKE_OK" in process.stdout
     assert "DIRECT_CPP_PUBLIC_EXECUTOR_NODE_DESTROY_OK" in process.stdout

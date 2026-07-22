@@ -1,10 +1,10 @@
 """Committed proof battery for Slice 2.5c (PLAN-mte-unlock.md): safe
 node/entity destruction under concurrent MultiThreadedExecutor dispatch.
 
-All under the MultiThreadedExecutor construction escape hatch (public
-construction stays fail-closed pending Slice 3). See each helper's own
-docstring for the exact scenario and why it matters; this file only wires
-them to pytest and states the expected observable each one must clear.
+Runs through the public MultiThreadedExecutor constructor (Slice 3,
+PLAN-mte-unlock.md un-fail-close). See each helper's own docstring for the
+exact scenario and why it matters; this file only wires them to pytest and
+states the expected observable each one must clear.
 """
 from _run_helper import format_output, run_helper
 
@@ -87,6 +87,19 @@ def test_gc_after_gated_destroy_stays_clean():
     process = run_helper("_gc_after_destroy_helper.py", timeout=300)
     assert process.returncode == 0, format_output(process)
     assert "GC_AFTER_DESTROY_ALL_OK" in process.stdout, format_output(process)
+
+
+def test_parameter_callback_teardown_under_live_mte():
+    """Slice 3 addition (PLAN-mte-unlock.md): the product-level counterpart
+    of the suite's parameter-callback teardown-under-worker-dispatch proof
+    (Slice 2.5a4), through the public rclpy-style API
+    (DirectNode.add_on_set_parameters_callback) and a real, publicly-
+    constructed MultiThreadedExecutor. Self-removes the callback from
+    within its own dispatch on a worker thread genuinely calling
+    set_parameters, drops every reference, forces gc.collect(). N=50."""
+    process = run_helper("_param_teardown_under_mte_helper.py", timeout=300)
+    assert process.returncode == 0, format_output(process)
+    assert "PARAM_TEARDOWN_MTE_ALL_OK" in process.stdout, format_output(process)
 
 
 def test_marshal_window_stress_end_to_end_through_the_product():

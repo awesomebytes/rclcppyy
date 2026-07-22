@@ -15,8 +15,8 @@ This is the promoted, committed form of the scratchpad reference probe
 engagement, at the charter's required N >= 50 (was 20 in the scratchpad
 version). Both scenarios run under a ReentrantCallbackGroup with
 num_threads=2 so the "slow" peer and the "destroyer" callback can genuinely
-overlap in time. All under the MultiThreadedExecutor construction escape
-hatch (public construction is still fail-closed pending Slice 3).
+overlap in time. Runs through the public MultiThreadedExecutor constructor
+(Slice 3, PLAN-mte-unlock.md un-fail-close).
 """
 import faulthandler
 import os
@@ -32,9 +32,6 @@ faulthandler.dump_traceback_later(WATCHDOG_SECONDS, file=sys.stderr, exit=True)
 rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
 
 import rclpy  # noqa: E402
-from rclcppyy.direct_executors import (  # noqa: E402
-    _multi_threaded_construction_test_only,
-)
 from rclpy.callback_groups import ReentrantCallbackGroup  # noqa: E402
 from rclpy.executors import MultiThreadedExecutor  # noqa: E402
 from rclpy.node import Node  # noqa: E402
@@ -67,8 +64,7 @@ def spin_in_background(executor):
 
 def run_subscription_self_destroy(index, pid):
     node = Node("self_destroy_sub_%d_%d" % (pid, index))
-    with _multi_threaded_construction_test_only():
-        executor = MultiThreadedExecutor(num_threads=2)
+    executor = MultiThreadedExecutor(num_threads=2)
     executor.add_node(node)
     group = ReentrantCallbackGroup()
 
@@ -120,8 +116,7 @@ def run_subscription_self_destroy(index, pid):
 
 def run_node_self_destroy(index, pid):
     node = Node("self_destroy_node_%d_%d" % (pid, index))
-    with _multi_threaded_construction_test_only():
-        executor = MultiThreadedExecutor(num_threads=2)
+    executor = MultiThreadedExecutor(num_threads=2)
     executor.add_node(node)
     group = ReentrantCallbackGroup()
 

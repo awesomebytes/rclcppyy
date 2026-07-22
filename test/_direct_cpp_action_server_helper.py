@@ -23,7 +23,6 @@ from rclpy.action import (  # noqa: E402
 )
 from rclpy.action.server import ServerGoalHandle  # noqa: E402
 from rclpy.callback_groups import ReentrantCallbackGroup  # noqa: E402
-from rclpy.executors import MultiThreadedExecutor  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from rclpy.qos import QoSProfile  # noqa: E402
 from tf2_msgs.action import LookupTransform  # noqa: E402
@@ -109,7 +108,6 @@ def main():
         ),
         "default QoS",
     )
-    expect_failure(MultiThreadedExecutor, "MultiThreadedExecutor")
     assert node._action_servers == []
     print("DIRECT_CPP_ACTION_SERVER_P0_FAIL_CLOSED_OK")
 

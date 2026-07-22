@@ -29,9 +29,6 @@ rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
 
 import rclpy  # noqa: E402
 from rclcpp_kit import direct_entities  # noqa: E402
-from rclcppyy.direct_executors import (  # noqa: E402
-    _multi_threaded_construction_test_only,
-)
 from rclpy.callback_groups import ReentrantCallbackGroup  # noqa: E402
 from rclpy.executors import MultiThreadedExecutor  # noqa: E402
 from rclpy.node import Node  # noqa: E402
@@ -43,8 +40,7 @@ HOOK_SLEEP_S = 0.2
 
 def run_iteration(index, pid):
     node = Node("marshal_window_product_%d_%d" % (pid, index))
-    with _multi_threaded_construction_test_only():
-        executor = MultiThreadedExecutor(num_threads=2)
+    executor = MultiThreadedExecutor(num_threads=2)
     executor.add_node(node)
     group = ReentrantCallbackGroup()
 

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import contextlib
 import math
 import os
 import threading
@@ -24,52 +23,6 @@ def _runtime():
 
 def _unsupported(reason: str):
     raise BackendUnavailableError(reason)
-
-
-_MULTI_THREADED_FAIL_CLOSED_REASON = (
-    "direct_cpp MultiThreadedExecutor construction is fail-closed this wave: "
-    "a raising Python callback under real concurrent native dispatch "
-    "crosses into C++ uncaught and aborts the whole process (std::terminate, "
-    "not a catchable exception -- rclcpp::executors::MultiThreadedExecutor "
-    "has no callback exception boundary), and a separate, suite-level "
-    "start_executor() dispatch-reliability gap can silently drop a ready "
-    "callback under real concurrency (any thread count). Both are queued, "
-    "out-of-boundary fixes: entity-callback exception containment (a "
-    "direct_cpp.py slot) and the ExecutorThread/cppyy dispatch race "
-    "(cppyy_kit). See docs/plans/PLAN-executor-slice.md."
-)
-
-
-class _MultiThreadedConstructionGuard:
-    """Module-private flag; never part of any public contract.
-
-    ``DirectMultiThreadedExecutor.__init__`` fails closed unconditionally
-    unless a caller is inside ``_multi_threaded_construction_test_only()``.
-    A plain flag (not thread-local) is deliberate: construction always
-    happens on the test's own calling thread before any concurrent dispatch
-    begins, never inside a spun-up worker.
-    """
-
-    allowed = False
-
-
-@contextlib.contextmanager
-def _multi_threaded_construction_test_only():
-    """Test-only escape hatch for the MultiThreadedExecutor fail-close.
-
-    This exists solely so this lane's own concurrency/wake/teardown proofs
-    -- which deliberately exercise the real native machinery with both
-    documented hazards in view (see ``_MULTI_THREADED_FAIL_CLOSED_REASON``)
-    -- can construct the class at all. It is not exported, not mirrored, and
-    never surfaces on any public class; nothing outside this lane's own
-    test helpers should ever call it.
-    """
-    previous = _MultiThreadedConstructionGuard.allowed
-    _MultiThreadedConstructionGuard.allowed = True
-    try:
-        yield
-    finally:
-        _MultiThreadedConstructionGuard.allowed = previous
 
 
 # Bound on how long _run_native_background() waits for a freshly launched
@@ -127,11 +80,6 @@ class DirectExecutor(metaclass=_DirectSurface):
         runtime = _runtime()
         if context is not None and context is not runtime.context:
             _unsupported("direct_cpp executors require the active direct context")
-        if (
-            self._kind == "multi_threaded"
-            and not _MultiThreadedConstructionGuard.allowed
-        ):
-            _unsupported(_MULTI_THREADED_FAIL_CLOSED_REASON)
         self._runtime = runtime
         self._context = runtime.context
         self._native = runtime.require_session().create_executor(
@@ -628,20 +576,17 @@ class DirectSingleThreadedExecutor(DirectExecutor):
 class DirectMultiThreadedExecutor(DirectExecutor):
     """A facade over ``rclcpp::executors::MultiThreadedExecutor``.
 
-    Construction is fail-closed this wave -- see
-    ``_MULTI_THREADED_FAIL_CLOSED_REASON``. The concurrent-dispatch machinery
-    itself is fully implemented (native worker threads, group-respecting:
-    reentrant groups run in parallel, mutually-exclusive groups serialize --
-    see ``_run_native_background``) and proven under the test-only
-    ``_multi_threaded_construction_test_only()`` escape hatch; it is not
-    reachable through the public constructor.
+    Concurrent-dispatch machinery: native worker threads, group-respecting
+    (reentrant groups run in parallel, mutually-exclusive groups serialize --
+    see ``_run_native_background``). Un-fail-closed in Slice 3 of
+    ``docs/plans/PLAN-mte-unlock.md`` once the containment (Slice 2),
+    zero-dispatch (Slice 1), and destroy-under-dispatch (Slice 2.5) fixes
+    proved this safe under real concurrency.
     """
 
     _kind = "multi_threaded"
 
     def __init__(self, num_threads=None, *, context=None) -> None:
-        if not _MultiThreadedConstructionGuard.allowed:
-            _unsupported(_MULTI_THREADED_FAIL_CLOSED_REASON)
         # Set before super().__init__() so the base constructor's
         # create_executor() call requests the resolved native thread count;
         # the public __init__ signature stays exactly stock's (no extra

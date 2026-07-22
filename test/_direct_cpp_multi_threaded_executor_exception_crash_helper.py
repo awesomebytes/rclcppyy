@@ -32,9 +32,6 @@ import rclcppyy
 rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
 
 import rclpy  # noqa: E402
-from rclcppyy.direct_executors import (  # noqa: E402
-    _multi_threaded_construction_test_only,
-)
 from rclpy.executors import MultiThreadedExecutor  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from std_msgs.msg import UInt64  # noqa: E402
@@ -42,8 +39,7 @@ from std_msgs.msg import UInt64  # noqa: E402
 
 rclpy.init(args=[])
 node = Node("mte_exception_containment_%d" % os.getpid())
-with _multi_threaded_construction_test_only():
-    executor = MultiThreadedExecutor(num_threads=2)
+executor = MultiThreadedExecutor(num_threads=2)
 executor.add_node(node)
 
 bad_topic = "/direct_cpp/mte_exception_containment/bad/p%d" % os.getpid()

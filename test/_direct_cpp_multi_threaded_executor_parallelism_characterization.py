@@ -1,34 +1,24 @@
 #!/usr/bin/env python3
-"""ONE-TIME EVIDENCE SCRIPT, not a CI test -- run manually, not by pytest.
+"""Committed true-parallelism proof for Slice 3 (PLAN-mte-unlock.md
+un-fail-close): genuine temporal-overlap proofs for
+DirectMultiThreadedExecutor through the public constructor -- reentrant
+groups dispatch in real parallel across native ``rclcpp`` worker threads,
+mutually-exclusive groups serialize under real concurrency, and exclusion
+is per-group (a cross-group pair still runs concurrently). Concurrency is
+proven with ``threading.Barrier``, never sleeps: a barrier only releases if
+the required number of parties reach it inside the timeout, which happens
+only under genuine concurrent execution (the GIL is released by
+``Barrier.wait()``, matching real stock rclpy MultiThreadedExecutor's own
+GIL reality for pure-Python callbacks).
 
-Genuine temporal-overlap ("true parallelism") proofs for
-DirectMultiThreadedExecutor: reentrant groups dispatch in real parallel
-across native ``rclcpp`` worker threads, mutually-exclusive groups serialize
-under real concurrency, and exclusion is per-group (a cross-group pair still
-runs concurrently). Concurrency is proven with ``threading.Barrier``, never
-sleeps: a barrier only releases if the required number of parties reach it
-inside the timeout, which happens only under genuine concurrent execution
-(the GIL is released by ``Barrier.wait()``, matching real stock rclpy
-MultiThreadedExecutor's own GIL reality for pure-Python callbacks).
-
-Why this is not a committed test (wave-3 Lane 2 hybrid disposition, see
-``docs/plans/PLAN-executor-slice.md``): this dispatch path
-(``spin()``/``start_executor()``, a native background thread) is affected by
-a genuine, suite-level (cppyy_kit) zero-dispatch race under real concurrency
--- a ready Python subscription callback occasionally never fires at all (see
-the queued suite-gap task and the repro scripts parked under
-``executor-flake-repros/`` in the implementing session's scratchpad). Landing
-this as a passing CI test would either flake (bad) or need retries that mask
-a real, tracked defect (worse). Instead this script was run once, under the
-test-only construction guard, as a recorded CHARACTERIZATION: see the
-Commit 3 message body and the ``executor.direct_cpp_multi_threaded`` manifest
-entry's notes for the exact pass/fail counts observed.
-
-Landing this as a passing, non-flaky committed test is an explicit
-obligation of the future lane that fixes the callback-exception containment
-gap (``_MULTI_THREADED_FAIL_CLOSED_REASON``) and the dispatch race above --
-on whatever dispatch architecture that lane chooses for the (then) real
-public ``DirectMultiThreadedExecutor``.
+This was previously a one-time, uncommitted evidence script (not run by
+CI) because this dispatch path (``spin()``/``start_executor()``, the native
+background thread) was affected by a suite-level (cppyy_kit) zero-dispatch
+race under real concurrency -- a ready Python subscription callback could
+occasionally never fire at all. Slice 1 of this same plan fixed that race
+in the product's own pump (the startup-gate + wake-cancel-window fix in
+``_run_native_background``/``wake()``); this is now a committed, non-flaky
+test through the public constructor.
 
 A top-level watchdog (``faulthandler.dump_traceback_later(..., exit=True)``)
 guarantees a design regression here fails loud within a bounded time instead
@@ -50,9 +40,6 @@ faulthandler.dump_traceback_later(WATCHDOG_SECONDS, file=sys.stderr, exit=True)
 rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
 
 import rclpy  # noqa: E402
-from rclcppyy.direct_executors import (  # noqa: E402
-    _multi_threaded_construction_test_only,
-)
 from rclpy.callback_groups import (  # noqa: E402
     MutuallyExclusiveCallbackGroup,
     ReentrantCallbackGroup,
@@ -60,12 +47,6 @@ from rclpy.callback_groups import (  # noqa: E402
 from rclpy.executors import MultiThreadedExecutor  # noqa: E402
 from rclpy.node import Node  # noqa: E402
 from std_msgs.msg import UInt64  # noqa: E402
-
-
-# Public construction is fail-closed this wave (see
-# rclcppyy.direct_executors._MULTI_THREADED_FAIL_CLOSED_REASON); every
-# construction below deliberately opts in via the test-only guard to
-# exercise the real machinery with both documented hazards in view.
 
 
 rclpy.init(args=[])
@@ -118,8 +99,7 @@ class InFlightTracker:
 # 1) Reentrant group: two entities dispatch in real parallel.
 # ---------------------------------------------------------------------
 reentrant_node = Node("direct_mte_reentrant_%d" % os.getpid())
-with _multi_threaded_construction_test_only():
-    reentrant_executor = MultiThreadedExecutor(num_threads=4)
+reentrant_executor = MultiThreadedExecutor(num_threads=4)
 reentrant_executor.add_node(reentrant_node)
 reentrant_group = ReentrantCallbackGroup()
 
@@ -185,8 +165,7 @@ print("DIRECT_CPP_MTE_REENTRANT_PARALLEL_OK", flush=True)
 # 2) Mutually-exclusive group: two entities serialize.
 # ---------------------------------------------------------------------
 exclusive_node = Node("direct_mte_exclusive_%d" % os.getpid())
-with _multi_threaded_construction_test_only():
-    exclusive_executor = MultiThreadedExecutor(num_threads=4)
+exclusive_executor = MultiThreadedExecutor(num_threads=4)
 exclusive_executor.add_node(exclusive_node)
 exclusive_group = MutuallyExclusiveCallbackGroup()
 
@@ -260,8 +239,7 @@ print("DIRECT_CPP_MTE_EXCLUSIVE_SERIALIZED_OK", flush=True)
 # 3) Cross-group control: two different exclusive groups run concurrently.
 # ---------------------------------------------------------------------
 cross_node = Node("direct_mte_cross_group_%d" % os.getpid())
-with _multi_threaded_construction_test_only():
-    cross_executor = MultiThreadedExecutor(num_threads=4)
+cross_executor = MultiThreadedExecutor(num_threads=4)
 cross_executor.add_node(cross_node)
 cross_group_1 = MutuallyExclusiveCallbackGroup()
 cross_group_2 = MutuallyExclusiveCallbackGroup()

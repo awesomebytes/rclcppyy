@@ -44,9 +44,6 @@ import rclcppyy
 rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
 
 import rclpy  # noqa: E402
-from rclcppyy.direct_executors import (  # noqa: E402
-    _multi_threaded_construction_test_only,
-)
 from rclpy.callback_groups import (  # noqa: E402
     MutuallyExclusiveCallbackGroup,
     ReentrantCallbackGroup,
@@ -90,8 +87,7 @@ def spin_in_background(executor):
 #    HOW exclusion is enforced (that lives entirely in native rclcpp).
 # ---------------------------------------------------------------------
 exclusive_node = Node("direct_mte_exclusive_%d" % os.getpid())
-with _multi_threaded_construction_test_only():
-    exclusive_executor = MultiThreadedExecutor(num_threads=4)
+exclusive_executor = MultiThreadedExecutor(num_threads=4)
 exclusive_executor.add_node(exclusive_node)
 exclusive_group = MutuallyExclusiveCallbackGroup()
 
@@ -134,8 +130,7 @@ print("DIRECT_CPP_MTE_EXCLUSIVE_CORRECTNESS_OK", flush=True)
 #    one-time characterization script instead.
 # ---------------------------------------------------------------------
 cross_node = Node("direct_mte_cross_group_%d" % os.getpid())
-with _multi_threaded_construction_test_only():
-    cross_executor = MultiThreadedExecutor(num_threads=4)
+cross_executor = MultiThreadedExecutor(num_threads=4)
 cross_executor.add_node(cross_node)
 cross_group_1 = MutuallyExclusiveCallbackGroup()
 cross_group_2 = MutuallyExclusiveCallbackGroup()
@@ -180,8 +175,7 @@ print("DIRECT_CPP_MTE_CROSS_GROUP_CORRECTNESS_OK", flush=True)
 #    entity-to-group wiring path, not exercised by the synthetic version.
 # ---------------------------------------------------------------------
 reentrant_node = Node("direct_mte_reentrant_%d" % os.getpid())
-with _multi_threaded_construction_test_only():
-    reentrant_executor = MultiThreadedExecutor(num_threads=4)
+reentrant_executor = MultiThreadedExecutor(num_threads=4)
 reentrant_executor.add_node(reentrant_node)
 reentrant_group = ReentrantCallbackGroup()
 
@@ -228,8 +222,7 @@ print("DIRECT_CPP_MTE_REENTRANT_ADMISSION_OK", flush=True)
 #    Unchanged by the labeling review above.
 # ---------------------------------------------------------------------
 wake_node = Node("direct_mte_wake_%d" % os.getpid())
-with _multi_threaded_construction_test_only():
-    wake_executor = MultiThreadedExecutor(num_threads=2)
+wake_executor = MultiThreadedExecutor(num_threads=2)
 wake_executor.add_node(wake_node)
 
 wake_thread, wake_spin_errors = spin_in_background(wake_executor)
@@ -259,8 +252,7 @@ print("DIRECT_CPP_MTE_WAKE_OK", flush=True)
 #    Unchanged by the labeling review above.
 # ---------------------------------------------------------------------
 teardown_node = Node("direct_mte_teardown_%d" % os.getpid())
-with _multi_threaded_construction_test_only():
-    teardown_executor = MultiThreadedExecutor(num_threads=2)
+teardown_executor = MultiThreadedExecutor(num_threads=2)
 teardown_executor.add_node(teardown_node)
 
 teardown_thread, teardown_spin_errors = spin_in_background(teardown_executor)

@@ -36,9 +36,6 @@ faulthandler.dump_traceback_later(WATCHDOG_SECONDS, file=sys.stderr, exit=True)
 rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
 
 import rclpy  # noqa: E402
-from rclcppyy.direct_executors import (  # noqa: E402
-    _multi_threaded_construction_test_only,
-)
 from rclpy.action import ActionClient, ActionServer  # noqa: E402
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup  # noqa: E402
 from rclpy.executors import MultiThreadedExecutor  # noqa: E402
@@ -69,8 +66,7 @@ def main():
         callback_group=group)
     client = ActionClient(node, LookupTransform, action_name)
 
-    with _multi_threaded_construction_test_only():
-        executor = MultiThreadedExecutor(num_threads=2)
+    executor = MultiThreadedExecutor(num_threads=2)
     executor.add_node(node)
 
     assert client.wait_for_server(timeout_sec=15.0)

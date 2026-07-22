@@ -174,23 +174,26 @@ assert runtime.session.executors == before_native_executors
 
 boundary_node = Node("direct_executor_boundary_%d" % os.getpid())
 assert boundary_node.executor is None
-multi = None
-try:
-    multi = MultiThreadedExecutor(num_threads=2, context=boundary_node.context)
-except EXPECTED_REJECTION:
-    pass
-else:
-    try:
-        multi.add_node(boundary_node)
-    except EXPECTED_REJECTION:
-        pass
-    else:
-        raise AssertionError("direct MultiThreadedExecutor accepted native membership")
-    assert multi.get_nodes() == []
-    assert multi.shutdown(timeout_sec=1.0) is True
+before_multi_native_executors = len(runtime.session.executors)
+multi = MultiThreadedExecutor(num_threads=2, context=boundary_node.context)
+assert isinstance(multi, Executor)
+assert multi.context is boundary_node.context
+assert multi.get_nodes() == []
+assert multi.add_node(boundary_node) is True
+assert multi.add_node(boundary_node) is False
+assert multi.get_nodes() == [boundary_node]
+assert boundary_node.executor is multi
+assert len(runtime.session.executors) == before_multi_native_executors + 1
+assert any(
+    "rclcpp::executors::MultiThreadedExecutor" in cpp_name(item)
+    for item in runtime.session.executors
+)
+multi.remove_node(boundary_node)
+assert multi.get_nodes() == []
 assert boundary_node.executor is None
+assert multi.shutdown(timeout_sec=1.0) is True
 boundary_node.destroy_node()
-print("DIRECT_CPP_PUBLIC_EXECUTOR_FAIL_CLOSED_OK", flush=True)
+print("DIRECT_CPP_PUBLIC_EXECUTOR_MULTI_THREADED_OWNERSHIP_OK", flush=True)
 
 
 context_node = Node("direct_executor_context_%d" % os.getpid())
