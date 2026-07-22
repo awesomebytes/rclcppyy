@@ -2277,6 +2277,7 @@ class DirectNode:
         node = self._direct_cpp_node
         if node is None:
             return
+        self._require_idle_action_server_callbacks("destroy the node")
         if _is_dispatching_for(self):
             self._defer_teardown(self._destroy_node_now)
             return
