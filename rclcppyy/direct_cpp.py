@@ -1359,10 +1359,17 @@ class DirectNode:
         sleeper = self._direct_cpp_sleeper
         if sleeper is not None:
             return sleeper
-        sleeper = _runtime().session.create_native_clock_sleeper(
-            self._require_node())
+        sleeper = self._native_create_clock_sleeper()
         self._direct_cpp_sleeper = sleeper
         return sleeper
+
+    def _native_create_clock_sleeper(self):
+        """Private seam (PLAN-lifecycle.md §2.3.1): the one node-type-specific
+        native call behind ``_clock_sleeper``. ``DirectLifecycleNode``
+        overrides this -- no lifecycle-typed clock sleeper exists in the
+        suite yet, so it fails closed rather than pass the raw lifecycle
+        node into a ``rclcpp::Node``-typed native call."""
+        return _runtime().session.create_native_clock_sleeper(self._require_node())
 
     def get_clock(self):
         clock = self._direct_cpp_clock
@@ -1370,8 +1377,7 @@ class DirectNode:
             return clock
         from rclcppyy.direct_clock import wrap_node_clock
 
-        native_node_clock = _runtime().session.create_native_node_clock(
-            self._require_node())
+        native_node_clock = self._native_create_clock()
         node_ref = weakref.ref(self)
 
         def sleeper_provider():
@@ -1383,6 +1389,12 @@ class DirectNode:
         clock = wrap_node_clock(native_node_clock, sleeper_provider=sleeper_provider)
         self._direct_cpp_clock = clock
         return clock
+
+    def _native_create_clock(self):
+        """Private seam (PLAN-lifecycle.md §2.3.1): the one node-type-specific
+        native call behind ``get_clock``. ``DirectLifecycleNode`` overrides
+        this to retain the lifecycle node's own clock instead."""
+        return _runtime().session.create_native_node_clock(self._require_node())
 
     def _parameter_modules(self):
         return _native_parameters, _direct_parameters
@@ -1671,8 +1683,7 @@ class DirectNode:
 
             raise ParameterNotDeclaredException(name)
         native_parameters, direct_parameters = self._parameter_modules()
-        status, parameter = native_parameters.get_parameter_checked(
-            self._require_node(), name)
+        status, parameter = self._native_get_parameter_checked(name)
         if status == native_parameters.CHECKED_PARAMETER_MISSING:
             if self._allow_undeclared_parameters:
                 return direct_parameters.parameter_class()(name)
@@ -1694,6 +1705,21 @@ class DirectNode:
         except BaseException:
             self._disable_direct_parameter_cache("get_update_failure")
         return facade
+
+    def _native_get_parameter_checked(self, name):
+        """Private seam (PLAN-lifecycle.md §2.3.1): the one node-type-specific
+        native call behind ``get_parameter``. ``native_parameters.declare_
+        parameter``/``get_parameter``/``set_parameters``/``has_parameter``
+        are plain duck-typed passthroughs that already work on any node
+        exposing ``rclcpp::Node``'s parameter method names (lifecycle
+        included, PLAN-lifecycle.md S5) -- but ``get_parameter_checked`` is a
+        dedicated compiled C++ helper hard-typed to
+        ``std::shared_ptr<rclcpp::Node>``, so it rejects a lifecycle node's
+        raw shared_ptr outright. ``DirectLifecycleNode`` overrides this to
+        replicate the same ``(status, parameter)`` contract from the plain
+        ``has_parameter``/``get_parameter`` calls instead."""
+        native_parameters, _direct_parameters = self._parameter_modules()
+        return native_parameters.get_parameter_checked(self._require_node(), name)
 
     def get_parameters(self, names):
         if not isinstance(names, list):
@@ -2159,8 +2185,7 @@ class DirectNode:
             for name, event_callback in raw_events.items()
         }
         try:
-            native = direct_entities.create_managed_publisher(
-                self._require_node(),
+            native = self._native_create_publisher(
                 msg_type,
                 str(topic),
                 qos,
@@ -2187,6 +2212,22 @@ class DirectNode:
         self._direct_cpp_publishers.append(publisher)
         self._record_entity("publisher", topic, msg_type)
         return publisher
+
+    def _native_create_publisher(
+        self, msg_type, topic, qos, *, callback_group, event_callbacks
+    ):
+        """Private seam (PLAN-lifecycle.md §2.3.1): the one node-type-specific
+        native call behind the public, inherited ``create_publisher``.
+        ``DirectLifecycleNode`` overrides this to create the publisher on the
+        lifecycle node's own ``create_publisher<>()`` instead (native
+        activation gating) -- everything else in ``create_publisher`` above
+        (QoS lowering, event-callback containment, entity bookkeeping) is
+        node-agnostic and stays here, unmodified and inherited."""
+        from rclcpp_kit import direct_entities
+
+        return direct_entities.create_managed_publisher(
+            self._require_node(), msg_type, topic, qos,
+            callback_group=callback_group, event_callbacks=event_callbacks)
 
     def create_subscription(
         self,
@@ -2235,6 +2276,7 @@ class DirectNode:
             not contained_events
             and content_filter is None
             and not qos_overriding
+            and self._native_subscription_shared_lease_supported()
             and "subscription_shared_lease" in _runtime().optimizations
         ):
             from rclcpp_kit import direct_subscription_lease
@@ -2253,10 +2295,15 @@ class DirectNode:
             # filter/qos-overriding parameter; an event-bearing,
             # content-filtered, or qos-overriding subscription always takes
             # this route below, even when the optimization is otherwise
-            # active for this node.
+            # active for this node -- likewise a lifecycle node (the lease
+            # path is rclcpp::Node-typed, PLAN-lifecycle.md §3.7), which
+            # always falls back here regardless of the runtime optimization
+            # flag (`_native_subscription_shared_lease_supported` is False).
+            # Not a parity loss: the lease is an internal handoff
+            # optimization, not observable API surface -- this path is still
+            # full parity.
             try:
-                native = direct_entities.create_subscription(
-                    self._require_node(),
+                native = self._native_create_subscription(
                     msg_type,
                     str(topic),
                     contained_callback,
@@ -2298,6 +2345,34 @@ class DirectNode:
         )
         return subscription
 
+    def _native_subscription_shared_lease_supported(self) -> bool:
+        """Private seam: whether the ``subscription_shared_lease`` runtime
+        optimization may apply to this node's subscriptions. ``DirectNode``
+        supports it; ``DirectLifecycleNode`` overrides this to ``False``
+        because ``direct_subscription_lease`` is ``rclcpp::Node``-typed
+        (PLAN-lifecycle.md §3.7) -- the optimization is an internal handoff
+        detail, not observable API surface, so disabling it here is a
+        silent, parity-preserving fallback to ``_native_create_subscription``
+        below, not a behavior change."""
+        return True
+
+    def _native_create_subscription(
+        self, msg_type, topic, callback, qos, *,
+        with_message_info, callback_group, event_callbacks,
+        content_filter, qos_overriding,
+    ):
+        """Private seam (PLAN-lifecycle.md §2.3.1): the one node-type-specific
+        native call behind the public, inherited ``create_subscription``.
+        ``DirectLifecycleNode`` overrides this to create the subscription on
+        the lifecycle node's own ``create_subscription<>()`` instead."""
+        from rclcpp_kit import direct_entities
+
+        return direct_entities.create_subscription(
+            self._require_node(), msg_type, topic, callback, qos,
+            with_message_info=with_message_info, callback_group=callback_group,
+            event_callbacks=event_callbacks, content_filter=content_filter,
+            qos_overriding=qos_overriding)
+
     def create_timer(
         self,
         timer_period_sec,
@@ -2326,14 +2401,11 @@ class DirectNode:
         if period_ns <= 0:
             raise ValueError("timer period must be at least one nanosecond")
 
-        from rclcpp_kit import direct_entities
-
         group, native_group = self._resolve_callback_group(callback_group)
         # Contain the user callback before it becomes a native std::function
         # -- same rationale as create_subscription above.
         contained_callback = self._contain_callback_exceptions(callback)
-        timer = direct_entities.create_clock_timer(
-            self._require_node(),
+        timer = self._native_create_timer(
             period_ns,
             contained_callback,
             callback_group=native_group,
@@ -2362,6 +2434,17 @@ class DirectNode:
         )
         return timer
 
+    def _native_create_timer(self, period_ns, callback, *, callback_group, autostart):
+        """Private seam (PLAN-lifecycle.md §2.3.1): the one node-type-specific
+        native call behind the public, inherited ``create_timer``.
+        ``DirectLifecycleNode`` overrides this to create the timer on the
+        lifecycle node's own ``create_wall_timer<>()`` instead."""
+        from rclcpp_kit import direct_entities
+
+        return direct_entities.create_clock_timer(
+            self._require_node(), period_ns, callback,
+            callback_group=callback_group, autostart=autostart)
+
     def create_rate(self, frequency, clock=None):
         if frequency <= 0:
             raise ValueError("frequency must be > 0")
@@ -2389,12 +2472,8 @@ class DirectNode:
             srv_type, _SERVICE_INSTALLATION)
         qos = self._require_default_service_qos(qos_profile)
         group, native_group = self._resolve_callback_group(callback_group)
-        native_client = _runtime().require_session().create_native_client(
-            self._require_node(),
-            srv_type,
-            str(srv_name),
-            callback_group=native_group,
-        )
+        native_client = self._native_create_client(
+            srv_type, str(srv_name), callback_group=native_group)
         client = DirectClient(
             self, srv_type, str(srv_name), qos, native_client, group)
         group.add_entity(client)
@@ -2402,6 +2481,14 @@ class DirectNode:
         self._record_service_entity(
             "client", client.srv_name, binding, client)
         return client
+
+    def _native_create_client(self, srv_type, srv_name, *, callback_group):
+        """Private seam (PLAN-lifecycle.md §2.3.1): the one node-type-specific
+        native call behind the public, inherited ``create_client``.
+        ``DirectLifecycleNode`` overrides this to create the client on the
+        lifecycle node's own ``create_client<>()`` instead."""
+        return _runtime().require_session().create_native_client(
+            self._require_node(), srv_type, srv_name, callback_group=callback_group)
 
     def create_service(
         self,
@@ -2435,13 +2522,9 @@ class DirectNode:
         # preserves the (request, response) -> response contract on a
         # contained raise (see _contain_service_callback_exceptions).
         contained_callback = self._contain_service_callback_exceptions(callback)
-        native_service = _runtime().require_session().create_python_service(
-            self._require_node(),
-            srv_type,
-            str(srv_name),
-            contained_callback,
-            callback_group=native_group,
-        )
+        native_service = self._native_create_service(
+            srv_type, str(srv_name), contained_callback,
+            callback_group=native_group)
         service = DirectService(
             srv_type, callback, qos, native_service, group)
         group.add_entity(service)
@@ -2449,6 +2532,15 @@ class DirectNode:
         self._record_service_entity(
             "service", service.srv_name, binding, service)
         return service
+
+    def _native_create_service(self, srv_type, srv_name, callback, *, callback_group):
+        """Private seam (PLAN-lifecycle.md §2.3.1): the one node-type-specific
+        native call behind the public, inherited ``create_service``.
+        ``DirectLifecycleNode`` overrides this to create the service on the
+        lifecycle node's own ``create_service<>()`` instead."""
+        return _runtime().require_session().create_python_service(
+            self._require_node(), srv_type, srv_name, callback,
+            callback_group=callback_group)
 
     def _quiesce_or_raise(self, what: str) -> None:
         """Wait for this node to have no in-flight callback before freeing

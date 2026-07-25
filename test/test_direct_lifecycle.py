@@ -48,3 +48,17 @@ def test_direct_cpp_lifecycle_publisher_gating_and_coexistence():
     assert "DIRECT_CPP_LIFECYCLE_PUBLISHER_CLASS_REJECTED_OK" in process.stdout
     assert "DIRECT_CPP_LIFECYCLE_PUBLISHER_DESTROY_OK" in process.stdout
     assert "DIRECT_CPP_LIFECYCLE_PUBLISHER_ALL_OK" in process.stdout
+
+
+def test_direct_cpp_lifecycle_data_plane_end_to_end():
+    process = run_helper("_direct_cpp_lifecycle_dataplane_helper.py", timeout=180)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_LIFECYCLE_DATAPLANE_ACTIONS_REJECTED_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_DATAPLANE_PUBLISHER_REJECTED_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_DATAPLANE_CONSTRUCT_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_DATAPLANE_SUBSCRIPTION_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_DATAPLANE_TIMER_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_DATAPLANE_SERVICE_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_DATAPLANE_PUBLISHER_GATED_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_DATAPLANE_POST_ACTIVATE_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_DATAPLANE_ALL_OK" in process.stdout

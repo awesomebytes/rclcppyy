@@ -11,8 +11,13 @@ bridges for the six transition callbacks and forwards ``trigger_*``/state
 accessors to the native node. The managed ``LifecyclePublisher`` (P2) wraps
 a native ``rclcpp_lifecycle::LifecyclePublisher`` -- gating is native, not
 the Python ``SimpleManagedEntity.when_enabled`` decorator. The remaining
-data-plane entities (subscription/timer/service/client) on a lifecycle node
-are a later slice (P3).
+data-plane entities (subscription/timer/service/client/clock) on a lifecycle
+node are routed through ``DirectNode``'s private ``_native_create_*`` seams
+(PLAN-lifecycle.md §2.3.1/§3.5, P3): the public ``create_publisher``/
+``create_subscription``/``create_timer``/``create_service``/``create_client``/
+``get_clock`` stay inherited, byte-identical in signature, from ``DirectNode``
+-- only the one node-type-specific native call behind each is overridden
+here.
 """
 
 from __future__ import annotations
@@ -356,6 +361,118 @@ class DirectLifecycleNode(DirectLifecycleNodeMixin, DirectNode):
     def _native_release(self, node) -> None:
         del node
         self._direct_cpp_lifecycle_resource.close()
+
+    def _native_create_publisher(
+        self, msg_type, topic, qos, *, callback_group, event_callbacks
+    ):
+        # Deferred fail-closed (PLAN-lifecycle.md §3.7 treatment): stock's
+        # inherited create_publisher() on a LifecycleNode is UNGATED (it
+        # resolves to plain Node.create_publisher -- LifecycleNodeMixin does
+        # not override it). rclcpp_lifecycle::LifecycleNode has only ONE
+        # create_publisher<>(), and it is inherently a managed, gated
+        # LifecyclePublisher -- and DirectLifecycleNodeMixin.__init__
+        # unconditionally registers a custom on_activate/on_deactivate
+        # bridge for every transition (P1), which replaces (shadows) the
+        # native default handler that would otherwise auto-toggle a managed
+        # publisher's activation (verified live: a registered no-op
+        # on_activate callback alone suppresses native auto-activation).
+        # Reusing the gated native call here would silently create a
+        # publisher that never delivers (no fail-closed signal); forcing it
+        # permanently "activated" to match stock's ungated behavior would
+        # fight the only available constructor. Reject with a precise
+        # pointer to the supported, already-gated path instead.
+        del msg_type, topic, qos, callback_group, event_callbacks
+        _unsupported(
+            "direct_cpp lifecycle nodes do not support the inherited "
+            "create_publisher(); use create_lifecycle_publisher() for "
+            "managed publishing on a lifecycle node")
+
+    def _native_subscription_shared_lease_supported(self) -> bool:
+        # direct_subscription_lease is rclcpp::Node-typed (PLAN-lifecycle.md
+        # §3.7); create_subscription always falls back to
+        # _native_create_subscription below, which is still full parity.
+        return False
+
+    def _native_create_subscription(
+        self, msg_type, topic, callback, qos, *,
+        with_message_info, callback_group, event_callbacks,
+        content_filter, qos_overriding,
+    ):
+        if event_callbacks:
+            _unsupported(
+                "direct_cpp lifecycle subscriptions do not support "
+                "event_callbacks")
+        if content_filter is not None:
+            _unsupported(
+                "direct_cpp lifecycle subscriptions do not support "
+                "content_filter_options")
+        if qos_overriding:
+            _unsupported(
+                "direct_cpp lifecycle subscriptions do not support "
+                "qos_overriding_options")
+        from rclcpp_kit import native_lifecycle
+
+        return native_lifecycle.create_lifecycle_subscription(
+            self._direct_cpp_lifecycle_resource.raw_node, msg_type, topic,
+            callback, qos, with_message_info=with_message_info,
+            callback_group=callback_group)
+
+    def _native_create_timer(self, period_ns, callback, *, callback_group, autostart):
+        if not autostart:
+            _unsupported(
+                "direct_cpp lifecycle timers do not support autostart=False: "
+                "the native lifecycle wall timer always starts running")
+        from rclcpp_kit import native_lifecycle
+
+        return native_lifecycle.create_lifecycle_wall_timer(
+            self._direct_cpp_lifecycle_resource.raw_node, period_ns, callback,
+            callback_group=callback_group)
+
+    def _native_create_service(self, srv_type, srv_name, callback, *, callback_group):
+        from rclcpp_kit import native_lifecycle
+
+        return native_lifecycle.create_lifecycle_service(
+            self._direct_cpp_lifecycle_resource.raw_node, srv_type, srv_name,
+            callback, callback_group=callback_group)
+
+    def _native_create_client(self, srv_type, srv_name, *, callback_group):
+        from rclcpp_kit import native_lifecycle
+
+        return native_lifecycle.create_lifecycle_client(
+            self._direct_cpp_lifecycle_resource.raw_node, srv_type, srv_name,
+            callback_group=callback_group)
+
+    def _native_create_clock(self):
+        from rclcpp_kit import native_lifecycle
+
+        return native_lifecycle.create_lifecycle_node_clock(
+            self._direct_cpp_lifecycle_resource.raw_node)
+
+    def _native_create_clock_sleeper(self):
+        _unsupported(
+            "direct_cpp lifecycle nodes do not support create_rate()/clock "
+            "sleep_until: no lifecycle-typed clock sleeper exists yet")
+
+    def _native_get_parameter_checked(self, name):
+        # get_parameter_checked (native_parameters) is a dedicated compiled
+        # C++ helper hard-typed to std::shared_ptr<rclcpp::Node> -- unlike
+        # declare_parameter/get_parameter/set_parameters/has_parameter
+        # (plain duck-typed passthroughs proven against a lifecycle node,
+        # PLAN-lifecycle.md S5), it rejects a lifecycle node's raw
+        # shared_ptr. No lifecycle-typed twin exists in the suite, so this
+        # replicates the same (status, parameter) contract from the plain
+        # has_parameter/get_parameter calls -- a disclosed has-then-get
+        # fallback rather than one atomic native call.
+        from rclcpp_kit import native_parameters
+
+        node = self._direct_cpp_lifecycle_resource.raw_node
+        if not native_parameters.has_parameter(node, name):
+            return native_parameters.CHECKED_PARAMETER_MISSING, None
+        try:
+            parameter = native_parameters.get_parameter(node, name)
+        except Exception:
+            return native_parameters.CHECKED_PARAMETER_STATIC_UNINITIALIZED, None
+        return native_parameters.CHECKED_PARAMETER_VALUE, parameter
 
 
 __all__ = [

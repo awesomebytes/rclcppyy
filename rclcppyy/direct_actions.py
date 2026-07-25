@@ -594,6 +594,9 @@ class DirectActionClient(metaclass=_DirectSurface):
         binding = resolve_supported_type(action_type)
         if getattr(node, "_direct_cpp_node", None) is None:
             raise TypeError("direct_cpp ActionClient requires a direct_cpp Node")
+        if getattr(node, "_direct_cpp_lifecycle_resource", None) is not None:
+            _unsupported(
+                "direct_cpp does not support ActionClient on a lifecycle node")
         self._validate_qos(
             goal_service_qos_profile,
             result_service_qos_profile,
@@ -1176,6 +1179,9 @@ class DirectActionServer(metaclass=_DirectSurface):
         binding = resolve_supported_type(action_type)
         if getattr(node, "_direct_cpp_node", None) is None:
             raise TypeError("direct_cpp ActionServer requires a direct_cpp Node")
+        if getattr(node, "_direct_cpp_lifecycle_resource", None) is not None:
+            _unsupported(
+                "direct_cpp does not support ActionServer on a lifecycle node")
         servers = getattr(node, "_direct_cpp_action_servers", None)
         if servers is None:
             _unsupported(
