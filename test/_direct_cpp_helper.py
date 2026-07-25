@@ -124,11 +124,6 @@ assert_rejected_without_entity(
 assert_rejected_without_entity(
     node,
     lambda: node.create_subscription(
-        String, prefix + "/raw", lambda _message: None, 10, raw=True),
-)
-assert_rejected_without_entity(
-    node,
-    lambda: node.create_subscription(
         String,
         prefix + "/filter",
         lambda _message: None,

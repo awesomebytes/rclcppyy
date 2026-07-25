@@ -576,6 +576,7 @@ class DirectSubscription(metaclass=_DirectSurface):
         native,
         callback_group,
         with_message_info=False,
+        raw=False,
     ):
         self._native = native
         self._closed = False
@@ -585,7 +586,7 @@ class DirectSubscription(metaclass=_DirectSurface):
         self.callback_group = callback_group
         self._executor_event = False
         self.qos_profile = qos_profile
-        self.raw = False
+        self.raw = bool(raw)
         self.event_handlers = []
         self._callback_type = (
             self.CallbackType.WithMessageInfo
@@ -2272,10 +2273,6 @@ class DirectNode:
         raw=False,
         content_filter_options=None,
     ):
-        requested = {
-            "raw": bool(raw),
-        }
-        self._reject_entity_options("subscription", requested)
         from rclcpp_kit import direct_entities
         from rclpy.event_handler import SubscriptionEventCallbacks
 
@@ -2287,6 +2284,15 @@ class DirectNode:
         content_filter = _extract_content_filter(content_filter_options)
         qos_overriding = _extract_qos_overriding(qos_overriding_options)
         with_message_info = self._validate_subscription_callback(callback)
+        if raw and with_message_info:
+            raise ValueError(
+                "direct_cpp raw subscriptions do not support a message_info "
+                "callback: a raw=True callback must accept exactly one "
+                "argument (the message bytes)")
+        if raw and qos_overriding:
+            raise ValueError(
+                "direct_cpp raw subscriptions do not support "
+                "qos_overriding_options")
         qos, normalized_qos = _lower_entity_qos(qos_profile)
         group, native_group = self._resolve_callback_group(callback_group)
         # Contain the user callback before it becomes a native std::function
@@ -2302,7 +2308,27 @@ class DirectNode:
             name: self._contain_callback_exceptions(event_callback)
             for name, event_callback in raw_events.items()
         }
-        if (
+        if raw:
+            # raw=True always takes the generic-subscription route: it has no
+            # shared-lease equivalent (the lease hands the callback a typed
+            # owning copy, never bytes) and no with_message_info variant.
+            try:
+                native = self._native_create_raw_subscription(
+                    msg_type,
+                    str(topic),
+                    contained_callback,
+                    qos,
+                    callback_group=native_group,
+                    event_callbacks=contained_events or None,
+                    content_filter=content_filter,
+                )
+            except direct_entities.QoSEventUnsupported as exc:
+                from rclpy.event_handler import UnsupportedEventTypeError
+
+                raise UnsupportedEventTypeError(str(exc)) from exc
+            except direct_entities.ContentFilterUnsupported as exc:
+                raise ContentFilterUnsupportedError(str(exc)) from exc
+        elif (
             not contained_events
             and content_filter is None
             and not qos_overriding
@@ -2359,6 +2385,7 @@ class DirectNode:
             native,
             group,
             with_message_info,
+            raw=raw,
         )
         subscription.event_handlers = [
             _DirectEventHandler(name, raw_events[name])
@@ -2402,6 +2429,24 @@ class DirectNode:
             with_message_info=with_message_info, callback_group=callback_group,
             event_callbacks=event_callbacks, content_filter=content_filter,
             qos_overriding=qos_overriding)
+
+    def _native_create_raw_subscription(
+        self, msg_type, topic, callback, qos, *,
+        callback_group, event_callbacks, content_filter,
+    ):
+        """Private seam: the one node-type-specific native call behind a
+        ``raw=True`` ``create_subscription``. Separate from
+        ``_native_create_subscription`` above because the suite's raw path
+        (``rclcpp::GenericSubscription``/``create_generic_subscription``) has
+        no ``with_message_info`` or ``qos_overriding`` parameter at all --
+        see ``rclcpp_kit.direct_entities.create_raw_subscription`` for why.
+        ``DirectLifecycleNode`` overrides this to fail closed."""
+        from rclcpp_kit import direct_entities
+
+        return direct_entities.create_raw_subscription(
+            self._require_node(), msg_type, topic, callback, qos,
+            callback_group=callback_group, event_callbacks=event_callbacks,
+            content_filter=content_filter)
 
     def create_timer(
         self,

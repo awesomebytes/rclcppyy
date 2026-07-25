@@ -417,6 +417,13 @@ class DirectLifecycleNode(DirectLifecycleNodeMixin, DirectNode):
             callback, qos, with_message_info=with_message_info,
             callback_group=callback_group)
 
+    def _native_create_raw_subscription(
+        self, msg_type, topic, callback, qos, *,
+        callback_group, event_callbacks, content_filter,
+    ):
+        _unsupported(
+            "direct_cpp lifecycle subscriptions do not support raw=True")
+
     def _native_create_timer(
         self, period_ns, callback, *, callback_group, autostart, clock=None,
     ):
