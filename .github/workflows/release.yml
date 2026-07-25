@@ -52,7 +52,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: 604037db7ebe2bb3c5ddc9845e377aa2f3e2c02e
+          ref: 9d0ad8973f936c432c7ef27686d1d1c7f6dff4dd
           path: _deps/cppyy_kit
 
       - name: Checkout pinned upstream contract source
@@ -136,7 +136,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: 604037db7ebe2bb3c5ddc9845e377aa2f3e2c02e
+          ref: 9d0ad8973f936c432c7ef27686d1d1c7f6dff4dd
           path: _deps/cppyy_kit
 
       - name: Verify tag matches all release metadata
