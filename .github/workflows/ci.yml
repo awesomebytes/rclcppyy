@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: 27de09338969c5eff2d8698b37fd7954aca9c12c
+          ref: 604037db7ebe2bb3c5ddc9845e377aa2f3e2c02e
           path: _deps/cppyy_kit
 
       - name: Checkout pinned upstream rclpy contract source
@@ -156,7 +156,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: 27de09338969c5eff2d8698b37fd7954aca9c12c
+          ref: 604037db7ebe2bb3c5ddc9845e377aa2f3e2c02e
           path: _deps/cppyy_kit
 
       - name: Set up pixi
@@ -211,7 +211,7 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           repository: awesomebytes/cppyy_kit
-          ref: 27de09338969c5eff2d8698b37fd7954aca9c12c
+          ref: 604037db7ebe2bb3c5ddc9845e377aa2f3e2c02e
           path: _deps/cppyy_kit
 
       - name: Checkout pinned upstream rclpy contract source
