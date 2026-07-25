@@ -4,13 +4,18 @@
 facade wraps the exact ``NativeNodeClock`` the native foundation retains for
 a node's ``rclcpp::Clock`` (one ``rclcpp::TimeSource`` owns sim-time
 natively; there is no product Python ``TimeSource``). Standalone
-``Clock(...)`` construction, the raw ``handle``, jump callbacks, and
-``set_ros_time_override`` all fail closed with a typed error -- none of them
-is half-built. ``sleep_for``/``sleep_until`` are the one accelerated
-exception: a node-bound clock runs them over the node's native
-``NativeClockSleeper`` (ROS-time-aware, context-interruptible); a clock built
-without a ``sleeper_provider`` (e.g. ``DirectClock._wrap`` used bare in a
-fast unit test) still fails the same sleep calls closed.
+``Clock(...)`` construction, the raw ``handle``, and ``set_ros_time_override``
+all fail closed with a typed error -- none of them is half-built.
+``sleep_for``/``sleep_until`` are one accelerated exception: a node-bound
+clock runs them over the node's native ``NativeClockSleeper`` (ROS-time-aware,
+context-interruptible); a clock built without a ``sleeper_provider`` (e.g.
+``DirectClock._wrap`` used bare in a fast unit test) still fails the same
+sleep calls closed. ``create_jump_callback`` is the other accelerated
+exception: a node-bound clock registers pre/post callbacks on the exact
+native ``rclcpp::Clock`` (via ``rclcpp_kit.native_clock_jump``), routed
+through the owning node's ``_contain_callback_exceptions`` so a raising
+callback never crosses back into C++; a clock built without a
+``jump_container_provider`` still fails that call closed.
 
 ``DirectNode.create_rate()`` is the only supported construction path for
 ``DirectRate``, a fixed-rate sleeper built over that same node sleeper. The
@@ -50,6 +55,7 @@ class DirectClock(_stock_clock.Clock):
     @classmethod
     def _wrap(
         cls, native_node_clock: Any, sleeper_provider: Any = None,
+        jump_container_provider: Any = None,
     ) -> "DirectClock":
         clock_type = ClockType(int(native_node_clock.clock_type))
         target = DirectROSClock if clock_type is ClockType.ROS_TIME else cls
@@ -57,6 +63,7 @@ class DirectClock(_stock_clock.Clock):
         self._native_node_clock = native_node_clock
         self._clock_type = clock_type
         self._sleeper_provider = sleeper_provider
+        self._jump_container_provider = jump_container_provider
         return self
 
     def _require_native(self) -> Any:
@@ -81,8 +88,68 @@ class DirectClock(_stock_clock.Clock):
         return Time(
             nanoseconds=native.now_nanoseconds(), clock_type=self._clock_type)
 
-    def create_jump_callback(self, *args: Any, **kwargs: Any) -> Any:
-        _unsupported("direct_cpp clocks do not support jump callbacks")
+    def _require_jump_container_provider(self) -> None:
+        if self._jump_container_provider is None:
+            _unsupported(
+                "direct_cpp clock jump callbacks require a node-bound clock "
+                "(built by Node.get_clock())")
+
+    def create_jump_callback(
+        self, threshold: Any, *,
+        pre_callback: Any = None, post_callback: Any = None,
+    ) -> "DirectJumpHandle":
+        """Register native pre/post callbacks for time jumps on this clock.
+
+        Mirrors ``rclpy.clock.Clock.create_jump_callback``'s signature and
+        validation exactly; unlike stock (which registers through
+        ``Clock.handle``, a seam this facade's ``.handle`` does not expose),
+        this routes through the suite's ``rclcpp_kit.native_clock_jump``
+        bridge onto the exact native ``rclcpp::Clock``. Both callbacks are
+        wrapped in this node's ``_contain_callback_exceptions`` before being
+        pinned into C++ -- ``rclcpp::Clock::create_jump_callback`` documents
+        both callbacks as "must be non-throwing", and an escaping Python
+        exception would cross a plain C function-pointer boundary inside
+        ``rcl_clock`` (undefined behavior), not just skip later callbacks the
+        way stock's pure-Python dispatch loop does.
+        """
+        if pre_callback is None and post_callback is None:
+            raise ValueError('One of pre_callback or post_callback must be callable')
+        if pre_callback is not None and not callable(pre_callback):
+            raise ValueError('pre_callback must be callable if given')
+        if post_callback is not None and not callable(post_callback):
+            raise ValueError('post_callback must be callable if given')
+        self._require_jump_container_provider()
+        contain = self._jump_container_provider()
+
+        contained_pre = contain(pre_callback) if pre_callback is not None else None
+
+        contained_post = None
+        if post_callback is not None:
+            def _translate(time_jump: Any) -> None:
+                from rclpy.duration import Duration
+
+                clock_change = _stock_clock.ClockChange(int(time_jump.clock_change))
+                delta = Duration(nanoseconds=int(time_jump.delta.nanoseconds))
+                post_callback(_stock_clock.TimeJump(clock_change, delta))
+
+            contained_post = contain(_translate)
+
+        from rclcpp_kit.native_clock_jump import create_clock_jump_callback
+
+        native = self._require_native()
+        min_forward_ns = (
+            threshold.min_forward.nanoseconds if threshold.min_forward is not None else 0)
+        min_backward_ns = (
+            threshold.min_backward.nanoseconds if threshold.min_backward is not None else 0)
+        native_handler = create_clock_jump_callback(
+            native.raw_clock,
+            on_clock_change=bool(threshold.on_clock_change),
+            min_forward_ns=int(min_forward_ns),
+            min_backward_ns=int(min_backward_ns),
+            pre_callback=contained_pre,
+            post_callback=contained_post,
+        )
+        return DirectJumpHandle(native_handler)
 
     def _raw_native_clock(self) -> Any:
         """Private seam: the raw, shared-pointer-backed ``rclcpp::Clock``
@@ -153,16 +220,50 @@ class DirectROSClock(DirectClock, _stock_clock.ROSClock):
             "time is driven natively by use_sim_time + /clock")
 
 
+class DirectJumpHandle:
+    """A stock-``JumpHandle``-shaped facade over a native jump-callback
+    registration (``rclcpp_kit.native_clock_jump.NativeClockJumpHandler``).
+
+    Built only by ``DirectClock.create_jump_callback``. Stock's own
+    ``rclpy.clock.JumpHandle`` cannot be reused directly -- it registers
+    through ``Clock.handle`` (``add_clock_callback``/``remove_clock_callback``),
+    a seam this facade's clock does not expose (``DirectClock.handle`` is
+    itself unsupported; the native ``rclcpp::Clock`` is driven through the
+    suite bridge instead).
+    """
+
+    def __init__(self, native_handler: Any) -> None:
+        self._native_handler = native_handler
+
+    def unregister(self) -> None:
+        """Remove this jump callback from the clock."""
+        if self._native_handler is not None:
+            self._native_handler.close()
+            self._native_handler = None
+
+    def __enter__(self) -> "DirectJumpHandle":
+        return self
+
+    def __exit__(self, exc_type: Any, exc: Any, tb: Any) -> None:
+        self.unregister()
+
+
 def wrap_node_clock(
     native_node_clock: Any, sleeper_provider: Any = None,
+    jump_container_provider: Any = None,
 ) -> DirectClock:
     """Build the rclpy-shaped facade that ``DirectNode.get_clock()`` returns.
 
     ``sleeper_provider``, when given, is a zero-argument callable returning
-    the node's ``NativeClockSleeper`` on demand -- passed in rather than a
-    node reference so the facade never holds a hard reference to the node.
+    the node's ``NativeClockSleeper`` on demand; ``jump_container_provider``,
+    when given, is a zero-argument callable returning the node's
+    ``_contain_callback_exceptions`` bound method -- both passed in rather
+    than a node reference so the facade never holds a hard reference to the
+    node.
     """
-    return DirectClock._wrap(native_node_clock, sleeper_provider=sleeper_provider)
+    return DirectClock._wrap(
+        native_node_clock, sleeper_provider=sleeper_provider,
+        jump_container_provider=jump_container_provider)
 
 
 class DirectRate(_stock_timer.Rate):
@@ -208,4 +309,6 @@ class DirectRate(_stock_timer.Rate):
         self._destroyed = True
 
 
-__all__ = ["DirectClock", "DirectROSClock", "DirectRate", "wrap_node_clock"]
+__all__ = [
+    "DirectClock", "DirectROSClock", "DirectJumpHandle", "DirectRate", "wrap_node_clock",
+]

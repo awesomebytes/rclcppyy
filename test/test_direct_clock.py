@@ -80,7 +80,6 @@ def test_direct_clock_construction_and_fail_closed_surface_are_explicit():
     fake = _FakeNativeNodeClock()
     clock = DirectClock._wrap(fake)
     for operation in (
-        clock.create_jump_callback,
         clock.set_ros_time_override,
         lambda: clock.handle,
     ):
@@ -116,6 +115,25 @@ def test_direct_clock_sleep_fences_without_a_sleeper_provider():
             raise AssertionError("unbound direct clock sleep succeeded")
     assert clock.now().nanoseconds == 12_000_000_345
     assert clock.clock_type == ClockType.ROS_TIME
+
+
+def test_direct_clock_jump_callback_fences_without_a_jump_container_provider():
+    """An unbound clock (no ``jump_container_provider``) fails jump-callback
+    registration closed, mirroring the sleep-fencing test above -- only
+    ``Node.get_clock()`` supplies a provider."""
+    from rclpy.clock import JumpThreshold
+    from rclpy.duration import Duration
+
+    fake = _FakeNativeNodeClock()
+    clock = DirectClock._wrap(fake)
+    threshold = JumpThreshold(
+        min_forward=Duration(nanoseconds=1), min_backward=None, on_clock_change=True)
+    try:
+        clock.create_jump_callback(threshold, post_callback=lambda time_jump: None)
+    except BackendUnavailableError:
+        pass
+    else:
+        raise AssertionError("unbound direct clock jump callback succeeded")
 
 
 def test_direct_cpp_node_clock_matches_native_node_clock_exactly():

@@ -1394,7 +1394,15 @@ class DirectNode:
                 raise RuntimeError("direct_cpp node is destroyed")
             return node._clock_sleeper()
 
-        clock = wrap_node_clock(native_node_clock, sleeper_provider=sleeper_provider)
+        def jump_container_provider():
+            node = node_ref()
+            if node is None:
+                raise RuntimeError("direct_cpp node is destroyed")
+            return node._contain_callback_exceptions
+
+        clock = wrap_node_clock(
+            native_node_clock, sleeper_provider=sleeper_provider,
+            jump_container_provider=jump_container_provider)
         self._direct_cpp_clock = clock
         return clock
 
