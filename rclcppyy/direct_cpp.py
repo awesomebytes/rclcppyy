@@ -212,7 +212,7 @@ class _DirectRuntime:
             if facade in self.nodes:
                 self.nodes.remove(facade)
             if self.session is not None and not self.session.closed:
-                self.session.release_node(node)
+                facade._native_release(node)
 
     def register_executor(self, executor) -> None:
         with self.membership_lock:
@@ -930,7 +930,6 @@ class DirectNode:
         automatically_declare_parameters_from_overrides=False,
         enable_logger_service=False,
     ):
-        parameter_cache_capacity = _parameter_cache_capacity()
         runtime = _runtime()
         if context is not None and context is not runtime.context:
             _unsupported("direct_cpp node requires its active runtime context")
@@ -947,8 +946,61 @@ class DirectNode:
                 automatically_declare_parameters_from_overrides),
             enable_logger_service=enable_logger_service,
         )
-        self._direct_cpp_node = session.create_node(
+        native_node = session.create_node(
             str(node_name), namespace=str(namespace or ""), options=options)
+        self._init_common(
+            native_node, node_name, namespace,
+            allow_undeclared_parameters=allow_undeclared_parameters)
+        record_decision(
+            "nodes",
+            "cpp",
+            "direct_cpp owns one NativeSession rclcpp node",
+            policies=("direct_cpp", "native_node_authority"),
+            metadata={
+                "name": str(node_name),
+                "namespace": str(namespace or ""),
+                "context": "direct_runtime",
+                "cli_arguments": 0 if cli_args is None else len(cli_args),
+                "use_global_arguments": use_global_arguments,
+                "enable_rosout": enable_rosout,
+                "start_parameter_services": start_parameter_services,
+                "parameter_overrides": override_count,
+                "allow_undeclared_parameters": allow_undeclared_parameters,
+                "automatically_declare_parameters_from_overrides": (
+                    automatically_declare_parameters_from_overrides),
+                "enable_logger_service": enable_logger_service,
+                "parameter_cache_capacity": self._direct_cpp_parameter_cache_capacity,
+            },
+        )
+
+    def _init_common(
+        self, native_node, node_name, namespace, *,
+        allow_undeclared_parameters=False,
+        enable_parameter_cache=True,
+    ):
+        """Node-agnostic setup shared by every direct_cpp node kind.
+
+        Takes an already-created native node (a real rclcpp::Node for
+        DirectNode, a real rclcpp_lifecycle::LifecycleNode for
+        DirectLifecycleNode -- both expose the same node-interface getters
+        this method reads) and wires up everything that does not depend on
+        which kind of node created it: logger, default callback group,
+        entity-registry lists, the callback-containment/in-flight-counter
+        machinery, and the parameter-cache bridge. ``node_name``/``namespace``
+        are accepted for parity with the per-kind __init__ callers but are
+        not otherwise read here -- the native node already baked them in at
+        construction.
+
+        ``enable_parameter_cache=False`` reuses the existing capacity-zero
+        disabled path below (same as ``RCLCPPYY_DIRECT_PARAMETER_CACHE_CAPACITY
+        =0``): parameters on a lifecycle node are not wired yet (a later
+        slice), and the eager post-set-parameters-callback bridge this method
+        would otherwise install is hard-typed to ``rclcpp::Node`` in the
+        suite, which a ``rclcpp_lifecycle::LifecycleNode`` is not.
+        """
+        parameter_cache_capacity = (
+            _parameter_cache_capacity() if enable_parameter_cache else 0)
+        self._direct_cpp_node = native_node
         from rclpy.logging import get_logger
 
         native_logging = self._direct_cpp_node.get_node_logging_interface()
@@ -1013,27 +1065,6 @@ class DirectNode:
         if self._direct_cpp_parameter_cache_bridge_required:
             self._install_parameter_callback_bridge("post")
         _runtime().attach(self, self._direct_cpp_node)
-        record_decision(
-            "nodes",
-            "cpp",
-            "direct_cpp owns one NativeSession rclcpp node",
-            policies=("direct_cpp", "native_node_authority"),
-            metadata={
-                "name": str(node_name),
-                "namespace": str(namespace or ""),
-                "context": "direct_runtime",
-                "cli_arguments": 0 if cli_args is None else len(cli_args),
-                "use_global_arguments": use_global_arguments,
-                "enable_rosout": enable_rosout,
-                "start_parameter_services": start_parameter_services,
-                "parameter_overrides": override_count,
-                "allow_undeclared_parameters": allow_undeclared_parameters,
-                "automatically_declare_parameters_from_overrides": (
-                    automatically_declare_parameters_from_overrides),
-                "enable_logger_service": enable_logger_service,
-                "parameter_cache_capacity": parameter_cache_capacity,
-            },
-        )
 
     @property
     def context(self):
@@ -1060,6 +1091,37 @@ class DirectNode:
     def _set_direct_executor(self, executor):
         self._direct_cpp_executor_ref = (
             None if executor is None else weakref.ref(executor))
+
+    def _native_executor_add(self, executor_native) -> None:
+        """Attach this node's native entity to a raw rclcpp Executor.
+
+        Private seam (PLAN-lifecycle.md 2.3.1-adjacent -- the plan's own
+        seam analysis covered entity creation but missed executor
+        membership): stock rclcpp::Executor::add_node has exactly two
+        overloads, NodeBaseInterface::SharedPtr and
+        std::shared_ptr<rclcpp::Node> (executor.hpp:200,208) -- both of
+        which DirectNode's plain rclcpp::Node satisfies directly.
+        DirectLifecycleNode overrides this because
+        rclcpp_lifecycle::LifecycleNode is neither, and must instead go
+        through the suite's NativeLifecycleNode.attach_executor().
+        """
+        executor_native.add_node(self._direct_cpp_node)
+
+    def _native_executor_remove(self, executor_native) -> None:
+        executor_native.remove_node(self._direct_cpp_node)
+
+    def _native_release(self, node) -> None:
+        """Release this node's native resource from the owning session.
+
+        Private seam, called from the tail of ``_DirectRuntime.detach()``.
+        DirectNode's plain rclcpp::Node was tracked by
+        ``NativeSession.create_node()`` and is released the same way here;
+        DirectLifecycleNode overrides this to close its NativeLifecycleNode
+        resource instead, since that entity is retained via
+        ``register_resource()`` -- a separate list ``release_node()``
+        does not search.
+        """
+        _runtime().session.release_node(node)
 
     def _wake_executor(self):
         executor = self.executor
@@ -1177,6 +1239,44 @@ class DirectNode:
             except Exception as exc:
                 self._record_callback_exception(exc)
                 return response
+            finally:
+                _exit_dispatch(self)
+                self._exit_in_flight()
+
+        return _contained
+
+    def _contain_transition_callback(self, callback):
+        """Wrap a lifecycle transition callback (``on_configure``, etc).
+
+        Unlike the two shims above, a raise here is SWALLOWED and mapped to
+        ``TransitionCallbackReturn.ERROR`` instead of being recorded for the
+        executor to re-raise -- matching stock's own
+        ``LifecycleNodeMixin.__execute_callback`` (node.py:315-320), which
+        never re-raises a raising transition callback. A non-
+        ``TransitionCallbackReturn`` result is likewise mapped to ``ERROR``:
+        the value crosses back into a native ``static_cast<CallbackReturn>``
+        (see ``rclcpp_kit.native_lifecycle``), so anything else would become
+        an undefined enum value in C++ rather than a controlled outcome.
+
+        Still bumps the in-flight counter and self-destroy marker exactly
+        like the other containment shims (teardown safety, Slice 2.5) --
+        the bridge runs on an executor worker thread (service dispatch) or
+        the calling thread (``trigger_*``), either way inside the native
+        node's own state-machine handler.
+        """
+        from rclpy.lifecycle.node import TransitionCallbackReturn
+
+        @functools.wraps(callback)
+        def _contained(state):
+            self._enter_in_flight()
+            _enter_dispatch(self)
+            try:
+                result = callback(state)
+                if isinstance(result, TransitionCallbackReturn):
+                    return int(result)
+                return int(TransitionCallbackReturn.ERROR)
+            except Exception:
+                return int(TransitionCallbackReturn.ERROR)
             finally:
                 _exit_dispatch(self)
                 self._exit_in_flight()
@@ -2858,24 +2958,6 @@ def _prepare_check_is_valid_msg_type(original, check_for_type_support):
     return check_is_valid_msg_type
 
 
-def _direct_lifecycle_node_init(
-    self, node_name, *, enable_communication_interface: bool = True, **kwargs
-):
-    """Block LifecycleNode construction under direct_cpp, fail-closed.
-
-    LifecycleNode(LifecycleNodeMixin, Node) subclasses whatever Node
-    currently is; direct_cpp rebinds rclpy.node.Node to DirectNode, which
-    owns a native rclcpp node and has no ``handle`` attribute at all.
-    LifecycleNodeMixin.__init__ needs ``self.handle`` to construct
-    ``_rclpy.LifecycleStateMachine`` -- a stock pybind node handle the direct
-    backend does not and cannot own. Raising here, before any node work,
-    converts that cryptic AttributeError into a precise error. Lifecycle
-    FULL parity needs a native lifecycle state machine over the rclcpp node
-    -- a large, separate lane -- and remains explicitly out of scope here.
-    """
-    _unsupported("lifecycle nodes are not yet supported under the direct_cpp profile")
-
-
 def activate(*, optimizations=(), interfaces=()) -> bool:
     """Install the complete first-slice surface, rolling back on any failure."""
     global _ACTION_INSTALLATION, _ACTIVE, _ACTIVE_INTERFACES
@@ -3063,20 +3145,34 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         # build LifecycleNode on stock Node even under direct_cpp (R5).
         import rclpy.lifecycle as lifecycle_module
 
-        lifecycle_original_init = lifecycle_module.LifecycleNode.__init__
-        # direct_cpp.py's module-level `from __future__ import annotations`
-        # would otherwise stringify the guard's own `bool` annotation
-        # (rendering as "'bool'"), diverging from stock's signature text for
-        # no functional reason; borrow the stock signature object directly.
-        _direct_lifecycle_node_init.__signature__ = inspect.signature(
-            lifecycle_original_init)
-        lifecycle_module.LifecycleNode.__init__ = _direct_lifecycle_node_init
-        patches.append((
-            lifecycle_module.LifecycleNode,
-            "__init__",
-            lifecycle_original_init,
-            _direct_lifecycle_node_init,
-        ))
+        from rclcppyy.direct_lifecycle import (
+            DirectLifecycleNode,
+            DirectLifecycleNodeMixin,
+        )
+
+        mirror_class(DirectLifecycleNode, lifecycle_module.LifecycleNode)
+        mirror_class(DirectLifecycleNodeMixin, lifecycle_module.LifecycleNodeMixin)
+        # LifecycleNode/LifecycleNodeMixin are each bound at three names --
+        # the package-level name, its package-level alias (Node/NodeMixin),
+        # and the node submodule's own binding -- all three must move
+        # together for every consumer of any of them to see the direct
+        # facade (PLAN-lifecycle.md 3.1, 5.1 groups B/C).
+        lifecycle_replacements = (
+            (lifecycle_module, "LifecycleNode", DirectLifecycleNode),
+            (lifecycle_module, "Node", DirectLifecycleNode),
+            (lifecycle_module.node, "LifecycleNode", DirectLifecycleNode),
+            (lifecycle_module, "LifecycleNodeMixin", DirectLifecycleNodeMixin),
+            (lifecycle_module, "NodeMixin", DirectLifecycleNodeMixin),
+            (
+                lifecycle_module.node,
+                "LifecycleNodeMixin",
+                DirectLifecycleNodeMixin,
+            ),
+        )
+        for module, name, replacement in lifecycle_replacements:
+            original = getattr(module, name)
+            setattr(module, name, replacement)
+            patches.append((module, name, original, replacement))
         _RUNTIME = runtime
     except Exception:
         for module, name, original, replacement in reversed(patches):

@@ -57,8 +57,4 @@ assert_mirrored("Executor", "__init__")
 assert_mirrored("CallbackGroup", "can_execute")
 assert_mirrored("Node", "get_name")
 
-# Representative facade the gate must leave alone: a payload-tainted stock
-# counterpart (declare_parameter forwards a C++ descriptor payload).
-assert_still_divergent("Node", "declare_parameter")
-
 print("DIRECT_CPP_SIGNATURE_MIRROR_OK")

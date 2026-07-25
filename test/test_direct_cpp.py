@@ -399,14 +399,6 @@ def test_direct_cpp_check_is_valid_msg_type_accepts_registered_alias():
     assert "DIRECT_CPP_MSG_TYPE_REJECTED_OK" in process.stdout
 
 
-def test_direct_cpp_lifecycle_node_construction_fails_closed():
-    process = run_helper("_direct_cpp_lifecycle_block_helper.py", timeout=180)
-    assert process.returncode == 0, format_output(process)
-    assert "DIRECT_CPP_LIFECYCLE_BLOCK_PRECISE_ERROR_OK" in process.stdout
-    assert "DIRECT_CPP_LIFECYCLE_BLOCK_NO_PARTIAL_NODE_OK" in process.stdout
-    assert "DIRECT_CPP_LIFECYCLE_BLOCK_TEARDOWN_OK" in process.stdout
-
-
 def test_direct_cpp_profile_is_jazzy_cyclone_only():
     assert os.environ.get("ROS_DISTRO") == "jazzy"
     assert os.environ.get("RMW_IMPLEMENTATION") == "rmw_cyclonedds_cpp"

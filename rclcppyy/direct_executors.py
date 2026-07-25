@@ -168,7 +168,7 @@ class DirectExecutor(metaclass=_DirectSurface):
         """Transfer a direct node to this exact native executor."""
         if self._is_shutdown:
             return False
-        native = self._validate_node(node)
+        self._validate_node(node)
         with self._runtime.membership_lock:
             with self._nodes_lock:
                 if node in self._nodes:
@@ -182,13 +182,12 @@ class DirectExecutor(metaclass=_DirectSurface):
                 if self._parked_node is not None:
                     parked = self._parked_node
                     self._parked_node = None
-                    parked_native = getattr(parked, "_direct_cpp_node", None)
-                    if parked_native is not None:
-                        self._native.remove_node(parked_native)
+                    if getattr(parked, "_direct_cpp_node", None) is not None:
+                        parked._native_executor_remove(self._native)
             current = node.executor
             if current is not None and current is not self:
                 current.remove_node(node)
-            self._native.add_node(native)
+            node._native_executor_add(self._native)
             with self._nodes_lock:
                 self._nodes.append(node)
                 self._nodes_snapshot = tuple(self._nodes)
@@ -206,9 +205,11 @@ class DirectExecutor(metaclass=_DirectSurface):
                     self._parked_node = None
                 else:
                     self._nodes_snapshot = tuple(self._nodes)
-            native = getattr(node, "_direct_cpp_node", None)
-            if native is not None and not self._runtime.session.closed:
-                self._native.remove_node(native)
+            if (
+                getattr(node, "_direct_cpp_node", None) is not None
+                and not self._runtime.session.closed
+            ):
+                node._native_executor_remove(self._native)
             if node.executor is self:
                 node._set_direct_executor(None)
 
