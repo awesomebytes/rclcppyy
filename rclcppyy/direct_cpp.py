@@ -15,6 +15,7 @@ import weakref
 import cppyy
 
 from rclcpp_kit import native_parameters as _native_parameters
+from rclcppyy import _payload_signature
 from rclcppyy._signature_mirror import mirror_class, mirror_function
 from rclcppyy._status import record_decision
 from rclcppyy._surface import _DirectSurface
@@ -1822,6 +1823,20 @@ class DirectNode:
         return native_parameters.list_parameters(
             self._require_node(), prefixes, depth)
 
+    def get_parameters_by_prefix(self, prefix):
+        from rcl_interfaces.srv import ListParameters
+        from rclpy.parameter import PARAMETER_SEPARATOR_STRING
+
+        if prefix:
+            prefix = prefix + PARAMETER_SEPARATOR_STRING
+        prefix_len = len(prefix)
+        listed = self.list_parameters([], ListParameters.Request.DEPTH_RECURSIVE)
+        return {
+            str(name)[prefix_len:]: self.get_parameter(str(name))
+            for name in listed.names
+            if str(name).startswith(prefix)
+        }
+
     def _install_parameter_callback_bridge(self, kind):
         if self._direct_cpp_parameter_callback_bridges[kind] is not None:
             return
@@ -3098,6 +3113,37 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         return True
     _check_early_activation()
     _check_runtime()
+
+    # Capture these 5 classes now, in the one window where both hold: the
+    # stale-import guard just above has already run (so this capture can't
+    # trip it), and direct_messages.install() below hasn't yet rebound
+    # rcl_interfaces.msg's attributes (so the capture is still pristine
+    # stock, immune to that rebind for the rest of the process). A
+    # module-top import in this file would be *earlier* than the guard, not
+    # immune to it -- rclcppyy.direct_cpp is only ever first imported lazily
+    # from inside enable_cpp_acceleration(), which runs the whole module body
+    # (any top-level import included) before activate() is even called, i.e.
+    # before _check_early_activation() ever executes (PLAN-wave7.md §4.2;
+    # verified empirically that a module-top import here trips
+    # direct_messages.assert_early_imports(), since rcl_interfaces/msg's own
+    # __init__.py eagerly imports every message in the package, and
+    # rclpy.parameter itself imports rcl_interfaces.msg too).
+    from rcl_interfaces.msg import (
+        ListParametersResult,
+        ParameterDescriptor,
+        ParameterValue,
+        SetParametersResult,
+    )
+    from rclpy.parameter import Parameter as _StockParameter
+
+    _payload_signature.install_signatures(
+        DirectNode,
+        parameter_descriptor=ParameterDescriptor,
+        parameter_value=ParameterValue,
+        set_parameters_result=SetParametersResult,
+        list_parameters_result=ListParametersResult,
+        parameter_class=_StockParameter,
+    )
 
     service_plan = direct_services.prepare(service_interfaces)
     action_plan = direct_actions.prepare(action_interfaces)

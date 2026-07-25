@@ -55,3 +55,103 @@ def test_direct_cpp_get_uses_one_compiled_node_query():
     assert "self.has_parameter(" not in get_source
     assert "get_parameter_types(" not in get_source
     assert "describe_parameters(" not in get_source
+
+
+PAYLOAD_TAINTED_METHOD_NAMES = (
+    "declare_parameter",
+    "declare_parameters",
+    "describe_parameter",
+    "describe_parameters",
+    "list_parameters",
+    "add_on_set_parameters_callback",
+    "remove_on_set_parameters_callback",
+    "set_parameters",
+    "set_parameters_atomically",
+    "set_descriptor",
+    "get_parameters_by_prefix",
+)
+
+
+def _signature_report(backend):
+    process = run_helper(
+        "_direct_parameter_signature_probe.py", "--backend", backend, timeout=180)
+    assert process.returncode == 0, format_output(process)
+    rows = [
+        line for line in process.stdout.splitlines()
+        if line.startswith("DIRECT_PARAMETER_SIGNATURE_REPORT=")
+    ]
+    assert len(rows) == 1, format_output(process)
+    return json.loads(rows[0][len("DIRECT_PARAMETER_SIGNATURE_REPORT="):])
+
+
+def test_direct_cpp_payload_tainted_parameter_signatures_match_stock():
+    """Wave 7 slice 3 (PLAN-wave7.md §4): the 11 parameter/descriptor methods
+    whose stock signature references a message type this package rebinds to
+    cppyy get a hand-built ``__signature__`` (rclcppyy._payload_signature),
+    since ``_signature_mirror`` correctly refuses a payload-tainted stock
+    signature. This proves DirectNode's own, hand-built signature matches a
+    genuinely pristine, non-activated stock reference exactly, and that the
+    taint being sidestepped is real, not hypothetical: an activated
+    process's own in-process view of the ORIGINAL stock ``Node`` class
+    (before the ``Node`` rebind) does show a ``cppyy.gbl`` marker, for every
+    method but ``get_parameters_by_prefix`` (whose own declared hint is
+    plain ``typing`` generics, never a message type)."""
+    stock = _signature_report("stock")
+    direct = _signature_report("direct")
+
+    assert set(stock["signatures"]) == set(PAYLOAD_TAINTED_METHOD_NAMES)
+    assert set(direct["signatures"]) == set(PAYLOAD_TAINTED_METHOD_NAMES)
+
+    for name in PAYLOAD_TAINTED_METHOD_NAMES:
+        direct_signature = direct["signatures"][name]
+        assert "cppyy" not in direct_signature, (name, direct_signature)
+        assert direct_signature == stock["signatures"][name], name
+
+    tainted_stock = direct["tainted_stock_signatures"]
+    assert set(tainted_stock) == set(PAYLOAD_TAINTED_METHOD_NAMES)
+    tainted = [
+        name for name in PAYLOAD_TAINTED_METHOD_NAMES
+        if "cppyy" in tainted_stock[name]
+    ]
+    assert set(tainted) == set(PAYLOAD_TAINTED_METHOD_NAMES) - {
+        "get_parameters_by_prefix"}
+
+
+def _by_prefix_report(backend):
+    process = run_helper(
+        "_direct_parameters_by_prefix_probe.py", "--backend", backend, timeout=180)
+    assert process.returncode == 0, format_output(process)
+    rows = [
+        line for line in process.stdout.splitlines()
+        if line.startswith("DIRECT_PARAMETERS_BY_PREFIX_REPORT=")
+    ]
+    assert len(rows) == 1, format_output(process)
+    return json.loads(rows[0][len("DIRECT_PARAMETERS_BY_PREFIX_REPORT="):])
+
+
+def test_direct_cpp_get_parameters_by_prefix_matches_stock_naive_behavior():
+    """Wave 7 slice 3 (PLAN-wave7.md §4.3): get_parameters_by_prefix is new
+    on DirectNode this slice. Stock's own prefix rule is documented as naive
+    (a trailing separator is always appended before matching, so a prefix
+    that already ends in the separator produces a doubled separator) -- this
+    proves DirectNode replicates that exactly, including the double-
+    separator edge case, not just the common case."""
+    stock = _by_prefix_report("stock")
+    direct = _by_prefix_report("direct")
+
+    assert direct["all_values_are_parameter_instances"] is True
+    assert stock["all_values_are_parameter_instances"] is True
+
+    declared_names = {"foo.ping", "foo..oddname", "bar.baz", "standalone"}
+    for prefix in ("foo.", "foo", "nope"):
+        assert direct["results"][prefix] == stock["results"][prefix], prefix
+
+    # The "" (match-everything) case also picks up each backend's own
+    # default-declared node parameters (use_sim_time, direct_cpp's
+    # qos_overrides.* additions, ...), which legitimately differ between
+    # backends and are out of this slice's scope -- only the 4 parameters
+    # this probe itself declared need to agree.
+    stock_all = stock["results"][""]
+    direct_all = direct["results"][""]
+    for suffix in declared_names:
+        assert stock_all[suffix] == direct_all[suffix], suffix
