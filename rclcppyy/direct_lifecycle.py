@@ -8,10 +8,11 @@ Transition dispatch, the state machine, and the five lifecycle services are
 native (``rclcpp_kit.native_lifecycle``, proven end-to-end against a stock
 rclpy client and an AOT C++ peer); this module registers contained Python
 bridges for the six transition callbacks and forwards ``trigger_*``/state
-accessors to the native node. Data-plane entities (publisher/subscription/
-timer/service/client) on a lifecycle node are a later slice (P2/P3) -- a
-``DirectLifecycleNode`` today only supports construction, transitions, and
-the mixin's managed-entity bookkeeping.
+accessors to the native node. The managed ``LifecyclePublisher`` (P2) wraps
+a native ``rclcpp_lifecycle::LifecyclePublisher`` -- gating is native, not
+the Python ``SimpleManagedEntity.when_enabled`` decorator. The remaining
+data-plane entities (subscription/timer/service/client) on a lifecycle node
+are a later slice (P3).
 """
 
 from __future__ import annotations
@@ -20,11 +21,18 @@ import functools
 
 from lifecycle_msgs.msg import Transition as _Transition
 from rclpy.impl.implementation_singleton import rclpy_implementation as _rclpy
-from rclpy.lifecycle.managed_entity import ManagedEntity
+from rclpy.lifecycle.managed_entity import ManagedEntity, SimpleManagedEntity
 from rclpy.lifecycle.node import LifecycleState, TransitionCallbackReturn
 
 from rclcppyy._status import record_decision
-from rclcppyy.direct_cpp import DirectNode, _direct_node_options, _runtime, _unsupported
+from rclcppyy.direct_cpp import (
+    DirectNode,
+    DirectPublisher,
+    _direct_node_options,
+    _lower_entity_qos,
+    _runtime,
+    _unsupported,
+)
 
 
 _TRANSITION_KINDS = (
@@ -171,13 +179,47 @@ class DirectLifecycleNodeMixin(ManagedEntity):
             raise TypeError('Expected a rclpy.lifecycle.ManagedEntity instance.')
         self._managed_entities.add(entity)
 
-    def create_lifecycle_publisher(self, *args, **kwargs):
-        _unsupported(
-            "direct_cpp managed lifecycle publishers are not yet supported")
+    def create_lifecycle_publisher(
+        self, msg_type, topic, qos_profile, *,
+        callback_group=None, event_callbacks=None, qos_overriding_options=None,
+        publisher_class=None,
+    ):
+        if publisher_class is not None:
+            # Stock's own message text, kept verbatim for differential
+            # fidelity: LifecycleNodeMixin.create_lifecycle_publisher
+            # (node.py:276-288) forwards straight to Node.create_publisher,
+            # so the observed message says "create_publisher()", not
+            # "create_lifecycle_publisher()" -- a quirk of stock, not a typo
+            # here.
+            raise TypeError(
+                "create_publisher() got an unexpected keyword argument "
+                "'publisher_class'")
+        self._reject_entity_options(
+            "lifecycle_publisher",
+            {
+                "event_callbacks": event_callbacks is not None,
+                "qos_overriding_options": qos_overriding_options is not None,
+            },
+        )
+        from rclcpp_kit import native_lifecycle
+
+        qos, normalized_qos = _lower_entity_qos(qos_profile)
+        group, native_group = self._resolve_callback_group(callback_group)
+        native = native_lifecycle.create_lifecycle_publisher(
+            self._direct_cpp_lifecycle_resource.raw_node,
+            msg_type, str(topic), qos, callback_group=native_group,
+        )
+        publisher = DirectLifecyclePublisher(
+            msg_type, topic, normalized_qos, self._logger_name(), native, group)
+        group.add_entity(publisher)
+        self._direct_cpp_publishers.append(publisher)
+        self._managed_entities.add(publisher)
+        self._record_entity("publisher", topic, msg_type)
+        return publisher
 
     def destroy_lifecycle_publisher(self, publisher):
-        _unsupported(
-            "direct_cpp managed lifecycle publishers are not yet supported")
+        self._managed_entities.discard(publisher)
+        return self.destroy_publisher(publisher)
 
     @property
     def _current_state(self) -> LifecycleState:
@@ -206,6 +248,40 @@ class DirectLifecycleNodeMixin(ManagedEntity):
     @property
     def _initialized(self) -> bool:
         return self._direct_cpp_lifecycle_resource.initialized
+
+
+class DirectLifecyclePublisher(SimpleManagedEntity, DirectPublisher):
+    """A managed publisher wrapping a real ``rclcpp_lifecycle::LifecyclePublisher``.
+
+    ``publish`` (bound by ``DirectPublisher.__init__`` straight to the
+    native method) is gated natively: ``LifecyclePublisher::publish()``
+    itself drops the message while the node is unconfigured/inactive
+    (``rclcpp_kit.native_lifecycle``), so nothing here re-implements
+    ``SimpleManagedEntity.when_enabled``'s Python gate. This is *stricter*
+    than stock's Python-decorator gating -- a disclosed divergence, not a
+    behavior change: an inactive publish is still suppressed either way.
+    ``is_activated``/``on_activate``/``on_deactivate`` are direct native
+    passthroughs.
+    """
+
+    def __init__(
+        self, msg_type, topic, qos_profile, logger_name, native, callback_group
+    ):
+        SimpleManagedEntity.__init__(self)
+        DirectPublisher.__init__(
+            self, msg_type, topic, qos_profile, logger_name, native, callback_group)
+
+    @property
+    def is_activated(self):
+        return bool(self._require_native().is_activated())
+
+    def on_activate(self, state) -> TransitionCallbackReturn:
+        self._require_native().on_activate()
+        return TransitionCallbackReturn.SUCCESS
+
+    def on_deactivate(self, state) -> TransitionCallbackReturn:
+        self._require_native().on_deactivate()
+        return TransitionCallbackReturn.SUCCESS
 
 
 class DirectLifecycleNode(DirectLifecycleNodeMixin, DirectNode):
@@ -285,4 +361,5 @@ class DirectLifecycleNode(DirectLifecycleNodeMixin, DirectNode):
 __all__ = [
     "DirectLifecycleNode",
     "DirectLifecycleNodeMixin",
+    "DirectLifecyclePublisher",
 ]

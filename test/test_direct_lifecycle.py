@@ -33,3 +33,18 @@ def test_direct_cpp_lifecycle_destroy_under_transition_dispatch():
     assert process.returncode == 0, format_output(process)
     assert "LIFECYCLE_DESTROY_DISPATCH_ITER_49_OK" in process.stdout
     assert "LIFECYCLE_DESTROY_DISPATCH_ALL_OK" in process.stdout
+
+
+def test_direct_cpp_lifecycle_publisher_gating_and_coexistence():
+    process = run_helper("_direct_cpp_lifecycle_publisher_helper.py", timeout=180)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_LIFECYCLE_PUBLISHER_CONSTRUCT_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_PUBLISHER_UNCONFIGURED_SUPPRESSED_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_PUBLISHER_INACTIVE_SUPPRESSED_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_PUBLISHER_ACTIVE_DELIVERED_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_PUBLISHER_DEACTIVATE_SUPPRESSED_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_PUBLISHER_COEXISTENCE_ACTIVATE_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_PUBLISHER_COEXISTENCE_DEACTIVATE_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_PUBLISHER_CLASS_REJECTED_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_PUBLISHER_DESTROY_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_PUBLISHER_ALL_OK" in process.stdout

@@ -3148,15 +3148,18 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         from rclcppyy.direct_lifecycle import (
             DirectLifecycleNode,
             DirectLifecycleNodeMixin,
+            DirectLifecyclePublisher,
         )
 
         mirror_class(DirectLifecycleNode, lifecycle_module.LifecycleNode)
         mirror_class(DirectLifecycleNodeMixin, lifecycle_module.LifecycleNodeMixin)
-        # LifecycleNode/LifecycleNodeMixin are each bound at three names --
-        # the package-level name, its package-level alias (Node/NodeMixin),
-        # and the node submodule's own binding -- all three must move
-        # together for every consumer of any of them to see the direct
-        # facade (PLAN-lifecycle.md 3.1, 5.1 groups B/C).
+        mirror_class(DirectLifecyclePublisher, lifecycle_module.LifecyclePublisher)
+        # LifecycleNode/LifecycleNodeMixin/LifecyclePublisher are each bound
+        # at three names -- the package-level name, its package-level alias
+        # (Node/NodeMixin/Publisher), and the defining submodule's own
+        # binding -- all three must move together for every consumer of any
+        # of them to see the direct facade (PLAN-lifecycle.md 3.1, 5.1
+        # groups B/C/D).
         lifecycle_replacements = (
             (lifecycle_module, "LifecycleNode", DirectLifecycleNode),
             (lifecycle_module, "Node", DirectLifecycleNode),
@@ -3167,6 +3170,13 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
                 lifecycle_module.node,
                 "LifecycleNodeMixin",
                 DirectLifecycleNodeMixin,
+            ),
+            (lifecycle_module, "LifecyclePublisher", DirectLifecyclePublisher),
+            (lifecycle_module, "Publisher", DirectLifecyclePublisher),
+            (
+                lifecycle_module.publisher,
+                "LifecyclePublisher",
+                DirectLifecyclePublisher,
             ),
         )
         for module, name, replacement in lifecycle_replacements:
