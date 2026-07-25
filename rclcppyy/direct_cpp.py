@@ -2403,10 +2403,16 @@ class DirectNode:
         clock=None,
         autostart=True,
     ):
+        native_clock = None
         if clock is not None and clock is not self.get_clock():
-            _unsupported(
-                "create_timer honors only the node's own clock or None; "
-                "standalone/foreign clocks are not supported")
+            from rclcppyy.direct_clock import DirectClock
+
+            if not isinstance(clock, DirectClock):
+                _unsupported(
+                    "create_timer honors only a node's own DirectClock (via "
+                    "Node.get_clock()); a standalone stock Clock/ROSClock is "
+                    "not supported")
+            native_clock = clock._raw_native_clock()
         if not isinstance(autostart, bool):
             raise TypeError("timer autostart must be a bool")
         if not callable(callback):
@@ -2432,6 +2438,7 @@ class DirectNode:
             contained_callback,
             callback_group=native_group,
             autostart=autostart,
+            clock=native_clock,
         )
         timer.callback_group = group
         group.add_entity(timer)
@@ -2439,15 +2446,18 @@ class DirectNode:
         record_decision(
             "entities",
             "cpp",
-            "direct rclcpp GenericTimer with Python callback on the node's own "
-            "ROS clock -- sim-time-aware, matching stock's create_timer(clock="
-            "None) default; standalone/foreign clocks are not supported",
+            "direct rclcpp GenericTimer with Python callback on a ROS clock "
+            "-- sim-time-aware, matching stock's create_timer(clock=None) "
+            "default when no explicit clock is given; a foreign node's "
+            "DirectClock (via Node.get_clock()) may also be honored "
+            "explicitly, but a standalone stock Clock/ROSClock is not "
+            "supported",
             policies=("direct_cpp", "native_timer_authority", "no_conversion"),
             metadata={
                 "entity_type": "timer",
                 "period_ns": period_ns,
                 "autostart": autostart,
-                "clock": "ros",
+                "clock": "ros" if native_clock is None else "foreign_direct_clock",
                 "ros_clock_support": "managed_clock_timers",
                 "callback_handoff": "direct_std_function",
                 "creation_route": timer.creation_route,
@@ -2456,15 +2466,19 @@ class DirectNode:
         )
         return timer
 
-    def _native_create_timer(self, period_ns, callback, *, callback_group, autostart):
+    def _native_create_timer(
+        self, period_ns, callback, *, callback_group, autostart, clock=None,
+    ):
         """Private seam (PLAN-lifecycle.md §2.3.1): the one node-type-specific
         native call behind the public, inherited ``create_timer``.
         ``DirectLifecycleNode`` overrides this to create the timer on the
-        lifecycle node's own ``create_wall_timer<>()`` instead."""
+        lifecycle node's own ``create_wall_timer<>()`` instead. ``clock``,
+        when given, is another node's raw native ``rclcpp::Clock`` (extracted
+        from its ``DirectClock`` facade) to honor instead of this node's own."""
         from rclcpp_kit import direct_entities
 
         return direct_entities.create_clock_timer(
-            self._require_node(), period_ns, callback,
+            self._require_node(), period_ns, callback, clock=clock,
             callback_group=callback_group, autostart=autostart)
 
     def create_rate(self, frequency, clock=None):

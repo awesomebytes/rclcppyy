@@ -84,6 +84,13 @@ class DirectClock(_stock_clock.Clock):
     def create_jump_callback(self, *args: Any, **kwargs: Any) -> Any:
         _unsupported("direct_cpp clocks do not support jump callbacks")
 
+    def _raw_native_clock(self) -> Any:
+        """Private seam: the raw, shared-pointer-backed ``rclcpp::Clock``
+        this facade retains, for cross-node handoff -- e.g.
+        ``Node.create_timer(clock=other_node.get_clock())`` threading one
+        node's clock into another node's timer."""
+        return self._require_native().raw_clock
+
     def _require_sleeper_provider(self) -> None:
         if self._sleeper_provider is None:
             _unsupported(

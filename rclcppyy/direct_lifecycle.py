@@ -417,11 +417,18 @@ class DirectLifecycleNode(DirectLifecycleNodeMixin, DirectNode):
             callback, qos, with_message_info=with_message_info,
             callback_group=callback_group)
 
-    def _native_create_timer(self, period_ns, callback, *, callback_group, autostart):
+    def _native_create_timer(
+        self, period_ns, callback, *, callback_group, autostart, clock=None,
+    ):
         if not autostart:
             _unsupported(
                 "direct_cpp lifecycle timers do not support autostart=False: "
                 "the native lifecycle wall timer always starts running")
+        if clock is not None:
+            _unsupported(
+                "direct_cpp lifecycle timers do not support an explicit "
+                "clock: the native lifecycle wall timer always uses the "
+                "node's own clock")
         from rclcpp_kit import native_lifecycle
 
         return native_lifecycle.create_lifecycle_wall_timer(
