@@ -408,3 +408,9 @@ def test_direct_cpp_signature_mirror_matches_stock_and_leaves_divergence_alone()
     process = run_helper("_direct_cpp_signature_mirror_helper.py", timeout=120)
     assert process.returncode == 0, format_output(process)
     assert "DIRECT_CPP_SIGNATURE_MIRROR_OK" in process.stdout
+
+
+def test_direct_cpp_patches_action_graph_and_wait_for_message_node_references():
+    process = run_helper("_direct_cpp_node_patch_list_helper.py", timeout=120)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_NODE_PATCH_LIST_OK" in process.stdout

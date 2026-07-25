@@ -34,6 +34,13 @@ _DEFAULT_SERVICE_QOS = object()
 _PARAMETER_CACHE_CAPACITY_ENV = "RCLCPPYY_DIRECT_PARAMETER_CACHE_CAPACITY"
 _PARAMETER_CACHE_DEFAULT_CAPACITY = 1024
 _PARAMETER_CACHE_MISSING = object()
+# create_publisher's "no publisher_class override" marker. activate() rebinds
+# this name (and the method's own __kwdefaults__ in lockstep) to the pristine
+# stock rclpy.publisher.Publisher class once rclpy.publisher is safely
+# imported inside activate() -- importing it at this module's own top would
+# land rclpy.publisher in sys.modules before _check_early_activation() ever
+# runs, tripping its stale-import guard.
+_PUBLISHER_CLASS_DEFAULT = object()
 
 
 class _TrackingParameterCache(dict):
@@ -2160,11 +2167,11 @@ class DirectNode:
         callback_group=None,
         event_callbacks=None,
         qos_overriding_options=None,
-        publisher_class=None,
+        publisher_class=_PUBLISHER_CLASS_DEFAULT,
     ):
         requested = {
             "qos_overriding_options": qos_overriding_options is not None,
-            "publisher_class": publisher_class is not None,
+            "publisher_class": publisher_class is not _PUBLISHER_CLASS_DEFAULT,
         }
         self._reject_entity_options("publisher", requested)
         from rclcpp_kit import direct_entities
@@ -3055,6 +3062,7 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
     global _ACTION_INSTALLATION, _ACTIVE, _ACTIVE_INTERFACES
     global _ACTIVE_OPTIMIZATIONS
     global _MESSAGE_INSTALLATION, _PATCHES, _RUNTIME, _SERVICE_INSTALLATION
+    global _PUBLISHER_CLASS_DEFAULT
     normalized_optimizations = tuple(sorted(set(optimizations)))
     from rclcppyy import (
         direct_actions,
@@ -3107,6 +3115,7 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         import rclpy
         import rclpy.action as action_module
         import rclpy.action.client as action_client_module
+        import rclpy.action.graph as action_graph_module
         import rclpy.action.server as action_server_module
         import rclpy.callback_groups as callback_groups_module
         import rclpy.executors as executors_module
@@ -3132,6 +3141,17 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
 
         DirectSubscription.CallbackType = (
             subscription_module.Subscription.CallbackType)
+        # create_publisher's publisher_class default starts life as a private
+        # sentinel (see _PUBLISHER_CLASS_DEFAULT's own module-level comment);
+        # rebind it -- and the method's own __kwdefaults__ in lockstep -- to
+        # the pristine stock Publisher class now, before Publisher itself is
+        # rebound to DirectPublisher below and before mirror_class(DirectNode,
+        # ...) walks create_publisher, so the structural gate in
+        # rclcppyy._signature_mirror sees a matching default and mirrors
+        # stock's exact signature onto it.
+        _PUBLISHER_CLASS_DEFAULT = publisher_module.Publisher
+        DirectNode.create_publisher.__kwdefaults__["publisher_class"] = (
+            _PUBLISHER_CLASS_DEFAULT)
         DirectParameter = direct_parameters.prepare(parameter_module.Parameter)
         direct_wait = direct_wait_for_message.prepare(
             wait_for_message_module.wait_for_message)
@@ -3166,6 +3186,8 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
                 DirectMultiThreadedExecutor,
             ),
             (node_module, "Node", DirectNode),
+            (action_graph_module, "Node", DirectNode),
+            (wait_for_message_module, "Node", DirectNode),
             (publisher_module, "Publisher", DirectPublisher),
             (subscription_module, "Subscription", DirectSubscription),
             (action_module, "ActionClient", direct_actions.DirectActionClient),

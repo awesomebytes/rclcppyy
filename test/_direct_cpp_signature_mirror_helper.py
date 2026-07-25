@@ -56,5 +56,6 @@ assert_mirrored("Executor", "create_task")
 assert_mirrored("Executor", "__init__")
 assert_mirrored("CallbackGroup", "can_execute")
 assert_mirrored("Node", "get_name")
+assert_mirrored("Node", "create_publisher")
 
 print("DIRECT_CPP_SIGNATURE_MIRROR_OK")
