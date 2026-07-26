@@ -1032,6 +1032,7 @@ class DirectNode:
         self._direct_cpp_services = []
         self._direct_cpp_action_clients = []
         self._direct_cpp_action_servers = []
+        self._direct_cpp_guards = []
         # Callback-containment sink (defect A -- see PLAN-mte-unlock.md): the
         # shim applied at create_subscription/create_timer/create_service
         # hand-off points records a raise here instead of letting it cross
@@ -1343,6 +1344,10 @@ class DirectNode:
     @property
     def services(self):
         return list(self._direct_cpp_services)
+
+    @property
+    def guards(self):
+        yield from self._direct_cpp_guards
 
     @property
     def _action_clients(self):
@@ -2547,6 +2552,41 @@ class DirectNode:
         return DirectRate(
             self._clock_sleeper(), self.get_clock(), period_ns, _runtime().context)
 
+    def create_guard_condition(self, callback, callback_group=None):
+        """Create a new guard condition."""
+        if not callable(callback):
+            raise TypeError("guard condition callback must be callable")
+        from rclcppyy.direct_guard_condition import DirectGuardCondition
+
+        group, _native_group = self._resolve_callback_group(callback_group)
+        session = _runtime().require_session()
+        native_guard_condition = session.create_native_guard_condition()
+        contained_callback = self._contain_callback_exceptions(callback)
+        guard = DirectGuardCondition(
+            callback, group, native_guard_condition, session, contained_callback)
+        group.add_entity(guard)
+        self._direct_cpp_guards.append(guard)
+        return guard
+
+    def destroy_guard_condition(self, guard_condition) -> bool:
+        """Destroy a guard condition created by the node.
+
+        Unlike destroy_timer/destroy_subscription/destroy_service, this
+        never needs to defer to the owning executor's pump on a self-destroy
+        (a guard condition's own callback destroying itself): each guard
+        condition dispatches on its own private thread (see
+        rclcppyy.direct_guard_condition), and that thread's close() already
+        detects and safely handles being called from itself, so there is no
+        self-join/self-wait hazard to defer around here.
+        """
+        for index, candidate in enumerate(self._direct_cpp_guards):
+            if guard_condition is candidate:
+                self._discard_group_entity(candidate)
+                candidate.destroy()
+                del self._direct_cpp_guards[index]
+                return True
+        return False
+
     def create_client(
         self,
         srv_type,
@@ -2788,11 +2828,14 @@ class DirectNode:
             action_server.close()
         for action_client in tuple(self._direct_cpp_action_clients):
             action_client.close()
+        for guard in tuple(self._direct_cpp_guards):
+            guard.destroy()
         self._direct_cpp_timers.clear()
         self._direct_cpp_clients.clear()
         self._direct_cpp_services.clear()
         self._direct_cpp_action_servers.clear()
         self._direct_cpp_action_clients.clear()
+        self._direct_cpp_guards.clear()
         self._close_direct_clock()
         self._release_callback_groups()
         _runtime().detach(self, node)
@@ -2824,11 +2867,14 @@ class DirectNode:
             action_server.close()
         for action_client in tuple(self._direct_cpp_action_clients):
             action_client.close()
+        for guard in tuple(self._direct_cpp_guards):
+            guard.destroy()
         self._direct_cpp_timers.clear()
         self._direct_cpp_clients.clear()
         self._direct_cpp_services.clear()
         self._direct_cpp_action_servers.clear()
         self._direct_cpp_action_clients.clear()
+        self._direct_cpp_guards.clear()
         self._direct_cpp_publishers.clear()
         self._direct_cpp_subscriptions.clear()
         self._close_direct_clock()
