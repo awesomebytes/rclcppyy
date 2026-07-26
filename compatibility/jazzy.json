@@ -1,62 +1,270 @@
 {
   "schema": "rclcppyy.compatibility/v2",
   "ros_distribution": "jazzy",
-  "reviewed_at": "2026-07-19",
+  "reviewed_at": "2026-07-26",
   "upstream_contract": {
     "manifest": "compatibility/upstream-rclpy-contract.json",
     "coverage": [
-      {"path": "test_action_graph.py", "disposition": "selected", "entry_id": "action.graph_queries"},
-      {"path": "test_action_client.py", "disposition": "selected", "entry_id": "action.client_server"},
-      {"path": "test_action_server.py", "disposition": "selected", "entry_id": "action.concurrent_abort_error_expiry"},
-      {"path": "test_callback_group.py", "disposition": "selected", "entry_id": "executor.stock_extensions"},
-      {"path": "test_client.py", "disposition": "selected", "entry_id": "service.extended_stock_surface"},
-      {"path": "test_create_node.py", "disposition": "selected", "entry_id": "node.create_node"},
-      {"path": "test_create_while_spinning.py", "disposition": "selected", "entry_id": "node.extended_stock_surface"},
-      {"path": "test_destruction.py", "disposition": "selected", "entry_id": "node.extended_stock_surface"},
-      {"path": "test_events_executor.py", "disposition": "selected", "entry_id": "executor.stock_extensions"},
-      {"path": "test_executor.py", "disposition": "selected", "entry_id": "executor.stock_extensions"},
-      {"path": "test_guard_condition.py", "disposition": "selected", "entry_id": "executor.guard_condition"},
-      {"path": "test_init_shutdown.py", "disposition": "selected", "entry_id": "context.stock_initialization"},
-      {"path": "test_lifecycle.py", "disposition": "selected", "entry_id": "lifecycle.node"},
-      {"path": "test_logging.py", "disposition": "selected", "entry_id": "logging.stock_surface"},
-      {"path": "test_logging_rosout.py", "disposition": "selected", "entry_id": "logging.stock_surface"},
-      {"path": "test_logging_service.py", "disposition": "selected", "entry_id": "logging.stock_surface"},
-      {"path": "test_node.py", "disposition": "selected", "entry_id": "node.extended_stock_surface"},
-      {"path": "test_parameter.py", "disposition": "selected", "entry_id": "parameter.value_and_event_helpers"},
-      {"path": "test_parameter_client.py", "disposition": "selected", "entry_id": "parameter.remote"},
-      {"path": "test_parameter_event_handler.py", "disposition": "selected", "entry_id": "parameter.value_and_event_helpers"},
-      {"path": "test_parameter_service.py", "disposition": "selected", "entry_id": "parameter.local"},
-      {"path": "test_publisher.py", "disposition": "selected", "entry_id": "publisher.basic"},
-      {"path": "test_qos.py", "disposition": "selected", "entry_id": "qos.stock_surface"},
-      {"path": "test_qos_event.py", "disposition": "selected", "entry_id": "qos.stock_surface"},
-      {"path": "test_qos_overriding_options.py", "disposition": "selected", "entry_id": "qos.stock_surface"},
-      {"path": "test_rate.py", "disposition": "selected", "entry_id": "time.stock_surface"},
-      {"path": "test_rosout_subscription.py", "disposition": "selected", "entry_id": "logging.stock_surface"},
-      {"path": "test_serialization.py", "disposition": "selected", "entry_id": "serialization.stock_functions"},
-      {"path": "test_service.py", "disposition": "selected", "entry_id": "service.client_server"},
-      {"path": "test_service_introspection.py", "disposition": "selected", "entry_id": "service.extended_stock_surface"},
-      {"path": "test_subscription.py", "disposition": "selected", "entry_id": "subscription.advanced_options"},
-      {"path": "test_timer.py", "disposition": "selected", "entry_id": "timer.wall"},
-      {"path": "test_time_source.py", "disposition": "selected", "entry_id": "time.stock_surface"},
-      {"path": "test_wait_for_message.py", "disposition": "selected", "entry_id": "subscription.wait_for_message"},
-      {"path": "test_waitable.py", "disposition": "selected", "entry_id": "executor.stock_extensions"},
-      {"path": "test_clock.py", "disposition": "selected", "entry_id": "time.stock_surface"},
-      {"path": "test_context.py", "disposition": "selected", "entry_id": "context.stock_initialization"},
-      {"path": "test_expand_topic_name.py", "disposition": "selected", "entry_id": "graph.utility_surface"},
-      {"path": "test_messages.py", "disposition": "selected", "entry_id": "message.value_semantics"},
-      {"path": "test_task.py", "disposition": "selected", "entry_id": "executor.stock_extensions"},
-      {"path": "test_time.py", "disposition": "selected", "entry_id": "time.stock_surface"},
-      {"path": "test_topic_endpoint_info.py", "disposition": "selected", "entry_id": "graph.utility_surface"},
-      {"path": "test_topic_or_service_is_hidden.py", "disposition": "selected", "entry_id": "graph.utility_surface"},
-      {"path": "test_type_hash.py", "disposition": "selected", "entry_id": "type_support.stock_surface"},
-      {"path": "test_utilities.py", "disposition": "selected", "entry_id": "utility.process_surface"},
-      {"path": "test_validate_full_topic_name.py", "disposition": "selected", "entry_id": "graph.utility_surface"},
-      {"path": "test_validate_namespace.py", "disposition": "selected", "entry_id": "graph.utility_surface"},
-      {"path": "test_validate_node_name.py", "disposition": "selected", "entry_id": "graph.utility_surface"},
-      {"path": "test_validate_topic_name.py", "disposition": "selected", "entry_id": "graph.utility_surface"},
-      {"path": "test_destruction_order.py", "disposition": "reviewed_exclusion", "entry_id": "node.private_destruction_order"},
-      {"path": "test_type_description_service.py", "disposition": "reviewed_exclusion", "entry_id": "type_support.type_description_service"},
-      {"path": "test_type_support.py", "disposition": "reviewed_exclusion", "entry_id": "type_support.negative_validation"}
+      {
+        "path": "test_action_graph.py",
+        "disposition": "selected",
+        "entry_id": "action.graph_queries"
+      },
+      {
+        "path": "test_action_client.py",
+        "disposition": "selected",
+        "entry_id": "action.client_server"
+      },
+      {
+        "path": "test_action_server.py",
+        "disposition": "selected",
+        "entry_id": "action.concurrent_abort_error_expiry"
+      },
+      {
+        "path": "test_callback_group.py",
+        "disposition": "selected",
+        "entry_id": "executor.stock_extensions"
+      },
+      {
+        "path": "test_client.py",
+        "disposition": "selected",
+        "entry_id": "service.extended_stock_surface"
+      },
+      {
+        "path": "test_create_node.py",
+        "disposition": "selected",
+        "entry_id": "node.create_node"
+      },
+      {
+        "path": "test_create_while_spinning.py",
+        "disposition": "selected",
+        "entry_id": "node.extended_stock_surface"
+      },
+      {
+        "path": "test_destruction.py",
+        "disposition": "selected",
+        "entry_id": "node.extended_stock_surface"
+      },
+      {
+        "path": "test_events_executor.py",
+        "disposition": "selected",
+        "entry_id": "executor.stock_extensions"
+      },
+      {
+        "path": "test_executor.py",
+        "disposition": "selected",
+        "entry_id": "executor.stock_extensions"
+      },
+      {
+        "path": "test_guard_condition.py",
+        "disposition": "selected",
+        "entry_id": "executor.guard_condition"
+      },
+      {
+        "path": "test_init_shutdown.py",
+        "disposition": "selected",
+        "entry_id": "context.stock_initialization"
+      },
+      {
+        "path": "test_lifecycle.py",
+        "disposition": "selected",
+        "entry_id": "lifecycle.node"
+      },
+      {
+        "path": "test_logging.py",
+        "disposition": "selected",
+        "entry_id": "logging.stock_surface"
+      },
+      {
+        "path": "test_logging_rosout.py",
+        "disposition": "selected",
+        "entry_id": "logging.stock_surface"
+      },
+      {
+        "path": "test_logging_service.py",
+        "disposition": "selected",
+        "entry_id": "logging.stock_surface"
+      },
+      {
+        "path": "test_node.py",
+        "disposition": "selected",
+        "entry_id": "node.extended_stock_surface"
+      },
+      {
+        "path": "test_parameter.py",
+        "disposition": "selected",
+        "entry_id": "parameter.value_and_event_helpers"
+      },
+      {
+        "path": "test_parameter_client.py",
+        "disposition": "selected",
+        "entry_id": "parameter.remote"
+      },
+      {
+        "path": "test_parameter_event_handler.py",
+        "disposition": "selected",
+        "entry_id": "parameter.value_and_event_helpers"
+      },
+      {
+        "path": "test_parameter_service.py",
+        "disposition": "selected",
+        "entry_id": "parameter.local"
+      },
+      {
+        "path": "test_publisher.py",
+        "disposition": "selected",
+        "entry_id": "publisher.basic"
+      },
+      {
+        "path": "test_qos.py",
+        "disposition": "selected",
+        "entry_id": "qos.stock_surface"
+      },
+      {
+        "path": "test_qos_event.py",
+        "disposition": "selected",
+        "entry_id": "qos.stock_surface"
+      },
+      {
+        "path": "test_qos_overriding_options.py",
+        "disposition": "selected",
+        "entry_id": "qos.stock_surface"
+      },
+      {
+        "path": "test_rate.py",
+        "disposition": "selected",
+        "entry_id": "time.stock_surface"
+      },
+      {
+        "path": "test_rosout_subscription.py",
+        "disposition": "selected",
+        "entry_id": "logging.stock_surface"
+      },
+      {
+        "path": "test_serialization.py",
+        "disposition": "selected",
+        "entry_id": "serialization.stock_functions"
+      },
+      {
+        "path": "test_service.py",
+        "disposition": "selected",
+        "entry_id": "service.client_server"
+      },
+      {
+        "path": "test_service_introspection.py",
+        "disposition": "selected",
+        "entry_id": "service.extended_stock_surface"
+      },
+      {
+        "path": "test_subscription.py",
+        "disposition": "selected",
+        "entry_id": "subscription.advanced_options"
+      },
+      {
+        "path": "test_timer.py",
+        "disposition": "selected",
+        "entry_id": "timer.wall"
+      },
+      {
+        "path": "test_time_source.py",
+        "disposition": "selected",
+        "entry_id": "time.stock_surface"
+      },
+      {
+        "path": "test_wait_for_message.py",
+        "disposition": "selected",
+        "entry_id": "subscription.wait_for_message"
+      },
+      {
+        "path": "test_waitable.py",
+        "disposition": "selected",
+        "entry_id": "executor.stock_extensions"
+      },
+      {
+        "path": "test_clock.py",
+        "disposition": "selected",
+        "entry_id": "time.stock_surface"
+      },
+      {
+        "path": "test_context.py",
+        "disposition": "selected",
+        "entry_id": "context.stock_initialization"
+      },
+      {
+        "path": "test_expand_topic_name.py",
+        "disposition": "selected",
+        "entry_id": "graph.utility_surface"
+      },
+      {
+        "path": "test_messages.py",
+        "disposition": "selected",
+        "entry_id": "message.value_semantics"
+      },
+      {
+        "path": "test_task.py",
+        "disposition": "selected",
+        "entry_id": "executor.stock_extensions"
+      },
+      {
+        "path": "test_time.py",
+        "disposition": "selected",
+        "entry_id": "time.stock_surface"
+      },
+      {
+        "path": "test_topic_endpoint_info.py",
+        "disposition": "selected",
+        "entry_id": "graph.utility_surface"
+      },
+      {
+        "path": "test_topic_or_service_is_hidden.py",
+        "disposition": "selected",
+        "entry_id": "graph.utility_surface"
+      },
+      {
+        "path": "test_type_hash.py",
+        "disposition": "selected",
+        "entry_id": "type_support.stock_surface"
+      },
+      {
+        "path": "test_utilities.py",
+        "disposition": "selected",
+        "entry_id": "utility.process_surface"
+      },
+      {
+        "path": "test_validate_full_topic_name.py",
+        "disposition": "selected",
+        "entry_id": "graph.utility_surface"
+      },
+      {
+        "path": "test_validate_namespace.py",
+        "disposition": "selected",
+        "entry_id": "graph.utility_surface"
+      },
+      {
+        "path": "test_validate_node_name.py",
+        "disposition": "selected",
+        "entry_id": "graph.utility_surface"
+      },
+      {
+        "path": "test_validate_topic_name.py",
+        "disposition": "selected",
+        "entry_id": "graph.utility_surface"
+      },
+      {
+        "path": "test_destruction_order.py",
+        "disposition": "reviewed_exclusion",
+        "entry_id": "node.private_destruction_order"
+      },
+      {
+        "path": "test_type_description_service.py",
+        "disposition": "reviewed_exclusion",
+        "entry_id": "type_support.type_description_service"
+      },
+      {
+        "path": "test_type_support.py",
+        "disposition": "reviewed_exclusion",
+        "entry_id": "type_support.negative_validation"
+      }
     ]
   },
   "entries": [
@@ -68,7 +276,12 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_monkeypatch.py", "test/_monkeypatch_helper.py", "test/test_lazy_imports.py", "test/_lazy_import_helper.py"],
+      "evidence": [
+        "test/test_monkeypatch.py",
+        "test/_monkeypatch_helper.py",
+        "test/test_lazy_imports.py",
+        "test/_lazy_import_helper.py"
+      ],
       "notes": "The default compatible profile preserves stock node, context, executor, message, entity, and Publisher.publish authority. Its import and activation graph excludes cppyy, Cling bringup, native factories, and the legacy node. Explicit publisher_cpp and required_cpp profiles separately expose the certified same-handle C++ publisher route."
     },
     {
@@ -79,7 +292,10 @@
       "backend": "python",
       "fallback": "safe",
       "default": false,
-      "evidence": ["test/test_hook.py", "rclcppyy/_hook_boot.py"],
+      "evidence": [
+        "test/test_hook.py",
+        "rclcppyy/_hook_boot.py"
+      ],
       "notes": "A fresh interpreter proves default compatible startup activation. Node, Publisher.publish, executor, and Future behavior remains stock-authoritative and reports Python authority."
     },
     {
@@ -90,7 +306,11 @@
       "backend": "cpp",
       "fallback": "safe",
       "default": false,
-      "evidence": ["test/test_hook.py", "rclcppyy/_hook_boot.py", "rclcppyy/direct_cpp.py"],
+      "evidence": [
+        "test/test_hook.py",
+        "rclcppyy/_hook_boot.py",
+        "rclcppyy/direct_cpp.py"
+      ],
       "notes": "The explicitly selected direct profile activates from the installed startup bootstrap before rclpy eagerly imports generated control messages. A fresh Jazzy/Cyclone process proves an unchanged user import receives the direct Node and exact generated C++ nested Header/Time classes registered through the comma-separated interface input. Entity operations retain the bounded direct_cpp fail-closed contract and never fall back through an application-message conversion or serialized route. Compatible remains the default hook profile."
     },
     {
@@ -101,7 +321,9 @@
       "backend": "python",
       "fallback": "not_applicable",
       "default": true,
-      "evidence": ["test/test_hook.py"],
+      "evidence": [
+        "test/test_hook.py"
+      ],
       "notes": "Fresh interpreters remain on unmodified stock behavior."
     },
     {
@@ -112,7 +334,13 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_hook.py", "test/test_differential_application.py", "test/differential/_application_probe.py", "test/fixtures/custom_interfaces/run_interop.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_hook.py",
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "test/fixtures/custom_interfaces/run_interop.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "The original Node, Publisher, executor, LifecycleNode, ActionClient, and ActionServer classes are patched in place and message classes are not replaced. Future completion methods retain exact stock identity so executor Task completion has no instrumentation overhead. Function aliases captured from the rclpy module before activation retain stock behavior but are not instrumented; overridden subclass methods remain user-owned."
     },
     {
@@ -123,7 +351,10 @@
       "backend": "python",
       "fallback": "none",
       "default": true,
-      "evidence": ["test/test_monkeypatch.py", "test/_monkeypatch_helper.py"],
+      "evidence": [
+        "test/test_monkeypatch.py",
+        "test/_monkeypatch_helper.py"
+      ],
       "notes": "Returns the exact stock Node. The custom Context, namespace, remaps, parameters, graph identity, and teardown are covered by the differential contract."
     },
     {
@@ -134,7 +365,9 @@
       "backend": "mixed",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_node.py"],
+      "evidence": [
+        "test/test_node.py"
+      ],
       "notes": "Direct construction and get_name are tested; broader Node behavior is covered by individual entries."
     },
     {
@@ -145,7 +378,12 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_direct_node_options.py", "test/_direct_cpp_node_options_helper.py", "rclcppyy/direct_cpp.py", "docs/backend-selection.md"],
+      "evidence": [
+        "test/test_direct_node_options.py",
+        "test/_direct_cpp_node_options_helper.py",
+        "rclcppyy/direct_cpp.py",
+        "docs/backend-selection.md"
+      ],
       "notes": "On Jazzy/Cyclone, DirectNode lowers the active runtime context, local CLI arguments, exact direct/native Parameter overrides, use_global_arguments, enable_rosout, start_parameter_services, allow_undeclared_parameters, automatically_declare_parameters_from_overrides, and enable_logger_service to rclcpp::NodeOptions. Foreign contexts, malformed arguments, non-native overrides, and non-boolean flags reject before runtime or NativeSession node ownership changes. Live graph and parameter evidence covers local/global remaps, CLI overrides, deferred/automatic/implicit declaration, rosout, parameter services, and logger services with conversion and serialization paths poisoned."
     },
     {
@@ -156,7 +394,10 @@
       "backend": "python",
       "fallback": "none",
       "default": true,
-      "evidence": ["test/test_differential_contract.py", "test/differential/_contract_probe.py"],
+      "evidence": [
+        "test/test_differential_contract.py",
+        "test/differential/_contract_probe.py"
+      ],
       "notes": "Activated and stock scenarios expose the same single requested node and endpoint identity; no companion node is created."
     },
     {
@@ -167,7 +408,12 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_graph_helper.py", "rclcppyy/direct_cpp.py", "docs/backend-selection.md"],
+      "evidence": [
+        "test/test_direct_cpp.py",
+        "test/_direct_cpp_graph_helper.py",
+        "rclcppyy/direct_cpp.py",
+        "docs/backend-selection.md"
+      ],
       "notes": "The direct Node delegates topic/service names and types, node names/namespaces/enclaves, fully-qualified node names, per-node publisher/subscriber/service/client names and types, endpoint counts, topic/service expansion and remapping, endpoint-detail queries, and wait_for_node to its exact rclcpp graph/topics/services interfaces. Native TopicEndpointInfo is shaped into the real rclpy control object with node identity, generated type hash, endpoint kind, 16-byte GID, and complete RMW QoS. Only graph metadata is materialized into documented Python return objects; application message data remains generated C++. Valid remapping, malformed-name fail-closed behavior, missing-node exception identity, four native endpoint kinds, conversion/serialization poison, and teardown pass on Jazzy/Cyclone. Graph-event waiting remains uncovered."
     },
     {
@@ -178,7 +424,11 @@
       "backend": "mixed",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "The application corpus constructs an exact pre-activation subclass, preserves its base and Context, and exercises inherited routed methods. Methods explicitly overridden by an application remain application-owned."
     },
     {
@@ -189,7 +439,10 @@
       "backend": "python",
       "fallback": "none",
       "default": true,
-      "evidence": ["test/test_monkeypatch.py", "test/_monkeypatch_helper.py"],
+      "evidence": [
+        "test/test_monkeypatch.py",
+        "test/_monkeypatch_helper.py"
+      ],
       "notes": "Generated message classes remain the original Python classes with unchanged identity and constructor behavior in compatible mode."
     },
     {
@@ -200,7 +453,14 @@
       "backend": "mixed",
       "fallback": "safe",
       "default": false,
-      "evidence": ["test/test_message_facade.py", "test/_message_facade_product_helper.py", "test/_message_facade_gate_helper.py", "test/_message_facade_stale_import_helper.py", "rclcppyy/monkey.py", "docs/backend-selection.md"],
+      "evidence": [
+        "test/test_message_facade.py",
+        "test/_message_facade_product_helper.py",
+        "test/_message_facade_gate_helper.py",
+        "test/_message_facade_stale_import_helper.py",
+        "rclcppyy/monkey.py",
+        "docs/backend-selection.md"
+      ],
       "notes": "On the reviewed Jazzy rclpy 7.1.11/Cyclone stack, late-imported String and UInt64 facades own distinct C++ messages and preserve the tested generated constructor, valid-field, repr, equality, copy, pickle, callback, MessageInfo, stock entity, graph, callback-group, destruction, and reinitialization observations. Same-handle publish and serialized take avoid Python-to-C++ whole-message conversion. Unsupported layouts, stale imports, raw/event/content-filter subscriptions, and custom publishers remain visibly stock; invalid unchecked field assignments may fail earlier to preserve valid C++ storage, and take failure propagates without an unsafe retry. No performance benefit is asserted."
     },
     {
@@ -211,7 +471,25 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_helper.py", "test/_direct_cpp_generic_message_helper.py", "test/_direct_cpp_message_info_helper.py", "test/_direct_cpp_missing_interface_helper.py", "test/_direct_cpp_stale_import_helper.py", "test/test_relay_boundary_benchmark.py", "test/test_benchmark_matrix.py", "rclcppyy/direct_cpp.py", "rclcppyy/direct_messages.py", "scripts/benchmarks/relay_boundary_worker.py", "scripts/benchmarks/_relay_boundary_protocol.py", "scripts/benchmarks/bench_worker.py", "scripts/benchmarks/_benchmark_matrix.py", "docs/backend-selection.md", "docs/relay-boundary-benchmark.md", "docs/benchmarks.md"],
+      "evidence": [
+        "test/test_direct_cpp.py",
+        "test/_direct_cpp_helper.py",
+        "test/_direct_cpp_generic_message_helper.py",
+        "test/_direct_cpp_message_info_helper.py",
+        "test/_direct_cpp_missing_interface_helper.py",
+        "test/_direct_cpp_stale_import_helper.py",
+        "test/test_relay_boundary_benchmark.py",
+        "test/test_benchmark_matrix.py",
+        "rclcppyy/direct_cpp.py",
+        "rclcppyy/direct_messages.py",
+        "scripts/benchmarks/relay_boundary_worker.py",
+        "scripts/benchmarks/_relay_boundary_protocol.py",
+        "scripts/benchmarks/bench_worker.py",
+        "scripts/benchmarks/_benchmark_matrix.py",
+        "docs/backend-selection.md",
+        "docs/relay-boundary-benchmark.md",
+        "docs/benchmarks.md"
+      ],
       "notes": "On Jazzy/Cyclone, early activation replaces the default String/UInt64 imports and explicitly registered canonical package/msg/Message interfaces with actual generated C++ classes. Installed rosidl metadata, generated headers, canonical cppyy aliases, and C++ typesupport are required; nested message dependencies are resolved before aliases change. One NativeSession owns the rclcpp node, publisher, subscription, and executor for the common subclassed Node, integer-depth entity, and spin/spin_once pattern. Publishing uses the exact C++ object. Baseline callbacks receive one owning C++ copy; the subscription_shared_lease option instead shares the received allocation with zero MessageT deep copies. One- and two-argument callback shapes expose either the message alone or that same generated C++ message plus native rclcpp MessageInfo fields. All routes poison and avoid generated-Python conversion and serialization, retain callback values safely, and support native callback groups and the direct public single-threaded executor. Python message classes, stale imports, missing interfaces, unsupported QoS/options, and uncovered operations fail closed. Five clean x86-64 Jazzy/Cyclone characterization runs cover flat String and nested Header at 1 and 10 kHz with verified C++ markers and no case failures; direct combined CPU is substantially below stock, while the lease has no consistent CPU advantage over the C++ copy. A ten-repetition MessageInfo relay characterization records 0.190x stock-info relay CPU and 0.288x combined CPU with zero conversions or serialization calls. The incomplete surface remains experimental, and raw shared-host artifacts are descriptive rather than release claims."
     },
     {
@@ -222,7 +500,11 @@
       "backend": "mixed",
       "fallback": "safe",
       "default": false,
-      "evidence": ["test/test_pubsub_roundtrip.py", "test/_pubsub_nested_helper.py", "test/_pubsub_primitive_array_helper.py"],
+      "evidence": [
+        "test/test_pubsub_roundtrip.py",
+        "test/_pubsub_nested_helper.py",
+        "test/_pubsub_primitive_array_helper.py"
+      ],
       "notes": "The reusable native path has recursive conversion and sequence coverage; transparent import-hook identity for these shapes is not implied."
     },
     {
@@ -233,7 +515,11 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/fixtures/custom_interfaces/run_interop.py", "test/fixtures/custom_interfaces/rclcppyy_test_interfaces/action/Accumulate.action", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/fixtures/custom_interfaces/run_interop.py",
+        "test/fixtures/custom_interfaces/rclcppyy_test_interfaces/action/Accumulate.action",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "Compatible mode does not redirect generated imports. One source-built nested message/service/action package is proven with stock generated classes and behavior, but broader generated interface shapes are not implied."
     },
     {
@@ -244,7 +530,12 @@
       "backend": "mixed",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_monkeypatch.py", "test/test_differential_contract.py", "test/test_policy.py", "test/_required_cpp_helper.py"],
+      "evidence": [
+        "test/test_monkeypatch.py",
+        "test/test_differential_contract.py",
+        "test/test_policy.py",
+        "test/_required_cpp_helper.py"
+      ],
       "notes": "Creation, QoS ownership, graph endpoint, destruction, and default compatible publishing remain stock-authoritative. publisher_cpp and required_cpp explicitly select C++ serialization over the same native handle and complete ordered round trips. Private Node-constructor infrastructure is excluded from route preparation. No performance benefit is asserted."
     },
     {
@@ -255,7 +546,11 @@
       "backend": "python",
       "fallback": "not_applicable",
       "default": true,
-      "evidence": ["test/test_policy.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_policy.py",
+        "test/_required_cpp_helper.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "Node construction creates its private publisher entirely through stock rclpy under compatible, required-C++, and optimized policies. A deterministic required-C++ probe proves same-handle route preparation is not invoked for this infrastructure and is invoked exactly once for the following explicit publisher."
     },
     {
@@ -266,7 +561,12 @@
       "backend": "mixed",
       "fallback": "safe",
       "default": false,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "compatibility/upstream-rclpy-contract.json", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "compatibility/upstream-rclpy-contract.json",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "Exact stock construction preserves a custom publisher class, callback-group membership, complete endpoint QoS, and non-empty depth/reliability overrides. Live incompatible-QoS and matched user callbacks match stock; the reviewed upstream event contract also covers deadline/liveliness callback construction and event-handle lifetime. Middleware- and type-specific event generation outside that matrix is not implied."
     },
     {
@@ -277,7 +577,10 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_monkeypatch.py", "test/test_pubsub_roundtrip.py"],
+      "evidence": [
+        "test/test_monkeypatch.py",
+        "test/test_pubsub_roundtrip.py"
+      ],
       "notes": "The complete subscription entity and Python callback dispatch remain stock; ordered delivery and visible backend fallback are covered."
     },
     {
@@ -288,7 +591,14 @@
       "backend": "python",
       "fallback": "safe",
       "default": false,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", ".github/workflows/ci.yml", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py",
+        ".github/workflows/ci.yml",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "Exact stock construction preserves callback groups, complete endpoint QoS, non-empty depth/reliability overrides, serialized raw delivery, and live incompatible-QoS and matched callbacks. The no-skip Fast DDS gate certifies all 21 reviewed subscription tests, including content-filter create/set/get/reset/effect; the same six tests remain legitimate skips on Cyclone DDS, which does not provide that feature. Message-lost and type-incompatibility triggers outside the reviewed event matrix are not implied."
     },
     {
@@ -299,7 +609,13 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "test/test_policy.py",
+        "test/_required_cpp_helper.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "Stock timer authority is explicit. The corpus covers callback groups, autostart=false, reset, callback execution, cancellation, exception propagation, and destruction; required_cpp rejects before creation."
     },
     {
@@ -310,7 +626,23 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_timer_helper.py", "test/_direct_cpp_clock_timer_helper.py", "test/test_direct_clock_timer.py", "rclcppyy/direct_cpp.py", "scripts/benchmarks/timer_executor_worker.py", "scripts/benchmarks/_timer_executor_protocol.py", "test/test_timer_executor_benchmark.py", "docs/backend-selection.md", "docs/timer-executor-benchmark.md", "scripts/benchmarks/_clock_timer_benchmark_protocol.py", "scripts/benchmarks/clock_timer_benchmark_worker.py", "scripts/benchmarks/run_clock_timer_benchmark.py", "test/test_clock_timer_benchmark.py", "docs/clock-timer-benchmark.md"],
+      "evidence": [
+        "test/test_direct_cpp.py",
+        "test/_direct_cpp_timer_helper.py",
+        "test/_direct_cpp_clock_timer_helper.py",
+        "test/test_direct_clock_timer.py",
+        "rclcppyy/direct_cpp.py",
+        "scripts/benchmarks/timer_executor_worker.py",
+        "scripts/benchmarks/_timer_executor_protocol.py",
+        "test/test_timer_executor_benchmark.py",
+        "docs/backend-selection.md",
+        "docs/timer-executor-benchmark.md",
+        "scripts/benchmarks/_clock_timer_benchmark_protocol.py",
+        "scripts/benchmarks/clock_timer_benchmark_worker.py",
+        "scripts/benchmarks/run_clock_timer_benchmark.py",
+        "test/test_clock_timer_benchmark.py",
+        "docs/clock-timer-benchmark.md"
+      ],
       "notes": "On Jazzy/Cyclone, the opt-in profile creates a real rclcpp GenericTimer on the node's own ROS clock (sim-time-aware, matching stock's create_timer(clock=None) default) via the NativeSession executor, and enters the Python callback once per firing without message conversion, serialization, or a per-firing data copy. is_ready delegates to TimerBase::is_ready, time_until_next_call uses TimerBase::time_until_trigger and maps the canceled nanoseconds-max sentinel to None, and time_since_last_call reads rcl_timer_get_time_since_last_call from the exact native handle. Pre-fire, post-fire, canceled, reset, destroyed-handle, and stable timer_period_ns behavior pass with conversion and serialization poisoned. Default clock, callback groups, continuous periodic use, and native autostart=false construction followed by reset are covered. clock=None and clock=node.get_clock() are both honored -- the node's own clock is the only clock a DirectClock can ever wrap -- while a standalone or foreign clock argument fails closed before entity creation, as does any unexpected keyword argument (create_timer's signature now matches stock's exactly, with no **options catch-all). Verified live: a frozen, never-published /clock leaves a 0.5s-sim-period timer never firing while wall time passes well beyond that period; advancing /clock in explicit steps fires the callback only once sim time crosses the period; a use_sim_time=False node's timer fires on system time within a bounded wall interval; and destroying the facade stops delivery while the executor keeps spinning. The route remains experimental."
     },
     {
@@ -321,7 +653,18 @@
       "backend": "mixed",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/_direct_cpp_rate_helper.py", "test/_stock_rate_peer.py", "test/test_direct_rate.py", "rclcppyy/direct_clock.py", "rclcppyy/direct_cpp.py", "scripts/benchmarks/_clock_timer_benchmark_protocol.py", "scripts/benchmarks/clock_timer_benchmark_worker.py", "scripts/benchmarks/run_clock_timer_benchmark.py", "test/test_clock_timer_benchmark.py", "docs/clock-timer-benchmark.md"],
+      "evidence": [
+        "test/_direct_cpp_rate_helper.py",
+        "test/_stock_rate_peer.py",
+        "test/test_direct_rate.py",
+        "rclcppyy/direct_clock.py",
+        "rclcppyy/direct_cpp.py",
+        "scripts/benchmarks/_clock_timer_benchmark_protocol.py",
+        "scripts/benchmarks/clock_timer_benchmark_worker.py",
+        "scripts/benchmarks/run_clock_timer_benchmark.py",
+        "test/test_clock_timer_benchmark.py",
+        "docs/clock-timer-benchmark.md"
+      ],
       "notes": "create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None (a foreign clock argument fails closed); it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period. sleep() blocks on the node's NativeClockSleeper (the same primitive clock.direct_cpp_sleep proves) with its own fixed-rate bookkeeping -- the rclcpp::Rate algorithm, including the catch-up guard that resyncs to now()+period after a stall of more than one period instead of bursting zero-length sleeps -- rather than stock's Timer+threading.Event design, so backend is mixed (native sleep, Python schedule tracking), not pure cpp. Verified live with forbidden_boundary poisoned: isinstance(rclpy.timer.Rate); five successive sleeps at 10 Hz land within tolerance of five periods with no per-gap drift, matching an in-process stock Rate/Timer/executor sibling's own cadence over the same iteration count; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline, not on wall time; a context shutdown waking an in-flight sleep with ROSInterruptException rather than blocking forever; and a destroyed rate's sleep() raising RuntimeError. This is a documented behavioral superset of stock Rate, never a deficit: DirectRate sleeps correctly with or without a spinning executor, where stock's Rate blocks forever without one (the suite's own background-executor-thread profile for the clock timer was left unproven, so this route deliberately avoids depending on it). The rclpy.timer.Rate/rclpy.node.Rate class symbols are not patched -- a directly-constructed stock Rate keeps running unmodified stock code; only create_rate()'s own facade is accelerated."
     },
     {
@@ -332,7 +675,15 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "test/test_optimized_signal_wake.py", "test/_optimized_signal_worker.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "test/test_policy.py",
+        "test/_required_cpp_helper.py",
+        "test/test_optimized_signal_wake.py",
+        "test/_optimized_signal_worker.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "The stock executor remains authoritative and is reported as Python. Compatible and required-C++ preserve their existing behavior. The explicit optimized profile bounds each stock wait to 100 ms; fresh-process immediate-SIGTERM tests cover global spin without claiming a performance benefit."
     },
     {
@@ -343,7 +694,14 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_hook.py", "test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_hook.py",
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "test/test_policy.py",
+        "test/_required_cpp_helper.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "The wrapper delegates to stock execution and reports Python authority. Timer, guard, service, simulated-time, custom executor, signature, and required_cpp fail-before-spin behavior are covered. Timer, subscription, service, and guard callback exceptions preserve their exact user-defined Python types."
     },
     {
@@ -354,7 +712,17 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_executor_helper.py", "rclcppyy/direct_executors.py", "rclcppyy/direct_cpp.py", "scripts/benchmarks/timer_executor_worker.py", "scripts/benchmarks/_timer_executor_protocol.py", "test/test_timer_executor_benchmark.py", "docs/backend-selection.md", "docs/timer-executor-benchmark.md"],
+      "evidence": [
+        "test/test_direct_cpp.py",
+        "test/_direct_cpp_executor_helper.py",
+        "rclcppyy/direct_executors.py",
+        "rclcppyy/direct_cpp.py",
+        "scripts/benchmarks/timer_executor_worker.py",
+        "scripts/benchmarks/_timer_executor_protocol.py",
+        "test/test_timer_executor_benchmark.py",
+        "docs/backend-selection.md",
+        "docs/timer-executor-benchmark.md"
+      ],
       "notes": "On Jazzy/Cyclone, direct nodes start unowned and can be added, removed, or transferred between public SingleThreadedExecutor facades backed by exact rclcpp executors. Top-level spin, spin_once, spin_until_future_complete, blocked-wait wake, context-manager shutdown, callback exceptions, node destruction, and generated-C++ pub/sub and Future completion are covered. Repeated global spin_once retains native membership without exposing logical membership, avoiding per-call executor guard churn. The corrected ten-repetition characterization records 0.260x stock CPU for explicit ownership and 0.322x for the source-compatible global route, but the explicit facade remains 1.279x its raw rclcpp control and therefore has no raw-parity claim. MultiThreadedExecutor construction stays fail-closed; create_task no longer fails closed (see executor.direct_cpp_tasks)."
     },
     {
@@ -365,7 +733,15 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_callback_group_helper.py", "test/_direct_cpp_callback_group_hook_override_helper.py", "rclcppyy/direct_callback_groups.py", "rclcppyy/direct_cpp.py", "rclcppyy/direct_actions.py", "docs/backend-selection.md"],
+      "evidence": [
+        "test/test_direct_cpp.py",
+        "test/_direct_cpp_callback_group_helper.py",
+        "test/_direct_cpp_callback_group_hook_override_helper.py",
+        "rclcppyy/direct_callback_groups.py",
+        "rclcppyy/direct_cpp.py",
+        "rclcppyy/direct_actions.py",
+        "docs/backend-selection.md"
+      ],
       "notes": "The direct Node exposes its real rclcpp default group and lazily binds explicit mutually-exclusive or reentrant facades to their first native node. Publishers, subscriptions including lease and MessageInfo routes, timers, services, clients, and action clients pass the exact native group through rclcpp options or overloads. Cross-node reuse fails before entity creation and group/entity lifetimes are retained through teardown. Single-threaded execution is covered; concurrent callback-group behavior remains unclaimed while MultiThreadedExecutor is fail-closed. A subclass of DirectMutuallyExclusiveCallbackGroup/DirectReentrantCallbackGroup that overrides can_execute, beginning_execution, or ending_execution now fails closed at group-attachment time (BackendUnavailableError, before any entity or native group is created): native rclcpp dispatch enforces callback-group exclusion entirely in C++ and never calls back into these Python hooks during real dispatch (they are advisory only, invoked solely when explicitly called, as this suite's own tests do with synthetic entities), whereas stock rclpy's Executor._make_handler does call them -- so a stock user's override expecting to be honored would previously have been silently accepted and silently ignored (confirmed empirically before the fix: the override's own call counter stayed at zero across live dispatch). A subclass that does not override any of the three hooks is unaffected and still accepted."
     },
     {
@@ -376,7 +752,12 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_direct_executor.py", "test/_direct_cpp_executor_tasks_helper.py", "rclcppyy/direct_executors.py", "docs/backend-selection.md"],
+      "evidence": [
+        "test/test_direct_executor.py",
+        "test/_direct_cpp_executor_tasks_helper.py",
+        "rclcppyy/direct_executors.py",
+        "docs/backend-selection.md"
+      ],
       "notes": "create_task() is no longer fail-closed: a plain callable or a coroutine handed to the direct SingleThreadedExecutor runs to completion (or suspends on an awaited Future and resumes through the Future's own done-callback machinery), driven by _drive_tasks() ahead of each native spin step. A raising task re-raises on the calling thread from spin()/spin_once(), matching stock's own re-raise-after-run behavior, not just via future.result(). spin_until_future_complete() ends cleanly on a future a task itself resolves. A differential test runs the identical coroutines under a genuine stock SingleThreadedExecutor and the direct one and requires identical result/exception/suspend outcomes. One scenario -- cancelling a task before its first drive -- is proven direct-only, not in the differential: stock rclpy 7.1.11 itself raises a KeyError from its own _wait_for_ready_callbacks bookkeeping in that exact scenario (a pre-existing stock limitation, reproducible with zero direct_cpp involvement), which this facade's simpler task-queue design does not share. MultiThreadedExecutor construction stays fail-closed."
     },
     {
@@ -387,7 +768,24 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_direct_executor.py", "test/_direct_cpp_executor_surface_helper.py", "test/_direct_cpp_multi_threaded_executor_helper.py", "test/_direct_cpp_multi_threaded_executor_parallelism_characterization.py", "test/_direct_cpp_multi_threaded_executor_exception_crash_helper.py", "test/test_direct_cpp_destroy_under_mte.py", "test/_self_destroy_scenario_helper.py", "test/_shutdown_under_spin_helper.py", "test/_timer_service_self_destroy_helper.py", "test/_cross_thread_destroy_helper.py", "test/_action_under_mte_confirm_helper.py", "test/_destroy_no_sever_regression_helper.py", "test/_gc_after_destroy_helper.py", "test/_marshal_window_stress_product_helper.py", "test/_param_teardown_under_mte_helper.py", "rclcppyy/direct_executors.py"],
+      "evidence": [
+        "test/test_direct_executor.py",
+        "test/_direct_cpp_executor_surface_helper.py",
+        "test/_direct_cpp_multi_threaded_executor_helper.py",
+        "test/_direct_cpp_multi_threaded_executor_parallelism_characterization.py",
+        "test/_direct_cpp_multi_threaded_executor_exception_crash_helper.py",
+        "test/test_direct_cpp_destroy_under_mte.py",
+        "test/_self_destroy_scenario_helper.py",
+        "test/_shutdown_under_spin_helper.py",
+        "test/_timer_service_self_destroy_helper.py",
+        "test/_cross_thread_destroy_helper.py",
+        "test/_action_under_mte_confirm_helper.py",
+        "test/_destroy_no_sever_regression_helper.py",
+        "test/_gc_after_destroy_helper.py",
+        "test/_marshal_window_stress_product_helper.py",
+        "test/_param_teardown_under_mte_helper.py",
+        "rclcppyy/direct_executors.py"
+      ],
       "notes": "Public construction is un-fail-closed as of Slice 3 (docs/plans/PLAN-mte-unlock.md): the two independently confirmed defects that previously fail-closed it are fixed, and a destroy-under-live-dispatch hazard found while proving it safe is fixed too. Defect A (a raising Python callback on a native MultiThreadedExecutor worker thread crossed into C++ uncaught and aborted the process) is fixed by a per-node exception sink plus a containment shim at every product callback hand-off (create_subscription/create_timer/create_service/action callbacks): a contained raise is captured, never crosses the cppyy boundary, and is re-raised with its exact type and message on the spin/pump thread, matching stock's future.result()-style re-raise -- proven by test_direct_cpp_multi_threaded_executor_callback_exception_contained_and_reraised, with a SingleThreadedExecutor regression guard confirming unchanged propagation there. Defect B (a suite-level start_executor() dispatch-reliability gap that could silently drop a ready callback under real concurrency) is fixed product-side in _run_native_background()/wake() (a startup-gate against a transiently-false thread.running, and closing the wake-cancel race) -- no suite change, no pin bump; proven over N>=165 iterations, 0 misses, and by the true-parallelism proof (test_direct_cpp_multi_threaded_executor_true_parallelism, promoted from a one-time characterization now that this fix makes it non-flaky): reentrant-group genuine temporal overlap (threading.Barrier(2), peak in-flight==2), mutually-exclusive serialization (peak==1, a short-timeout barrier breaks), and cross-group concurrent control, all deterministic. Destroying an entity/node while the MTE is genuinely dispatching (a known hard-to-debug UAF class in prior art) is fixed at two layers: product-side, a per-node in-flight counter + thread-local self-destroy marker defer self-destroys to the executor's pump thread, which waits for genuine quiescence before freeing anything (destroy_subscription/destroy_timer/destroy_service/destroy_node, _mark_runtime_shutdown, DirectExecutor.shutdown, and every context-manager __exit__ all route through this or a prior native-worker-thread join); suite-side (cppyy_kit), entity teardown became a plain strong-ref drop (ManagedCallbackEntityImpl, mirroring the existing ManagedPublisher) and the Python callable's lifetime was found to still depend on a wrapper object's own GC timing until stress-testing surfaced a residual: a worker mid-marshal (committed to dispatch, cppyy still converting the message into Python arguments, before the product's in-flight counter increments) is invisible to that counter by construction and could still race a severed callable. A native-owned-callable-lifetime reaper closes this unconditionally (the std::function value itself owns a Py_INCREF'd reference, released only via a GIL-holding drain of a thread-safe queue, never a direct Py_DECREF off a native worker thread) for subscriptions, timers, shared-lease subscriptions, services, and parameter-callback bridges (pre/on/post-set-parameters, reachable through unchanged public rclpy API and worker-dispatched, found to need the same treatment). Proof battery, all committed and non-flaky, domain 76: subscription self-destroy and node self-destroy with a genuinely in-flight peer (N=50 each -- the node scenario is the historical crasher, pre-fix crashed by iteration 7-10 of 20 with 'callable was deleted'/'terminate called without an active exception'); shutdown/close-under-spin with a peer genuinely mid-trampoline (N=50); timer and service self-destroy (N=50 each); cross-thread destroy (an external thread takes the synchronous quiescence-wait path); action-under-live-MTE confirm (actions need no lifetime fix, proven safe by dispatch model -- creator-thread-only goal/cancel decisions plus an existing depth-tracked deferred close -- one iteration guards it); a white-box regression guard that destroy never nulls the callable directly; gc-after-gated-destroy (N=50, the racy suite-level variant is unreachable through the product's gated API, confirmed by recon); a marshal-window stress proving the product's own in-flight counter provides zero protection there and the suite reaper is what actually holds (N=50); and a parameter-callback teardown-under-live-MTE proof through the public rclpy API (N=50). Disclosed differentials (behavior differs from stock, intentionally, not a parity claim): (1) a service callback that raises returns the original, untouched response object to the native reply (stock sends no reply at all when a service callback raises) -- this backend cannot suppress the native reply without a suite change, so this is the closest safe containment; (2) when multiple callbacks raise in the same drain cycle, only the first captured exception is re-raised on the spin/pump thread (all sinks are still drained, none resurface later) -- stock's own per-future/task exception surfacing lets each caller see its own exception as its own future completes, with no single unified ordering; (3) an in-callback (self-destroy) destroy_node()/destroy_*() call returns before the deferred teardown it enqueues actually runs on the pump thread -- a documented observable divergence, not a claim that timing matches stock exactly, though the reached end state (deferred until safe) matches stock's own borrow-count-based deferral pattern (rclpy.handle.Handle); (4) ActionServer construction rejects a node already attached to a MultiThreadedExecutor (P0, direct_actions.py) -- construct the server before attaching the node to work around it -- and action goal/cancel decisions dispatch only on the thread that constructed the ActionServer (a P0 guard), never a native MTE worker, which is why actions needed no lifetime fix and why a test exercising them under live MTE must drive spin from that same creator thread; (5) DirectTimer.callback (the object returned by node.create_timer() is the suite's own DirectTimer, with no separate product-level wrapper) holds the containment-wrapped callable, not the exact object the caller passed in -- an object-identity/introspection differential unlike subscriptions, which do preserve original-callback identity behind a product-level facade. No speedup or CPU-parity claim is made here (Slice 4, executor CPU benchmark rerun, claims disabled, is separate and pending); ledger rows under this area stay unassessed pending that full step-6 evidence chain (contract + identity + stock differential + true-parallelism proof + CPU benchmark) -- this manifest entry documents behavior and proof, not authority. Separately, direct_callback_groups.py fails closed at group-attachment time for any callback-group subclass overriding can_execute/beginning_execution/ending_execution (any executor kind): native rclcpp dispatch never calls back into these Python hooks during real dispatch (advisory only); see executor.direct_cpp_callback_groups."
     },
     {
@@ -398,7 +796,15 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "test/test_optimized_signal_wake.py", "test/_optimized_signal_worker.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "test/test_policy.py",
+        "test/_required_cpp_helper.py",
+        "test/test_optimized_signal_wake.py",
+        "test/_optimized_signal_worker.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "A two-thread MultiThreadedExecutor with a reentrant callback group, shutdown, status reporting, exception preservation, and required_cpp rejection is covered by differential evidence. The stock executor remains authoritative; custom Executor subclasses and sustained cross-architecture stress are not implied."
     },
     {
@@ -409,7 +815,11 @@
       "backend": "python",
       "fallback": "safe",
       "default": false,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "Selected stock executor extensions are covered separately. Arbitrary Executor overrides can bypass or conflict with patched methods, and sustained workload evidence across architectures remains incomplete."
     },
     {
@@ -420,7 +830,12 @@
       "backend": "python",
       "fallback": "not_applicable",
       "default": false,
-      "evidence": ["test/test_optimized_signal_wake.py", "test/_optimized_signal_worker.py", "rclcppyy/monkey.py", "docs/backend-selection.md"],
+      "evidence": [
+        "test/test_optimized_signal_wake.py",
+        "test/_optimized_signal_worker.py",
+        "rclcppyy/monkey.py",
+        "docs/backend-selection.md"
+      ],
       "notes": "Fifteen fresh x86-64 processes receive SIGTERM immediately from an active callback across global, direct single-threaded, and direct multi-threaded spin; all exit cleanly and prove structured policy, signature, and ownership invariants. The 100 ms bound adds periodic idle wake-ups. ARM64 and sustained middleware-matrix evidence remain required before promotion."
     },
     {
@@ -431,7 +846,15 @@
       "backend": "python",
       "fallback": "not_applicable",
       "default": true,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "test/test_lazy_imports.py", "test/_lazy_import_helper.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "test/test_policy.py",
+        "test/_required_cpp_helper.py",
+        "test/test_lazy_imports.py",
+        "test/_lazy_import_helper.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "Future completion remains stock-authoritative under every policy to avoid destabilizing executor internals and per-callback overhead. Fresh-process tests prove exact stock set_result, set_exception, and cancel method identity for compatible, publisher_cpp, required_cpp, and optimized profiles; behavioral parity covers results, exceptions, cancellation, and done callbacks."
     },
     {
@@ -442,7 +865,14 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_control_plane_helper.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "test/test_policy.py",
+        "test/_control_plane_helper.py",
+        "test/_required_cpp_helper.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "Stock guard-condition identity, callback groups, trigger/dispatch, destruction, compatible status, bounded warnings, signature preservation, and required_cpp rejection before creation are covered."
     },
     {
@@ -453,7 +883,14 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_control_plane_helper.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "test/test_policy.py",
+        "test/_control_plane_helper.py",
+        "test/_required_cpp_helper.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "A local SetBool client/server request, Future response, callback group, discovery, status, identity, and teardown match stock. required_cpp rejects user service/client creation before side effects while preserving constructor-owned services."
     },
     {
@@ -464,7 +901,25 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_direct_cpp.py", "test/test_direct_services.py", "test/_direct_cpp_service_helper.py", "test/_direct_cpp_service_stale_import_helper.py", "test/_direct_cpp_trigger_service_helper.py", "test/_direct_cpp_trigger_service_stale_import_helper.py", "test/_direct_cpp_trigger_aot_helper.py", "test/_direct_cpp_missing_service_helper.py", "rclcppyy/direct_cpp.py", "rclcppyy/direct_services.py", "scripts/benchmarks/service_callback_worker.py", "scripts/benchmarks/_service_callback_protocol.py", "scripts/benchmarks/service_client_worker.py", "scripts/benchmarks/_service_client_protocol.py", "docs/backend-selection.md", "docs/service-callback-benchmark.md", "docs/service-client-benchmark.md"],
+      "evidence": [
+        "test/test_direct_cpp.py",
+        "test/test_direct_services.py",
+        "test/_direct_cpp_service_helper.py",
+        "test/_direct_cpp_service_stale_import_helper.py",
+        "test/_direct_cpp_trigger_service_helper.py",
+        "test/_direct_cpp_trigger_service_stale_import_helper.py",
+        "test/_direct_cpp_trigger_aot_helper.py",
+        "test/_direct_cpp_missing_service_helper.py",
+        "rclcppyy/direct_cpp.py",
+        "rclcppyy/direct_services.py",
+        "scripts/benchmarks/service_callback_worker.py",
+        "scripts/benchmarks/_service_callback_protocol.py",
+        "scripts/benchmarks/service_client_worker.py",
+        "scripts/benchmarks/_service_client_protocol.py",
+        "docs/backend-selection.md",
+        "docs/service-callback-benchmark.md",
+        "docs/service-client-benchmark.md"
+      ],
       "notes": "On Jazzy/Cyclone, early activation replaces the default SetBool and explicitly registered canonical package/srv/Service Request and Response aliases with actual generated C++ classes and creates real rclcpp service/client entities. Installed services and nested message dependencies are resolved before transactional alias mutation; missing, stale, and unregistered types fail before graph creation. The common synchronous two-argument callback, call_async/Future, and stock-shaped blocking call with a servicing executor on another thread work with default service QoS: callback requests are owning C++ copies, responses are assigned in C++, client requests make one native C++ value copy, and returned results remain C++. There is no Python-message conversion or serialization bridge. Each operation uses an unmodified stock rclpy.task.Future only as Python control state; no global Future method is patched. Blocking call timeout removes the native pending request, and callback use retains the stock deadlock warning. Custom QoS/groups, coroutine callbacks, introspection, and manual response send fail closed. SetBool plus explicitly registered Trigger are covered by stock and compiled rclcpp peers in both directions, cancellation, timeouts, exceptions, retained values, status authority, teardown, and reinitialization. A clean five-repetition x86-64 Trigger client characterization records median paired direct/stock ratios of 0.218x CPU, 0.373x p50, 0.429x p99, and 2.634x throughput with exact C++ and no-conversion markers. The bounded surface remains experimental pending broader service API coverage, dedicated-host thresholds, and ARM64 measurement."
     },
     {
@@ -475,7 +930,19 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_action_helper.py", "test/_direct_cpp_action_stale_import_helper.py", "test/test_prove_action_authority.py", "test/_prove_action_authority_probe.py", "rclcppyy/direct_actions.py", "rclcppyy/direct_cpp.py", "scripts/benchmarks/action_client_worker.py", "scripts/benchmarks/_action_client_protocol.py", "docs/backend-selection.md", "docs/action-client-benchmark.md"],
+      "evidence": [
+        "test/test_direct_cpp.py",
+        "test/_direct_cpp_action_helper.py",
+        "test/_direct_cpp_action_stale_import_helper.py",
+        "test/test_prove_action_authority.py",
+        "test/_prove_action_authority_probe.py",
+        "rclcppyy/direct_actions.py",
+        "rclcppyy/direct_cpp.py",
+        "scripts/benchmarks/action_client_worker.py",
+        "scripts/benchmarks/_action_client_protocol.py",
+        "docs/backend-selection.md",
+        "docs/action-client-benchmark.md"
+      ],
       "notes": "On Jazzy/Cyclone, early direct_cpp activation keeps the default tf2_msgs/action/LookupTransform client and accepts explicitly registered canonical installed actions. Goal, Feedback, Result, UUID, SendGoal/GetResult request and response, feedback-message, CancelGoal request and response, and nested payload aliases are validated transactionally and replaced with their actual generated C++ classes. A custom nested Accumulate action passes fresh-cache interoperability against a compiled rclcpp_action server, retains C++ values after teardown, and links its installed typesupport with an explicit RUNPATH. A real rclcpp_action client and batched C++ readiness snapshot drive send_goal_async, feedback callbacks, get_result_async, and cancel_goal_async without generated-Python message conversion or serialization. Goal acceptance/rejection, exactly ordered feedback, success, cancellation, retained values, graph identity, callback exceptions, endpoint loss, teardown, and reinitialization are covered. Missing, stale, and unregistered actions fail before graph creation; custom goal UUIDs, non-default action QoS, synchronous calls, introspection, and uncovered options remain fail-closed. Historical characterization used unequal feedback QoS and remains invalid as current evidence. The corrected clean five-repetition artifact build/action-client-cyclone-b2f0f2d-corrected.json uses identical public QoS and source/executor shape and records median paired direct/stock ratios of 0.2606 CPU, 0.7138/0.3283 accept p50/p99, 0.9848/0.9647 result p50/p99, and 1.0160 throughput. All direct samples retain exact C++ authority, arm 16 boundary tripwires, record zero conversion/serialization/CDR calls, and tear down cleanly. Claims remain disabled pending dedicated-host and ARM64 repetition. This remains a bounded experimental client slice pending broader action-client API coverage and a custom-action performance workload."
     },
     {
@@ -486,7 +953,26 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_direct_action_server.py", "test/test_direct_cpp.py", "test/_direct_cpp_action_server_helper.py", "test/_direct_cpp_action_server_stock_interop_helper.py", "test/_stock_action_client_peer.py", "test/test_action_server_benchmark.py", "test/test_prove_action_authority.py", "test/_prove_action_authority_probe.py", "rclcppyy/direct_actions.py", "rclcppyy/direct_cpp.py", "rclcppyy/direct_executors.py", "scripts/benchmarks/_action_server_protocol.py", "scripts/benchmarks/action_server_worker.py", "scripts/benchmarks/run_action_server_benchmark.py", "scripts/benchmarks/run_action_server_shared_diagnostic.py", "schemas/action-server-benchmark-v1.schema.json", "docs/backend-selection.md", "docs/action-server-benchmark.md"],
+      "evidence": [
+        "test/test_direct_action_server.py",
+        "test/test_direct_cpp.py",
+        "test/_direct_cpp_action_server_helper.py",
+        "test/_direct_cpp_action_server_stock_interop_helper.py",
+        "test/_stock_action_client_peer.py",
+        "test/test_action_server_benchmark.py",
+        "test/test_prove_action_authority.py",
+        "test/_prove_action_authority_probe.py",
+        "rclcppyy/direct_actions.py",
+        "rclcppyy/direct_cpp.py",
+        "rclcppyy/direct_executors.py",
+        "scripts/benchmarks/_action_server_protocol.py",
+        "scripts/benchmarks/action_server_worker.py",
+        "scripts/benchmarks/run_action_server_benchmark.py",
+        "scripts/benchmarks/run_action_server_shared_diagnostic.py",
+        "schemas/action-server-benchmark-v1.schema.json",
+        "docs/backend-selection.md",
+        "docs/action-server-benchmark.md"
+      ],
       "notes": "On Jazzy/Cyclone, the direct ActionServer keeps Goal, Feedback, Result, UUID, action envelopes, accepted-goal state, and rclcpp_action server authority in C++. Synchronous Python callbacks receive the exact generated C++ values; converters and serializers are poisoned in the live proof. Server-first executor polling covers acceptance, staged feedback, success, rejection, cancellation, default abort, callback errors, deferred accepted goals, retained values, safe deferred server close, teardown, and reinitialization. An unchanged external stock rclpy ActionClient also drives payload-rich goal, feedback, and result traffic through the direct server while every server-side application value remains exact generated C++ and retained after teardown. Node or context teardown attempted inside an active server callback fails before mutation. The corrected clean five-repetition artifact build/action-server-cyclone-b2f0f2d-corrected.json uses one common AOT client plus identical public QoS and records median paired direct/stock ratios of 0.6475 server CPU, 0.7386/0.7364 accept p50/p99, 0.9893/0.9758 result p50/p99, and 1.0107 throughput. All direct samples retain exact C++ authority, arm 16 boundary tripwires, record zero conversion/serialization/CDR calls, and tear down cleanly. The default source-compatible route performs 2,080 counted exact-C++ adapter deep copies per 520-goal sample and remains 2.588x AOT CPU, making copy/callback overhead an explicit optimization target rather than a representation conversion. Product 47e4e56 with suite 48927c9 adds explicit opt-in create_feedback_shared/create_result_shared factories plus publish_feedback_shared and succeed_shared/abort_shared/canceled_shared terminal operations. Factory-created values retain their actual generated C++ type and shared ownership; non-factory values reject, and the caller must not mutate a value concurrently with its handoff. In the bounded three-repetition, 5-warmup/30-measured-goal diagnostic, every copy sample records exactly 140 adapter deep copies while every shared sample records zero adapter deep copies, 105 feedback shared handoffs, and 35 result shared handoffs. The ratio of lane medians is a 5.09% server-CPU reduction, but one of three paired repetitions regresses and the short shared-host run is noisy. This is mechanism evidence only, not a performance claim or a change to the default path. Claims remain disabled pending the fixed full matrix, dedicated-host repetition, and ARM64 repetition. This P0 slice requires the single-threaded executor, a mutually-exclusive callback group, default action QoS, and synchronous callbacks; concurrency, coroutine callbacks, custom QoS, introspection, and uncovered options fail closed."
     },
     {
@@ -497,7 +983,15 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/fixtures/custom_interfaces/run_interop.py", "test/fixtures/custom_interfaces/rclcppyy_test_interfaces/action/Accumulate.action", "scripts/ci/prove_custom_interfaces.sh", "test/test_policy.py", "test/_control_plane_helper.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/fixtures/custom_interfaces/run_interop.py",
+        "test/fixtures/custom_interfaces/rclcppyy_test_interfaces/action/Accumulate.action",
+        "scripts/ci/prove_custom_interfaces.sh",
+        "test/test_policy.py",
+        "test/_control_plane_helper.py",
+        "test/_required_cpp_helper.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "Exact stock ActionClient/ActionServer objects, generated types, nodes, custom Context, reentrant groups, and MultiThreadedExecutor semantics remain authoritative. Activated behavior must equal stock for success, rejection, complete feedback, result, cancellation, callback order, and teardown; status reports Python ownership and required_cpp rejects before handle or waitable creation. No C++ action route is claimed."
     },
     {
@@ -508,7 +1002,12 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/fixtures/custom_interfaces/run_interop.py", "test/fixtures/custom_interfaces/rclcppyy_test_peer/src/interop_peer.cpp", "scripts/ci/prove_custom_interfaces.sh", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/fixtures/custom_interfaces/run_interop.py",
+        "test/fixtures/custom_interfaces/rclcppyy_test_peer/src/interop_peer.cpp",
+        "scripts/ci/prove_custom_interfaces.sh",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "A generated nested action proves discovery, goal acceptance, feedback, successful result, and teardown against a separately compiled C++ server on local x86-64. The same source proof is wired into native ARM64 CI but is not certified there until a remote run succeeds. The Python client remains explicitly reported as Python-owned."
     },
     {
@@ -519,7 +1018,11 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "The pinned activated upstream ActionServer contract covers multiple and duplicate goals, accept/reject, abort, execute exceptions, feedback type errors, cancellation, and result expiry. These paths remain exact stock rclpy behavior; no C++ action route is claimed."
     },
     {
@@ -530,7 +1033,11 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/fixtures/custom_interfaces/run_interop.py", "scripts/ci/prove_custom_interfaces.sh", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/fixtures/custom_interfaces/run_interop.py",
+        "scripts/ci/prove_custom_interfaces.sh",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "The generated-action differential constructs an ActionClient with custom goal, result, and cancel service QoS plus custom feedback and status subscription QoS; injects and observes a fixed goal UUID; and exercises Jazzy's public synchronous ActionClient.send_goal(), ClientGoalHandle.cancel_goal(), and ClientGoalHandle.get_result() methods under a servicing executor. Results, cancellation, teardown, and the complete recorded contract match stock on local x86-64. Jazzy has no public ActionClient-level synchronous cancel or result method, so none is claimed. The same source proof is wired into native ARM64 CI but is not certified there until a remote run succeeds."
     },
     {
@@ -541,7 +1048,15 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_differential_contract.py", "test/differential/_contract_probe.py", "test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_contract.py",
+        "test/differential/_contract_probe.py",
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "test/test_policy.py",
+        "test/_required_cpp_helper.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "The stock node remains sole owner. Values, overrides, callbacks, mutation, listing, service graph identity, status, custom Context, and required_cpp rejection before mutation are covered."
     },
     {
@@ -552,7 +1067,26 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_direct_parameters.py", "test/_direct_cpp_parameters_helper.py", "test/_direct_parameter_get_probe.py", "test/test_direct_parameter_cache.py", "test/_direct_parameter_cache_helper.py", "test/test_direct_parameter_undeclare.py", "test/_direct_parameter_undeclare_helper.py", "test/test_direct_parameter_client.py", "test/_direct_cpp_parameter_client_helper.py", "test/test_prove_parameter_authority.py", "test/_prove_parameter_authority_probe.py", "rclcppyy/direct_parameters.py", "rclcppyy/direct_cpp.py", "scripts/benchmarks/_local_parameter_benchmark_protocol.py", "scripts/benchmarks/local_parameter_benchmark_worker.py", "scripts/benchmarks/run_local_parameter_benchmark.py", "test/test_local_parameter_benchmark.py", "docs/backend-selection.md"],
+      "evidence": [
+        "test/test_direct_parameters.py",
+        "test/_direct_cpp_parameters_helper.py",
+        "test/_direct_parameter_get_probe.py",
+        "test/test_direct_parameter_cache.py",
+        "test/_direct_parameter_cache_helper.py",
+        "test/test_direct_parameter_undeclare.py",
+        "test/_direct_parameter_undeclare_helper.py",
+        "test/test_direct_parameter_client.py",
+        "test/_direct_cpp_parameter_client_helper.py",
+        "test/test_prove_parameter_authority.py",
+        "test/_prove_parameter_authority_probe.py",
+        "rclcppyy/direct_parameters.py",
+        "rclcppyy/direct_cpp.py",
+        "scripts/benchmarks/_local_parameter_benchmark_protocol.py",
+        "scripts/benchmarks/local_parameter_benchmark_worker.py",
+        "scripts/benchmarks/run_local_parameter_benchmark.py",
+        "test/test_local_parameter_benchmark.py",
+        "docs/backend-selection.md"
+      ],
       "notes": "On Jazzy/Cyclone, each rclpy-shaped Parameter facade owns one rclcpp::Parameter and local DirectNode parameter operations retain native rclcpp node authority. Parameter, ParameterValue, ParameterDescriptor, range, ListParametersResult, and SetParametersResult imports are actual generated C++ aliases; non-C++ control messages, descriptors, and callback results fail before mutation. Python values are materialized only by the explicit .value property. Each owning snapshot captures only its immutable parameter-type enum at construction; type access has no C++ crossing and .value dispatches directly to one typed C++ accessor without caching a Python scalar or message payload. A bounded plain-dict mirror holds only owning rclcpp::Parameter-backed facades; its default hit performs no cppyy call, lock, or instrumentation update. Successful local and remote post-set callbacks replace immutable snapshots before user post callbacks, rejection leaves entries unchanged, deletion invalidates, and coherence failure disables and clears only the optimization. Capacity, disabled state, opt-in hit metrics, all ten types and empty arrays, local and remote mutation, dynamic type replacement, callback ordering, retained snapshots, concurrent executor-thread writes, overrides, teardown, and reinitialization are covered with converter, serializer, and CDR tripwires at zero. Dynamic non-read-only undeclaration uses the public rclcpp operation and invalidates only the mirror entry while retained C++ snapshots remain valid. Static undeclaration and descriptor mutation fail closed because Jazzy rclcpp cannot provide the rclpy contract without semantic emulation. The CPU-first stock/direct/native-Python benchmark harness covers declare, native-object get, explicit value snapshot, and atomic set. The clean pre-optimization artifact at product a8c2cb6 with suite 852e48b records direct/stock process-CPU ratios of 0.580 for declare, 38.682 for get-native, 30.950 for get-value-snapshot, and 0.446 for atomic set. The clean Phase-1 artifact at product 6da8193 with suite 0518f37 records 0.474 for declare, 10.316 for get-native, 8.712 for get-value-snapshot, and 0.349 for atomic set; direct get CPU fell 73.5% to 1,223 ns/op but still failed the stock CPU priority. The clean Phase-2 artifact at product 72e28b5 with suite 0518f37 records 0.6857 for declare, 0.5633 for get-native, 1.3433 for get-value-snapshot, and 0.5205 for atomic set; snapshot median CPU is 207 ns/op versus 157 ns/op stock. The clean Phase-3 artifact at product 0faa435 with suite 941d6ce records 0.6943 for declare, 0.6090 for get-native, 1.1073 for get-value-snapshot, and 0.5148 for atomic set; snapshot median CPU is 167 ns/op versus 152 ns/op stock. Performance claims remain disabled because explicit snapshot CPU still misses the stock priority."
     },
     {
@@ -563,7 +1097,20 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_direct_parameter_client.py", "test/_direct_cpp_parameter_client_helper.py", "test/_direct_cpp_parameter_client_stale_import_helper.py", "test/test_remote_parameter_benchmark.py", "rclcppyy/direct_services.py", "rclcppyy/direct_messages.py", "rclcppyy/direct_cpp.py", "scripts/benchmarks/_remote_parameter_benchmark_protocol.py", "scripts/benchmarks/remote_parameter_benchmark_worker.py", "scripts/benchmarks/run_remote_parameter_benchmark.py", "schemas/remote-parameter-benchmark-v1.schema.json", "docs/backend-selection.md"],
+      "evidence": [
+        "test/test_direct_parameter_client.py",
+        "test/_direct_cpp_parameter_client_helper.py",
+        "test/_direct_cpp_parameter_client_stale_import_helper.py",
+        "test/test_remote_parameter_benchmark.py",
+        "rclcppyy/direct_services.py",
+        "rclcppyy/direct_messages.py",
+        "rclcppyy/direct_cpp.py",
+        "scripts/benchmarks/_remote_parameter_benchmark_protocol.py",
+        "scripts/benchmarks/remote_parameter_benchmark_worker.py",
+        "scripts/benchmarks/run_remote_parameter_benchmark.py",
+        "schemas/remote-parameter-benchmark-v1.schema.json",
+        "docs/backend-selection.md"
+      ],
       "notes": "On Jazzy/Cyclone, explicitly registering DescribeParameters, GetParameters, GetParameterTypes, ListParameters, SetParameters, SetParametersAtomically, and ParameterEvent lets the installed rclpy.parameter_client.AsyncParameterClient source run unchanged over existing direct clients, subscriptions, executors, and native rclcpp parameter services. Requests, responses, Parameter/ParameterValue objects, descriptors, results, and ParameterEvent callbacks remain exact generated C++ objects. Readiness, set/get/types/describe/list, atomic mutation, dynamic deletion, event observation, Future callbacks/completion, retained values, and explicit teardown pass with converter, serializer, and CDR byte helpers poisoned. Importing AsyncParameterClient before direct activation rejects activation. Clean five-repetition artifact build/remote-parameter-cyclone-be024c2.json records direct/stock combined process-CPU ratios of 0.1583 for get-one and 0.2492 for set-atomically-one, with 6.3175x and 4.0148x throughput respectively. All direct samples retain exact generated C++ values with boundary counters at zero; claims remain disabled pending dedicated-host and ARM64 repetition. YAML loading, custom service QoS, and non-default event options remain unclaimed."
     },
     {
@@ -574,7 +1121,11 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "An AsyncParameterClient discovers all six stock services, remotely sets and gets a declared parameter, observes the matching ParameterEvent value, and tears down every client and subscription. The exact stock objects remain authoritative and activated behavior matches the stock corpus."
     },
     {
@@ -585,7 +1136,14 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_policy.py", "test/_control_plane_helper.py", "test/_required_cpp_helper.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "test/test_policy.py",
+        "test/_control_plane_helper.py",
+        "test/_required_cpp_helper.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "The exact stock class, pre-activation subclass, Context, state machine, callbacks, and teardown remain authoritative. Communication-enabled and disabled construction, successful and failed configure callbacks, cleanup, unconfigured shutdown, bounded fallback reporting, signature preservation, and required_cpp rejection before Node initialization are covered."
     },
     {
@@ -596,7 +1154,11 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "All five stock lifecycle services are discovered and queried in a custom Context. Service-driven activate/deactivate, state responses, transition inventories, callback inputs, and client teardown match the stock application corpus; lifecycle-node status represents their aggregate stock ownership."
     },
     {
@@ -607,7 +1169,11 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "The exact stock LifecyclePublisher, managed activation flag, and publish operation remain authoritative in compatible mode. Inactive publishes are suppressed; active delivery, deactivation, and destruction match stock."
     },
     {
@@ -618,7 +1184,12 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "test/differential/application_expectations.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "test/differential/application_expectations.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "The isolated CycloneDDS differential covers explicit ERROR returns and raised configure exceptions, on_error callback order and recovery to unconfigured, RCLError type and stable message parity for invalid activate, deactivate, cleanup, and finalized shutdown transitions, and successful shutdown callbacks from inactive and active states. The exact stock LifecycleNode remains authoritative and the complete observations match stock."
     },
     {
@@ -629,7 +1200,10 @@
       "backend": "mixed",
       "fallback": "none",
       "default": true,
-      "evidence": ["test/test_clean_exit.py", "test/test_differential_contract.py"],
+      "evidence": [
+        "test/test_clean_exit.py",
+        "test/test_differential_contract.py"
+      ],
       "notes": "Both the native lane and compatible stock-authority scenario return normally without forced exit, leaked graph identity, or teardown fault."
     },
     {
@@ -640,7 +1214,11 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_differential_application.py", "test/differential/_application_probe.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "Three sequential custom Contexts each create exact stock entities, complete a stock-authoritative round trip, tear down, and leave the default Context untouched while the corpus Context remains live."
     },
     {
@@ -651,7 +1229,11 @@
       "backend": "mixed",
       "fallback": "safe",
       "default": true,
-      "evidence": ["test/test_clean_exit.py", "test/_default_context_reinit_helper.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "test/test_clean_exit.py",
+        "test/_default_context_reinit_helper.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "Compatible mode supports repeated default-global init/shutdown with stock authority. An isolated Jazzy/CycloneDDS regression adds the stronger proof of three sequential default-global init, same-handle C++ publish, spin, full entity teardown, and shutdown cycles under the explicit publisher_cpp profile."
     },
     {
@@ -662,7 +1244,9 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_serialization_parity.py"],
+      "evidence": [
+        "test/test_serialization_parity.py"
+      ],
       "notes": "Flat and tested message bytes match the stock serializer; this is a native capability and not yet a global rclpy.serialization patch."
     },
     {
@@ -673,7 +1257,10 @@
       "backend": "python",
       "fallback": "not_applicable",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py"
+      ],
       "notes": "The pinned activated action-graph tests preserve names, types, and node identity. These graph queries are untouched stock rclpy operations."
     },
     {
@@ -684,7 +1271,12 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_stock_context_identity.py", "test/_stock_context_identity_probe.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py",
+        "test/test_stock_context_identity.py",
+        "test/_stock_context_identity_probe.py"
+      ],
       "notes": "The selected initialization and Context files pass with compatible activation, including invalid sequences and repeated shutdown. The separate repeated-default entry covers explicit same-handle C++ publishing between default Context cycles."
     },
     {
@@ -695,7 +1287,11 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "rclcppyy/monkey.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py",
+        "rclcppyy/monkey.py"
+      ],
       "notes": "The pinned activated tests cover stock single- and multi-threaded scheduling, tasks, coroutine callbacks, runtime entity mutation, callback-group exclusion, representative custom waitables, and the opt-in EventsExecutor. EventsExecutor retains its upstream experimental status; arbitrary Executor method overrides and sustained stress are excluded from this entry."
     },
     {
@@ -706,7 +1302,12 @@
       "backend": "python",
       "fallback": "not_applicable",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_stock_graph_identity.py", "test/_stock_graph_identity_probe.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py",
+        "test/test_stock_graph_identity.py",
+        "test/_stock_graph_identity_probe.py"
+      ],
       "notes": "The pinned value and validation tests preserve accepted values, invalid indices, exception types, endpoint identity, GIDs, QoS, and type hashes."
     },
     {
@@ -717,7 +1318,13 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_direct_logging.py", "test/_direct_logging_probe.py", "test/_direct_logging_rosout_probe.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py",
+        "test/test_direct_logging.py",
+        "test/_direct_logging_probe.py",
+        "test/_direct_logging_rosout_probe.py"
+      ],
       "notes": "Activated upstream tests cover logger configuration and formatting, once/throttle/skip-first filters, ROS-time throttling, rosout delivery and disablement, hierarchy, and get/set logging services."
     },
     {
@@ -728,7 +1335,10 @@
       "backend": "python",
       "fallback": "not_applicable",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py"
+      ],
       "notes": "Compatible activation retains the installed generated Python classes, and the selected message tests preserve their value semantics. Arbitrary interface shapes beyond the reviewed generated packages are not implied."
     },
     {
@@ -739,7 +1349,12 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_differential_application.py", "test/differential/_application_probe.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py",
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py"
+      ],
       "notes": "The full selected Node, create-while-spinning, and destruction files pass under activation. This entry covers unchanged stock behavior, including invalid-handle and active-executor teardown, but excludes private native-handle mutation."
     },
     {
@@ -750,7 +1365,10 @@
       "backend": "python",
       "fallback": "not_applicable",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py"
+      ],
       "notes": "The selected parameter value and event-handler tests preserve arrays, equality, validation, YAML loading, callback registration/removal/order, event matching, and path resolution."
     },
     {
@@ -761,7 +1379,18 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_identity_qos.py", "test/_identity_qos_probe.py", "test/test_identity_qos_events.py", "test/_identity_qos_events_probe.py", "test/test_identity_generated_interfaces.py", "test/_identity_generated_interfaces_probe.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py",
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "test/test_identity_qos.py",
+        "test/_identity_qos_probe.py",
+        "test/test_identity_qos_events.py",
+        "test/_identity_qos_events_probe.py",
+        "test/test_identity_generated_interfaces.py",
+        "test/_identity_generated_interfaces_probe.py"
+      ],
       "notes": "Construction, conversion, validation, compatibility, runtime overrides, event-handle lifetime, incompatible-QoS callbacks, and matched/unmatched callbacks remain stock-authoritative. Middleware-specific event generation outside the reviewed matrix is not implied."
     },
     {
@@ -772,7 +1401,11 @@
       "backend": "python",
       "fallback": "not_applicable",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_serialization_parity.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py",
+        "test/test_serialization_parity.py"
+      ],
       "notes": "Stock serialization round trips and error behavior pass under activation. The separate native CDR API is opt-in and does not replace these functions."
     },
     {
@@ -783,7 +1416,13 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "rclcppyy/monkey.py", "test/test_stock_service_identity.py", "test/_stock_service_identity_probe.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py",
+        "rclcppyy/monkey.py",
+        "test/test_stock_service_identity.py",
+        "test/_stock_service_identity_probe.py"
+      ],
       "notes": "The pinned activated tests cover concurrent and synchronous calls, timeout behavior, name remapping, type rejection, timestamps, and service-introspection metadata and contents. No C++ service route is claimed."
     },
     {
@@ -794,7 +1433,13 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_direct_wait_for_message.py", "test/_direct_wait_for_message_probe.py", "rclcppyy/direct_wait_for_message.py", "rclcppyy/direct_cpp.py", "rclcppyy/direct_executors.py"],
+      "evidence": [
+        "test/test_direct_wait_for_message.py",
+        "test/_direct_wait_for_message_probe.py",
+        "rclcppyy/direct_wait_for_message.py",
+        "rclcppyy/direct_cpp.py",
+        "rclcppyy/direct_executors.py"
+      ],
       "notes": "On Jazzy/Cyclone, early direct_cpp activation installs a functools.wraps facade over the installed rclpy.wait_for_message function, retaining its public module, name, documentation, signature, and unwrap target. The synchronous call creates a temporary direct rclcpp subscription and native single-threaded executor when needed; successful default- and explicit-QoS calls return the actual generated C++ message, and finite and zero timeouts retain the stock (False, None) shape. Fresh-process stock/direct differential coverage proves temporary-subscription cleanup, retained-message lifetime after node/session teardown, released executor ownership, and zero conversion, serialization, and CDR poison calls. Jazzy's installed implementation itself cannot execute over a direct node because it hard-codes _rclpy.WaitSet and stock subscription handles. A same-thread recursive call from the node's active single-threaded executor callback therefore fails before creating a temporary subscription; raw WaitSet/guard-condition APIs, multi-threaded execution, and broader waitable behavior are not claimed. The unchanged stock-authoritative entry remains the default compatible-profile authority, and no CPU result or performance claim is attached to this bounded direct slice."
     },
     {
@@ -805,7 +1450,10 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py"
+      ],
       "notes": "The synchronous convenience API remains stock-authoritative and passes message, explicit-QoS, and timeout cases under activation."
     },
     {
@@ -816,7 +1464,14 @@
       "backend": "python",
       "fallback": "safe",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py", "test/test_differential_application.py", "test/differential/_application_probe.py", "test/test_stock_time_enum_identity.py", "test/_stock_time_enum_identity_probe.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py",
+        "test/test_differential_application.py",
+        "test/differential/_application_probe.py",
+        "test/test_stock_time_enum_identity.py",
+        "test/_stock_time_enum_identity_probe.py"
+      ],
       "notes": "The selected tests cover construction, arithmetic and comparison, message conversion, clock sleep and shutdown, ROS-time activation, jumps, clock attachment, Rate destruction/wake, and /clock delivery."
     },
     {
@@ -827,7 +1482,10 @@
       "backend": "cpp",
       "fallback": "process_only",
       "default": false,
-      "evidence": ["test/test_direct_time.py", "test/_direct_cpp_time_helper.py"],
+      "evidence": [
+        "test/test_direct_time.py",
+        "test/_direct_cpp_time_helper.py"
+      ],
       "notes": "Time and Duration are unchanged stock rclpy classes under direct_cpp; to_msg/from_msg are not patched. rclpy's time.py/duration.py resolve their builtin_interfaces.msg.Time/Duration return annotations at import time (no future-annotations deferral), and direct_cpp has already installed generated C++ builtin_interfaces.msg.Time_<...>/Duration_<...> aliases by then, so the same unchanged stock bodies construct and read the C++ message: keyword construction, .sec/.nanosec access, and the from_msg isinstance check all work against the C++ type with no product shim. Verified with forbidden_boundary poisoned: to_msg()/from_msg() round-trip correctly for both Time and Duration, and a to_msg() payload assigned into a generated C++ Header.stamp field keeps the C++ type end to end, proving a real app timestamp path never crosses to a Python message or a serialization boundary. This is an intentional divergence from stock's Python builtin_interfaces payload, not a defect; the corresponding 12 from_msg/to_msg ledger rows stay missing_mismatch by design (the payload type genuinely differs) and are not annotated."
     },
     {
@@ -838,7 +1496,10 @@
       "backend": "cpp",
       "fallback": "process_only",
       "default": false,
-      "evidence": ["test/test_direct_clock.py", "test/_direct_cpp_clock_helper.py"],
+      "evidence": [
+        "test/test_direct_clock.py",
+        "test/_direct_cpp_clock_helper.py"
+      ],
       "notes": "DirectNode.get_clock() retains one DirectClock/DirectROSClock per node, backed by the native foundation's NativeNodeClock -- the node's exact rclcpp::Clock (node clocks are always RCL_ROS_TIME). DirectClock/DirectROSClock subclass stock rclpy.clock.Clock/ROSClock for isinstance identity but bypass Clock.__new__ so no second, disconnected _rclpy.Clock is created. now() returns a stock rclpy.time.Time built from the native now_nanoseconds() hot path; clock_type is resolved once at construction and cached, so it never re-touches the native object. Verified live with forbidden_boundary poisoned: isinstance/identity (one clock per node, the same object returned on every get_clock() call), a stock-time differential against time.time_ns(), address identity against the node's own native rclcpp::Clock, and clean teardown (destroy_node() closes the retained clock; a later now() raises instead of touching a dangling native reference). A fast in-process unit test additionally proves the wrapper checks closedness before calling into the native object at all. Standalone Clock(...) construction, the raw handle, jump callbacks, and set_ros_time_override are explicit_fail_closed -- the native foundation does not support them yet -- rather than silently falling back to a disconnected stock clock. sleep_for/sleep_until are the one accelerated exception on a node-bound clock; see clock.direct_cpp_sleep."
     },
     {
@@ -849,7 +1510,11 @@
       "backend": "cpp",
       "fallback": "process_only",
       "default": false,
-      "evidence": ["test/test_direct_sim_time.py", "test/_direct_cpp_sim_time_helper.py", "test/_stock_sim_time_peer.py"],
+      "evidence": [
+        "test/test_direct_sim_time.py",
+        "test/_direct_cpp_sim_time_helper.py",
+        "test/_stock_sim_time_peer.py"
+      ],
       "notes": "use_sim_time is an already-landed parameter: setting it via parameter_overrides at construction or set_parameters afterward reaches the real rclcpp parameter machinery with no direct_cpp-specific wiring, so the node's own native rclcpp::TimeSource (attached to every rclcpp::Node, not a product reimplementation) owns activation, /clock delivery, and deactivation exactly as it does for stock. Verified live: parameter_overrides activates ros_time_is_active synchronously at construction (matching stock); publishing rosgraph_msgs/msg/Clock on /clock (registered via interfaces=) drives now() to the published value; setting use_sim_time back to false deactivates and resumes wall time. A stock rclpy sibling process run immediately afterward (sim-time's /clock topic name is fixed and process-wide, so the two scenarios never run concurrently) produces identical activation/deactivation observations and reaches the same simulated nanoseconds value. rclpy.time_source.TimeSource is not patched and not needed; attaching it to a direct_cpp node is a harmless no-op (no clock is ever associated with it), but explicitly attaching a direct clock to it hits the same fail-closed set_ros_time_override every other manual-override path raises -- proven directly rather than half-wiring a second, competing time source."
     },
     {
@@ -860,7 +1525,11 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/_direct_cpp_clock_sleep_helper.py", "test/test_direct_clock.py", "rclcppyy/direct_clock.py"],
+      "evidence": [
+        "test/_direct_cpp_clock_sleep_helper.py",
+        "test/test_direct_clock.py",
+        "rclcppyy/direct_clock.py"
+      ],
       "notes": "A node-bound DirectClock's sleep_for/sleep_until run rclcpp::Clock::sleep_for/sleep_until natively over a per-node NativeClockSleeper (lazily created and cached, closed before the clock at node teardown): ROS-time-aware (paced by /clock under use_sim_time, not wall/steady time), and interruptible by context shutdown (returns False and wakes early, matching stock's own sleep contract) rather than by any product-level cancellation. Verified live with forbidden_boundary poisoned: a wall-time sleep matching an in-process stock Clock/Context sleep of the same duration; a sim-time sleep_until that resolves only once a native /clock publish crosses the target, not on stale wall/steady time; a long sleep_for that a context shutdown wakes early and false; a fresh sleep_for on the now-shut-down context raising stock's own NotInitializedException up front; and native clock-identity (the sleeper retains the exact same rclcpp::Clock the node's own clock wraps). A clock built without a sleeper_provider (never produced by Node.get_clock(), only reachable via the internal _wrap used in fast unit tests) fails sleep closed with a typed error instead of silently no-op'ing, and a foreign, non-active context argument is rejected the same way (direct_cpp has exactly one context per process). Jump callbacks, the raw handle, set_ros_time_override, and standalone Clock(...) construction remain explicit_fail_closed and are unchanged by this entry (see time.direct_cpp_node_clock); the native sleeper already handles time-source jumps internally (rclcpp::Clock::sleep_for/sleep_until wake on a jump via their own C++ ClockEvent), so this is a narrow, deliberate exception to the fail-closed clock surface, not a claim that jump callbacks work."
     },
     {
@@ -871,7 +1540,10 @@
       "backend": "python",
       "fallback": "not_applicable",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py"
+      ],
       "notes": "TypeHash semantics and happy-path type-support loading used by selected waitables are covered. Negative checks requiring the upstream-built test extension are tracked separately as unassessed."
     },
     {
@@ -882,7 +1554,13 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_type_support_helper.py", "test/_direct_cpp_msg_type_validation_helper.py", "rclcppyy/direct_messages.py", "rclcppyy/direct_cpp.py"],
+      "evidence": [
+        "test/test_direct_cpp.py",
+        "test/_direct_cpp_type_support_helper.py",
+        "test/_direct_cpp_msg_type_validation_helper.py",
+        "rclcppyy/direct_messages.py",
+        "rclcppyy/direct_cpp.py"
+      ],
       "notes": "On Jazzy/Cyclone, direct_messages.install mirrors a lazy, read-only _TYPE_SUPPORT identity capsule onto the metaclass of every direct-rebound cppyy message, sourced from the stock metaclass it replaced. This makes check_for_type_support and check_is_valid_srv_type succeed for any stock type whose generated type-support import transitively walks a rebound field: std_srvs.srv.SetBool, all four lifecycle services (ChangeState/GetState/GetAvailableStates/GetAvailableTransitions), and the auto-generated <Service>_Event message's ServiceEventInfo.stamp field all reach the rebound builtin_interfaces.msg.Time (pulled in by the default tf2_msgs/action/LookupTransform -> action_msgs/msg/GoalInfo.stamp dependency closure). Verified live with the C++ message-conversion boundary poisoned: SetBool, the four lifecycle services, ServiceEventInfo (transitive walk target), and Time itself (direct manifestation) all validate cleanly, the alias is unchanged (Time remains the exact cppyy class), and two distinct rebound messages carry distinct metaclasses with independent _TYPE_SUPPORT state. Only the identity capsule is exposed; asserted absent are the four conversion capsules (_CREATE_ROS_MESSAGE/_CONVERT_FROM_PY/_CONVERT_TO_PY/_DESTROY_ROS_MESSAGE), since a cppyy object exposes its fields as plain Python attributes and those capsules would otherwise round-trip a rebound message through stock C conversion -- a silent conversion bridge on a path that claims to be accelerated. check_is_valid_msg_type is additionally patched (signature preserved) to accept a registered direct message alias -- identity-matched against the active installation's bindings, after running check_for_type_support for its import side effect -- and to delegate everything else, including a genuinely non-message type (a stock service class), to stock, which rejects it with its precise RuntimeError; the patched validator carries no direct-backend ledger authority since rclpy.type_support functions are not introspected as direct, so its ledger row stays unassessed. serialize_message/deserialize_message over a rebound message remain a separate, pre-existing gap this slice does not bridge. restore() removes exactly the attributes it added."
     },
     {
@@ -893,7 +1571,10 @@
       "backend": "python",
       "fallback": "not_applicable",
       "default": true,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "scripts/ci/run_upstream_rclpy_contract.py"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "scripts/ci/run_upstream_rclpy_contract.py"
+      ],
       "notes": "The pinned utilities and initialization tests preserve process helper return values and signal-handler option behavior. Default-Context reuse after C++ bringup remains subject to the explicit unsupported entry."
     },
     {
@@ -904,7 +1585,10 @@
       "backend": "none",
       "fallback": "not_applicable",
       "default": false,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "docs/upstream-rclpy-contract.md"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "docs/upstream-rclpy-contract.md"
+      ],
       "notes": "The unchanged pinned test fails with the stock installed extension because its ad hoc private context_handle assignment is rejected. Normal public destruction behavior is covered separately; this private mutation is not compatibility evidence."
     },
     {
@@ -915,7 +1599,10 @@
       "backend": "none",
       "fallback": "not_applicable",
       "default": false,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "docs/upstream-rclpy-contract.md"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "docs/upstream-rclpy-contract.md"
+      ],
       "notes": "The unchanged pinned test fails with stock rclpy 7.1.11 because the installed client rejects the graph-derived TypeHash. The source-only gate therefore cannot establish backend compatibility for this request path."
     },
     {
@@ -926,19 +1613,11 @@
       "backend": "none",
       "fallback": "not_applicable",
       "default": false,
-      "evidence": ["compatibility/upstream-rclpy-contract.json", "docs/upstream-rclpy-contract.md"],
+      "evidence": [
+        "compatibility/upstream-rclpy-contract.json",
+        "docs/upstream-rclpy-contract.md"
+      ],
       "notes": "The excluded test requires the upstream repository's separately built test extension. Installed generated types are covered on the happy path, but these negative and mock-type contracts remain unassessed."
-    },
-    {
-      "id": "lifecycle.direct_cpp_fail_closed",
-      "area": "lifecycle",
-      "api": "profile=direct_cpp LifecycleNode construction",
-      "support": "unsupported",
-      "backend": "none",
-      "fallback": "not_applicable",
-      "default": false,
-      "evidence": ["test/test_direct_cpp.py", "test/_direct_cpp_lifecycle_block_helper.py", "rclcppyy/direct_cpp.py"],
-      "notes": "This is a reviewed, deliberately fail-closed block, not an omission: LifecycleNode(LifecycleNodeMixin, Node) subclasses whatever Node currently is, and direct_cpp rebinds rclpy.node.Node to DirectNode, which owns a native rclcpp node and has no handle attribute at all. LifecycleNodeMixin.__init__ needs self.handle to construct _rclpy.LifecycleStateMachine -- a stock pybind node handle the direct backend does not and cannot own -- so even after type-support validation over the four lifecycle service types is fixed (type_support.direct_rebound_validation), construction hits a second, deeper wall: a raw AttributeError at self.handle. LifecycleNode.__init__ is patched under direct_cpp to raise a precise BackendUnavailableError('lifecycle nodes are not yet supported under the direct_cpp profile') before any node work, converting that cryptic AttributeError into an honest, fail-closed block. Verified live: construction raises exactly that error -- never AttributeError, never the type-support crash -- and no partial node, publisher, or runtime registration occurs; the guard fires regardless of whether rclpy.lifecycle was imported before or after activation and is removed cleanly on deactivate. This is the manifest's first entry recorded as unsupported: full lifecycle parity needs a native lifecycle state machine over the rclcpp node and a real node-handle surface -- a large, separate lane -- and is explicitly planned future work, not a gap that went unreviewed."
     },
     {
       "id": "node.direct_cpp_qos_events",
@@ -948,7 +1627,13 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["rclcppyy/direct_cpp.py", "test/test_qos_events.py", "test/_qos_events_scenarios_helper.py", "test/_qos_events_mte_raise_helper.py", "test/_qos_events_destroy_under_dispatch_helper.py"],
+      "evidence": [
+        "rclcppyy/direct_cpp.py",
+        "test/test_qos_events.py",
+        "test/_qos_events_scenarios_helper.py",
+        "test/_qos_events_mte_raise_helper.py",
+        "test/_qos_events_destroy_under_dispatch_helper.py"
+      ],
       "notes": "Under profile=direct_cpp, create_publisher and create_subscription translate stock's PublisherEventCallbacks/SubscriptionEventCallbacks into the suite's dict-based event_callbacks API instead of rejecting them. Live on Cyclone: deadline, liveliness, incompatible_qos, matched (publisher and subscription) and message_lost (subscription, registration-only) fire with field values matching an identical scenario run under stock side by side; the callback receives the native rclcpp QOS*Info C++ struct by reference (field-name-compatible with stock's rclpy info dataclass, but not the same Python type -- disclosed and left unconverted, since this is a cold-path status struct, not application payload). incompatible_type has no DDS listener under rmw_cyclonedds_cpp and fails closed with UnsupportedEventTypeError instead of stock's silent dead-handler registration -- a documented, deliberate stricter-than-stock divergence. Every event callable is wrapped in the node's exception-containment shim before being handed to the suite, proven under a public MultiThreadedExecutor: a raising event callback is contained rather than std::terminate-ing the process (the exact exception resurfaces on the spin thread), and destroying a subscription while its own event callback is genuinely in flight is safe across 50 iterations -- necessary because event callbacks dispatch on native MultiThreadedExecutor worker threads exactly like subscription/timer/service callbacks. Publisher.event_handlers/Subscription.event_handlers retain the original (unwrapped) callables for introspection parity with stock's attribute of the same name, though dispatch is fully native (no Python-side Waitable exists, unlike stock's own EventHandler list). Event-bearing entities carry no default handler for events the caller did not set (the suite sets use_default_callbacks=false once any event_callbacks is requested, to avoid ever routing a default handler through its own explicit incompatible_type fail-close); stock keeps its own default incompatible-QoS warning logger and incompatible_type registration for non-overridden events -- plain (non-event-bearing) entities are unaffected and keep rclcpp's own C++-level defaults, which log via the rclcpp/rcl channel rather than the rclpy Python logger. An event-bearing subscription cannot use the subscription_shared_lease CPU optimization (that path has no event_callbacks parameter) and falls back to the regular managed construction path -- a performance, not correctness, divergence. create_publisher's own public-API-ledger row cannot reflect this authority: its direct-profile signature lacks stock's type annotations and return type (a pre-existing signature-mirror gap unrelated to this work -- see docs/plans/PLAN-qos-events-product.md), so the ledger's structural comparison keeps that row at missing_mismatch regardless of behavioral evidence; create_subscription's signature is already mirror-equal and carries the ledger promotion for all three entity-construction capabilities in this evidence set. No CPU/performance claim is made; this documents behavior and correctness only."
     },
     {
@@ -959,7 +1644,11 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["rclcppyy/direct_cpp.py", "test/test_content_filter.py", "test/_content_filter_cyclone_helper.py"],
+      "evidence": [
+        "rclcppyy/direct_cpp.py",
+        "test/test_content_filter.py",
+        "test/_content_filter_cyclone_helper.py"
+      ],
       "notes": "Under profile=direct_cpp, create_subscription translates stock's ContentFilterOptions (filter_expression, expression_parameters) into the suite's content_filter=(expression, parameters) tuple instead of rejecting it. direct_cpp is hard-gated to ROS_DISTRO=jazzy and rmw_cyclonedds_cpp only (_check_runtime, rclcppyy/direct_cpp.py), and rmw_cyclonedds_cpp has no content-filter implementation (rmw_subscription_set/get_content_filter are literal 'unimplemented' stubs there) -- so on the only RMW this profile ever activates under, a content-filtered subscription always fails closed today, live-proven through the public API: the new rclcppyy.direct_cpp.ContentFilterUnsupportedError(RuntimeError) is raised and no subscription is ever returned, rather than stock's own silent behavior of handing back an ordinary unfiltered subscription under the guise of filtering -- a deliberate, documented stricter-than-stock divergence. A same-topic unfiltered control subscription still succeeds right after, proving the failure is contained to the one requested (filtered) entity. The content-filtering mechanism itself is proven live and working on Fast DDS at the suite layer (cppyy_kit's own test_direct_content_filter.py / _direct_content_filter_fastdds_helper.py, which call rclcpp_kit.direct_entities directly and so never pass through direct_cpp's Cyclone-only gate) -- there is no way to reach that live positive path through this product today, by design, since direct_cpp cannot activate under any RMW but Cyclone at all. content_filter_options composes correctly with event_callbacks in the same create_subscription call (both translate). A content-filtered subscription cannot use the subscription_shared_lease CPU optimization (no content_filter parameter there either) and falls back to the regular managed construction path. No CPU/performance claim is made; this documents behavior and correctness only."
     },
     {
@@ -970,7 +1659,11 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["rclcppyy/direct_cpp.py", "test/test_qos_overriding.py", "test/_qos_overriding_scenarios_helper.py"],
+      "evidence": [
+        "rclcppyy/direct_cpp.py",
+        "test/test_qos_overriding.py",
+        "test/_qos_overriding_scenarios_helper.py"
+      ],
       "notes": "Under profile=direct_cpp, create_subscription translates stock's QoSOverridingOptions into the suite's plain qos_overriding bool instead of rejecting it. Only QoSOverridingOptions.with_default_policies() -- or an equivalent explicit QoSOverridingOptions(policy_kinds=(HISTORY, DEPTH, RELIABILITY)) with no callback and no entity_id, compared as a set so member order does not matter -- is supported. Live-proven: it declares the qos_overrides.<topic>.subscription.{history,depth,reliability} node parameters at the requested QoS values, and a parameter override set at node-construction time actually changes the created subscription's effective QoS (queried via native_entity.get_actual_qos()). Any custom policy-kind subset, a validation callback, or an entity_id fails closed with a clear not-supported-this-wave BackendUnavailableError instead of silently applying the default set in place of what was actually requested -- a documented suite gap: rclcpp_kit.direct_entities' own _validate_qos_overriding accepts only a plain bool and always maps True to exactly the default set, with no attachment point for anything else. qos_overriding_options is not wired on create_publisher and stays rejected exactly as before this wave: the suite has no publisher-side attachment point for QosOverridingOptions at all (create_managed_publisher and its options builders never touch it) -- a documented, stricter-than-stock suite gap (stock's create_publisher does honor with_default_policies() on publishers), deferred pending a suite-side change, not silently narrowed or worked around product-side. qos_overriding composes correctly with event_callbacks (both take effect in the same call, live-proven via a real matched event firing under a spinning executor) and with content_filter_options (the combination still fails closed on Cyclone with ContentFilterUnsupportedError specifically, unaffected by this capability). A qos-overriding subscription cannot use the subscription_shared_lease CPU optimization either (no qos_overriding parameter there) and falls back to the regular managed construction path. No CPU/performance claim is made; this documents behavior and correctness only."
     },
     {
@@ -981,8 +1674,79 @@
       "backend": "cpp",
       "fallback": "none",
       "default": false,
-      "evidence": ["rclcppyy/direct_cpp.py", "test/test_raw_subscription.py", "test/_raw_subscription_helper.py"],
+      "evidence": [
+        "rclcppyy/direct_cpp.py",
+        "test/test_raw_subscription.py",
+        "test/_raw_subscription_helper.py"
+      ],
       "notes": "Under profile=direct_cpp, create_subscription translates stock's raw=True into the suite's rclcpp_kit.direct_entities.create_raw_subscription (an rclcpp::GenericSubscription built via rclcpp::Node::create_generic_subscription) instead of rejecting it -- the one entity type where the callback deliberately receives plain Python bytes rather than a typed C++ message, matching stock's own raw semantics rather than diverging from them. Live-proven at the suite layer byte-for-byte identical to a real stock rclpy raw=True subscriber receiving the same published message (not merely bytes that happen to deserialize correctly), and at the product layer the received bytes deserialize back to the original payload. event_callbacks is fully supported and composes correctly (GenericSubscription forwards options.event_callbacks/use_default_callbacks to the same SubscriptionBase constructor a typed subscription uses, verified against the installed Jazzy rclcpp headers -- live-proven with a real matched event firing). content_filter_options is likewise supported and fails closed on Cyclone exactly like the typed path (ContentFilterUnsupportedError, is_cft_enabled() probed before ever returning an entity) since content-filter options are copied onto the rcl-level options regardless of message type. qos_overriding_options is rejected with a ValueError before any suite call: rclcpp::create_generic_subscription calls GenericSubscription's constructor directly and never routes through the parameter-declaration wrapper in rclcpp/create_subscription.hpp that would consume QosOverridingOptions, so honoring it would be a silent no-op -- raising here instead of silently ignoring what was actually requested. A message_info-style two-argument callback is also rejected with a ValueError this wave (no with_message_info variant exists for the generic-subscription path). raw=True always takes this dedicated route -- it never uses the subscription_shared_lease CPU optimization (which hands the callback a typed owning copy, never bytes) -- and is rejected under DirectLifecycleNode with a clear BackendUnavailableError (lifecycle subscriptions do not support raw=True this wave), consistent with that node type's existing event_callbacks/content_filter/qos_overriding rejections. No CPU/performance claim is made; this documents behavior and correctness only."
+    },
+    {
+      "id": "lifecycle.direct_cpp_first_slice",
+      "area": "lifecycle",
+      "api": "profile=direct_cpp LifecycleNode/Node construction, the six transition callbacks, trigger_*, state/transition accessors, the managed LifecyclePublisher, and the lifecycle node's subscription/timer/service/client/clock/parameter data plane",
+      "support": "experimental",
+      "backend": "cpp",
+      "fallback": "none",
+      "default": false,
+      "evidence": [
+        "rclcppyy/direct_lifecycle.py",
+        "rclcppyy/direct_cpp.py",
+        "test/test_direct_lifecycle.py",
+        "test/_direct_cpp_lifecycle_helper.py",
+        "test/_direct_cpp_lifecycle_block_helper.py",
+        "test/_direct_cpp_lifecycle_dataplane_helper.py",
+        "test/_direct_cpp_lifecycle_publisher_helper.py",
+        "test/_direct_cpp_lifecycle_destroy_under_dispatch_helper.py",
+        "test/_direct_cpp_lifecycle_error_recovery_helper.py"
+      ],
+      "notes": "On Jazzy/Cyclone, DirectLifecycleNode(DirectLifecycleNodeMixin, DirectNode) construction owns a real rclcpp_lifecycle::LifecycleNode and its native state machine and five lifecycle services -- get_state/get_available_states/get_available_transitions/get_transition_graph/change_state all resolve to that one native resource, never the stock _rclpy.LifecycleStateMachine pybind handle a plain DirectNode has no handle attribute to back. The six transition callbacks (on_configure/on_cleanup/on_shutdown/on_activate/on_deactivate/on_error) are contained through the owning node's existing _contain_transition_callback seam and dispatched to every registered ManagedEntity exactly as stock's LifecycleNodeMixin.__transition_callback_impl does, raising the same TypeError on a non-TransitionCallbackReturn result. trigger_configure/activate/deactivate/cleanup/shutdown forward to the native trigger_transition_by_id, with a pre-check that restores stock's RCLError-on-unregistered-transition behavior where the native call itself only silently no-ops (verified live). DirectLifecyclePublisher wraps a real rclcpp_lifecycle::LifecyclePublisher: publish() is gated natively by LifecyclePublisher::publish() itself rather than the Python SimpleManagedEntity.when_enabled decorator -- a disclosed, stricter-not-different divergence, since an inactive publish is suppressed either way -- and is_activated/on_activate/on_deactivate are direct native passthroughs. The remaining data plane on a lifecycle node (create_subscription/create_timer/create_service/create_client/get_clock/parameter access) stays inherited from DirectNode byte-identical in public signature; only the one node-type-specific native call behind each is overridden through DirectNode's private _native_create_*/_native_get_parameter_checked seams, so the private-seam constraint guarantees the inherited public surface is unchanged. Destroying a lifecycle node under an in-flight transition-callback dispatch and a callback that raises are both covered and recover cleanly. The inherited create_publisher() (ungated on stock, since LifecycleNodeMixin never overrides it) and raw=True subscriptions fail closed on a lifecycle node with a precise pointer to create_lifecycle_publisher(), since rclcpp_lifecycle::LifecycleNode exposes only one, inherently gated create_publisher<>() and DirectLifecycleNodeMixin already registers an activation bridge that shadows native auto-activation. ManagedEntity/SimpleManagedEntity/LifecycleState/TransitionCallbackReturn and the managed_entity submodule have no C++ backend and are reused verbatim -- a disclosed non-gap, not an omission. This replaces the wave 5 fail-closed construction guard entirely: lifecycle nodes now construct and run under the direct profile rather than raising before any node work. The route remains experimental."
+    },
+    {
+      "id": "node.direct_cpp_set_descriptor_fail_closed",
+      "area": "node",
+      "api": "profile=direct_cpp Node.set_descriptor",
+      "support": "unsupported",
+      "backend": "none",
+      "fallback": "not_applicable",
+      "default": false,
+      "evidence": [
+        "rclcppyy/direct_cpp.py",
+        "rclcppyy/_payload_signature.py",
+        "test/test_direct_cpp.py"
+      ],
+      "notes": "set_descriptor is a reviewed, deliberately fail-closed block, not an omission: Jazzy's public rclcpp has no descriptor-mutation operation, and emulating one with undeclare/redeclare would change rclpy's own atomicity, callback ordering, and parameter-event guarantees. direct_cpp still converts descriptor (and, if given, alternative_value) to their native C++ ParameterDescriptor/ParameterValue representations -- validating the call's inputs exactly as stock would before it acts -- and only then raises a precise BackendUnavailableError, never a conversion crash or a silent no-op. The method's signature is hand-mirrored via _payload_signature.py's payload-tainted __signature__ install, so this row now compares byte-for-byte against stock's own set_descriptor across every alias, including the two (rclpy.action.graph.Node, rclpy.wait_for_message.Node) that only gained a direct-backed set_descriptor after the wave 7 Node patch-list gap was closed."
+    },
+    {
+      "id": "executor.direct_cpp_guard_condition",
+      "area": "executor",
+      "api": "profile=direct_cpp Node.create_guard_condition/destroy_guard_condition",
+      "support": "experimental",
+      "backend": "cpp",
+      "fallback": "none",
+      "default": false,
+      "evidence": [
+        "rclcppyy/direct_guard_condition.py",
+        "rclcppyy/direct_cpp.py",
+        "test/test_direct_guard_condition.py",
+        "test/_direct_cpp_guard_condition_helper.py"
+      ],
+      "notes": "On Jazzy/Cyclone, create_guard_condition builds a real rclcpp::GuardCondition through the suite's native_waitset primitive and returns a DirectGuardCondition facade. Dispatch is built entirely on the product side: each guard condition owns a private background thread blocking on a two-entry native wait set (the guard condition itself, plus a second, internal guard condition used only to unblock the wait immediately on close()), so a trigger from any thread is observed with no polling latency and shutdown never waits out a poll interval. The registered callback is wrapped through the owning node's existing _contain_callback_exceptions seam before being dispatched, exactly as create_timer/create_subscription already do for their own callbacks, and a trigger() call first wakes any executor blocked in spin_once()/spin() before running the callback -- matching a guard condition's actual purpose of interrupting a blocked native wait as an unconditional side effect of being triggered. destroy_guard_condition() detects and safely handles the self-destroy case (a guard condition's own callback destroying itself on its own waiter thread) without a self-join hazard. The underlying rclcpp_kit.native_waitset primitive does not wrap rclcpp::GuardCondition::set_on_trigger_callback, so no product change adds that native callback path; the .handle property is unsupported, matching every other direct_cpp facade that does not expose a stock rclpy handle. Verified live: trigger dispatch, an executor-blocking wait woken on trigger, callback-exception containment, and clean teardown including the self-destroy path. The route remains experimental."
+    },
+    {
+      "id": "time.direct_cpp_jump_callback",
+      "area": "time",
+      "api": "profile=direct_cpp DirectClock.create_jump_callback (node-bound clocks only)",
+      "support": "experimental",
+      "backend": "cpp",
+      "fallback": "none",
+      "default": false,
+      "evidence": [
+        "rclcppyy/direct_clock.py",
+        "test/test_direct_clock_jump.py",
+        "test/_direct_cpp_clock_jump_helper.py"
+      ],
+      "notes": "On Jazzy/Cyclone, a node-bound DirectClock's create_jump_callback mirrors rclpy.clock.Clock.create_jump_callback's signature and validation exactly (threshold plus pre_callback/post_callback, at least one required) and registers native pre/post handlers directly on the node's exact rclcpp::Clock through the suite's rclcpp_kit.native_clock_jump bridge, rather than through Clock.handle -- a seam DirectClock does not expose. Both callbacks are wrapped through the node's _contain_callback_exceptions before being pinned into C++: rclcpp::Clock::create_jump_callback documents both callbacks as non-throwing, and an escaping Python exception would cross a plain C function-pointer boundary inside rcl_clock (undefined behavior) rather than merely skip later callbacks the way stock's pure-Python dispatch loop does. The post_callback's native TimeJump is translated back to stock's own rclpy.clock.TimeJump/ClockChange/Duration types before the user's callback sees it. DirectJumpHandle mirrors stock's JumpHandle shape (unregister(), context-manager enter/exit) over the native registration handle. This capability is available only on a node's own clock (built by Node.get_clock()) -- a standalone Clock/ROSClock is never patched to DirectClock, so rclpy.clock.Clock.create_jump_callback itself stays on the stock fallback path unchanged; requesting jump callbacks on a clock with no jump-container provider fails closed with a precise BackendUnavailableError. Verified live: pre/post callbacks fire in order across forward and backward jumps past threshold, and a callback that raises is contained without disrupting the other registered callback. The route remains experimental."
     }
   ]
 }
