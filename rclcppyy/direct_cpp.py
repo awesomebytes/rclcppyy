@@ -3268,6 +3268,21 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         parameter_class=_StockParameter,
     )
 
+    from rclpy.callback_groups import CallbackGroup as _StockCallbackGroup
+    from rclcppyy.direct_lifecycle import DirectLifecycleNodeMixin
+    DirectLifecycleNodeMixin.__init__.__signature__ = inspect.Signature([
+        inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD),
+        inspect.Parameter(
+            "enable_communication_interface",
+            inspect.Parameter.KEYWORD_ONLY,
+            default=True, annotation=bool),
+        inspect.Parameter(
+            "callback_group",
+            inspect.Parameter.KEYWORD_ONLY,
+            default=None,
+            annotation=_payload_signature.Optional[_StockCallbackGroup]),
+    ])
+
     service_plan = direct_services.prepare(service_interfaces)
     action_plan = direct_actions.prepare(action_interfaces)
     installation = direct_messages.install(
