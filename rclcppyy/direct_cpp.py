@@ -2578,7 +2578,7 @@ class DirectNode:
         self._direct_cpp_guards.append(guard)
         return guard
 
-    def destroy_guard_condition(self, guard_condition) -> bool:
+    def destroy_guard_condition(self, guard) -> bool:
         """Destroy a guard condition created by the node.
 
         Unlike destroy_timer/destroy_subscription/destroy_service, this
@@ -2590,7 +2590,7 @@ class DirectNode:
         self-join/self-wait hazard to defer around here.
         """
         for index, candidate in enumerate(self._direct_cpp_guards):
-            if guard_condition is candidate:
+            if guard is candidate:
                 self._discard_group_entity(candidate)
                 candidate.destroy()
                 del self._direct_cpp_guards[index]
