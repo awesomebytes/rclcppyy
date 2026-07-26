@@ -68,6 +68,14 @@
       "manifest_entry_ids": [
         "action.direct_cpp_client_first_slice"
       ],
+      "path": "rclpy.action.ActionClient.send_goal",
+      "rationale": "Deliberately fail-closed: direct_cpp action clients support only the async send_goal_async(); the synchronous send_goal() unconditionally raises BackendUnavailableError, matching action.direct_cpp_client_first_slice's documented scope that synchronous calls remain fail-closed.",
+      "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
       "path": "rclpy.action.ActionClient.send_goal_async",
       "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
       "status": "exact_direct_cpp_authority"
@@ -164,6 +172,14 @@
       "manifest_entry_ids": [
         "action.direct_cpp_client_first_slice"
       ],
+      "path": "rclpy.action.client.ActionClient.send_goal",
+      "rationale": "Deliberately fail-closed: direct_cpp action clients support only the async send_goal_async(); the synchronous send_goal() unconditionally raises BackendUnavailableError, matching action.direct_cpp_client_first_slice's documented scope that synchronous calls remain fail-closed.",
+      "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
       "path": "rclpy.action.client.ActionClient.send_goal_async",
       "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
       "status": "exact_direct_cpp_authority"
@@ -220,9 +236,25 @@
       "manifest_entry_ids": [
         "action.direct_cpp_client_first_slice"
       ],
+      "path": "rclpy.action.client.ClientGoalHandle.cancel_goal",
+      "rationale": "Deliberately fail-closed: direct_cpp action goal handles support only the async cancel_goal_async(); the synchronous cancel_goal() unconditionally raises BackendUnavailableError, matching action.direct_cpp_client_first_slice's documented scope that synchronous calls remain fail-closed.",
+      "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
       "path": "rclpy.action.client.ClientGoalHandle.cancel_goal_async",
       "rationale": "Under the direct profile this action-client operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_client_benchmark.py, docs/action-client-benchmark.md). send_goal (the synchronous variant) is proven to unconditionally fail-closed and is excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
       "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "path": "rclpy.action.client.ClientGoalHandle.get_result",
+      "rationale": "Deliberately fail-closed: direct_cpp action goal handles support only the async get_result_async(); the synchronous get_result() unconditionally raises BackendUnavailableError, matching action.direct_cpp_client_first_slice's documented scope that synchronous calls remain fail-closed.",
+      "status": "explicit_fail_closed"
     },
     {
       "manifest_entry_ids": [
@@ -4093,6 +4125,14 @@
     },
     {
       "manifest_entry_ids": [
+        "executor.direct_cpp_multi_threaded"
+      ],
+      "path": "rclpy.executors.Executor.wait_for_ready_callbacks",
+      "rationale": "Deliberately fail-closed: direct_cpp executors have no Python-level wait set to enumerate -- the native rclcpp executor owns readiness -- so wait_for_ready_callbacks() unconditionally raises BackendUnavailableError, proven live by test/_direct_cpp_executor_surface_helper.py's WAIT_FOR_READY_FAIL_CLOSED assertion (cited evidence under executor.direct_cpp_multi_threaded).",
+      "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
         "executor.direct_cpp_single_threaded"
       ],
       "path": "rclpy.executors.Executor.wake",
@@ -4237,6 +4277,14 @@
     },
     {
       "manifest_entry_ids": [
+        "executor.direct_cpp_multi_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.wait_for_ready_callbacks",
+      "rationale": "Deliberately fail-closed: direct_cpp executors have no Python-level wait set to enumerate -- the native rclcpp executor owns readiness -- so wait_for_ready_callbacks() unconditionally raises BackendUnavailableError, proven live by test/_direct_cpp_executor_surface_helper.py's WAIT_FOR_READY_FAIL_CLOSED assertion (cited evidence under executor.direct_cpp_multi_threaded).",
+      "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
         "executor.direct_cpp_single_threaded"
       ],
       "path": "rclpy.executors.MultiThreadedExecutor.wake",
@@ -4378,6 +4426,14 @@
       "path": "rclpy.executors.SingleThreadedExecutor.spin_until_future_complete",
       "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
       "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_multi_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.wait_for_ready_callbacks",
+      "rationale": "Deliberately fail-closed: direct_cpp executors have no Python-level wait set to enumerate -- the native rclcpp executor owns readiness -- so wait_for_ready_callbacks() unconditionally raises BackendUnavailableError, proven live by test/_direct_cpp_executor_surface_helper.py's WAIT_FOR_READY_FAIL_CLOSED assertion (cited evidence under executor.direct_cpp_multi_threaded).",
+      "status": "explicit_fail_closed"
     },
     {
       "manifest_entry_ids": [
@@ -9641,6 +9697,14 @@
     },
     {
       "manifest_entry_ids": [
+        "subscription.direct_cpp_content_filter"
+      ],
+      "path": "rclpy.parameter_client.Subscription.get_content_filter",
+      "rationale": "Deliberately fail-closed: rmw_cyclonedds_cpp -- the only RMW direct_cpp ever activates under -- has no content-filter implementation, so every DirectSubscription is unfiltered by construction and this method unconditionally raises BackendUnavailableError, consistent with subscription.direct_cpp_content_filter's documented Cyclone content-filter fail-closed behavior.",
+      "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
         "message.direct_cpp_first_slice"
       ],
       "path": "rclpy.parameter_client.Subscription.get_publisher_count",
@@ -9649,11 +9713,35 @@
     },
     {
       "manifest_entry_ids": [
+        "subscription.direct_cpp_handle_fail_closed"
+      ],
+      "path": "rclpy.parameter_client.Subscription.handle",
+      "rationale": "Deliberately fail-closed: a direct_cpp DirectSubscription is a pure cppyy facade over a native rclcpp::Subscription with no backing stock rclpy.handle.Handle object, so .handle unconditionally raises BackendUnavailableError, proven live by test/_direct_cpp_helper.py's DIRECT_CPP_FACADES_OK block.",
+      "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_content_filter"
+      ],
+      "path": "rclpy.parameter_client.Subscription.is_cft_enabled",
+      "rationale": "Deliberately fail-closed: rmw_cyclonedds_cpp -- the only RMW direct_cpp ever activates under -- has no content-filter implementation, so every DirectSubscription is unfiltered by construction and this method unconditionally raises BackendUnavailableError, consistent with subscription.direct_cpp_content_filter's documented Cyclone content-filter fail-closed behavior.",
+      "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
         "message.direct_cpp_first_slice"
       ],
       "path": "rclpy.parameter_client.Subscription.logger_name",
       "rationale": "Inherited DirectSubscription method over the exact native rclcpp subscription, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
       "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_content_filter"
+      ],
+      "path": "rclpy.parameter_client.Subscription.set_content_filter",
+      "rationale": "Deliberately fail-closed: rmw_cyclonedds_cpp -- the only RMW direct_cpp ever activates under -- has no content-filter implementation, so every DirectSubscription is unfiltered by construction and this method unconditionally raises BackendUnavailableError, consistent with subscription.direct_cpp_content_filter's documented Cyclone content-filter fail-closed behavior.",
+      "status": "explicit_fail_closed"
     },
     {
       "manifest_entry_ids": [
@@ -10362,6 +10450,14 @@
       "path": "rclpy.publisher.Publisher.get_subscription_count",
       "rationale": "Inherited DirectPublisher method over the exact native rclcpp::Publisher, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
       "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "publisher.direct_cpp_handle_fail_closed"
+      ],
+      "path": "rclpy.publisher.Publisher.handle",
+      "rationale": "Deliberately fail-closed: a direct_cpp DirectPublisher is a pure cppyy facade over a native rclcpp::Publisher with no backing stock rclpy.handle.Handle object, so .handle unconditionally raises BackendUnavailableError, proven live by test/_direct_cpp_helper.py's DIRECT_CPP_FACADES_OK block.",
+      "status": "explicit_fail_closed"
     },
     {
       "manifest_entry_ids": [
@@ -14548,6 +14644,14 @@
     },
     {
       "manifest_entry_ids": [
+        "subscription.direct_cpp_content_filter"
+      ],
+      "path": "rclpy.subscription.Subscription.get_content_filter",
+      "rationale": "Deliberately fail-closed: rmw_cyclonedds_cpp -- the only RMW direct_cpp ever activates under -- has no content-filter implementation, so every DirectSubscription is unfiltered by construction and this method unconditionally raises BackendUnavailableError, consistent with subscription.direct_cpp_content_filter's documented Cyclone content-filter fail-closed behavior.",
+      "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
         "message.direct_cpp_first_slice"
       ],
       "path": "rclpy.subscription.Subscription.get_publisher_count",
@@ -14556,11 +14660,35 @@
     },
     {
       "manifest_entry_ids": [
+        "subscription.direct_cpp_handle_fail_closed"
+      ],
+      "path": "rclpy.subscription.Subscription.handle",
+      "rationale": "Deliberately fail-closed: a direct_cpp DirectSubscription is a pure cppyy facade over a native rclcpp::Subscription with no backing stock rclpy.handle.Handle object, so .handle unconditionally raises BackendUnavailableError, proven live by test/_direct_cpp_helper.py's DIRECT_CPP_FACADES_OK block.",
+      "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_content_filter"
+      ],
+      "path": "rclpy.subscription.Subscription.is_cft_enabled",
+      "rationale": "Deliberately fail-closed: rmw_cyclonedds_cpp -- the only RMW direct_cpp ever activates under -- has no content-filter implementation, so every DirectSubscription is unfiltered by construction and this method unconditionally raises BackendUnavailableError, consistent with subscription.direct_cpp_content_filter's documented Cyclone content-filter fail-closed behavior.",
+      "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
         "message.direct_cpp_first_slice"
       ],
       "path": "rclpy.subscription.Subscription.logger_name",
       "rationale": "Inherited DirectSubscription method over the exact native rclcpp subscription, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
       "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_content_filter"
+      ],
+      "path": "rclpy.subscription.Subscription.set_content_filter",
+      "rationale": "Deliberately fail-closed: rmw_cyclonedds_cpp -- the only RMW direct_cpp ever activates under -- has no content-filter implementation, so every DirectSubscription is unfiltered by construction and this method unconditionally raises BackendUnavailableError, consistent with subscription.direct_cpp_content_filter's documented Cyclone content-filter fail-closed behavior.",
+      "status": "explicit_fail_closed"
     },
     {
       "manifest_entry_ids": [

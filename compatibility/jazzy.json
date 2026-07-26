@@ -1649,7 +1649,7 @@
         "test/test_content_filter.py",
         "test/_content_filter_cyclone_helper.py"
       ],
-      "notes": "Under profile=direct_cpp, create_subscription translates stock's ContentFilterOptions (filter_expression, expression_parameters) into the suite's content_filter=(expression, parameters) tuple instead of rejecting it. direct_cpp is hard-gated to ROS_DISTRO=jazzy and rmw_cyclonedds_cpp only (_check_runtime, rclcppyy/direct_cpp.py), and rmw_cyclonedds_cpp has no content-filter implementation (rmw_subscription_set/get_content_filter are literal 'unimplemented' stubs there) -- so on the only RMW this profile ever activates under, a content-filtered subscription always fails closed today, live-proven through the public API: the new rclcppyy.direct_cpp.ContentFilterUnsupportedError(RuntimeError) is raised and no subscription is ever returned, rather than stock's own silent behavior of handing back an ordinary unfiltered subscription under the guise of filtering -- a deliberate, documented stricter-than-stock divergence. A same-topic unfiltered control subscription still succeeds right after, proving the failure is contained to the one requested (filtered) entity. The content-filtering mechanism itself is proven live and working on Fast DDS at the suite layer (cppyy_kit's own test_direct_content_filter.py / _direct_content_filter_fastdds_helper.py, which call rclcpp_kit.direct_entities directly and so never pass through direct_cpp's Cyclone-only gate) -- there is no way to reach that live positive path through this product today, by design, since direct_cpp cannot activate under any RMW but Cyclone at all. content_filter_options composes correctly with event_callbacks in the same create_subscription call (both translate). A content-filtered subscription cannot use the subscription_shared_lease CPU optimization (no content_filter parameter there either) and falls back to the regular managed construction path. No CPU/performance claim is made; this documents behavior and correctness only."
+      "notes": "Under profile=direct_cpp, create_subscription translates stock's ContentFilterOptions (filter_expression, expression_parameters) into the suite's content_filter=(expression, parameters) tuple instead of rejecting it. direct_cpp is hard-gated to ROS_DISTRO=jazzy and rmw_cyclonedds_cpp only (_check_runtime, rclcppyy/direct_cpp.py), and rmw_cyclonedds_cpp has no content-filter implementation (rmw_subscription_set/get_content_filter are literal 'unimplemented' stubs there) -- so on the only RMW this profile ever activates under, a content-filtered subscription always fails closed today, live-proven through the public API: the new rclcppyy.direct_cpp.ContentFilterUnsupportedError(RuntimeError) is raised and no subscription is ever returned, rather than stock's own silent behavior of handing back an ordinary unfiltered subscription under the guise of filtering -- a deliberate, documented stricter-than-stock divergence. A same-topic unfiltered control subscription still succeeds right after, proving the failure is contained to the one requested (filtered) entity. The content-filtering mechanism itself is proven live and working on Fast DDS at the suite layer (cppyy_kit's own test_direct_content_filter.py / _direct_content_filter_fastdds_helper.py, which call rclcpp_kit.direct_entities directly and so never pass through direct_cpp's Cyclone-only gate) -- there is no way to reach that live positive path through this product today, by design, since direct_cpp cannot activate under any RMW but Cyclone at all. content_filter_options composes correctly with event_callbacks in the same create_subscription call (both translate). A content-filtered subscription cannot use the subscription_shared_lease CPU optimization (no content_filter parameter there either) and falls back to the regular managed construction path. No CPU/performance claim is made; this documents behavior and correctness only. A subscription that does construct is necessarily unfiltered (a filtered request never returns one), so is_cft_enabled, set_content_filter, and get_content_filter also unconditionally fail closed on every DirectSubscription instance for the same reason -- there is no live content-filter state to report or mutate under rmw_cyclonedds_cpp."
     },
     {
       "id": "subscription.direct_cpp_qos_overriding",
@@ -1747,6 +1747,34 @@
         "test/_direct_cpp_clock_jump_helper.py"
       ],
       "notes": "On Jazzy/Cyclone, a node-bound DirectClock's create_jump_callback mirrors rclpy.clock.Clock.create_jump_callback's signature and validation exactly (threshold plus pre_callback/post_callback, at least one required) and registers native pre/post handlers directly on the node's exact rclcpp::Clock through the suite's rclcpp_kit.native_clock_jump bridge, rather than through Clock.handle -- a seam DirectClock does not expose. Both callbacks are wrapped through the node's _contain_callback_exceptions before being pinned into C++: rclcpp::Clock::create_jump_callback documents both callbacks as non-throwing, and an escaping Python exception would cross a plain C function-pointer boundary inside rcl_clock (undefined behavior) rather than merely skip later callbacks the way stock's pure-Python dispatch loop does. The post_callback's native TimeJump is translated back to stock's own rclpy.clock.TimeJump/ClockChange/Duration types before the user's callback sees it. DirectJumpHandle mirrors stock's JumpHandle shape (unregister(), context-manager enter/exit) over the native registration handle. This capability is available only on a node's own clock (built by Node.get_clock()) -- a standalone Clock/ROSClock is never patched to DirectClock, so rclpy.clock.Clock.create_jump_callback itself stays on the stock fallback path unchanged; requesting jump callbacks on a clock with no jump-container provider fails closed with a precise BackendUnavailableError. Verified live: pre/post callbacks fire in order across forward and backward jumps past threshold, and a callback that raises is contained without disrupting the other registered callback. The route remains experimental."
+    },
+    {
+      "id": "publisher.direct_cpp_handle_fail_closed",
+      "area": "publisher",
+      "api": "profile=direct_cpp Publisher.handle",
+      "support": "unsupported",
+      "backend": "none",
+      "fallback": "not_applicable",
+      "default": false,
+      "evidence": [
+        "rclcppyy/direct_cpp.py",
+        "test/_direct_cpp_helper.py"
+      ],
+      "notes": "handle is a reviewed, deliberately fail-closed block, not an omission: a direct_cpp DirectPublisher is a pure cppyy facade over a native rclcpp::Publisher and never constructs the stock rclpy.handle.Handle wrapper that owns a borrowed rcl entity pointer, so there is nothing authentic to return. The property raises a precise BackendUnavailableError on every access rather than fabricating a handle-shaped stand-in; test/_direct_cpp_helper.py's DIRECT_CPP_FACADES_OK block asserts this live for a real publisher."
+    },
+    {
+      "id": "subscription.direct_cpp_handle_fail_closed",
+      "area": "subscription",
+      "api": "profile=direct_cpp Subscription.handle",
+      "support": "unsupported",
+      "backend": "none",
+      "fallback": "not_applicable",
+      "default": false,
+      "evidence": [
+        "rclcppyy/direct_cpp.py",
+        "test/_direct_cpp_helper.py"
+      ],
+      "notes": "handle is a reviewed, deliberately fail-closed block, not an omission: a direct_cpp DirectSubscription is a pure cppyy facade over a native rclcpp::Subscription and never constructs the stock rclpy.handle.Handle wrapper that owns a borrowed rcl entity pointer, so there is nothing authentic to return. The property raises a precise BackendUnavailableError on every access rather than fabricating a handle-shaped stand-in; test/_direct_cpp_helper.py's DIRECT_CPP_FACADES_OK block asserts this live for a real subscription."
     }
   ]
 }

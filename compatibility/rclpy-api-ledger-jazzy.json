@@ -2453,8 +2453,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Deliberately fail-closed: direct_cpp action clients support only the async send_goal_async(); the synchronous send_goal() unconditionally raises BackendUnavailableError, matching action.direct_cpp_client_first_slice's documented scope that synchronous calls remain fail-closed."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -2476,7 +2478,7 @@
       },
       "level": "member",
       "path": "rclpy.action.ActionClient.send_goal",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4280,8 +4282,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Deliberately fail-closed: direct_cpp action clients support only the async send_goal_async(); the synchronous send_goal() unconditionally raises BackendUnavailableError, matching action.direct_cpp_client_first_slice's documented scope that synchronous calls remain fail-closed."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -4303,7 +4307,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ActionClient.send_goal",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4854,8 +4858,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Deliberately fail-closed: direct_cpp action goal handles support only the async cancel_goal_async(); the synchronous cancel_goal() unconditionally raises BackendUnavailableError, matching action.direct_cpp_client_first_slice's documented scope that synchronous calls remain fail-closed."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -4877,7 +4883,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ClientGoalHandle.cancel_goal",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4950,8 +4956,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Deliberately fail-closed: direct_cpp action goal handles support only the async get_result_async(); the synchronous get_result() unconditionally raises BackendUnavailableError, matching action.direct_cpp_client_first_slice's documented scope that synchronous calls remain fail-closed."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -4973,7 +4981,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ClientGoalHandle.get_result",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -45015,8 +45023,10 @@
           "executor.spin_once",
           "executor.stock_extensions"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_multi_threaded"
+        ],
+        "rationale": "Deliberately fail-closed: direct_cpp executors have no Python-level wait set to enumerate -- the native rclcpp executor owns readiness -- so wait_for_ready_callbacks() unconditionally raises BackendUnavailableError, proven live by test/_direct_cpp_executor_surface_helper.py's WAIT_FOR_READY_FAIL_CLOSED assertion (cited evidence under executor.direct_cpp_multi_threaded)."
       },
       "area": "executor",
       "attribution": "direct_backend",
@@ -45038,7 +45048,7 @@
       },
       "level": "member",
       "path": "rclpy.executors.Executor.wait_for_ready_callbacks",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -47379,8 +47389,10 @@
           "executor.spin_once",
           "executor.stock_extensions"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_multi_threaded"
+        ],
+        "rationale": "Deliberately fail-closed: direct_cpp executors have no Python-level wait set to enumerate -- the native rclcpp executor owns readiness -- so wait_for_ready_callbacks() unconditionally raises BackendUnavailableError, proven live by test/_direct_cpp_executor_surface_helper.py's WAIT_FOR_READY_FAIL_CLOSED assertion (cited evidence under executor.direct_cpp_multi_threaded)."
       },
       "area": "executor",
       "attribution": "direct_backend",
@@ -47402,7 +47414,7 @@
       },
       "level": "member",
       "path": "rclpy.executors.MultiThreadedExecutor.wait_for_ready_callbacks",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -49786,8 +49798,10 @@
           "executor.spin_once",
           "executor.stock_extensions"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_multi_threaded"
+        ],
+        "rationale": "Deliberately fail-closed: direct_cpp executors have no Python-level wait set to enumerate -- the native rclcpp executor owns readiness -- so wait_for_ready_callbacks() unconditionally raises BackendUnavailableError, proven live by test/_direct_cpp_executor_surface_helper.py's WAIT_FOR_READY_FAIL_CLOSED assertion (cited evidence under executor.direct_cpp_multi_threaded)."
       },
       "area": "executor",
       "attribution": "direct_backend",
@@ -49809,7 +49823,7 @@
       },
       "level": "member",
       "path": "rclpy.executors.SingleThreadedExecutor.wait_for_ready_callbacks",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -110949,8 +110963,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_content_filter"
+        ],
+        "rationale": "Deliberately fail-closed: rmw_cyclonedds_cpp -- the only RMW direct_cpp ever activates under -- has no content-filter implementation, so every DirectSubscription is unfiltered by construction and this method unconditionally raises BackendUnavailableError, consistent with subscription.direct_cpp_content_filter's documented Cyclone content-filter fail-closed behavior."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -110972,7 +110988,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Subscription.get_content_filter",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -111041,8 +111057,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_handle_fail_closed"
+        ],
+        "rationale": "Deliberately fail-closed: a direct_cpp DirectSubscription is a pure cppyy facade over a native rclcpp::Subscription with no backing stock rclpy.handle.Handle object, so .handle unconditionally raises BackendUnavailableError, proven live by test/_direct_cpp_helper.py's DIRECT_CPP_FACADES_OK block."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -111064,7 +111082,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Subscription.handle",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -111086,8 +111104,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_content_filter"
+        ],
+        "rationale": "Deliberately fail-closed: rmw_cyclonedds_cpp -- the only RMW direct_cpp ever activates under -- has no content-filter implementation, so every DirectSubscription is unfiltered by construction and this method unconditionally raises BackendUnavailableError, consistent with subscription.direct_cpp_content_filter's documented Cyclone content-filter fail-closed behavior."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -111109,7 +111129,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Subscription.is_cft_enabled",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -111178,8 +111198,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_content_filter"
+        ],
+        "rationale": "Deliberately fail-closed: rmw_cyclonedds_cpp -- the only RMW direct_cpp ever activates under -- has no content-filter implementation, so every DirectSubscription is unfiltered by construction and this method unconditionally raises BackendUnavailableError, consistent with subscription.direct_cpp_content_filter's documented Cyclone content-filter fail-closed behavior."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -111201,7 +111223,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Subscription.set_content_filter",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -118681,6 +118703,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -118724,6 +118747,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -118767,6 +118791,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -118810,6 +118835,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -118853,6 +118879,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -118896,6 +118923,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -118939,6 +118967,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -118982,6 +119011,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119025,6 +119055,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119068,6 +119099,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119111,6 +119143,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119154,6 +119187,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119203,6 +119237,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119246,6 +119281,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119289,6 +119325,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119332,6 +119369,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119375,6 +119413,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119418,6 +119457,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119461,6 +119501,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119504,6 +119545,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119547,6 +119589,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119590,6 +119633,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119633,6 +119677,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119676,6 +119721,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119719,6 +119765,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119762,6 +119809,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119805,6 +119853,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119848,6 +119897,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119891,6 +119941,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119934,6 +119985,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -119977,6 +120029,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120020,6 +120073,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120063,6 +120117,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120106,6 +120161,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120149,6 +120205,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120192,6 +120249,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120235,6 +120293,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [
@@ -120280,6 +120339,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [
@@ -120325,6 +120385,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [
@@ -120370,10 +120431,13 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "publisher.direct_cpp_handle_fail_closed"
+        ],
+        "rationale": "Deliberately fail-closed: a direct_cpp DirectPublisher is a pure cppyy facade over a native rclcpp::Publisher with no backing stock rclpy.handle.Handle object, so .handle unconditionally raises BackendUnavailableError, proven live by test/_direct_cpp_helper.py's DIRECT_CPP_FACADES_OK block."
       },
       "area": "publisher",
       "attribution": "direct_backend",
@@ -120395,7 +120459,7 @@
       },
       "level": "member",
       "path": "rclpy.publisher.Publisher.handle",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -120413,6 +120477,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [
@@ -120458,6 +120523,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [
@@ -120503,6 +120569,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [
@@ -120548,6 +120615,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120591,6 +120659,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120634,6 +120703,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120677,6 +120747,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120720,6 +120791,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120763,6 +120835,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120806,6 +120879,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120855,6 +120929,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120898,6 +120973,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120941,6 +121017,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -120984,6 +121061,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -121027,6 +121105,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -121070,6 +121149,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -121113,6 +121193,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -121156,6 +121237,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -121199,6 +121281,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -121242,6 +121325,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -121285,6 +121369,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -121328,6 +121413,7 @@
         "area_manifest_entry_ids": [
           "publisher.advanced_options",
           "publisher.basic",
+          "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
@@ -149484,6 +149570,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -149531,6 +149618,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -149578,6 +149666,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -149625,6 +149714,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -149672,6 +149762,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -149719,6 +149810,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -149766,6 +149858,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -149813,6 +149906,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -149860,6 +149954,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -149907,6 +150002,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -149954,6 +150050,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -149999,6 +150096,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150044,6 +150142,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150091,6 +150190,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150138,6 +150238,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150185,6 +150286,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150232,6 +150334,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150279,6 +150382,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150326,6 +150430,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150373,6 +150478,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150420,6 +150526,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150467,6 +150574,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150514,6 +150622,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150561,6 +150670,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150608,6 +150718,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150655,6 +150766,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150702,6 +150814,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150749,6 +150862,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150802,6 +150916,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150849,6 +150964,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150896,6 +151012,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150943,6 +151060,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -150990,6 +151108,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151037,6 +151156,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151084,6 +151204,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151131,6 +151252,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151178,6 +151300,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151225,6 +151348,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151272,6 +151396,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151319,6 +151444,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151366,6 +151492,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151413,6 +151540,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151460,6 +151588,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151505,6 +151634,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151552,6 +151682,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151599,6 +151730,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151646,6 +151778,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151693,6 +151826,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151742,6 +151876,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151791,13 +151926,16 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
           "subscription.wait_for_message"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_content_filter"
+        ],
+        "rationale": "Deliberately fail-closed: rmw_cyclonedds_cpp -- the only RMW direct_cpp ever activates under -- has no content-filter implementation, so every DirectSubscription is unfiltered by construction and this method unconditionally raises BackendUnavailableError, consistent with subscription.direct_cpp_content_filter's documented Cyclone content-filter fail-closed behavior."
       },
       "area": "subscription",
       "attribution": "direct_backend",
@@ -151819,7 +151957,7 @@
       },
       "level": "member",
       "path": "rclpy.subscription.Subscription.get_content_filter",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -151838,6 +151976,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -151887,13 +152026,16 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
           "subscription.wait_for_message"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_handle_fail_closed"
+        ],
+        "rationale": "Deliberately fail-closed: a direct_cpp DirectSubscription is a pure cppyy facade over a native rclcpp::Subscription with no backing stock rclpy.handle.Handle object, so .handle unconditionally raises BackendUnavailableError, proven live by test/_direct_cpp_helper.py's DIRECT_CPP_FACADES_OK block."
       },
       "area": "subscription",
       "attribution": "direct_backend",
@@ -151915,7 +152057,7 @@
       },
       "level": "member",
       "path": "rclpy.subscription.Subscription.handle",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -151934,13 +152076,16 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
           "subscription.wait_for_message"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_content_filter"
+        ],
+        "rationale": "Deliberately fail-closed: rmw_cyclonedds_cpp -- the only RMW direct_cpp ever activates under -- has no content-filter implementation, so every DirectSubscription is unfiltered by construction and this method unconditionally raises BackendUnavailableError, consistent with subscription.direct_cpp_content_filter's documented Cyclone content-filter fail-closed behavior."
       },
       "area": "subscription",
       "attribution": "direct_backend",
@@ -151962,7 +152107,7 @@
       },
       "level": "member",
       "path": "rclpy.subscription.Subscription.is_cft_enabled",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -151981,6 +152126,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -152030,13 +152176,16 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
           "subscription.wait_for_message"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_content_filter"
+        ],
+        "rationale": "Deliberately fail-closed: rmw_cyclonedds_cpp -- the only RMW direct_cpp ever activates under -- has no content-filter implementation, so every DirectSubscription is unfiltered by construction and this method unconditionally raises BackendUnavailableError, consistent with subscription.direct_cpp_content_filter's documented Cyclone content-filter fail-closed behavior."
       },
       "area": "subscription",
       "attribution": "direct_backend",
@@ -152058,7 +152207,7 @@
       },
       "level": "member",
       "path": "rclpy.subscription.Subscription.set_content_filter",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -152077,6 +152226,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -152126,6 +152276,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -152173,6 +152324,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -152220,6 +152372,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -152267,6 +152420,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -152314,6 +152468,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -152361,6 +152516,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -152408,6 +152564,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -152453,6 +152610,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -152498,6 +152656,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171046,6 +171205,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171095,6 +171255,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171148,6 +171309,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171197,6 +171359,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171246,6 +171409,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171295,6 +171459,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171344,6 +171509,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171381,6 +171547,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171430,6 +171597,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171479,6 +171647,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171528,6 +171697,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171577,6 +171747,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171626,6 +171797,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171675,6 +171847,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171722,6 +171895,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171771,6 +171945,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171820,6 +171995,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171869,6 +172045,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171916,6 +172093,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -171967,6 +172145,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172016,6 +172195,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172065,6 +172245,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172114,6 +172295,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172163,6 +172345,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172212,6 +172395,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172261,6 +172445,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172310,6 +172495,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172359,6 +172545,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172409,6 +172596,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172458,6 +172646,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172507,6 +172696,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172556,6 +172746,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172605,6 +172796,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172654,6 +172846,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172703,6 +172896,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172752,6 +172946,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172802,6 +172997,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172851,6 +173047,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172900,6 +173097,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172949,6 +173147,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -172998,6 +173197,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173047,6 +173247,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173096,6 +173297,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173145,6 +173347,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173194,6 +173397,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173243,6 +173447,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173292,6 +173497,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173341,6 +173547,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173390,6 +173597,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173439,6 +173647,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173488,6 +173697,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173537,6 +173747,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173586,6 +173797,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173635,6 +173847,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173684,6 +173897,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173733,6 +173947,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173782,6 +173997,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173831,6 +174047,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173880,6 +174097,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173917,6 +174135,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -173966,6 +174185,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174015,6 +174235,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174064,6 +174285,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174113,6 +174335,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174162,6 +174385,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174211,6 +174435,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174248,6 +174473,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174297,6 +174523,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174346,6 +174573,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174395,6 +174623,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174444,6 +174673,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174493,6 +174723,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174542,6 +174773,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174591,6 +174823,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174640,6 +174873,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174689,6 +174923,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174738,6 +174973,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174775,6 +175011,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174822,6 +175059,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174869,6 +175107,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174922,6 +175161,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -174969,6 +175209,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175016,6 +175257,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175063,6 +175305,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175110,6 +175353,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175157,6 +175401,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175204,6 +175449,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175251,6 +175497,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175298,6 +175545,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175345,6 +175593,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175392,6 +175641,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175439,6 +175689,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175486,6 +175737,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175533,6 +175785,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175580,6 +175833,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175627,6 +175881,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175674,6 +175929,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175721,6 +175977,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -175768,6 +176025,7 @@
           "subscription.advanced_options",
           "subscription.basic",
           "subscription.direct_cpp_content_filter",
+          "subscription.direct_cpp_handle_fail_closed",
           "subscription.direct_cpp_qos_overriding",
           "subscription.direct_cpp_raw",
           "subscription.direct_cpp_wait_for_message",
@@ -177529,10 +177787,10 @@
     "signature_mismatches": 100,
     "statuses": {
       "exact_direct_cpp_authority": 950,
-      "explicit_fail_closed": 9,
+      "explicit_fail_closed": 25,
       "missing_mismatch": 172,
       "mixed_control_direct_data": 0,
-      "unassessed": 1534,
+      "unassessed": 1518,
       "unchanged_stock_fallback": 1135
     },
     "stock_only_entries": 72,
