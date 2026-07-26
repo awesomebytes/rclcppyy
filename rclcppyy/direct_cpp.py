@@ -499,6 +499,10 @@ class DirectPublisher(metaclass=_DirectSurface):
         # Do not replace it with a Python method: publish is the message hot path.
         self.publish = native.publish
 
+    def publish(self, msg):
+        # Class-level fallback; __init__ shadows this per-instance for hot-path perf.
+        return self._native.publish(msg)
+
     @property
     def closed(self):
         return self._closed
@@ -923,6 +927,12 @@ def _is_dispatching_for(node) -> bool:
 
 class DirectNode:
     """Small rclpy-style facade whose data-plane entities are real C++ objects."""
+
+    PARAM_REL_TOL = 1e-6
+    """
+    Relative tolerance for floating point parameter values' comparison.
+    See `math.isclose` documentation.
+    """
 
     def __init__(
         self,
