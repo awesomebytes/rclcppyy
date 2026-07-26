@@ -258,10 +258,180 @@
     },
     {
       "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.action.graph.Node",
+      "rationale": "Reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription member rows; node.direct_cpp_options anchors its construction/context authority. No separate class-level behavior is claimed.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.action.graph.Node.__init__",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.add_on_set_parameters_callback",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.add_post_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.add_pre_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.clients",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectClient entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.action.graph.Node.context",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.count_clients",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.count_publishers",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.count_services",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.count_subscribers",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "executor.direct_cpp_guard_condition"
       ],
       "path": "rclpy.action.graph.Node.create_guard_condition",
       "rationale": "Under the direct profile, guard conditions are native rclcpp guard conditions; create_guard_condition/destroy_guard_condition/trigger are proven with callback dispatch through the containment shim and executor wake.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_qos_events"
+      ],
+      "path": "rclpy.action.graph.Node.create_publisher",
+      "rationale": "create_publisher delegates to the native rclcpp publisher factory; event_callbacks translation is proven by node.direct_cpp_qos_events, while qos_overriding_options stays rejected on publishers (a disclosed suite gap, not silently ignored).",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "rate.direct_cpp"
+      ],
+      "path": "rclpy.action.graph.Node.create_rate",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under rate.direct_cpp; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_qos_events",
+        "subscription.direct_cpp_content_filter",
+        "subscription.direct_cpp_qos_overriding"
+      ],
+      "path": "rclpy.action.graph.Node.create_subscription",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under node.direct_cpp_qos_events, subscription.direct_cpp_content_filter, subscription.direct_cpp_qos_overriding; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "timer.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.create_timer",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under timer.direct_cpp_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.declare_parameter",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.declare_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.action.graph.Node.default_callback_group",
+      "rationale": "Returns the node's real native default rclcpp callback group, proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.describe_parameter",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.describe_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.destroy_client",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectClient entities, proven by service.direct_cpp_setbool_first_slice.",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -274,11 +444,381 @@
     },
     {
       "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded",
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.action.graph.Node.destroy_node",
+      "rationale": "destroy_node tears down the native rclcpp node exactly as proven by executor.direct_cpp_single_threaded's node-destruction coverage and node.direct_cpp_options's construction authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.destroy_publisher",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectPublisher entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "rate.direct_cpp"
+      ],
+      "path": "rclpy.action.graph.Node.destroy_rate",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under rate.direct_cpp; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.destroy_service",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectService entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.destroy_subscription",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectSubscription entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "timer.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.destroy_timer",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectTimer entities, proven by timer.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.action.graph.Node.executor",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.get_client_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.direct_cpp_node_clock",
+        "time.direct_cpp_sim_time"
+      ],
+      "path": "rclpy.action.graph.Node.get_clock",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under time.direct_cpp_node_clock, time.direct_cpp_sim_time; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.get_fully_qualified_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.get_fully_qualified_node_names",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.action.graph.Node.get_logger",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.get_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.get_namespace",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.get_node_names",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.get_node_names_and_namespaces",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.get_node_names_and_namespaces_with_enclaves",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.get_parameter",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.get_parameter_or",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.get_parameter_type",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.get_parameter_types",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.get_parameters",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.get_parameters_by_prefix",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.get_publisher_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.get_publishers_info_by_topic",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.get_service_names_and_types",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.get_service_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.get_subscriber_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.get_subscriptions_info_by_topic",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.get_topic_names_and_types",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_guard_condition"
+      ],
+      "path": "rclpy.action.graph.Node.guards",
+      "rationale": "Bookkeeping accessor for the node's own DirectGuardCondition entities, proven by executor.direct_cpp_guard_condition.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.has_parameter",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.list_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.publishers",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectPublisher entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.remove_on_set_parameters_callback",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.remove_post_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.remove_pre_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.resolve_service_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.resolve_topic_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.services",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectService entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "node.direct_cpp_set_descriptor_fail_closed"
       ],
       "path": "rclpy.action.graph.Node.set_descriptor",
       "rationale": "set_descriptor is deliberately fail-closed: Jazzy's public rclcpp API has no descriptor mutation operation. The product raises BackendUnavailableError before any mutation. Signature matches stock via payload-signature normalization.",
       "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.set_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.set_parameters_atomically",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.subscriptions",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectSubscription entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "timer.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.timers",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectTimer entities, proven by timer.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.action.graph.Node.undeclare_parameter",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.action.graph.Node.wait_for_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
     },
     {
       "manifest_entry_ids": [
@@ -454,6 +994,174 @@
       ],
       "path": "rclpy.action.server.ServerGoalHandle.succeed",
       "rationale": "Under the direct profile this action-server operation is owned by rclcpp_action with generated C++ goal/feedback/result/UUID values; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), plus a CPU-first stock/direct benchmark on record (scripts/benchmarks/run_action_server_benchmark.py, docs/action-server-benchmark.md). get_result/cancel_goal (the synchronous variants) are proven to unconditionally fail-closed and are excluded, not claimed. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.CallbackGroup",
+      "rationale": "Reached through a re-export of the same direct_cpp callback-group base class already proven by executor.direct_cpp_callback_groups. No separate class-level behavior is claimed.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.CallbackGroup.__init__",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.CallbackGroup.add_entity",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.CallbackGroup.beginning_execution",
+      "rationale": "The direct_cpp CallbackGroup base class unconditionally raises NotImplementedError for can_execute/beginning_execution/ending_execution, exactly matching stock rclpy.callback_groups.CallbackGroup's own abstract-base contract; executor.direct_cpp_callback_groups proves the concrete subclasses that actually implement these hooks.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.CallbackGroup.can_execute",
+      "rationale": "The direct_cpp CallbackGroup base class unconditionally raises NotImplementedError for can_execute/beginning_execution/ending_execution, exactly matching stock rclpy.callback_groups.CallbackGroup's own abstract-base contract; executor.direct_cpp_callback_groups proves the concrete subclasses that actually implement these hooks.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.CallbackGroup.ending_execution",
+      "rationale": "The direct_cpp CallbackGroup base class unconditionally raises NotImplementedError for can_execute/beginning_execution/ending_execution, exactly matching stock rclpy.callback_groups.CallbackGroup's own abstract-base contract; executor.direct_cpp_callback_groups proves the concrete subclasses that actually implement these hooks.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.CallbackGroup.has_entity",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.MutuallyExclusiveCallbackGroup",
+      "rationale": "Reached through a re-export of the same direct_cpp mutually-exclusive callback-group class already proven by executor.direct_cpp_callback_groups. No separate class-level behavior is claimed.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.MutuallyExclusiveCallbackGroup.__init__",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.MutuallyExclusiveCallbackGroup.add_entity",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.MutuallyExclusiveCallbackGroup.beginning_execution",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.MutuallyExclusiveCallbackGroup.can_execute",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.MutuallyExclusiveCallbackGroup.ending_execution",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.MutuallyExclusiveCallbackGroup.has_entity",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.ReentrantCallbackGroup",
+      "rationale": "Reached through a re-export of the same direct_cpp reentrant callback-group class already proven by executor.direct_cpp_callback_groups. No separate class-level behavior is claimed.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.ReentrantCallbackGroup.__init__",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.ReentrantCallbackGroup.add_entity",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.ReentrantCallbackGroup.beginning_execution",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.ReentrantCallbackGroup.can_execute",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.ReentrantCallbackGroup.ending_execution",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.callback_groups.ReentrantCallbackGroup.has_entity",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -3249,11 +3957,459 @@
     },
     {
       "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor",
+      "rationale": "Reached through a re-export of the same direct_cpp Executor class already proven by executor.direct_cpp_single_threaded. No separate class-level behavior is claimed.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.__enter__",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.__exit__",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.__init__",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.add_node",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.can_execute",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.context",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.create_future",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_tasks"
+      ],
+      "path": "rclpy.executors.Executor.create_task",
+      "rationale": "create_task drives a plain callable or coroutine to completion ahead of each native spin step, proven by executor.direct_cpp_tasks.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.get_nodes",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.is_spinning",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.remove_node",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.shutdown",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.spin",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.spin_once",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.spin_once_until_future_complete",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.spin_until_future_complete",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.Executor.wake",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_multi_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor",
+      "rationale": "Reached through a re-export of the same direct_cpp MultiThreadedExecutor class already proven by executor.direct_cpp_multi_threaded. No separate class-level behavior is claimed.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_multi_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.__enter__",
+      "rationale": "Inherited DirectMultiThreadedExecutor construction/context-manager method proven by executor.direct_cpp_multi_threaded.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_multi_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.__exit__",
+      "rationale": "Inherited DirectMultiThreadedExecutor construction/context-manager method proven by executor.direct_cpp_multi_threaded.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_multi_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.__init__",
+      "rationale": "Inherited DirectMultiThreadedExecutor construction/context-manager method proven by executor.direct_cpp_multi_threaded.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.add_node",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.can_execute",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.context",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.create_future",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_tasks"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.create_task",
+      "rationale": "create_task drives a plain callable or coroutine to completion ahead of each native spin step, proven by executor.direct_cpp_tasks.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.get_nodes",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.is_spinning",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.remove_node",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.shutdown",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.spin",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.spin_once",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.spin_once_until_future_complete",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.spin_until_future_complete",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.MultiThreadedExecutor.wake",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor",
+      "rationale": "Reached through a re-export of the same direct_cpp SingleThreadedExecutor class already proven by executor.direct_cpp_single_threaded. No separate class-level behavior is claimed.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.__enter__",
+      "rationale": "Inherited DirectSingleThreadedExecutor construction/context-manager method proven by executor.direct_cpp_single_threaded.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.__exit__",
+      "rationale": "Inherited DirectSingleThreadedExecutor construction/context-manager method proven by executor.direct_cpp_single_threaded.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.__init__",
+      "rationale": "Inherited DirectSingleThreadedExecutor construction/context-manager method proven by executor.direct_cpp_single_threaded.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.add_node",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.can_execute",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.context",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.create_future",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_tasks"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.create_task",
+      "rationale": "create_task drives a plain callable or coroutine to completion ahead of each native spin step, proven by executor.direct_cpp_tasks.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.get_nodes",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.is_spinning",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.remove_node",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.shutdown",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.spin",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.spin_once",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.spin_once_until_future_complete",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.spin_until_future_complete",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.executors.SingleThreadedExecutor.wake",
+      "rationale": "Inherited DirectExecutor method proven by executor.direct_cpp_single_threaded's spin/ownership coverage.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "graph.utility_surface"
       ],
       "path": "rclpy.expand_topic_name.expand_topic_name",
       "rationale": "The direct profile preserves this stock rclpy graph-utility object unchanged; the test_stock_graph_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
       "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.get_global_executor",
+      "rationale": "Returns the direct_cpp global DirectExecutor singleton, the same source-compatible global route proven by executor.direct_cpp_single_threaded.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.init",
+      "rationale": "Delegates to the direct_cpp runtime's own init, the same active-context authority node.direct_cpp_options depends on.",
+      "status": "exact_direct_cpp_authority"
     },
     {
       "manifest_entry_ids": [
@@ -4102,6 +5258,14 @@
       ],
       "path": "rclpy.lifecycle.LifecyclePublisher.on_deactivate",
       "rationale": "Under the direct profile, this member of DirectLifecyclePublisher is backed by the native rclcpp_lifecycle publisher's own activation gating and rclcpp::Publisher surface; is_activated/on_activate/on_deactivate reflect the native lifecycle publisher's enabled state directly (no Python-side shadow state), while the remaining members forward to the same native rclcpp::PublisherBase surface proven elsewhere for the plain publisher facade (PLAN-lifecycle.md P2).",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.lifecycle.LifecyclePublisher.publish",
+      "rationale": "Inherited DirectPublisher method over the exact native rclcpp::Publisher, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -4959,6 +6123,14 @@
       ],
       "path": "rclpy.lifecycle.Publisher.on_deactivate",
       "rationale": "Under the direct profile, this lifecycle transition/trigger operation is owned by the native rclcpp_lifecycle::LifecycleNode state machine; DirectNode._contain_transition_callback bridges the Python callback into the native on_configure/on_activate/etc. state-machine handlers (or the trigger_* entry points invoke that same native state machine directly), with exception/return-value containment matching stock's own LifecycleNodeMixin.__execute_callback semantics exactly (PLAN-lifecycle.md P1).",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.lifecycle.Publisher.publish",
+      "rationale": "Inherited DirectPublisher method over the exact native rclcpp::Publisher, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -6485,6 +7657,14 @@
     },
     {
       "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.lifecycle.publisher.LifecyclePublisher.publish",
+      "rationale": "Inherited DirectPublisher method over the exact native rclcpp::Publisher, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "lifecycle.direct_cpp_first_slice"
       ],
       "path": "rclpy.lifecycle.publisher.LifecyclePublisher.topic_name",
@@ -6529,6 +7709,14 @@
       ],
       "path": "rclpy.lifecycle.publisher.Publisher.logger_name",
       "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.lifecycle.publisher.Publisher.publish",
+      "rationale": "Inherited DirectPublisher method over the exact native rclcpp::Publisher, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -7045,6 +8233,30 @@
     },
     {
       "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.node.Node",
+      "rationale": "Reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription member rows; node.direct_cpp_options anchors its construction/context authority. No separate class-level behavior is claimed.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.node.Node.__init__",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.add_on_set_parameters_callback",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "parameter.direct_cpp_local_first_slice"
       ],
       "path": "rclpy.node.Node.add_post_set_parameters_callback",
@@ -7061,10 +8273,66 @@
     },
     {
       "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.node.Node.clients",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectClient entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.node.Node.context",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.count_clients",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.count_publishers",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.count_services",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.count_subscribers",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "executor.direct_cpp_guard_condition"
       ],
       "path": "rclpy.node.Node.create_guard_condition",
       "rationale": "Under the direct profile, guard conditions are native rclcpp guard conditions; create_guard_condition/destroy_guard_condition/trigger are proven with callback dispatch through the containment shim and executor wake.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_qos_events"
+      ],
+      "path": "rclpy.node.Node.create_publisher",
+      "rationale": "create_publisher delegates to the native rclcpp publisher factory; event_callbacks translation is proven by node.direct_cpp_qos_events, while qos_overriding_options stays rejected on publishers (a disclosed suite gap, not silently ignored).",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -7095,10 +8363,75 @@
     },
     {
       "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.declare_parameter",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.declare_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.node.Node.default_callback_group",
+      "rationale": "Returns the node's real native default rclcpp callback group, proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.describe_parameter",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.describe_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.node.Node.destroy_client",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectClient entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "executor.direct_cpp_guard_condition"
       ],
       "path": "rclpy.node.Node.destroy_guard_condition",
       "rationale": "Under the direct profile, guard conditions are native rclcpp guard conditions; create_guard_condition/destroy_guard_condition/trigger are proven with callback dispatch through the containment shim and executor wake.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded",
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.node.Node.destroy_node",
+      "rationale": "destroy_node tears down the native rclcpp node exactly as proven by executor.direct_cpp_single_threaded's node-destruction coverage and node.direct_cpp_options's construction authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.node.Node.destroy_publisher",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectPublisher entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -7111,11 +8444,115 @@
     },
     {
       "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.node.Node.destroy_service",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectService entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.node.Node.destroy_subscription",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectSubscription entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "timer.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.node.Node.destroy_timer",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectTimer entities, proven by timer.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.node.Node.executor",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.get_client_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "time.direct_cpp_node_clock",
         "time.direct_cpp_sim_time"
       ],
       "path": "rclpy.node.Node.get_clock",
       "rationale": "DirectNode.get_clock() retains one DirectClock/DirectROSClock per node, backed by the native foundation's NativeNodeClock -- the node's exact rclcpp::Clock (node clocks are always RCL_ROS_TIME). Proven live: isinstance/identity (one clock per node, the same object returned on every get_clock() call), a stock-time differential, native address identity against the node's own rclcpp::Clock, and clean teardown (test/test_direct_clock.py, test/_direct_cpp_clock_helper.py); use_sim_time activation and /clock-driven now() through the same retained clock, differentially matched against a stock rclpy sibling (test/test_direct_sim_time.py, test/_direct_cpp_sim_time_helper.py, test/_stock_sim_time_peer.py). This is the same clock every other accelerated clock/timer/rate surface routes through (sleep_for/sleep_until, create_timer's default, create_rate's anchor), and its CPU cost is exercised as part of the clock-timer benchmark's setup path (scripts/benchmarks/run_clock_timer_benchmark.py). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.get_fully_qualified_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.get_fully_qualified_node_names",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.node.Node.get_logger",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.get_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.get_namespace",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.get_node_names",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.get_node_names_and_namespaces",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.get_node_names_and_namespaces_with_enclaves",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -7162,8 +8599,104 @@
       "manifest_entry_ids": [
         "parameter.direct_cpp_local_first_slice"
       ],
+      "path": "rclpy.node.Node.get_parameters_by_prefix",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.get_publisher_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.get_publishers_info_by_topic",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.get_service_names_and_types",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.get_service_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.get_subscriber_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.get_subscriptions_info_by_topic",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.get_topic_names_and_types",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_guard_condition"
+      ],
+      "path": "rclpy.node.Node.guards",
+      "rationale": "Bookkeeping accessor for the node's own DirectGuardCondition entities, proven by executor.direct_cpp_guard_condition.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
       "path": "rclpy.node.Node.has_parameter",
       "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.list_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.node.Node.publishers",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectPublisher entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.remove_on_set_parameters_callback",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -7184,6 +8717,30 @@
     },
     {
       "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.resolve_service_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.resolve_topic_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.node.Node.services",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectService entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "node.direct_cpp_set_descriptor_fail_closed"
       ],
       "path": "rclpy.node.Node.set_descriptor",
@@ -7194,8 +8751,48 @@
       "manifest_entry_ids": [
         "parameter.direct_cpp_local_first_slice"
       ],
+      "path": "rclpy.node.Node.set_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.node.Node.set_parameters_atomically",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.node.Node.subscriptions",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectSubscription entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "timer.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.node.Node.timers",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectTimer entities, proven by timer.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
       "path": "rclpy.node.Node.undeclare_parameter",
       "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp node / rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation (converters/serializers poisoned at zero), and stock-identical behavior, with a CPU-first stock/direct local-parameter hot-path benchmark on record (scripts/benchmarks/run_local_parameter_benchmark.py, docs/backend-selection.md). Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.node.Node.wait_for_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -7288,6 +8885,14 @@
     },
     {
       "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.ok",
+      "rationale": "Delegates to the direct_cpp runtime's own ok() check over the same active context node.direct_cpp_options depends on.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "parameter.direct_cpp_local_first_slice"
       ],
       "path": "rclpy.parameter.Parameter.__init__",
@@ -7344,10 +8949,162 @@
     },
     {
       "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_client.CallbackGroup",
+      "rationale": "Reached through a re-export of the same direct_cpp callback-group base class already proven by executor.direct_cpp_callback_groups. No separate class-level behavior is claimed.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_client.CallbackGroup.__init__",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_client.CallbackGroup.add_entity",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_client.CallbackGroup.beginning_execution",
+      "rationale": "The direct_cpp CallbackGroup base class unconditionally raises NotImplementedError for can_execute/beginning_execution/ending_execution, exactly matching stock rclpy.callback_groups.CallbackGroup's own abstract-base contract; executor.direct_cpp_callback_groups proves the concrete subclasses that actually implement these hooks.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_client.CallbackGroup.can_execute",
+      "rationale": "The direct_cpp CallbackGroup base class unconditionally raises NotImplementedError for can_execute/beginning_execution/ending_execution, exactly matching stock rclpy.callback_groups.CallbackGroup's own abstract-base contract; executor.direct_cpp_callback_groups proves the concrete subclasses that actually implement these hooks.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_client.CallbackGroup.ending_execution",
+      "rationale": "The direct_cpp CallbackGroup base class unconditionally raises NotImplementedError for can_execute/beginning_execution/ending_execution, exactly matching stock rclpy.callback_groups.CallbackGroup's own abstract-base contract; executor.direct_cpp_callback_groups proves the concrete subclasses that actually implement these hooks.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_client.CallbackGroup.has_entity",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.parameter_client.Node",
+      "rationale": "Reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription member rows; node.direct_cpp_options anchors its construction/context authority. No separate class-level behavior is claimed.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.parameter_client.Node.__init__",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.add_on_set_parameters_callback",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.add_post_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.add_pre_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.clients",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectClient entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.parameter_client.Node.context",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.count_clients",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.count_publishers",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.count_services",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.count_subscribers",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "executor.direct_cpp_guard_condition"
       ],
       "path": "rclpy.parameter_client.Node.create_guard_condition",
       "rationale": "Under the direct profile, guard conditions are native rclcpp guard conditions; create_guard_condition/destroy_guard_condition/trigger are proven with callback dispatch through the containment shim and executor wake.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_qos_events"
+      ],
+      "path": "rclpy.parameter_client.Node.create_publisher",
+      "rationale": "create_publisher delegates to the native rclcpp publisher factory; event_callbacks translation is proven by node.direct_cpp_qos_events, while qos_overriding_options stays rejected on publishers (a disclosed suite gap, not silently ignored).",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -7360,10 +9117,68 @@
     },
     {
       "manifest_entry_ids": [
+        "node.direct_cpp_qos_events",
+        "subscription.direct_cpp_content_filter",
+        "subscription.direct_cpp_qos_overriding"
+      ],
+      "path": "rclpy.parameter_client.Node.create_subscription",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under node.direct_cpp_qos_events, subscription.direct_cpp_content_filter, subscription.direct_cpp_qos_overriding; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "timer.direct_cpp_first_slice"
       ],
       "path": "rclpy.parameter_client.Node.create_timer",
       "rationale": "DirectNode.create_timer() builds a real rclcpp::GenericTimer on the node's own ROS clock (sim-time-aware, matching stock's create_timer(clock=None) default) via rclcpp_kit's create_clock_timer, entering the Python callback once per firing with no message conversion, serialization, or per-firing data copy. clock=None and clock=node.get_clock() are both honored; a standalone or foreign clock, or any unexpected keyword argument, fails closed before entity creation (create_timer's signature now matches stock's exactly, with no **options catch-all). Verified live: inspection (is_ready/time_until_next_call/time_since_last_call) matching stock semantics; a frozen, never-published /clock leaves a sim-period timer never firing while wall time passes well beyond it; advancing /clock in explicit steps fires the callback only once sim time crosses the period; a use_sim_time=False node's timer fires on system time within a bounded wall interval; and destroying the facade stops delivery while the executor keeps spinning (test/_direct_cpp_timer_helper.py, test/_direct_cpp_clock_timer_helper.py, test/test_direct_clock_timer.py). CPU-first evidence for this exact route is measured in scripts/benchmarks/run_clock_timer_benchmark.py. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.declare_parameter",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.declare_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_client.Node.default_callback_group",
+      "rationale": "Returns the node's real native default rclcpp callback group, proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.describe_parameter",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.describe_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.destroy_client",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectClient entities, proven by service.direct_cpp_setbool_first_slice.",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -7376,10 +9191,67 @@
     },
     {
       "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded",
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.parameter_client.Node.destroy_node",
+      "rationale": "destroy_node tears down the native rclcpp node exactly as proven by executor.direct_cpp_single_threaded's node-destruction coverage and node.direct_cpp_options's construction authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.destroy_publisher",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectPublisher entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "rate.direct_cpp"
       ],
       "path": "rclpy.parameter_client.Node.destroy_rate",
       "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.destroy_service",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectService entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.destroy_subscription",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectSubscription entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "timer.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.destroy_timer",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectTimer entities, proven by timer.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.parameter_client.Node.executor",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.get_client_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -7393,11 +9265,307 @@
     },
     {
       "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.get_fully_qualified_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.get_fully_qualified_node_names",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.parameter_client.Node.get_logger",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.get_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.get_namespace",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.get_node_names",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.get_node_names_and_namespaces",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.get_node_names_and_namespaces_with_enclaves",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.get_parameter",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.get_parameter_or",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.get_parameter_type",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.get_parameter_types",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.get_parameters",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.get_parameters_by_prefix",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.get_publisher_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.get_publishers_info_by_topic",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.get_service_names_and_types",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.get_service_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.get_subscriber_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.get_subscriptions_info_by_topic",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.get_topic_names_and_types",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_guard_condition"
+      ],
+      "path": "rclpy.parameter_client.Node.guards",
+      "rationale": "Bookkeeping accessor for the node's own DirectGuardCondition entities, proven by executor.direct_cpp_guard_condition.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.has_parameter",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.list_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.publishers",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectPublisher entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.remove_on_set_parameters_callback",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.remove_post_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.remove_pre_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.resolve_service_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.resolve_topic_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.services",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectService entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "node.direct_cpp_set_descriptor_fail_closed"
       ],
       "path": "rclpy.parameter_client.Node.set_descriptor",
       "rationale": "set_descriptor is deliberately fail-closed: Jazzy's public rclcpp API has no descriptor mutation operation. The product raises BackendUnavailableError before any mutation. Signature matches stock via payload-signature normalization.",
       "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.set_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.set_parameters_atomically",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.subscriptions",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectSubscription entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "timer.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.timers",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectTimer entities, proven by timer.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Node.undeclare_parameter",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_client.Node.wait_for_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
     },
     {
       "manifest_entry_ids": [
@@ -7457,10 +9625,202 @@
     },
     {
       "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Subscription.callback",
+      "rationale": "Inherited DirectSubscription method over the exact native rclcpp subscription, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice; the getter returns the exact registered callback while the setter unconditionally raises (a disclosed divergence, not silently ignored).",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Subscription.destroy",
+      "rationale": "Inherited DirectSubscription method over the exact native rclcpp subscription, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Subscription.get_publisher_count",
+      "rationale": "Inherited DirectSubscription method over the exact native rclcpp subscription, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Subscription.logger_name",
+      "rationale": "Inherited DirectSubscription method over the exact native rclcpp subscription, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_client.Subscription.topic_name",
+      "rationale": "Inherited DirectSubscription method over the exact native rclcpp subscription, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_event_handler.CallbackGroup",
+      "rationale": "Reached through a re-export of the same direct_cpp callback-group base class already proven by executor.direct_cpp_callback_groups. No separate class-level behavior is claimed.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_event_handler.CallbackGroup.__init__",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_event_handler.CallbackGroup.add_entity",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_event_handler.CallbackGroup.beginning_execution",
+      "rationale": "The direct_cpp CallbackGroup base class unconditionally raises NotImplementedError for can_execute/beginning_execution/ending_execution, exactly matching stock rclpy.callback_groups.CallbackGroup's own abstract-base contract; executor.direct_cpp_callback_groups proves the concrete subclasses that actually implement these hooks.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_event_handler.CallbackGroup.can_execute",
+      "rationale": "The direct_cpp CallbackGroup base class unconditionally raises NotImplementedError for can_execute/beginning_execution/ending_execution, exactly matching stock rclpy.callback_groups.CallbackGroup's own abstract-base contract; executor.direct_cpp_callback_groups proves the concrete subclasses that actually implement these hooks.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_event_handler.CallbackGroup.ending_execution",
+      "rationale": "The direct_cpp CallbackGroup base class unconditionally raises NotImplementedError for can_execute/beginning_execution/ending_execution, exactly matching stock rclpy.callback_groups.CallbackGroup's own abstract-base contract; executor.direct_cpp_callback_groups proves the concrete subclasses that actually implement these hooks.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_event_handler.CallbackGroup.has_entity",
+      "rationale": "Direct_cpp callback-group method proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.parameter_event_handler.Node",
+      "rationale": "Reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription member rows; node.direct_cpp_options anchors its construction/context authority. No separate class-level behavior is claimed.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.__init__",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.add_on_set_parameters_callback",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.add_post_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.add_pre_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.clients",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectClient entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.context",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.count_clients",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.count_publishers",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.count_services",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.count_subscribers",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "executor.direct_cpp_guard_condition"
       ],
       "path": "rclpy.parameter_event_handler.Node.create_guard_condition",
       "rationale": "Under the direct profile, guard conditions are native rclcpp guard conditions; create_guard_condition/destroy_guard_condition/trigger are proven with callback dispatch through the containment shim and executor wake.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_qos_events"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.create_publisher",
+      "rationale": "create_publisher delegates to the native rclcpp publisher factory; event_callbacks translation is proven by node.direct_cpp_qos_events, while qos_overriding_options stays rejected on publishers (a disclosed suite gap, not silently ignored).",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -7473,10 +9833,68 @@
     },
     {
       "manifest_entry_ids": [
+        "node.direct_cpp_qos_events",
+        "subscription.direct_cpp_content_filter",
+        "subscription.direct_cpp_qos_overriding"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.create_subscription",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under node.direct_cpp_qos_events, subscription.direct_cpp_content_filter, subscription.direct_cpp_qos_overriding; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "timer.direct_cpp_first_slice"
       ],
       "path": "rclpy.parameter_event_handler.Node.create_timer",
       "rationale": "DirectNode.create_timer() builds a real rclcpp::GenericTimer on the node's own ROS clock (sim-time-aware, matching stock's create_timer(clock=None) default) via rclcpp_kit's create_clock_timer, entering the Python callback once per firing with no message conversion, serialization, or per-firing data copy. clock=None and clock=node.get_clock() are both honored; a standalone or foreign clock, or any unexpected keyword argument, fails closed before entity creation (create_timer's signature now matches stock's exactly, with no **options catch-all). Verified live: inspection (is_ready/time_until_next_call/time_since_last_call) matching stock semantics; a frozen, never-published /clock leaves a sim-period timer never firing while wall time passes well beyond it; advancing /clock in explicit steps fires the callback only once sim time crosses the period; a use_sim_time=False node's timer fires on system time within a bounded wall interval; and destroying the facade stops delivery while the executor keeps spinning (test/_direct_cpp_timer_helper.py, test/_direct_cpp_clock_timer_helper.py, test/test_direct_clock_timer.py). CPU-first evidence for this exact route is measured in scripts/benchmarks/run_clock_timer_benchmark.py. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.declare_parameter",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.declare_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.default_callback_group",
+      "rationale": "Returns the node's real native default rclcpp callback group, proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.describe_parameter",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.describe_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.destroy_client",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectClient entities, proven by service.direct_cpp_setbool_first_slice.",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -7489,10 +9907,67 @@
     },
     {
       "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded",
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.destroy_node",
+      "rationale": "destroy_node tears down the native rclcpp node exactly as proven by executor.direct_cpp_single_threaded's node-destruction coverage and node.direct_cpp_options's construction authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.destroy_publisher",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectPublisher entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "rate.direct_cpp"
       ],
       "path": "rclpy.parameter_event_handler.Node.destroy_rate",
       "rationale": "DirectNode.create_rate(frequency, clock=None) validates frequency > 0 (ValueError, matching stock's message) and honors only the node's own clock or None; it returns a DirectRate(rclpy.timer.Rate) anchored at the node clock's now() plus one period, sleeping on the node's NativeClockSleeper with the rclcpp::Rate fixed-rate algorithm (including its catch-up guard) rather than stock's Timer+threading.Event design -- a documented behavioral superset, since it sleeps correctly with or without a spinning executor. destroy_rate(node, rate) destroys the rate and returns True. Verified live: isinstance(rclpy.timer.Rate); period cadence with no per-gap drift, matched against an in-process stock Rate/Timer/executor sibling's own cadence; sim-time pacing that resolves only once a native /clock publish crosses the anchored deadline; a context shutdown waking an in-flight sleep with ROSInterruptException; and a destroyed rate's sleep() raising RuntimeError (test/_direct_cpp_rate_helper.py, test/_stock_rate_peer.py, test/test_direct_rate.py). CPU-first evidence is measured in scripts/benchmarks/run_clock_timer_benchmark.py's rate-sleep workload. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.destroy_service",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectService entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.destroy_subscription",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectSubscription entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "timer.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.destroy_timer",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectTimer entities, proven by timer.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.executor",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_client_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -7506,11 +9981,307 @@
     },
     {
       "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_fully_qualified_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_fully_qualified_node_names",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_logger",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_namespace",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_node_names",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_node_names_and_namespaces",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_node_names_and_namespaces_with_enclaves",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_parameter",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_parameter_or",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_parameter_type",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_parameter_types",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_parameters",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_parameters_by_prefix",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_publisher_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_publishers_info_by_topic",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_service_names_and_types",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_service_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_subscriber_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_subscriptions_info_by_topic",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.get_topic_names_and_types",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_guard_condition"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.guards",
+      "rationale": "Bookkeeping accessor for the node's own DirectGuardCondition entities, proven by executor.direct_cpp_guard_condition.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.has_parameter",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.list_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.publishers",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectPublisher entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.remove_on_set_parameters_callback",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.remove_post_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.remove_pre_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.resolve_service_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.resolve_topic_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.services",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectService entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "node.direct_cpp_set_descriptor_fail_closed"
       ],
       "path": "rclpy.parameter_event_handler.Node.set_descriptor",
       "rationale": "set_descriptor is deliberately fail-closed: Jazzy's public rclcpp API has no descriptor mutation operation. The product raises BackendUnavailableError before any mutation. Signature matches stock via payload-signature normalization.",
       "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.set_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.set_parameters_atomically",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.subscriptions",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectSubscription entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "timer.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.timers",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectTimer entities, proven by timer.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.undeclare_parameter",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.parameter_event_handler.Node.wait_for_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
     },
     {
       "manifest_entry_ids": [
@@ -7566,6 +10337,54 @@
       ],
       "path": "rclpy.parameter_event_handler.Parameter.value",
       "rationale": "Under the direct profile this parameter operation is owned by the native rclcpp::Parameter; a fresh-process differential and the test_prove_parameter_authority.py coverage tripwire prove the exact public contract, C++ payload representation, and stock-identical behavior. The Phase-3 local-parameter characterization (docs/backend-selection.md) records this explicit .value snapshot access at 1.1073x stock CPU -- slower than stock, not a performance win, on record and not hidden. Direct-C++ authority is claimed on correctness/representation grounds only; the reviewed dual-arch CPU gate remains open and this specific workload does not clear it.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.publisher.Publisher.assert_liveliness",
+      "rationale": "Inherited DirectPublisher method over the exact native rclcpp::Publisher, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.publisher.Publisher.destroy",
+      "rationale": "Inherited DirectPublisher method over the exact native rclcpp::Publisher, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.publisher.Publisher.get_subscription_count",
+      "rationale": "Inherited DirectPublisher method over the exact native rclcpp::Publisher, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.publisher.Publisher.logger_name",
+      "rationale": "Inherited DirectPublisher method over the exact native rclcpp::Publisher, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.publisher.Publisher.publish",
+      "rationale": "Inherited DirectPublisher method over the exact native rclcpp::Publisher, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.publisher.Publisher.topic_name",
+      "rationale": "Inherited DirectPublisher method over the exact native rclcpp::Publisher, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -11481,6 +14300,14 @@
     },
     {
       "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.shutdown",
+      "rationale": "Delegates to the direct_cpp runtime's own shutdown over the same active context node.direct_cpp_options depends on.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "context.stock_initialization"
       ],
       "path": "rclpy.signals.InvalidHandle",
@@ -11678,6 +14505,70 @@
       "path": "rclpy.signals.uninstall_signal_handlers",
       "rationale": "The direct profile preserves this stock rclpy context/signal-handler object unchanged; the test_stock_context_identity.py fresh-process stock-vs-direct differential proves identical type identity, member presence/values, and value semantics. Stock behavior, not accelerated.",
       "status": "unchanged_stock_fallback"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.spin",
+      "rationale": "Delegates to the direct_cpp global/explicit executor spin route proven by executor.direct_cpp_single_threaded.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.spin_once",
+      "rationale": "Delegates to the direct_cpp global/explicit executor spin_once route proven by executor.direct_cpp_single_threaded.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "path": "rclpy.spin_until_future_complete",
+      "rationale": "Delegates to the direct_cpp global/explicit executor spin_until_future_complete route proven by executor.direct_cpp_single_threaded.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.subscription.Subscription.callback",
+      "rationale": "Inherited DirectSubscription method over the exact native rclcpp subscription, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice; the getter returns the exact registered callback while the setter unconditionally raises (a disclosed divergence, not silently ignored).",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.subscription.Subscription.destroy",
+      "rationale": "Inherited DirectSubscription method over the exact native rclcpp subscription, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.subscription.Subscription.get_publisher_count",
+      "rationale": "Inherited DirectSubscription method over the exact native rclcpp subscription, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.subscription.Subscription.logger_name",
+      "rationale": "Inherited DirectSubscription method over the exact native rclcpp subscription, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.subscription.Subscription.topic_name",
+      "rationale": "Inherited DirectSubscription method over the exact native rclcpp subscription, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
     },
     {
       "manifest_entry_ids": [
@@ -13384,10 +16275,180 @@
     },
     {
       "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.wait_for_message.Node",
+      "rationale": "Reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription member rows; node.direct_cpp_options anchors its construction/context authority. No separate class-level behavior is claimed.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.wait_for_message.Node.__init__",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.add_on_set_parameters_callback",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.add_post_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.add_pre_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.clients",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectClient entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.wait_for_message.Node.context",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.count_clients",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.count_publishers",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.count_services",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.count_subscribers",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "executor.direct_cpp_guard_condition"
       ],
       "path": "rclpy.wait_for_message.Node.create_guard_condition",
       "rationale": "Under the direct profile, guard conditions are native rclcpp guard conditions; create_guard_condition/destroy_guard_condition/trigger are proven with callback dispatch through the containment shim and executor wake.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_qos_events"
+      ],
+      "path": "rclpy.wait_for_message.Node.create_publisher",
+      "rationale": "create_publisher delegates to the native rclcpp publisher factory; event_callbacks translation is proven by node.direct_cpp_qos_events, while qos_overriding_options stays rejected on publishers (a disclosed suite gap, not silently ignored).",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "rate.direct_cpp"
+      ],
+      "path": "rclpy.wait_for_message.Node.create_rate",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under rate.direct_cpp; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_qos_events",
+        "subscription.direct_cpp_content_filter",
+        "subscription.direct_cpp_qos_overriding"
+      ],
+      "path": "rclpy.wait_for_message.Node.create_subscription",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under node.direct_cpp_qos_events, subscription.direct_cpp_content_filter, subscription.direct_cpp_qos_overriding; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "timer.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.create_timer",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under timer.direct_cpp_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.declare_parameter",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.declare_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "path": "rclpy.wait_for_message.Node.default_callback_group",
+      "rationale": "Returns the node's real native default rclcpp callback group, proven by executor.direct_cpp_callback_groups.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.describe_parameter",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.describe_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.destroy_client",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectClient entities, proven by service.direct_cpp_setbool_first_slice.",
       "status": "exact_direct_cpp_authority"
     },
     {
@@ -13400,11 +16461,389 @@
     },
     {
       "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded",
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.wait_for_message.Node.destroy_node",
+      "rationale": "destroy_node tears down the native rclcpp node exactly as proven by executor.direct_cpp_single_threaded's node-destruction coverage and node.direct_cpp_options's construction authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.destroy_publisher",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectPublisher entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "rate.direct_cpp"
+      ],
+      "path": "rclpy.wait_for_message.Node.destroy_rate",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under rate.direct_cpp; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.destroy_service",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectService entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.destroy_subscription",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectSubscription entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "timer.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.destroy_timer",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectTimer entities, proven by timer.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.wait_for_message.Node.executor",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_client_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "time.direct_cpp_node_clock",
+        "time.direct_cpp_sim_time"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_clock",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under time.direct_cpp_node_clock, time.direct_cpp_sim_time; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_fully_qualified_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_fully_qualified_node_names",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_options"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_logger",
+      "rationale": "Basic DirectNode construction/context/executor/logger bookkeeping, proven by node.direct_cpp_options's construction and active-context authority.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_namespace",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_node_names",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_node_names_and_namespaces",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_node_names_and_namespaces_with_enclaves",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_parameter",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_parameter_or",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_parameter_type",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_parameter_types",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_parameters",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_parameters_by_prefix",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_publisher_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_publishers_info_by_topic",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_service_names_and_types",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_service_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_subscriber_names_and_types_by_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_subscriptions_info_by_topic",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.get_topic_names_and_types",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "executor.direct_cpp_guard_condition"
+      ],
+      "path": "rclpy.wait_for_message.Node.guards",
+      "rationale": "Bookkeeping accessor for the node's own DirectGuardCondition entities, proven by executor.direct_cpp_guard_condition.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.has_parameter",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.list_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.publishers",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectPublisher entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.remove_on_set_parameters_callback",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.remove_post_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.remove_pre_set_parameters_callback",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.resolve_service_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.resolve_topic_name",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.services",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectService entities, proven by service.direct_cpp_setbool_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
         "node.direct_cpp_set_descriptor_fail_closed"
       ],
       "path": "rclpy.wait_for_message.Node.set_descriptor",
       "rationale": "set_descriptor is deliberately fail-closed: Jazzy's public rclcpp API has no descriptor mutation operation. The product raises BackendUnavailableError before any mutation. Signature matches stock via payload-signature normalization.",
       "status": "explicit_fail_closed"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.set_parameters",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.set_parameters_atomically",
+      "rationale": "Inherited DirectNode parameter method owned by the native rclcpp::Parameter machinery proven by parameter.direct_cpp_local_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.subscriptions",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectSubscription entities, proven by the same test_direct_cpp.py evidence underlying message.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "timer.direct_cpp_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.timers",
+      "rationale": "Bookkeeping accessor/teardown for the node's own DirectTimer entities, proven by timer.direct_cpp_first_slice.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "path": "rclpy.wait_for_message.Node.undeclare_parameter",
+      "rationale": "Inherited DirectNode method already promoted for a sibling Node alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "node.direct_cpp_graph_surface"
+      ],
+      "path": "rclpy.wait_for_message.Node.wait_for_node",
+      "rationale": "Inherited DirectNode graph-surface method delegating to the exact rclcpp graph queries proven by node.direct_cpp_graph_surface.",
+      "status": "exact_direct_cpp_authority"
+    },
+    {
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_wait_for_message"
+      ],
+      "path": "rclpy.wait_for_message.wait_for_message",
+      "rationale": "The functools.wraps facade over rclpy.wait_for_message proven by subscription.direct_cpp_wait_for_message.",
+      "status": "exact_direct_cpp_authority"
     }
   ],
   "schema": "rclcppyy.rclpy-api-annotations/v1",
