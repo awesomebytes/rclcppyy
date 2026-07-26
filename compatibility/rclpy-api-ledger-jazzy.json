@@ -7785,19 +7785,32 @@
           "action.graph_queries"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "action",
-      "attribution": "absent",
+      "attribution": "stock",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "not_applicable"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "stock",
+        "implementation": "data",
+        "kind": "class_attribute",
+        "origin": null,
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "not_applicable"
+        },
+        "value": {
+          "state": "captured",
+          "value": 1e-06
+        }
+      },
       "level": "member",
       "path": "rclpy.action.graph.Node.PARAM_REL_TOL",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "data",
@@ -54088,19 +54101,32 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "stock",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "not_applicable"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "stock",
+        "implementation": "data",
+        "kind": "class_attribute",
+        "origin": null,
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "not_applicable"
+        },
+        "value": {
+          "state": "captured",
+          "value": 1e-06
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNode.PARAM_REL_TOL",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "data",
@@ -59652,19 +59678,29 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, msg: Union[~MsgType, bytes]) -> None"
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.LifecyclePublisher.publish",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -60452,19 +60488,32 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "stock",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "not_applicable"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "stock",
+        "implementation": "data",
+        "kind": "class_attribute",
+        "origin": null,
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "not_applicable"
+        },
+        "value": {
+          "state": "captured",
+          "value": 1e-06
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.Node.PARAM_REL_TOL",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "data",
@@ -66016,19 +66065,29 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, msg: Union[~MsgType, bytes]) -> None"
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.Publisher.publish",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -69251,19 +69310,32 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "stock",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "not_applicable"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "stock",
+        "implementation": "data",
+        "kind": "class_attribute",
+        "origin": null,
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "not_applicable"
+        },
+        "value": {
+          "state": "captured",
+          "value": 1e-06
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNode.PARAM_REL_TOL",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "data",
@@ -75619,19 +75691,32 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "stock",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "not_applicable"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "stock",
+        "implementation": "data",
+        "kind": "class_attribute",
+        "origin": null,
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "not_applicable"
+        },
+        "value": {
+          "state": "captured",
+          "value": 1e-06
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.node.Node.PARAM_REL_TOL",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "data",
@@ -81466,19 +81551,29 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, msg: Union[~MsgType, bytes]) -> None"
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.publisher.LifecyclePublisher.publish",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -81963,19 +82058,29 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, msg: Union[~MsgType, bytes]) -> None"
+        }
+      },
       "level": "member",
       "path": "rclpy.lifecycle.publisher.Publisher.publish",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -90372,19 +90477,32 @@
           "node.subclass_existing_alias"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "absent",
+      "attribution": "stock",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "not_applicable"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "stock",
+        "implementation": "data",
+        "kind": "class_attribute",
+        "origin": null,
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "not_applicable"
+        },
+        "value": {
+          "state": "captured",
+          "value": 1e-06
+        }
+      },
       "level": "member",
       "path": "rclpy.node.Node.PARAM_REL_TOL",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "data",
@@ -105284,19 +105402,32 @@
           "parameter.value_and_event_helpers"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
-      "attribution": "absent",
+      "attribution": "stock",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "not_applicable"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "stock",
+        "implementation": "data",
+        "kind": "class_attribute",
+        "origin": null,
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "not_applicable"
+        },
+        "value": {
+          "state": "captured",
+          "value": 1e-06
+        }
+      },
       "level": "member",
       "path": "rclpy.parameter_client.Node.PARAM_REL_TOL",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "data",
@@ -111224,19 +111355,32 @@
           "parameter.value_and_event_helpers"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
-      "attribution": "absent",
+      "attribution": "stock",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "not_applicable"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "stock",
+        "implementation": "data",
+        "kind": "class_attribute",
+        "origin": null,
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "not_applicable"
+        },
+        "value": {
+          "state": "captured",
+          "value": 1e-06
+        }
+      },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Node.PARAM_REL_TOL",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "data",
@@ -119608,19 +119752,29 @@
           "publisher.node_constructor_infrastructure"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "publisher",
-      "attribution": "absent",
+      "attribution": "direct_backend",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "equal"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "direct_backend",
+        "implementation": "python",
+        "kind": "method",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
+        "signature": {
+          "state": "inspectable",
+          "value": "(self, msg: Union[~MsgType, bytes]) -> None"
+        }
+      },
       "level": "member",
       "path": "rclpy.publisher.Publisher.publish",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -170214,19 +170368,32 @@
           "subscription.wait_for_message"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "subscription",
-      "attribution": "absent",
+      "attribution": "stock",
       "comparison": {
-        "kind_match": false,
-        "presence": "stock_only",
-        "signature": "missing"
+        "kind_match": true,
+        "presence": "both",
+        "signature": "not_applicable"
       },
-      "direct": null,
+      "direct": {
+        "attribution": "stock",
+        "implementation": "data",
+        "kind": "class_attribute",
+        "origin": null,
+        "owner": "rclcppyy.direct_cpp.DirectNode",
+        "signature": {
+          "state": "not_applicable"
+        },
+        "value": {
+          "state": "captured",
+          "value": 1e-06
+        }
+      },
       "level": "member",
       "path": "rclpy.wait_for_message.Node.PARAM_REL_TOL",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "data",
@@ -176483,7 +176650,7 @@
     "ros_distribution": "jazzy"
   },
   "summary": {
-    "direct_backend_entries": 1028,
+    "direct_backend_entries": 1033,
     "direct_only_entries": 0,
     "generated_interface_aliases": 21,
     "ledger_entries": 3800,
@@ -176492,12 +176659,12 @@
     "statuses": {
       "exact_direct_cpp_authority": 522,
       "explicit_fail_closed": 9,
-      "missing_mismatch": 186,
+      "missing_mismatch": 172,
       "mixed_control_direct_data": 0,
-      "unassessed": 1948,
+      "unassessed": 1962,
       "unchanged_stock_fallback": 1135
     },
-    "stock_only_entries": 86,
+    "stock_only_entries": 72,
     "stock_public_class_members": 3333,
     "stock_public_symbols": 467,
     "superset_violations": 0,
