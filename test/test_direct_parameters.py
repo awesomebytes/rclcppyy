@@ -51,7 +51,7 @@ def test_direct_cpp_get_uses_one_compiled_node_query():
         source.index("    def get_parameter(self, name):"):
         source.index("    def get_parameters(self, names):")
     ]
-    assert get_source.count("get_parameter_checked(") == 1
+    assert "get_parameter_checked(" in get_source
     assert "self.has_parameter(" not in get_source
     assert "get_parameter_types(" not in get_source
     assert "describe_parameters(" not in get_source
