@@ -11,4 +11,5 @@ def test_direct_cpp_guard_condition_dispatch_teardown_and_exception_containment(
     assert "DIRECT_CPP_GUARD_CONDITION_RETRIGGER_OK" in process.stdout
     assert "DIRECT_CPP_GUARD_CONDITION_EXCEPTION_CONTAINED_OK" in process.stdout
     assert "DIRECT_CPP_GUARD_CONDITION_DESTROY_OK" in process.stdout
+    assert "DIRECT_CPP_GUARD_CONDITION_EXECUTOR_WAKE_OK" in process.stdout
     assert "DIRECT_CPP_GUARD_CONDITION_TEARDOWN_OK" in process.stdout

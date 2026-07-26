@@ -94,6 +94,26 @@ else:
     raise AssertionError("trigger() on a destroyed guard condition did not raise")
 print("DIRECT_CPP_GUARD_CONDITION_DESTROY_OK")
 
+# Executor-wake integration: a guard condition's whole purpose is to
+# interrupt a blocked executor.spin_once()/spin() native wait. Verified
+# directly against the executor's own wake flag rather than by timing a
+# blocked spin_once() call: on this backend, spin_once() already returns
+# near-instantly on an idle node/executor for reasons unrelated to guard
+# conditions at all (empirically verified -- e.g. ROS graph discovery
+# churn), so elapsed time alone cannot distinguish "woken by this trigger"
+# from "woken anyway". executor._wake_event is the same flag wake()/
+# _spin_once_impl() themselves use (see direct_executors.py); it starts
+# clear, and trigger() must set it synchronously, before spin_once() ever
+# runs, and with no executor involvement of any other kind.
+wake_calls = []
+wake_guard = node.create_guard_condition(lambda: wake_calls.append(True))
+assert not executor._wake_event.is_set()
+wake_guard.trigger()
+assert _settle(lambda: executor._wake_event.is_set())
+assert _settle(lambda: len(wake_calls) == 1)
+print("DIRECT_CPP_GUARD_CONDITION_EXECUTOR_WAKE_OK")
+node.destroy_guard_condition(wake_guard)
+
 executor.remove_node(node)
 executor.shutdown()
 node.destroy_node()

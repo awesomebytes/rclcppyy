@@ -2562,8 +2562,18 @@ class DirectNode:
         session = _runtime().require_session()
         native_guard_condition = session.create_native_guard_condition()
         contained_callback = self._contain_callback_exceptions(callback)
+
+        def _dispatch():
+            # Waking first (before running the callback) matches a guard
+            # condition's actual purpose: interrupting a blocked
+            # executor.spin_once()/spin() native wait is an unconditional
+            # side effect of being triggered, independent of whatever the
+            # callback itself does or how long it takes to run.
+            self._wake_executor()
+            contained_callback()
+
         guard = DirectGuardCondition(
-            callback, group, native_guard_condition, session, contained_callback)
+            callback, group, native_guard_condition, session, _dispatch)
         group.add_entity(guard)
         self._direct_cpp_guards.append(guard)
         return guard
