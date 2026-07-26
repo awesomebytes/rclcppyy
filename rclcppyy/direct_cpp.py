@@ -3258,6 +3258,7 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         SetParametersResult,
     )
     from rclpy.parameter import Parameter as _StockParameter
+    from rclpy.callback_groups import CallbackGroup as _StockCallbackGroup
 
     _payload_signature.install_signatures(
         DirectNode,
@@ -3267,21 +3268,6 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         list_parameters_result=ListParametersResult,
         parameter_class=_StockParameter,
     )
-
-    from rclpy.callback_groups import CallbackGroup as _StockCallbackGroup
-    from rclcppyy.direct_lifecycle import DirectLifecycleNodeMixin
-    DirectLifecycleNodeMixin.__init__.__signature__ = inspect.Signature([
-        inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD),
-        inspect.Parameter(
-            "enable_communication_interface",
-            inspect.Parameter.KEYWORD_ONLY,
-            default=True, annotation=bool),
-        inspect.Parameter(
-            "callback_group",
-            inspect.Parameter.KEYWORD_ONLY,
-            default=None,
-            annotation=_payload_signature.Optional[_StockCallbackGroup]),
-    ])
 
     service_plan = direct_services.prepare(service_interfaces)
     action_plan = direct_actions.prepare(action_interfaces)
@@ -3452,16 +3438,34 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         mirror_class(DirectLifecycleNode, lifecycle_module.LifecycleNode)
         mirror_class(DirectLifecycleNodeMixin, lifecycle_module.LifecycleNodeMixin)
         mirror_class(DirectLifecyclePublisher, lifecycle_module.LifecyclePublisher)
+        DirectLifecycleNodeMixin.__init__.__signature__ = inspect.Signature([
+            inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD),
+            inspect.Parameter(
+                "enable_communication_interface",
+                inspect.Parameter.KEYWORD_ONLY,
+                default=True, annotation=bool),
+            inspect.Parameter(
+                "callback_group",
+                inspect.Parameter.KEYWORD_ONLY,
+                default=None,
+                annotation=_payload_signature.Optional[_StockCallbackGroup]),
+        ])
         # LifecycleNode/LifecycleNodeMixin/LifecyclePublisher are each bound
         # at three names -- the package-level name, its package-level alias
         # (Node/NodeMixin/Publisher), and the defining submodule's own
         # binding -- all three must move together for every consumer of any
         # of them to see the direct facade (PLAN-lifecycle.md 3.1, 5.1
-        # groups B/C/D).
+        # groups B/C/D). rclpy.lifecycle.node.Node is a separate re-export
+        # (rclpy/lifecycle/node.py: "from rclpy.node import Node") of the
+        # plain Node, not LifecycleNode -- it must move to DirectNode, since
+        # importing rclpy.lifecycle for the first time anywhere earlier than
+        # this point (before Node above is rebound to DirectNode) would
+        # otherwise freeze this binding on stock Node permanently.
         lifecycle_replacements = (
             (lifecycle_module, "LifecycleNode", DirectLifecycleNode),
             (lifecycle_module, "Node", DirectLifecycleNode),
             (lifecycle_module.node, "LifecycleNode", DirectLifecycleNode),
+            (lifecycle_module.node, "Node", DirectNode),
             (lifecycle_module, "LifecycleNodeMixin", DirectLifecycleNodeMixin),
             (lifecycle_module, "NodeMixin", DirectLifecycleNodeMixin),
             (
