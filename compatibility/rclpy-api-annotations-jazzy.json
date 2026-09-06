@@ -11781,12 +11781,11 @@
     },
     {
       "manifest_entry_ids": [
-        "lifecycle.node",
-        "lifecycle.publisher"
+        "lifecycle.direct_cpp_first_slice"
       ],
       "path": "rclpy.lifecycle.node.LifecyclePublisher.is_activated",
-      "rationale": "The direct profile preserves the stock rclpy.lifecycle.managed_entity.SimpleManagedEntity class and inherited members unchanged; activate() never patches rclpy.lifecycle.managed_entity (verified against the 40-entry patch list), and test_direct_lifecycle.py checks its type relationship, activation property, and callback behavior under the direct profile. Stock behavior only.",
-      "status": "unchanged_stock_fallback"
+      "rationale": "Under the direct profile, this lifecycle publisher method is owned by the native rclcpp_lifecycle publisher; the DirectLifecyclePublisher facade proves the exact public contract with activation gating through the native state machine.",
+      "status": "exact_direct_cpp_authority"
     },
     {
       "manifest_entry_ids": [
@@ -11798,12 +11797,11 @@
     },
     {
       "manifest_entry_ids": [
-        "lifecycle.node",
-        "lifecycle.publisher"
+        "lifecycle.direct_cpp_first_slice"
       ],
       "path": "rclpy.lifecycle.node.LifecyclePublisher.on_activate",
-      "rationale": "The direct profile preserves the stock rclpy.lifecycle.managed_entity.SimpleManagedEntity class and inherited members unchanged; activate() never patches rclpy.lifecycle.managed_entity (verified against the 40-entry patch list), and test_direct_lifecycle.py checks its type relationship, activation property, and callback behavior under the direct profile. Stock behavior only.",
-      "status": "unchanged_stock_fallback"
+      "rationale": "Under the direct profile, this lifecycle publisher method is owned by the native rclcpp_lifecycle publisher; the DirectLifecyclePublisher facade proves the exact public contract with activation gating through the native state machine.",
+      "status": "exact_direct_cpp_authority"
     },
     {
       "manifest_entry_ids": [
@@ -11825,12 +11823,11 @@
     },
     {
       "manifest_entry_ids": [
-        "lifecycle.node",
-        "lifecycle.publisher"
+        "lifecycle.direct_cpp_first_slice"
       ],
       "path": "rclpy.lifecycle.node.LifecyclePublisher.on_deactivate",
-      "rationale": "The direct profile preserves the stock rclpy.lifecycle.managed_entity.SimpleManagedEntity class and inherited members unchanged; activate() never patches rclpy.lifecycle.managed_entity (verified against the 40-entry patch list), and test_direct_lifecycle.py checks its type relationship, activation property, and callback behavior under the direct profile. Stock behavior only.",
-      "status": "unchanged_stock_fallback"
+      "rationale": "Under the direct profile, this lifecycle publisher method is owned by the native rclcpp_lifecycle publisher; the DirectLifecyclePublisher facade proves the exact public contract with activation gating through the native state machine.",
+      "status": "exact_direct_cpp_authority"
     },
     {
       "manifest_entry_ids": [

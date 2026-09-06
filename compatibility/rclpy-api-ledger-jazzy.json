@@ -75547,10 +75547,9 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [
-          "lifecycle.node",
-          "lifecycle.publisher"
+          "lifecycle.direct_cpp_first_slice"
         ],
-        "rationale": "The direct profile preserves the stock rclpy.lifecycle.managed_entity.SimpleManagedEntity class and inherited members unchanged; activate() never patches rclpy.lifecycle.managed_entity (verified against the 40-entry patch list), and test_direct_lifecycle.py checks its type relationship, activation property, and callback behavior under the direct profile. Stock behavior only."
+        "rationale": "Under the direct profile, this lifecycle publisher method is owned by the native rclcpp_lifecycle publisher; the DirectLifecyclePublisher facade proves the exact public contract with activation gating through the native state machine."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -75572,7 +75571,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecyclePublisher.is_activated",
-      "status": "unchanged_stock_fallback",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -75642,10 +75641,9 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [
-          "lifecycle.node",
-          "lifecycle.publisher"
+          "lifecycle.direct_cpp_first_slice"
         ],
-        "rationale": "The direct profile preserves the stock rclpy.lifecycle.managed_entity.SimpleManagedEntity class and inherited members unchanged; activate() never patches rclpy.lifecycle.managed_entity (verified against the 40-entry patch list), and test_direct_lifecycle.py checks its type relationship, activation property, and callback behavior under the direct profile. Stock behavior only."
+        "rationale": "Under the direct profile, this lifecycle publisher method is owned by the native rclcpp_lifecycle publisher; the DirectLifecyclePublisher facade proves the exact public contract with activation gating through the native state machine."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -75667,7 +75665,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecyclePublisher.on_activate",
-      "status": "unchanged_stock_fallback",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -75786,10 +75784,9 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [
-          "lifecycle.node",
-          "lifecycle.publisher"
+          "lifecycle.direct_cpp_first_slice"
         ],
-        "rationale": "The direct profile preserves the stock rclpy.lifecycle.managed_entity.SimpleManagedEntity class and inherited members unchanged; activate() never patches rclpy.lifecycle.managed_entity (verified against the 40-entry patch list), and test_direct_lifecycle.py checks its type relationship, activation property, and callback behavior under the direct profile. Stock behavior only."
+        "rationale": "Under the direct profile, this lifecycle publisher method is owned by the native rclcpp_lifecycle publisher; the DirectLifecyclePublisher facade proves the exact public contract with activation gating through the native state machine."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -75811,7 +75808,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecyclePublisher.on_deactivate",
-      "status": "unchanged_stock_fallback",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -179905,12 +179902,12 @@
     "modules": 58,
     "signature_mismatches": 114,
     "statuses": {
-      "exact_direct_cpp_authority": 950,
+      "exact_direct_cpp_authority": 953,
       "explicit_fail_closed": 25,
       "missing_mismatch": 186,
       "mixed_control_direct_data": 0,
       "unassessed": 190,
-      "unchanged_stock_fallback": 2423
+      "unchanged_stock_fallback": 2420
     },
     "stock_only_entries": 72,
     "stock_public_class_members": 3333,
