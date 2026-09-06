@@ -194,6 +194,23 @@ def _attribution(value: Any) -> str:
     return "foreign"
 
 
+def _is_foreign_reexport(*observations: Any) -> bool:
+    """True when every observation of a path is defined outside rclpy and rclcppyy.
+
+    ``typing`` and ``collections`` machinery (NamedTuple members, TypeVar/alias
+    ``__init__``) reaches a public rclpy name only because rclpy re-exports the
+    foreign object. It is neither rclpy's own API surface nor a backend facade, so
+    it carries no parity meaning in either profile and is excluded from the ledger.
+    A path is excluded only when no observation claims rclpy or rclcppyy ownership,
+    so a name that is foreign under one profile and owned under the other stays
+    visible rather than being silently dropped.
+    """
+    seen = [obs for obs in observations if obs is not None]
+    if not seen:
+        return False
+    return all(obs.get("attribution") == "foreign" for obs in seen)
+
+
 def _originates_in_rclcppyy(value: Any) -> bool:
     """True only for objects genuinely defined in the rclcppyy package.
 
@@ -717,9 +734,13 @@ def build_ledger(
     stock_entries = _flatten(stock)
     direct_entries = _flatten(direct)
     entries = []
+    excluded_foreign = 0
     for path in sorted(set(stock_entries) | set(direct_entries)):
         stock_value = stock_entries.get(path)
         direct_value = direct_entries.get(path)
+        if _is_foreign_reexport(stock_value, direct_value):
+            excluded_foreign += 1
+            continue
         comparison = _comparison_state(stock_value, direct_value)
         annotation = annotation_by_path.get(path)
         if _structural_mismatch(comparison):
@@ -787,6 +808,11 @@ def build_ledger(
                 "public class members plus explicitly declared rclpy-owned required "
                 "dunders; inherited object dunders are excluded"
             ),
+            "origin_rule": (
+                "a path whose every observation is defined outside rclpy and "
+                "rclcppyy (typing/collections re-exports) is not rclpy API surface "
+                "and is excluded from the ledger"
+            ),
             "signature_rule": (
                 "inspect.signature text or explicit uninspectable/not_applicable state"
             ),
@@ -808,7 +834,8 @@ def build_ledger(
         "generated_interface_aliases": direct["generated_interfaces"],
         "summary": {
             "modules": len(stock_modules),
-            "stock_public_symbols": stock_symbol_count,
+            "excluded_foreign_entries": excluded_foreign,
+        "stock_public_symbols": stock_symbol_count,
             "stock_public_class_members": stock_member_count,
             "ledger_entries": len(entries),
             "signature_mismatches": sum(

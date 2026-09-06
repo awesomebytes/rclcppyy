@@ -40,6 +40,7 @@
         "module_rule",
         "symbol_rule",
         "member_rule",
+        "origin_rule",
         "signature_rule",
         "semantic_rule",
         "required_dunders"
@@ -48,6 +49,7 @@
         "module_rule": {"type": "string", "minLength": 1},
         "symbol_rule": {"type": "string", "minLength": 1},
         "member_rule": {"type": "string", "minLength": 1},
+        "origin_rule": {"type": "string", "minLength": 1},
         "signature_rule": {"type": "string", "minLength": 1},
         "semantic_rule": {"type": "string", "minLength": 1},
         "required_dunders": {
@@ -184,6 +186,7 @@
         "stock_public_symbols",
         "stock_public_class_members",
         "ledger_entries",
+        "excluded_foreign_entries",
         "signature_mismatches",
         "stock_only_entries",
         "direct_only_entries",
@@ -198,6 +201,7 @@
         "stock_public_symbols": {"type": "integer", "minimum": 0},
         "stock_public_class_members": {"type": "integer", "minimum": 0},
         "ledger_entries": {"type": "integer", "minimum": 0},
+        "excluded_foreign_entries": {"type": "integer", "minimum": 0},
         "signature_mismatches": {"type": "integer", "minimum": 0},
         "stock_only_entries": {"type": "integer", "minimum": 0},
         "direct_only_entries": {"type": "integer", "minimum": 0},

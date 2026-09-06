@@ -2,6 +2,7 @@
   "contract": {
     "member_rule": "public class members plus explicitly declared rclpy-owned required dunders; inherited object dunders are excluded",
     "module_rule": "rclpy plus recursively discoverable modules excluding private path components and rclpy.impl",
+    "origin_rule": "a path whose every observation is defined outside rclpy and rclcppyy (typing/collections re-exports) is not rclpy API surface and is excluded from the ledger",
     "required_dunders": [
       "__aenter__",
       "__aexit__",
@@ -23495,54 +23496,6 @@
         "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
       },
       "area": "time",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "equal"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.destroyable.DestroyableType",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.clock.ClockHandle.__init__",
-      "status": "unchanged_stock_fallback",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.destroyable.DestroyableType",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "clock.direct_cpp_sleep",
-          "time.direct_cpp_jump_callback",
-          "time.direct_cpp_node_clock",
-          "time.direct_cpp_payload",
-          "time.direct_cpp_sim_time",
-          "time.stock_surface"
-        ],
-        "manifest_entry_ids": [
-          "time.stock_surface"
-        ],
-        "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
-      },
-      "area": "time",
       "attribution": "stock",
       "comparison": {
         "kind_match": true,
@@ -25364,54 +25317,6 @@
         "signature": {
           "state": "inspectable",
           "value": "(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exctb: Optional[traceback]) -> None"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "clock.direct_cpp_sleep",
-          "time.direct_cpp_jump_callback",
-          "time.direct_cpp_node_clock",
-          "time.direct_cpp_payload",
-          "time.direct_cpp_sim_time",
-          "time.stock_surface"
-        ],
-        "manifest_entry_ids": [
-          "time.stock_surface"
-        ],
-        "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
-      },
-      "area": "time",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "equal"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.destroyable.DestroyableType",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.clock.DestroyableType.__init__",
-      "status": "unchanged_stock_fallback",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.destroyable.DestroyableType",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
         }
       }
     },
@@ -28079,54 +27984,6 @@
         "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
       },
       "area": "time",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "equal"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.time.TimeHandle",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.clock.TimeHandle.__init__",
-      "status": "unchanged_stock_fallback",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.time.TimeHandle",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "clock.direct_cpp_sleep",
-          "time.direct_cpp_jump_callback",
-          "time.direct_cpp_node_clock",
-          "time.direct_cpp_payload",
-          "time.direct_cpp_sim_time",
-          "time.stock_surface"
-        ],
-        "manifest_entry_ids": [
-          "time.stock_surface"
-        ],
-        "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
-      },
-      "area": "time",
       "attribution": "stock",
       "comparison": {
         "kind_match": true,
@@ -30458,50 +30315,6 @@
           "context.repeated_explicit_init_shutdown",
           "context.stock_initialization"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "context",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "equal"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.destroyable.DestroyableType",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.context.ContextHandle.__init__",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.destroyable.DestroyableType",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "context.clean_exit",
-          "context.repeated_default_init_shutdown",
-          "context.repeated_explicit_init_shutdown",
-          "context.stock_initialization"
-        ],
         "manifest_entry_ids": [
           "context.stock_initialization"
         ],
@@ -30824,50 +30637,6 @@
           "context.repeated_explicit_init_shutdown",
           "context.stock_initialization"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "context",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "equal"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.destroyable.DestroyableType",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.context.DestroyableType.__init__",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.destroyable.DestroyableType",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "context.clean_exit",
-          "context.repeated_default_init_shutdown",
-          "context.repeated_explicit_init_shutdown",
-          "context.stock_initialization"
-        ],
         "manifest_entry_ids": [
           "context.stock_initialization"
         ],
@@ -31084,50 +30853,6 @@
         "signature": {
           "state": "inspectable",
           "value": "(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exctb: Optional[traceback]) -> None"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "context.clean_exit",
-          "context.repeated_default_init_shutdown",
-          "context.repeated_explicit_init_shutdown",
-          "context.stock_initialization"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "context",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "equal"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.destroyable.DestroyableType",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.destroyable.DestroyableType.__init__",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.destroyable.DestroyableType",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
         }
       }
     },
@@ -31944,54 +31669,6 @@
         "signature": {
           "state": "inspectable",
           "value": "(*args, **kwargs)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "clock.direct_cpp_sleep",
-          "time.direct_cpp_jump_callback",
-          "time.direct_cpp_node_clock",
-          "time.direct_cpp_payload",
-          "time.direct_cpp_sim_time",
-          "time.stock_surface"
-        ],
-        "manifest_entry_ids": [
-          "time.stock_surface"
-        ],
-        "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
-      },
-      "area": "time",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "equal"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.duration.DurationType",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.duration.DurationType.__init__",
-      "status": "unchanged_stock_fallback",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.duration.DurationType",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
         }
       }
     },
@@ -61336,51 +61013,6 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "lifecycle",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "equal"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.LifecycleState.__repr__",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.direct_cpp_first_slice",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
         "manifest_entry_ids": [
           "lifecycle.node"
         ],
@@ -61463,92 +61095,6 @@
         "signature": {
           "state": "inspectable",
           "value": "(self, value, start=0, stop=9223372036854775807, /)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.direct_cpp_first_slice",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "lifecycle",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "not_applicable"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "not_applicable"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.LifecycleState.label",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "not_applicable"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.direct_cpp_first_slice",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "lifecycle",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "not_applicable"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "not_applicable"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.LifecycleState.state_id",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "not_applicable"
         }
       }
     },
@@ -68247,51 +67793,6 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "lifecycle",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "equal"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.State.__repr__",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.direct_cpp_first_slice",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
         "manifest_entry_ids": [
           "lifecycle.node"
         ],
@@ -68374,92 +67875,6 @@
         "signature": {
           "state": "inspectable",
           "value": "(self, value, start=0, stop=9223372036854775807, /)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.direct_cpp_first_slice",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "lifecycle",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "not_applicable"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "not_applicable"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.State.label",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "not_applicable"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.direct_cpp_first_slice",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "lifecycle",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "not_applicable"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "not_applicable"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.State.state_id",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "not_applicable"
         }
       }
     },
@@ -76746,51 +76161,6 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "lifecycle",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "equal"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.node.LifecycleState.__repr__",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.direct_cpp_first_slice",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
         "manifest_entry_ids": [
           "lifecycle.node"
         ],
@@ -76873,92 +76243,6 @@
         "signature": {
           "state": "inspectable",
           "value": "(self, value, start=0, stop=9223372036854775807, /)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.direct_cpp_first_slice",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "lifecycle",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "not_applicable"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "not_applicable"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.node.LifecycleState.label",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "not_applicable"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "lifecycle.communication_interface",
-          "lifecycle.direct_cpp_first_slice",
-          "lifecycle.error_processing",
-          "lifecycle.node",
-          "lifecycle.publisher"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "lifecycle",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "not_applicable"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "not_applicable"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.lifecycle.node.LifecycleState.state_id",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.lifecycle.node.LifecycleState",
-        "signature": {
-          "state": "not_applicable"
         }
       }
     },
@@ -88757,56 +88041,6 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "node",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "equal"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.node.ContentFilterOptions.__repr__",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "node.create_node",
-          "node.direct_construction",
-          "node.direct_cpp_graph_surface",
-          "node.direct_cpp_options",
-          "node.direct_cpp_qos_events",
-          "node.direct_cpp_set_descriptor_fail_closed",
-          "node.extended_stock_surface",
-          "node.graph_identity",
-          "node.private_destruction_order",
-          "node.subclass_existing_alias"
-        ],
         "manifest_entry_ids": [
           "node.extended_stock_surface"
         ],
@@ -88842,102 +88076,6 @@
         "signature": {
           "state": "inspectable",
           "value": "(self, value, /)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "node.create_node",
-          "node.direct_construction",
-          "node.direct_cpp_graph_surface",
-          "node.direct_cpp_options",
-          "node.direct_cpp_qos_events",
-          "node.direct_cpp_set_descriptor_fail_closed",
-          "node.extended_stock_surface",
-          "node.graph_identity",
-          "node.private_destruction_order",
-          "node.subclass_existing_alias"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "node",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "not_applicable"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "not_applicable"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.node.ContentFilterOptions.expression_parameters",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "not_applicable"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "node.create_node",
-          "node.direct_construction",
-          "node.direct_cpp_graph_surface",
-          "node.direct_cpp_options",
-          "node.direct_cpp_qos_events",
-          "node.direct_cpp_set_descriptor_fail_closed",
-          "node.extended_stock_surface",
-          "node.graph_identity",
-          "node.private_destruction_order",
-          "node.subclass_existing_alias"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "node",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "not_applicable"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "not_applicable"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.node.ContentFilterOptions.filter_expression",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "not_applicable"
         }
       }
     },
@@ -152660,54 +151798,6 @@
           "subscription.direct_cpp_wait_for_message",
           "subscription.wait_for_message"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "subscription",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "equal"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.subscription.ContentFilterOptions.__repr__",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "subscription.advanced_options",
-          "subscription.basic",
-          "subscription.direct_cpp_content_filter",
-          "subscription.direct_cpp_handle_fail_closed",
-          "subscription.direct_cpp_qos_overriding",
-          "subscription.direct_cpp_raw",
-          "subscription.direct_cpp_wait_for_message",
-          "subscription.wait_for_message"
-        ],
         "manifest_entry_ids": [
           "subscription.basic"
         ],
@@ -152743,98 +151833,6 @@
         "signature": {
           "state": "inspectable",
           "value": "(self, value, /)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "subscription.advanced_options",
-          "subscription.basic",
-          "subscription.direct_cpp_content_filter",
-          "subscription.direct_cpp_handle_fail_closed",
-          "subscription.direct_cpp_qos_overriding",
-          "subscription.direct_cpp_raw",
-          "subscription.direct_cpp_wait_for_message",
-          "subscription.wait_for_message"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "subscription",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "not_applicable"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "not_applicable"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.subscription.ContentFilterOptions.expression_parameters",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "not_applicable"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "subscription.advanced_options",
-          "subscription.basic",
-          "subscription.direct_cpp_content_filter",
-          "subscription.direct_cpp_handle_fail_closed",
-          "subscription.direct_cpp_qos_overriding",
-          "subscription.direct_cpp_raw",
-          "subscription.direct_cpp_wait_for_message",
-          "subscription.wait_for_message"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "subscription",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "not_applicable"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "not_applicable"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.subscription.ContentFilterOptions.filter_expression",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "not_applicable"
         }
       }
     },
@@ -155278,54 +154276,6 @@
           "subscription.direct_cpp_wait_for_message",
           "subscription.wait_for_message"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "subscription",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "equal"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.subscription_content_filter_options.ContentFilterOptions.__repr__",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "subscription.advanced_options",
-          "subscription.basic",
-          "subscription.direct_cpp_content_filter",
-          "subscription.direct_cpp_handle_fail_closed",
-          "subscription.direct_cpp_qos_overriding",
-          "subscription.direct_cpp_raw",
-          "subscription.direct_cpp_wait_for_message",
-          "subscription.wait_for_message"
-        ],
         "manifest_entry_ids": [
           "subscription.basic"
         ],
@@ -155361,98 +154311,6 @@
         "signature": {
           "state": "inspectable",
           "value": "(self, value, /)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "subscription.advanced_options",
-          "subscription.basic",
-          "subscription.direct_cpp_content_filter",
-          "subscription.direct_cpp_handle_fail_closed",
-          "subscription.direct_cpp_qos_overriding",
-          "subscription.direct_cpp_raw",
-          "subscription.direct_cpp_wait_for_message",
-          "subscription.wait_for_message"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "subscription",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "not_applicable"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "not_applicable"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.subscription_content_filter_options.ContentFilterOptions.expression_parameters",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "not_applicable"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "subscription.advanced_options",
-          "subscription.basic",
-          "subscription.direct_cpp_content_filter",
-          "subscription.direct_cpp_handle_fail_closed",
-          "subscription.direct_cpp_qos_overriding",
-          "subscription.direct_cpp_raw",
-          "subscription.direct_cpp_wait_for_message",
-          "subscription.wait_for_message"
-        ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
-      },
-      "area": "subscription",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "not_applicable"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "not_applicable"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.subscription_content_filter_options.ContentFilterOptions.filter_expression",
-      "status": "unassessed",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "data",
-        "kind": "data_descriptor",
-        "origin": "collections",
-        "owner": "rclpy.subscription_content_filter_options.ContentFilterOptions",
-        "signature": {
-          "state": "not_applicable"
         }
       }
     },
@@ -159525,54 +158383,6 @@
         "signature": {
           "state": "inspectable",
           "value": "(*args, **kwargs)"
-        }
-      }
-    },
-    {
-      "annotation": {
-        "area_manifest_entry_ids": [
-          "clock.direct_cpp_sleep",
-          "time.direct_cpp_jump_callback",
-          "time.direct_cpp_node_clock",
-          "time.direct_cpp_payload",
-          "time.direct_cpp_sim_time",
-          "time.stock_surface"
-        ],
-        "manifest_entry_ids": [
-          "time.stock_surface"
-        ],
-        "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated."
-      },
-      "area": "time",
-      "attribution": "foreign",
-      "comparison": {
-        "kind_match": true,
-        "presence": "both",
-        "signature": "equal"
-      },
-      "direct": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.time.TimeHandle",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
-        }
-      },
-      "level": "member",
-      "path": "rclpy.time.TimeHandle.__init__",
-      "status": "unchanged_stock_fallback",
-      "stock": {
-        "attribution": "foreign",
-        "implementation": "python",
-        "kind": "method",
-        "origin": "typing",
-        "owner": "rclpy.time.TimeHandle",
-        "signature": {
-          "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
         }
       }
     },
@@ -181089,8 +179899,9 @@
   "summary": {
     "direct_backend_entries": 1033,
     "direct_only_entries": 0,
+    "excluded_foreign_entries": 26,
     "generated_interface_aliases": 21,
-    "ledger_entries": 3800,
+    "ledger_entries": 3774,
     "modules": 58,
     "signature_mismatches": 100,
     "statuses": {
@@ -181098,8 +179909,8 @@
       "explicit_fail_closed": 25,
       "missing_mismatch": 172,
       "mixed_control_direct_data": 0,
-      "unassessed": 225,
-      "unchanged_stock_fallback": 2428
+      "unassessed": 204,
+      "unchanged_stock_fallback": 2423
     },
     "stock_only_entries": 72,
     "stock_public_class_members": 3333,

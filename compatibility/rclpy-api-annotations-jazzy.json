@@ -3501,14 +3501,6 @@
       "manifest_entry_ids": [
         "time.stock_surface"
       ],
-      "path": "rclpy.clock.ClockHandle.__init__",
-      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
-      "status": "unchanged_stock_fallback"
-    },
-    {
-      "manifest_entry_ids": [
-        "time.stock_surface"
-      ],
       "path": "rclpy.clock.ClockHandle.add_clock_callback",
       "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
       "status": "unchanged_stock_fallback"
@@ -3806,14 +3798,6 @@
         "time.stock_surface"
       ],
       "path": "rclpy.clock.DestroyableType.__exit__",
-      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
-      "status": "unchanged_stock_fallback"
-    },
-    {
-      "manifest_entry_ids": [
-        "time.stock_surface"
-      ],
-      "path": "rclpy.clock.DestroyableType.__init__",
       "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
       "status": "unchanged_stock_fallback"
     },
@@ -4222,14 +4206,6 @@
         "time.stock_surface"
       ],
       "path": "rclpy.clock.TimeHandle",
-      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
-      "status": "unchanged_stock_fallback"
-    },
-    {
-      "manifest_entry_ids": [
-        "time.stock_surface"
-      ],
-      "path": "rclpy.clock.TimeHandle.__init__",
       "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
       "status": "unchanged_stock_fallback"
     },
@@ -4838,14 +4814,6 @@
         "time.stock_surface"
       ],
       "path": "rclpy.duration.DurationType",
-      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
-      "status": "unchanged_stock_fallback"
-    },
-    {
-      "manifest_entry_ids": [
-        "time.stock_surface"
-      ],
-      "path": "rclpy.duration.DurationType.__init__",
       "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
       "status": "unchanged_stock_fallback"
     },
@@ -24641,14 +24609,6 @@
         "time.stock_surface"
       ],
       "path": "rclpy.time.TimeHandle",
-      "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
-      "status": "unchanged_stock_fallback"
-    },
-    {
-      "manifest_entry_ids": [
-        "time.stock_surface"
-      ],
-      "path": "rclpy.time.TimeHandle.__init__",
       "rationale": "Unchanged stock helper, constant, or typing surface under the time area; activate() never patches rclpy.clock, rclpy.duration, rclpy.time, or rclpy.time_source. This row is not touched by direct_cpp and is not claimed as accelerated.",
       "status": "unchanged_stock_fallback"
     },
