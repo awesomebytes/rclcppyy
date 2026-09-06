@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """Fresh-process stock/direct differential for the QoS event type surface.
 
-Cluster 2 (identity-proof plan §1): proves that every public type in
-``rclpy.event_handler`` (and its ``rclpy.qos_event`` deprecation alias) is
-kept as the exact stock type object under the direct profile, and that the
-module-alias identities hold. Includes the foreign re-exports
-(``CallbackGroup``/``Waitable``/``NumberOfEntities``) too -- proving their
-identity is harmless even though they are excluded from this lane's
-annotation authority (they belong to the executor lane).
+Cluster 2 (identity-proof plan §1): proves that QoS-owned public types in
+``rclpy.event_handler`` (and its ``rclpy.qos_event`` deprecation alias) stay
+exact stock objects under the direct profile, while the foreign
+``CallbackGroup`` re-export follows its direct facade. The cross-module alias
+identities still hold. Foreign re-exports remain excluded from this lane's
+annotation authority because they belong to the executor lane.
 """
 
 from __future__ import annotations
@@ -29,7 +28,11 @@ def _public_classes(module):
         if not inspect.isclass(value):
             continue
         origin = getattr(value, "__module__", "") or ""
-        if origin == module.__name__ or origin.startswith("rclpy."):
+        if (
+            name == "CallbackGroup"
+            or origin == module.__name__
+            or origin.startswith("rclpy.")
+        ):
             result[name] = value
     return result
 

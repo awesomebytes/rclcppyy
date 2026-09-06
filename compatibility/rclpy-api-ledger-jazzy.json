@@ -18579,18 +18579,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "service",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.callback_groups",
-        "qualname": "CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "qualname": "DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "() -> None"
@@ -18622,18 +18622,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "service",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> None"
@@ -18665,18 +18665,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "service",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -18708,18 +18708,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "service",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -18751,18 +18751,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "service",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -18794,18 +18794,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "service",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -18837,18 +18837,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "service",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -31789,18 +31789,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.callback_groups",
-        "qualname": "CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "qualname": "DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "() -> None"
@@ -31830,18 +31830,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> None"
@@ -31871,18 +31871,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -31912,18 +31912,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -31953,18 +31953,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -31994,18 +31994,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -32035,18 +32035,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -50554,29 +50554,29 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
       },
       "area": "executor",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "equal"
+        "signature": "different"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.subscription",
-        "qualname": "Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "qualname": "DirectSubscription",
         "signature": {
           "state": "inspectable",
-          "value": "(subscription_impl: rclpy._rclpy_pybind11.Subscription, msg_type: ~MsgType, topic: str, callback: Callable, callback_group: rclpy.callback_groups.CallbackGroup, qos_profile: rclpy.qos.QoSProfile, raw: bool, event_callbacks: rclpy.event_handler.SubscriptionEventCallbacks) -> None"
+          "value": "(msg_type, topic, callback, qos_profile, logger_name, native, callback_group, with_message_info=False, raw=False)"
         }
       },
       "level": "symbol",
       "path": "rclpy.executors.Subscription",
-      "status": "unassessed",
+      "status": "missing_mismatch",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -50623,7 +50623,7 @@
         "implementation": "python",
         "kind": "nested_class",
         "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(*values)"
@@ -50662,29 +50662,29 @@
           "executor.stock_extensions"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
       },
       "area": "executor",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "equal"
+        "signature": "different"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
-          "value": "(self, subscription_impl: rclpy._rclpy_pybind11.Subscription, msg_type: ~MsgType, topic: str, callback: Callable, callback_group: rclpy.callback_groups.CallbackGroup, qos_profile: rclpy.qos.QoSProfile, raw: bool, event_callbacks: rclpy.event_handler.SubscriptionEventCallbacks) -> None"
+          "value": "(self, msg_type, topic, callback, qos_profile, logger_name, native, callback_group, with_message_info=False, raw=False)"
         }
       },
       "level": "member",
       "path": "rclpy.executors.Subscription.__init__",
-      "status": "unassessed",
+      "status": "missing_mismatch",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -50718,18 +50718,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -50771,18 +50771,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -50824,18 +50824,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> rclpy.subscription_content_filter_options.ContentFilterOptions"
@@ -50877,18 +50877,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> int"
@@ -50930,18 +50930,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -50983,18 +50983,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> bool"
@@ -51036,18 +51036,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> str"
@@ -51089,18 +51089,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self, filter_expression: str, expression_parameters: list[str]) -> None"
@@ -51142,18 +51142,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "executor",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -75269,29 +75269,29 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
       },
       "area": "lifecycle",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "equal"
+        "signature": "different"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.lifecycle.publisher",
-        "qualname": "LifecyclePublisher",
+        "origin": "rclcppyy.direct_lifecycle",
+        "qualname": "DirectLifecyclePublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(*args, **kwargs)"
+          "value": "(msg_type, topic, qos_profile, logger_name, native, callback_group)"
         }
       },
       "level": "symbol",
       "path": "rclpy.lifecycle.node.LifecyclePublisher",
-      "status": "unassessed",
+      "status": "missing_mismatch",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -75314,29 +75314,29 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
       },
       "area": "lifecycle",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "equal"
+        "signature": "different"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.lifecycle.publisher",
-        "owner": "rclpy.lifecycle.publisher.LifecyclePublisher",
+        "origin": "rclcppyy.direct_lifecycle",
+        "owner": "rclcppyy.direct_lifecycle.DirectLifecyclePublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(self, *args, **kwargs)"
+          "value": "(self, msg_type, topic, qos_profile, logger_name, native, callback_group)"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecyclePublisher.__init__",
-      "status": "unassessed",
+      "status": "missing_mismatch",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -75553,18 +75553,18 @@
         "rationale": "The direct profile preserves the stock rclpy.lifecycle.managed_entity.SimpleManagedEntity class and inherited members unchanged; activate() never patches rclpy.lifecycle.managed_entity (verified against the 40-entry patch list), and test_direct_lifecycle.py checks its type relationship, activation property, and callback behavior under the direct profile. Stock behavior only."
       },
       "area": "lifecycle",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.lifecycle.managed_entity",
-        "owner": "rclpy.lifecycle.managed_entity.SimpleManagedEntity",
+        "origin": "rclcppyy.direct_lifecycle",
+        "owner": "rclcppyy.direct_lifecycle.DirectLifecyclePublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -75648,18 +75648,18 @@
         "rationale": "The direct profile preserves the stock rclpy.lifecycle.managed_entity.SimpleManagedEntity class and inherited members unchanged; activate() never patches rclpy.lifecycle.managed_entity (verified against the 40-entry patch list), and test_direct_lifecycle.py checks its type relationship, activation property, and callback behavior under the direct profile. Stock behavior only."
       },
       "area": "lifecycle",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.lifecycle.managed_entity",
-        "owner": "rclpy.lifecycle.managed_entity.SimpleManagedEntity",
+        "origin": "rclcppyy.direct_lifecycle",
+        "owner": "rclcppyy.direct_lifecycle.DirectLifecyclePublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self, state) -> rclpy._rclpy_pybind11.TransitionCallbackReturnType"
@@ -75792,18 +75792,18 @@
         "rationale": "The direct profile preserves the stock rclpy.lifecycle.managed_entity.SimpleManagedEntity class and inherited members unchanged; activate() never patches rclpy.lifecycle.managed_entity (verified against the 40-entry patch list), and test_direct_lifecycle.py checks its type relationship, activation property, and callback behavior under the direct profile. Stock behavior only."
       },
       "area": "lifecycle",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.lifecycle.managed_entity",
-        "owner": "rclpy.lifecycle.managed_entity.SimpleManagedEntity",
+        "origin": "rclcppyy.direct_lifecycle",
+        "owner": "rclcppyy.direct_lifecycle.DirectLifecyclePublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self, state) -> rclpy._rclpy_pybind11.TransitionCallbackReturnType"
@@ -75933,18 +75933,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.lifecycle.publisher",
-        "owner": "rclpy.lifecycle.publisher.LifecyclePublisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self, msg: Union[~MsgType, bytes]) -> None"
@@ -86530,18 +86530,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.callback_groups",
-        "qualname": "CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "qualname": "DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "() -> None"
@@ -86580,18 +86580,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> None"
@@ -86630,18 +86630,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -86680,18 +86680,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -86730,18 +86730,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -86780,18 +86780,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -86830,18 +86830,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -88785,18 +88785,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.executors",
-        "qualname": "Executor",
+        "origin": "rclcppyy.direct_executors",
+        "qualname": "DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(*, context: Optional[rclpy.context.Context] = None) -> None"
@@ -88835,18 +88835,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> 'Executor'"
@@ -88885,18 +88885,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[traceback]) -> None"
@@ -88935,18 +88935,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self, *, context: Optional[rclpy.context.Context] = None) -> None"
@@ -88985,18 +88985,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self, node: 'Node') -> bool"
@@ -89035,18 +89035,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity: ~WaitableEntityType) -> bool"
@@ -89085,18 +89085,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> rclpy.context.Context"
@@ -89135,18 +89135,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> rclpy.task.Future"
@@ -89185,18 +89185,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self, callback: Union[Callable, Coroutine], *args, **kwargs) -> rclpy.task.Task"
@@ -89235,18 +89235,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> List[ForwardRef('Node')]"
@@ -89285,18 +89285,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> bool"
@@ -89335,18 +89335,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self, node: 'Node') -> None"
@@ -89385,18 +89385,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self, timeout_sec: Optional[float] = None) -> bool"
@@ -89435,18 +89435,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> None"
@@ -89485,18 +89485,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self, timeout_sec: Optional[float] = None) -> None"
@@ -89535,18 +89535,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self, future: rclpy.task.Future, timeout_sec: Union[float, rclpy.executors.TimeoutObject, NoneType] = None) -> None"
@@ -89585,18 +89585,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self, future: rclpy.task.Future, timeout_sec: Optional[float] = None) -> None"
@@ -89635,18 +89635,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self, *args, **kwargs) -> Tuple[rclpy.task.Task, ~WaitableEntityType, ForwardRef('Node')]"
@@ -89685,18 +89685,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.executors",
-        "owner": "rclpy.executors.Executor",
+        "origin": "rclcppyy.direct_executors",
+        "owner": "rclcppyy.direct_executors.DirectExecutor",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> None"
@@ -91191,18 +91191,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.callback_groups",
-        "qualname": "MutuallyExclusiveCallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "qualname": "DirectMutuallyExclusiveCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "()"
@@ -91241,18 +91241,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.MutuallyExclusiveCallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectMutuallyExclusiveCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -91291,18 +91291,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -91341,18 +91341,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.MutuallyExclusiveCallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectMutuallyExclusiveCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity)"
@@ -91391,18 +91391,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.MutuallyExclusiveCallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectMutuallyExclusiveCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity)"
@@ -91441,18 +91441,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.MutuallyExclusiveCallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectMutuallyExclusiveCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity)"
@@ -91491,18 +91491,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -97638,29 +97638,29 @@
           "node.subclass_existing_alias"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "equal"
+        "signature": "different"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.publisher",
-        "qualname": "Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "qualname": "DirectPublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(publisher_impl: rclpy._rclpy_pybind11.Publisher, msg_type: ~MsgType, topic: str, qos_profile: rclpy.qos.QoSProfile, event_callbacks: rclpy.event_handler.PublisherEventCallbacks, callback_group: rclpy.callback_groups.CallbackGroup) -> None"
+          "value": "(msg_type, topic, qos_profile, logger_name, native, callback_group)"
         }
       },
       "level": "symbol",
       "path": "rclpy.node.Publisher",
-      "status": "unassessed",
+      "status": "missing_mismatch",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -97688,29 +97688,29 @@
           "node.subclass_existing_alias"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "equal"
+        "signature": "different"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(self, publisher_impl: rclpy._rclpy_pybind11.Publisher, msg_type: ~MsgType, topic: str, qos_profile: rclpy.qos.QoSProfile, event_callbacks: rclpy.event_handler.PublisherEventCallbacks, callback_group: rclpy.callback_groups.CallbackGroup) -> None"
+          "value": "(self, msg_type, topic, qos_profile, logger_name, native, callback_group)"
         }
       },
       "level": "member",
       "path": "rclpy.node.Publisher.__init__",
-      "status": "unassessed",
+      "status": "missing_mismatch",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -97741,18 +97741,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> None"
@@ -97791,18 +97791,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -97841,18 +97841,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> int"
@@ -97891,18 +97891,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -97941,18 +97941,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> str"
@@ -97991,18 +97991,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self, msg: Union[~MsgType, bytes]) -> None"
@@ -98041,18 +98041,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> str"
@@ -98088,29 +98088,29 @@
           "node.subclass_existing_alias"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "equal"
+        "signature": "different"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(self, timeout: rclpy.duration.Duration = Duration(nanoseconds=-1000000000)) -> bool"
+          "value": "(self, timeout=None)"
         }
       },
       "level": "member",
       "path": "rclpy.node.Publisher.wait_for_all_acked",
-      "status": "unassessed",
+      "status": "missing_mismatch",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -100145,18 +100145,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.callback_groups",
-        "qualname": "ReentrantCallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "qualname": "DirectReentrantCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "() -> None"
@@ -100195,18 +100195,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectReentrantCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> None"
@@ -100245,18 +100245,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -100295,18 +100295,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.ReentrantCallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectReentrantCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity)"
@@ -100345,18 +100345,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.ReentrantCallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectReentrantCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity)"
@@ -100395,18 +100395,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.ReentrantCallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectReentrantCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity)"
@@ -100445,18 +100445,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -100974,29 +100974,29 @@
           "node.subclass_existing_alias"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "equal"
+        "signature": "different"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.subscription",
-        "qualname": "Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "qualname": "DirectSubscription",
         "signature": {
           "state": "inspectable",
-          "value": "(subscription_impl: rclpy._rclpy_pybind11.Subscription, msg_type: ~MsgType, topic: str, callback: Callable, callback_group: rclpy.callback_groups.CallbackGroup, qos_profile: rclpy.qos.QoSProfile, raw: bool, event_callbacks: rclpy.event_handler.SubscriptionEventCallbacks) -> None"
+          "value": "(msg_type, topic, callback, qos_profile, logger_name, native, callback_group, with_message_info=False, raw=False)"
         }
       },
       "level": "symbol",
       "path": "rclpy.node.Subscription",
-      "status": "unassessed",
+      "status": "missing_mismatch",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -101040,7 +101040,7 @@
         "implementation": "python",
         "kind": "nested_class",
         "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(*values)"
@@ -101076,29 +101076,29 @@
           "node.subclass_existing_alias"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "equal"
+        "signature": "different"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
-          "value": "(self, subscription_impl: rclpy._rclpy_pybind11.Subscription, msg_type: ~MsgType, topic: str, callback: Callable, callback_group: rclpy.callback_groups.CallbackGroup, qos_profile: rclpy.qos.QoSProfile, raw: bool, event_callbacks: rclpy.event_handler.SubscriptionEventCallbacks) -> None"
+          "value": "(self, msg_type, topic, callback, qos_profile, logger_name, native, callback_group, with_message_info=False, raw=False)"
         }
       },
       "level": "member",
       "path": "rclpy.node.Subscription.__init__",
-      "status": "unassessed",
+      "status": "missing_mismatch",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -101129,18 +101129,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -101179,18 +101179,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -101229,18 +101229,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> rclpy.subscription_content_filter_options.ContentFilterOptions"
@@ -101279,18 +101279,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> int"
@@ -101329,18 +101329,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -101379,18 +101379,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> bool"
@@ -101429,18 +101429,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> str"
@@ -101479,18 +101479,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self, filter_expression: str, expression_parameters: list[str]) -> None"
@@ -101529,18 +101529,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -104103,18 +104103,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "function",
-        "origin": "rclpy.type_support",
-        "qualname": "check_is_valid_msg_type",
+        "origin": "rclcppyy.direct_cpp",
+        "qualname": "_prepare_check_is_valid_msg_type.<locals>.check_is_valid_msg_type",
         "signature": {
           "state": "inspectable",
           "value": "(msg_type)"
@@ -119224,17 +119224,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -119269,17 +119269,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "classmethod",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -119314,17 +119314,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -119359,17 +119359,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -119404,17 +119404,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -119449,17 +119449,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -119494,17 +119494,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -120240,18 +120240,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "publisher",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.callback_groups",
-        "qualname": "CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "qualname": "DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "() -> None"
@@ -120284,18 +120284,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "publisher",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> None"
@@ -120328,18 +120328,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "publisher",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -120372,18 +120372,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "publisher",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -120416,18 +120416,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "publisher",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -120460,18 +120460,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "publisher",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -120504,18 +120504,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "publisher",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -133619,18 +133619,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.callback_groups",
-        "qualname": "CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "qualname": "DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "() -> None"
@@ -133660,18 +133660,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> None"
@@ -133701,18 +133701,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -133742,18 +133742,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -133783,18 +133783,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -133824,18 +133824,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -133865,18 +133865,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -140547,17 +140547,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -140588,17 +140588,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "classmethod",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -140629,17 +140629,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -140670,17 +140670,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -140711,17 +140711,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -140752,17 +140752,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -140793,17 +140793,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -141044,29 +141044,29 @@
           "qos.stock_surface"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "equal"
+        "signature": "different"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.publisher",
-        "qualname": "Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "qualname": "DirectPublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(publisher_impl: rclpy._rclpy_pybind11.Publisher, msg_type: ~MsgType, topic: str, qos_profile: rclpy.qos.QoSProfile, event_callbacks: rclpy.event_handler.PublisherEventCallbacks, callback_group: rclpy.callback_groups.CallbackGroup) -> None"
+          "value": "(msg_type, topic, qos_profile, logger_name, native, callback_group)"
         }
       },
       "level": "symbol",
       "path": "rclpy.qos_overriding_options.Publisher",
-      "status": "unassessed",
+      "status": "missing_mismatch",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -141085,29 +141085,29 @@
           "qos.stock_surface"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "equal"
+        "signature": "different"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(self, publisher_impl: rclpy._rclpy_pybind11.Publisher, msg_type: ~MsgType, topic: str, qos_profile: rclpy.qos.QoSProfile, event_callbacks: rclpy.event_handler.PublisherEventCallbacks, callback_group: rclpy.callback_groups.CallbackGroup) -> None"
+          "value": "(self, msg_type, topic, qos_profile, logger_name, native, callback_group)"
         }
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Publisher.__init__",
-      "status": "unassessed",
+      "status": "missing_mismatch",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -141129,18 +141129,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> None"
@@ -141170,18 +141170,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -141211,18 +141211,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> int"
@@ -141252,18 +141252,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -141293,18 +141293,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> str"
@@ -141334,18 +141334,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self, msg: Union[~MsgType, bytes]) -> None"
@@ -141375,18 +141375,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> str"
@@ -141413,29 +141413,29 @@
           "qos.stock_surface"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "equal"
+        "signature": "different"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.publisher",
-        "owner": "rclpy.publisher.Publisher",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectPublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(self, timeout: rclpy.duration.Duration = Duration(nanoseconds=-1000000000)) -> bool"
+          "value": "(self, timeout=None)"
         }
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Publisher.wait_for_all_acked",
-      "status": "unassessed",
+      "status": "missing_mismatch",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -146316,29 +146316,29 @@
           "qos.stock_surface"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "equal"
+        "signature": "different"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.subscription",
-        "qualname": "Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "qualname": "DirectSubscription",
         "signature": {
           "state": "inspectable",
-          "value": "(subscription_impl: rclpy._rclpy_pybind11.Subscription, msg_type: ~MsgType, topic: str, callback: Callable, callback_group: rclpy.callback_groups.CallbackGroup, qos_profile: rclpy.qos.QoSProfile, raw: bool, event_callbacks: rclpy.event_handler.SubscriptionEventCallbacks) -> None"
+          "value": "(msg_type, topic, callback, qos_profile, logger_name, native, callback_group, with_message_info=False, raw=False)"
         }
       },
       "level": "symbol",
       "path": "rclpy.qos_overriding_options.Subscription",
-      "status": "unassessed",
+      "status": "missing_mismatch",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -146373,7 +146373,7 @@
         "implementation": "python",
         "kind": "nested_class",
         "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(*values)"
@@ -146400,29 +146400,29 @@
           "qos.stock_surface"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "equal"
+        "signature": "different"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
-          "value": "(self, subscription_impl: rclpy._rclpy_pybind11.Subscription, msg_type: ~MsgType, topic: str, callback: Callable, callback_group: rclpy.callback_groups.CallbackGroup, qos_profile: rclpy.qos.QoSProfile, raw: bool, event_callbacks: rclpy.event_handler.SubscriptionEventCallbacks) -> None"
+          "value": "(self, msg_type, topic, callback, qos_profile, logger_name, native, callback_group, with_message_info=False, raw=False)"
         }
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Subscription.__init__",
-      "status": "unassessed",
+      "status": "missing_mismatch",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -146444,18 +146444,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -146485,18 +146485,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -146526,18 +146526,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> rclpy.subscription_content_filter_options.ContentFilterOptions"
@@ -146567,18 +146567,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> int"
@@ -146608,18 +146608,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -146649,18 +146649,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> bool"
@@ -146690,18 +146690,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> str"
@@ -146731,18 +146731,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self, filter_expression: str, expression_parameters: list[str]) -> None"
@@ -146772,18 +146772,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "qos",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.subscription",
-        "owner": "rclpy.subscription.Subscription",
+        "origin": "rclcppyy.direct_cpp",
+        "owner": "rclcppyy.direct_cpp.DirectSubscription",
         "signature": {
           "state": "inspectable",
           "value": "(self)"
@@ -146996,18 +146996,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "service",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.callback_groups",
-        "qualname": "CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "qualname": "DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "() -> None"
@@ -147039,18 +147039,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "service",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> None"
@@ -147082,18 +147082,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "service",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -147125,18 +147125,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "service",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -147168,18 +147168,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "service",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -147211,18 +147211,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "service",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -147254,18 +147254,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "service",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -151416,18 +151416,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "subscription",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.callback_groups",
-        "qualname": "CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "qualname": "DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "() -> None"
@@ -151464,18 +151464,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "subscription",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> None"
@@ -151512,18 +151512,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "subscription",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -151560,18 +151560,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "subscription",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -151608,18 +151608,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "subscription",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -151656,18 +151656,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "subscription",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -151704,18 +151704,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "subscription",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -159330,17 +159330,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "time",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -159376,17 +159376,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "time",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "classmethod",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -159422,17 +159422,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "time",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -159468,17 +159468,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "time",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -159514,17 +159514,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "time",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -159560,17 +159560,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "time",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -159606,17 +159606,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "time",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -162880,18 +162880,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "timer",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "class",
-        "origin": "rclpy.callback_groups",
-        "qualname": "CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "qualname": "DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "() -> None"
@@ -162923,18 +162923,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "timer",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self) -> None"
@@ -162966,18 +162966,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "timer",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -163009,18 +163009,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "timer",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -163052,18 +163052,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "timer",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -163095,18 +163095,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "timer",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> None"
@@ -163138,18 +163138,18 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "timer",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.callback_groups",
-        "owner": "rclpy.callback_groups.CallbackGroup",
+        "origin": "rclcppyy.direct_callback_groups",
+        "owner": "rclcppyy.direct_callback_groups.DirectCallbackGroup",
         "signature": {
           "state": "inspectable",
           "value": "(self, entity) -> bool"
@@ -168753,17 +168753,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "type_support",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -168797,17 +168797,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "type_support",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "classmethod",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -168841,17 +168841,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "type_support",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -168885,17 +168885,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "type_support",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -168929,17 +168929,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "type_support",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "method",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -168973,17 +168973,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "type_support",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -169017,17 +169017,17 @@
         "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "type_support",
-      "attribution": "stock",
+      "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
         "signature": "equal"
       },
       "direct": {
-        "attribution": "stock",
+        "attribution": "direct_backend",
         "implementation": "python",
         "kind": "property",
-        "origin": "rclpy.parameter",
+        "origin": "rclcppyy.direct_parameters",
         "owner": "rclpy.parameter.Parameter",
         "signature": {
           "state": "inspectable",
@@ -179897,19 +179897,19 @@
     "ros_distribution": "jazzy"
   },
   "summary": {
-    "direct_backend_entries": 1033,
+    "direct_backend_entries": 1210,
     "direct_only_entries": 0,
     "excluded_foreign_entries": 26,
     "generated_interface_aliases": 21,
     "ledger_entries": 3774,
     "modules": 58,
-    "signature_mismatches": 100,
+    "signature_mismatches": 114,
     "statuses": {
       "exact_direct_cpp_authority": 950,
       "explicit_fail_closed": 25,
-      "missing_mismatch": 172,
+      "missing_mismatch": 186,
       "mixed_control_direct_data": 0,
-      "unassessed": 204,
+      "unassessed": 190,
       "unchanged_stock_fallback": 2423
     },
     "stock_only_entries": 72,

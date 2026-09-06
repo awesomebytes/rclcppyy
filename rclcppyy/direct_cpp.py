@@ -3298,12 +3298,21 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         import rclpy.action.graph as action_graph_module
         import rclpy.action.server as action_server_module
         import rclpy.callback_groups as callback_groups_module
+        import rclpy.client as client_module
+        import rclpy.event_handler as event_handler_module
         import rclpy.executors as executors_module
         import rclpy.node as node_module
         import rclpy.parameter as parameter_module
+        import rclpy.parameter_service as parameter_service_module
         import rclpy.publisher as publisher_module
+        import rclpy.qos_event as qos_event_module
+        import rclpy.qos_overriding_options as qos_overriding_options_module
+        import rclpy.service as service_module
         import rclpy.subscription as subscription_module
+        import rclpy.time_source as time_source_module
+        import rclpy.timer as timer_module
         import rclpy.type_support as type_support_module
+        import rclpy.type_description_service as type_description_service_module
         import rclpy.wait_for_message as wait_for_message_module
 
         runtime = _DirectRuntime(
@@ -3370,6 +3379,46 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
             (wait_for_message_module, "Node", DirectNode),
             (publisher_module, "Publisher", DirectPublisher),
             (subscription_module, "Subscription", DirectSubscription),
+            # These public-module aliases are existing stock surface. Rebind
+            # each alias to the same direct facade as its canonical name so
+            # imports through any public module preserve object identity.
+            (node_module, "Executor", DirectExecutor),
+            (node_module, "CallbackGroup", DirectCallbackGroup),
+            (executors_module, "Subscription", DirectSubscription),
+            (node_module, "Subscription", DirectSubscription),
+            (
+                qos_overriding_options_module,
+                "Subscription",
+                DirectSubscription,
+            ),
+            (node_module, "Publisher", DirectPublisher),
+            (qos_overriding_options_module, "Publisher", DirectPublisher),
+            (client_module, "CallbackGroup", DirectCallbackGroup),
+            (event_handler_module, "CallbackGroup", DirectCallbackGroup),
+            (parameter_service_module, "Parameter", DirectParameter),
+            (publisher_module, "CallbackGroup", DirectCallbackGroup),
+            (qos_event_module, "CallbackGroup", DirectCallbackGroup),
+            (qos_overriding_options_module, "Parameter", DirectParameter),
+            (service_module, "CallbackGroup", DirectCallbackGroup),
+            (subscription_module, "CallbackGroup", DirectCallbackGroup),
+            (time_source_module, "Parameter", DirectParameter),
+            (timer_module, "CallbackGroup", DirectCallbackGroup),
+            (type_description_service_module, "Parameter", DirectParameter),
+            (
+                node_module,
+                "MutuallyExclusiveCallbackGroup",
+                DirectMutuallyExclusiveCallbackGroup,
+            ),
+            (
+                node_module,
+                "ReentrantCallbackGroup",
+                DirectReentrantCallbackGroup,
+            ),
+            (
+                node_module,
+                "check_is_valid_msg_type",
+                direct_check_is_valid_msg_type,
+            ),
             (action_module, "ActionClient", direct_actions.DirectActionClient),
             (action_client_module, "ActionClient", direct_actions.DirectActionClient),
             (
@@ -3487,6 +3536,13 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
             (lifecycle_module, "Publisher", DirectLifecyclePublisher),
             (
                 lifecycle_module.publisher,
+                "LifecyclePublisher",
+                DirectLifecyclePublisher,
+            ),
+            # Existing public alias; keep it identical to the facade mirrored
+            # and installed above without adding any new lifecycle surface.
+            (
+                lifecycle_module.node,
                 "LifecyclePublisher",
                 DirectLifecyclePublisher,
             ),
