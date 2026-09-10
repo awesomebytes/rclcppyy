@@ -1123,8 +1123,11 @@
         "area_manifest_entry_ids": [
           "utility.process_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.value_and_event_helpers",
+          "utility.process_surface"
+        ],
+        "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
       },
       "area": "utility",
       "attribution": "stock",
@@ -1146,7 +1149,7 @@
       },
       "level": "member",
       "path": "rclpy.Parameter.Type",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4724,8 +4727,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "The direct public ClientGoalHandle facade owns __hash__, but Python installs the exact None singleton used by the pristine stock ClientGoalHandle, preserving stock's unhashable contract. test_stock_residual_owner_identity.py compares fresh stock and direct processes, verifies direct owner provenance, and proves same-object identity against the stock member retained by the activation transaction."
       },
       "area": "action",
       "attribution": "stock",
@@ -4750,7 +4755,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ClientGoalHandle.__hash__",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "data",
@@ -15813,8 +15818,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "The direct public ServerGoalHandle facade owns __hash__, but Python installs the exact None singleton used by the pristine stock ServerGoalHandle, preserving stock's unhashable contract. test_stock_residual_owner_identity.py compares fresh stock and direct processes, verifies direct owner provenance, and proves same-object identity against the stock member retained by the activation transaction."
       },
       "area": "action",
       "attribution": "stock",
@@ -15839,7 +15846,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ServerGoalHandle.__hash__",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "data",
@@ -96150,8 +96157,11 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "node.extended_stock_surface",
+          "parameter.value_and_event_helpers"
+        ],
+        "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
       },
       "area": "node",
       "attribution": "stock",
@@ -96173,7 +96183,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Parameter.Type",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -104981,8 +104991,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.value_and_event_helpers"
+        ],
+        "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -105004,7 +105016,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter.Parameter.Type",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -110796,8 +110808,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.value_and_event_helpers"
+        ],
+        "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -110819,7 +110833,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Parameter.Type",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -116998,8 +117012,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.value_and_event_helpers"
+        ],
+        "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -117021,7 +117037,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Parameter.Type",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -119342,8 +119358,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.value_and_event_helpers"
+        ],
+        "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -119365,7 +119383,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_service.Parameter.Type",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -140687,8 +140705,11 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.value_and_event_helpers",
+          "qos.stock_surface"
+        ],
+        "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
       },
       "area": "qos",
       "attribution": "stock",
@@ -140710,7 +140731,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Parameter.Type",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -159481,8 +159502,11 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.value_and_event_helpers",
+          "time.stock_surface"
+        ],
+        "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
       },
       "area": "time",
       "attribution": "stock",
@@ -159504,7 +159528,7 @@
       },
       "level": "member",
       "path": "rclpy.time_source.Parameter.Type",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -168910,8 +168934,11 @@
           "type_support.stock_surface",
           "type_support.type_description_service"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.value_and_event_helpers",
+          "type_support.stock_surface"
+        ],
+        "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
       },
       "area": "type_support",
       "attribution": "stock",
@@ -168933,7 +168960,7 @@
       },
       "level": "member",
       "path": "rclpy.type_description_service.Parameter.Type",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -170580,8 +170607,10 @@
           "type_support.stock_surface",
           "type_support.type_description_service"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "type_support.direct_rebound_validation"
+        ],
+        "rationale": "The direct-backed validator has stock's exact (msg_type) public signature. test_stock_residual_owner_identity.py provides a fresh-process stock/direct differential and one-row coverage tripwire: both profiles accept their valid Time message type with a None result and reject SetBool with the identical RuntimeError, while the direct input is the generated C++ Time class and the callable is owned by rclcppyy.direct_cpp. test_direct_cpp.py and its type-support helpers additionally prove registered direct-message acceptance, precise negative delegation, type-support side effects, and zero conversion-boundary crossings. This is a cold validation utility, so transport interoperability and hot-path benchmarking are not applicable."
       },
       "area": "type_support",
       "attribution": "direct_backend",
@@ -170603,7 +170632,7 @@
       },
       "level": "symbol",
       "path": "rclpy.type_support.check_is_valid_msg_type",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -180114,12 +180143,12 @@
     "modules": 58,
     "signature_mismatches": 31,
     "statuses": {
-      "exact_direct_cpp_authority": 993,
+      "exact_direct_cpp_authority": 994,
       "explicit_fail_closed": 25,
       "missing_mismatch": 103,
       "mixed_control_direct_data": 0,
-      "unassessed": 190,
-      "unchanged_stock_fallback": 2463
+      "unassessed": 178,
+      "unchanged_stock_fallback": 2474
     },
     "stock_only_entries": 72,
     "stock_public_class_members": 3333,

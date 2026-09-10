@@ -28705,6 +28705,107 @@
         "service.direct_cpp_setbool_first_slice"
       ],
       "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
+    },
+    {
+      "path": "rclpy.Parameter.Type",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.value_and_event_helpers",
+        "utility.process_surface"
+      ],
+      "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
+    },
+    {
+      "path": "rclpy.node.Parameter.Type",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "node.extended_stock_surface",
+        "parameter.value_and_event_helpers"
+      ],
+      "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
+    },
+    {
+      "path": "rclpy.parameter.Parameter.Type",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.value_and_event_helpers"
+      ],
+      "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
+    },
+    {
+      "path": "rclpy.parameter_client.Parameter.Type",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.value_and_event_helpers"
+      ],
+      "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
+    },
+    {
+      "path": "rclpy.parameter_event_handler.Parameter.Type",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.value_and_event_helpers"
+      ],
+      "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
+    },
+    {
+      "path": "rclpy.parameter_service.Parameter.Type",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.value_and_event_helpers"
+      ],
+      "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Parameter.Type",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.value_and_event_helpers",
+        "qos.stock_surface"
+      ],
+      "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
+    },
+    {
+      "path": "rclpy.time_source.Parameter.Type",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.value_and_event_helpers",
+        "time.stock_surface"
+      ],
+      "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
+    },
+    {
+      "path": "rclpy.type_description_service.Parameter.Type",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.value_and_event_helpers",
+        "type_support.stock_surface"
+      ],
+      "rationale": "The direct Parameter facade retains original_parameter_class.Type by exact object assignment, and every public Parameter alias exposes that retained nested enum. The fresh-process test_stock_parameter_type_identity.py differential verifies stock source ownership, identical MRO and all ten enum values, plus same-object alias identity under the direct profile. The enclosing Parameter class is replaced, but its Type object remains stock behavior unchanged."
+    },
+    {
+      "path": "rclpy.action.client.ClientGoalHandle.__hash__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct public ClientGoalHandle facade owns __hash__, but Python installs the exact None singleton used by the pristine stock ClientGoalHandle, preserving stock's unhashable contract. test_stock_residual_owner_identity.py compares fresh stock and direct processes, verifies direct owner provenance, and proves same-object identity against the stock member retained by the activation transaction."
+    },
+    {
+      "path": "rclpy.action.server.ServerGoalHandle.__hash__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct public ServerGoalHandle facade owns __hash__, but Python installs the exact None singleton used by the pristine stock ServerGoalHandle, preserving stock's unhashable contract. test_stock_residual_owner_identity.py compares fresh stock and direct processes, verifies direct owner provenance, and proves same-object identity against the stock member retained by the activation transaction."
+    },
+    {
+      "path": "rclpy.type_support.check_is_valid_msg_type",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "type_support.direct_rebound_validation"
+      ],
+      "rationale": "The direct-backed validator has stock's exact (msg_type) public signature. test_stock_residual_owner_identity.py provides a fresh-process stock/direct differential and one-row coverage tripwire: both profiles accept their valid Time message type with a None result and reject SetBool with the identical RuntimeError, while the direct input is the generated C++ Time class and the callable is owned by rclcppyy.direct_cpp. test_direct_cpp.py and its type-support helpers additionally prove registered direct-message acceptance, precise negative delegation, type-support side effects, and zero conversion-boundary crossings. This is a cold validation utility, so transport interoperability and hot-path benchmarking are not applicable."
     }
   ],
   "schema": "rclcppyy.rclpy-api-annotations/v1",
