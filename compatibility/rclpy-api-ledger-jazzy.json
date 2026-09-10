@@ -2103,8 +2103,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this ActionClient class is backed by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), consistent with the already-proven exact_direct_cpp_authority status of ActionClient.destroy/send_goal_async/server_is_ready/wait_for_server. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -2126,7 +2128,7 @@
       },
       "level": "symbol",
       "path": "rclpy.action.ActionClient",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -2224,8 +2226,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this ActionClient construction is owned by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public constructor contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), consistent with the already-proven exact_direct_cpp_authority status of ActionClient.destroy/send_goal_async/server_is_ready/wait_for_server. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -2247,7 +2251,7 @@
       },
       "level": "member",
       "path": "rclpy.action.ActionClient.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -2775,8 +2779,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this ActionServer class is backed by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), consistent with the already-proven exact_direct_cpp_authority status of ActionServer.destroy/notify_execute/notify_goal_done/register_cancel_callback/register_execute_callback. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -2798,7 +2804,7 @@
       },
       "level": "symbol",
       "path": "rclpy.action.ActionServer",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -2896,8 +2902,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this ActionServer construction is owned by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public constructor contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), consistent with the already-proven exact_direct_cpp_authority status of ActionServer.destroy/notify_execute/notify_goal_done/register_cancel_callback/register_execute_callback. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -2919,7 +2927,7 @@
       },
       "level": "member",
       "path": "rclpy.action.ActionServer.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -3944,8 +3952,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this ActionClient class is backed by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), consistent with the already-proven exact_direct_cpp_authority status of ActionClient.destroy/send_goal_async/server_is_ready/wait_for_server. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -3967,7 +3977,7 @@
       },
       "level": "symbol",
       "path": "rclpy.action.client.ActionClient",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -4065,8 +4075,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_client_first_slice"
+        ],
+        "rationale": "Under the direct profile this ActionClient construction is owned by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public constructor contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), consistent with the already-proven exact_direct_cpp_authority status of ActionClient.destroy/send_goal_async/server_is_ready/wait_for_server. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -4088,7 +4100,7 @@
       },
       "level": "member",
       "path": "rclpy.action.client.ActionClient.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -8598,8 +8610,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "service.direct_cpp_setbool_first_slice"
+        ],
+        "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -8621,7 +8635,7 @@
       },
       "level": "member",
       "path": "rclpy.action.graph.Node.create_client",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -8792,8 +8806,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "service.direct_cpp_setbool_first_slice"
+        ],
+        "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -8815,7 +8831,7 @@
       },
       "level": "member",
       "path": "rclpy.action.graph.Node.create_service",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -11845,8 +11861,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this ActionServer class is backed by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), consistent with the already-proven exact_direct_cpp_authority status of ActionServer.destroy/notify_execute/notify_goal_done/register_cancel_callback/register_execute_callback. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -11868,7 +11886,7 @@
       },
       "level": "symbol",
       "path": "rclpy.action.server.ActionServer",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -11966,8 +11984,10 @@
           "action.direct_cpp_server_first_slice",
           "action.graph_queries"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "action.direct_cpp_server_first_slice"
+        ],
+        "rationale": "Under the direct profile this ActionServer construction is owned by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public constructor contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), consistent with the already-proven exact_direct_cpp_authority status of ActionServer.destroy/notify_execute/notify_goal_done/register_cancel_callback/register_execute_callback. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
       },
       "area": "action",
       "attribution": "direct_backend",
@@ -11989,7 +12009,7 @@
       },
       "level": "member",
       "path": "rclpy.action.server.ActionServer.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -25912,8 +25932,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.stock_surface"
+        ],
+        "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
       },
       "area": "time",
       "attribution": "stock",
@@ -25935,7 +25957,7 @@
       },
       "level": "member",
       "path": "rclpy.clock.Duration.from_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -26054,8 +26076,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.stock_surface"
+        ],
+        "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
       },
       "area": "time",
       "attribution": "stock",
@@ -26077,7 +26101,7 @@
       },
       "level": "member",
       "path": "rclpy.clock.Duration.to_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -27742,8 +27766,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.stock_surface"
+        ],
+        "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
       },
       "area": "time",
       "attribution": "stock",
@@ -27765,7 +27791,7 @@
       },
       "level": "member",
       "path": "rclpy.clock.Time.from_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -27884,8 +27910,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.stock_surface"
+        ],
+        "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
       },
       "area": "time",
       "attribution": "stock",
@@ -27907,7 +27935,7 @@
       },
       "level": "member",
       "path": "rclpy.clock.Time.to_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -31446,8 +31474,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.stock_surface"
+        ],
+        "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
       },
       "area": "time",
       "attribution": "stock",
@@ -31469,7 +31499,7 @@
       },
       "level": "member",
       "path": "rclpy.duration.Duration.from_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -31588,8 +31618,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.stock_surface"
+        ],
+        "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
       },
       "area": "time",
       "attribution": "stock",
@@ -31611,7 +31643,7 @@
       },
       "level": "member",
       "path": "rclpy.duration.Duration.to_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -54499,8 +54531,10 @@
           "executor.spin_once",
           "executor.stock_extensions"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.stock_extensions"
+        ],
+        "rationale": "EventsExecutor is an unchanged stock rclpy.experimental.events_executor factory function; activate() does not patch rclpy.experimental or rclpy.experimental.events_executor, so both the direct and stock observations resolve to the identical stock callable, confirmed by test_events_executor.py. Stock behavior remains unchanged."
       },
       "area": "executor",
       "attribution": "stock",
@@ -54522,7 +54556,7 @@
       },
       "level": "symbol",
       "path": "rclpy.experimental.EventsExecutor",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -54552,8 +54586,10 @@
           "executor.spin_once",
           "executor.stock_extensions"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.stock_extensions"
+        ],
+        "rationale": "EventsExecutor is an unchanged stock rclpy.experimental.events_executor factory function; activate() does not patch rclpy.experimental or rclpy.experimental.events_executor, so both the direct and stock observations resolve to the identical stock callable, confirmed by test_events_executor.py. Stock behavior remains unchanged."
       },
       "area": "executor",
       "attribution": "stock",
@@ -54575,7 +54611,7 @@
       },
       "level": "symbol",
       "path": "rclpy.experimental.events_executor.EventsExecutor",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -55793,8 +55829,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -55816,7 +55854,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNode.create_client",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -55885,8 +55923,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -55908,7 +55948,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNode.create_lifecycle_publisher",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -56024,8 +56064,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -56047,7 +56089,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNode.create_service",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -59512,8 +59554,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -59535,7 +59579,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNodeMixin.create_lifecycle_publisher",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -60121,8 +60165,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -60144,7 +60190,7 @@
       },
       "level": "symbol",
       "path": "rclpy.lifecycle.LifecyclePublisher",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -60166,8 +60212,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -60189,7 +60237,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecyclePublisher.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -62093,8 +62141,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -62116,7 +62166,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.Node.create_client",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -62185,8 +62235,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -62208,7 +62260,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.Node.create_lifecycle_publisher",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -62324,8 +62376,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -62347,7 +62401,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.Node.create_service",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -65812,8 +65866,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -65835,7 +65891,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.NodeMixin.create_lifecycle_publisher",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -66421,8 +66477,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -66444,7 +66502,7 @@
       },
       "level": "symbol",
       "path": "rclpy.lifecycle.Publisher",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -66466,8 +66524,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -66489,7 +66549,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.Publisher.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -70940,8 +71000,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -70963,7 +71025,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNode.create_client",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -71032,8 +71094,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -71055,7 +71119,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNode.create_lifecycle_publisher",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -71171,8 +71235,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -71194,7 +71260,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNode.create_service",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -74659,8 +74725,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -74682,7 +74750,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNodeMixin.create_lifecycle_publisher",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -75268,8 +75336,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -75291,7 +75361,7 @@
       },
       "level": "symbol",
       "path": "rclpy.lifecycle.node.LifecyclePublisher",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -75313,8 +75383,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -75336,7 +75408,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecyclePublisher.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -77191,8 +77263,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -77214,7 +77288,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.Node.create_client",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -77377,8 +77451,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -77400,7 +77476,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.Node.create_service",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -81946,8 +82022,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -81969,7 +82047,7 @@
       },
       "level": "symbol",
       "path": "rclpy.lifecycle.publisher.LifecyclePublisher",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -81991,8 +82069,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "lifecycle.direct_cpp_first_slice"
+        ],
+        "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -82014,7 +82094,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.publisher.LifecyclePublisher.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -92202,8 +92282,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "service.direct_cpp_setbool_first_slice"
+        ],
+        "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -92225,7 +92307,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.create_client",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -92408,8 +92490,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "service.direct_cpp_setbool_first_slice"
+        ],
+        "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -92431,7 +92515,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Node.create_service",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -98293,8 +98377,11 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "node.extended_stock_surface",
+          "qos.stock_surface"
+        ],
+        "rationale": "rclpy.node re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions class unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
       },
       "area": "node",
       "attribution": "stock",
@@ -98316,7 +98403,7 @@
       },
       "level": "symbol",
       "path": "rclpy.node.QoSOverridingOptions",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -98343,8 +98430,11 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "node.extended_stock_surface",
+          "qos.stock_surface"
+        ],
+        "rationale": "rclpy.node re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.__init__ unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
       },
       "area": "node",
       "attribution": "stock",
@@ -98366,7 +98456,7 @@
       },
       "level": "member",
       "path": "rclpy.node.QoSOverridingOptions.__init__",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -98393,8 +98483,11 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "node.extended_stock_surface",
+          "qos.stock_surface"
+        ],
+        "rationale": "rclpy.node re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.callback unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
       },
       "area": "node",
       "attribution": "stock",
@@ -98416,7 +98509,7 @@
       },
       "level": "member",
       "path": "rclpy.node.QoSOverridingOptions.callback",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -98549,8 +98642,11 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "node.extended_stock_surface",
+          "qos.stock_surface"
+        ],
+        "rationale": "rclpy.node re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.with_default_policies unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
       },
       "area": "node",
       "attribution": "stock",
@@ -98572,7 +98668,7 @@
       },
       "level": "member",
       "path": "rclpy.node.QoSOverridingOptions.with_default_policies",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -105469,8 +105565,14 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice",
+          "parameter.direct_cpp_remote_client",
+          "parameter.local",
+          "parameter.remote",
+          "parameter.value_and_event_helpers"
+        ],
+        "rationale": "The direct profile preserves this stock rclpy.parameter_client class unchanged; activate() never patches rclpy.parameter_client, and test_direct_parameter_client.py proves the unchanged stock source, member operation, response values, callbacks, and teardown over the direct backend. Stock behavior remains unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -105492,7 +105594,7 @@
       },
       "level": "symbol",
       "path": "rclpy.parameter_client.AsyncParameterClient",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -105514,8 +105616,14 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice",
+          "parameter.direct_cpp_remote_client",
+          "parameter.local",
+          "parameter.remote",
+          "parameter.value_and_event_helpers"
+        ],
+        "rationale": "The direct profile preserves this stock rclpy.parameter_client method unchanged; activate() never patches rclpy.parameter_client, and test_direct_parameter_client.py proves the unchanged stock source, member operation, response values, callbacks, and teardown over the direct backend. Stock behavior remains unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -105537,7 +105645,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.AsyncParameterClient.__init__",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -105916,8 +106024,14 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice",
+          "parameter.direct_cpp_remote_client",
+          "parameter.local",
+          "parameter.remote",
+          "parameter.value_and_event_helpers"
+        ],
+        "rationale": "The direct profile preserves this stock rclpy.parameter_client method unchanged; activate() never patches rclpy.parameter_client, and test_direct_parameter_client.py proves the unchanged stock source, member operation, response values, callbacks, and teardown over the direct backend. Stock behavior remains unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -105939,7 +106053,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.AsyncParameterClient.on_parameter_event",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -106012,8 +106126,14 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice",
+          "parameter.direct_cpp_remote_client",
+          "parameter.local",
+          "parameter.remote",
+          "parameter.value_and_event_helpers"
+        ],
+        "rationale": "The direct profile preserves this stock rclpy.parameter_client method unchanged; activate() never patches rclpy.parameter_client, and test_direct_parameter_client.py proves the unchanged stock source, member operation, response values, callbacks, and teardown over the direct backend. Stock behavior remains unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -106035,7 +106155,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.AsyncParameterClient.set_parameters",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -106057,8 +106177,14 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice",
+          "parameter.direct_cpp_remote_client",
+          "parameter.local",
+          "parameter.remote",
+          "parameter.value_and_event_helpers"
+        ],
+        "rationale": "The direct profile preserves this stock rclpy.parameter_client method unchanged; activate() never patches rclpy.parameter_client, and test_direct_parameter_client.py proves the unchanged stock source, member operation, response values, callbacks, and teardown over the direct backend. Stock behavior remains unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -106080,7 +106206,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.AsyncParameterClient.set_parameters_atomically",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -107649,8 +107775,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "service.direct_cpp_setbool_first_slice"
+        ],
+        "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -107672,7 +107800,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Node.create_client",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -107835,8 +107963,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "service.direct_cpp_setbool_first_slice"
+        ],
+        "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -107858,7 +107988,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.Node.create_service",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -111040,8 +111170,11 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.local",
+          "qos.stock_surface"
+        ],
+        "rationale": "rclpy.parameter_client re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions class unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -111063,7 +111196,7 @@
       },
       "level": "symbol",
       "path": "rclpy.parameter_client.QoSOverridingOptions",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -111085,8 +111218,11 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.local",
+          "qos.stock_surface"
+        ],
+        "rationale": "rclpy.parameter_client re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.__init__ unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -111108,7 +111244,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.QoSOverridingOptions.__init__",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -111130,8 +111266,11 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.local",
+          "qos.stock_surface"
+        ],
+        "rationale": "rclpy.parameter_client re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.callback unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -111153,7 +111292,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.QoSOverridingOptions.callback",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -111271,8 +111410,11 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.local",
+          "qos.stock_surface"
+        ],
+        "rationale": "rclpy.parameter_client re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.with_default_policies unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -111294,7 +111436,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_client.QoSOverridingOptions.with_default_policies",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -113835,8 +113977,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "service.direct_cpp_setbool_first_slice"
+        ],
+        "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -113858,7 +114002,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Node.create_client",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -114021,8 +114165,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "service.direct_cpp_setbool_first_slice"
+        ],
+        "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -114044,7 +114190,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Node.create_service",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -117430,8 +117576,14 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice",
+          "parameter.direct_cpp_remote_client",
+          "parameter.local",
+          "parameter.remote",
+          "parameter.value_and_event_helpers"
+        ],
+        "rationale": "The direct profile preserves this stock ParameterEventHandler class unchanged; activate() never patches rclpy.parameter_event_handler (verified against the 40-entry patch list), so member presence and implementation remain stock. Stock behavior remains unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -117453,7 +117605,7 @@
       },
       "level": "symbol",
       "path": "rclpy.parameter_event_handler.ParameterEventHandler",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -117526,8 +117678,14 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice",
+          "parameter.direct_cpp_remote_client",
+          "parameter.local",
+          "parameter.remote",
+          "parameter.value_and_event_helpers"
+        ],
+        "rationale": "The direct profile preserves this stock ParameterEventHandler member unchanged; activate() never patches rclpy.parameter_event_handler (verified against the 40-entry patch list), so member presence and implementation remain stock. Stock behavior remains unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -117549,7 +117707,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.ParameterEventHandler.__init__",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -117928,8 +118086,11 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.local",
+          "qos.stock_surface"
+        ],
+        "rationale": "rclpy.parameter_event_handler re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions class unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -117951,7 +118112,7 @@
       },
       "level": "symbol",
       "path": "rclpy.parameter_event_handler.QoSOverridingOptions",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -117973,8 +118134,11 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.local",
+          "qos.stock_surface"
+        ],
+        "rationale": "rclpy.parameter_event_handler re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.__init__ unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -117996,7 +118160,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.QoSOverridingOptions.__init__",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -118018,8 +118182,11 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.local",
+          "qos.stock_surface"
+        ],
+        "rationale": "rclpy.parameter_event_handler re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.callback unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -118041,7 +118208,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.QoSOverridingOptions.callback",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -118159,8 +118326,11 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.local",
+          "qos.stock_surface"
+        ],
+        "rationale": "rclpy.parameter_event_handler re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.with_default_policies unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
       },
       "area": "parameter",
       "attribution": "stock",
@@ -118182,7 +118352,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.QoSOverridingOptions.with_default_policies",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -121064,8 +121234,11 @@
           "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "publisher.basic",
+          "time.stock_surface"
+        ],
+        "rationale": "rclpy.publisher re-exports the stock rclpy.duration.Duration.from_msg unchanged; Duration is an unchanged stock class; activate() never patches rclpy.duration. The 40-entry patch list confirms activate() never patches rclpy.publisher.Duration. Stock behavior remains unchanged."
       },
       "area": "publisher",
       "attribution": "stock",
@@ -121087,7 +121260,7 @@
       },
       "level": "member",
       "path": "rclpy.publisher.Duration.from_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -121202,8 +121375,11 @@
           "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "publisher.basic",
+          "time.stock_surface"
+        ],
+        "rationale": "rclpy.publisher re-exports the stock rclpy.duration.Duration.to_msg unchanged; Duration is an unchanged stock class; activate() never patches rclpy.duration. The 40-entry patch list confirms activate() never patches rclpy.publisher.Duration. Stock behavior remains unchanged."
       },
       "area": "publisher",
       "attribution": "stock",
@@ -121225,7 +121401,7 @@
       },
       "level": "member",
       "path": "rclpy.publisher.Duration.to_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -124403,8 +124579,11 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "qos.stock_surface",
+          "time.stock_surface"
+        ],
+        "rationale": "rclpy.qos re-exports the stock rclpy.duration.Duration.from_msg unchanged; Duration is an unchanged stock class; activate() never patches rclpy.duration. The 40-entry patch list confirms activate() never patches rclpy.qos.Duration. Stock behavior remains unchanged."
       },
       "area": "qos",
       "attribution": "stock",
@@ -124426,7 +124605,7 @@
       },
       "level": "member",
       "path": "rclpy.qos.Duration.from_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -124532,8 +124711,11 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "qos.stock_surface",
+          "time.stock_surface"
+        ],
+        "rationale": "rclpy.qos re-exports the stock rclpy.duration.Duration.to_msg unchanged; Duration is an unchanged stock class; activate() never patches rclpy.duration. The 40-entry patch list confirms activate() never patches rclpy.qos.Duration. Stock behavior remains unchanged."
       },
       "area": "qos",
       "attribution": "stock",
@@ -124555,7 +124737,7 @@
       },
       "level": "member",
       "path": "rclpy.qos.Duration.to_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -140118,8 +140300,11 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "qos.stock_surface",
+          "time.stock_surface"
+        ],
+        "rationale": "rclpy.qos_overriding_options re-exports the stock rclpy.duration.Duration.from_msg unchanged; Duration is an unchanged stock class; activate() never patches rclpy.duration. The 40-entry patch list confirms activate() never patches rclpy.qos_overriding_options.Duration. Stock behavior remains unchanged."
       },
       "area": "qos",
       "attribution": "stock",
@@ -140141,7 +140326,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Duration.from_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -140247,8 +140432,11 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "qos.stock_surface",
+          "time.stock_surface"
+        ],
+        "rationale": "rclpy.qos_overriding_options re-exports the stock rclpy.duration.Duration.to_msg unchanged; Duration is an unchanged stock class; activate() never patches rclpy.duration. The 40-entry patch list confirms activate() never patches rclpy.qos_overriding_options.Duration. Stock behavior remains unchanged."
       },
       "area": "qos",
       "attribution": "stock",
@@ -140270,7 +140458,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Duration.to_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -143660,8 +143848,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "qos.stock_surface"
+        ],
+        "rationale": "The direct profile preserves the stock rclpy.qos policy/value object unchanged; a fresh-process stock-vs-direct differential proves identical type identity, member values, and IntEnum value semantics. Stock behavior, not accelerated."
       },
       "area": "qos",
       "attribution": "stock",
@@ -143683,7 +143873,7 @@
       },
       "level": "symbol",
       "path": "rclpy.qos_overriding_options.QoSOverridingOptions",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -143701,8 +143891,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "qos.stock_surface"
+        ],
+        "rationale": "The direct profile preserves the stock rclpy.qos policy/value object unchanged; a fresh-process stock-vs-direct differential proves identical type identity, member values, and IntEnum value semantics. Stock behavior, not accelerated."
       },
       "area": "qos",
       "attribution": "stock",
@@ -143724,7 +143916,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.QoSOverridingOptions.__init__",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -143742,8 +143934,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "qos.stock_surface"
+        ],
+        "rationale": "The direct profile preserves the stock rclpy.qos policy/value object unchanged; a fresh-process stock-vs-direct differential proves identical type identity, member values, and IntEnum value semantics. Stock behavior, not accelerated."
       },
       "area": "qos",
       "attribution": "stock",
@@ -143765,7 +143959,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.QoSOverridingOptions.callback",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -143869,8 +144063,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "qos.stock_surface"
+        ],
+        "rationale": "The direct profile preserves the stock rclpy.qos policy/value object unchanged; a fresh-process stock-vs-direct differential proves identical type identity, member values, and IntEnum value semantics. Stock behavior, not accelerated."
       },
       "area": "qos",
       "attribution": "stock",
@@ -143892,7 +144088,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.QoSOverridingOptions.with_default_policies",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -157381,8 +157577,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.stock_surface"
+        ],
+        "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
       },
       "area": "time",
       "attribution": "stock",
@@ -157404,7 +157602,7 @@
       },
       "level": "member",
       "path": "rclpy.time.Duration.from_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -157523,8 +157721,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.stock_surface"
+        ],
+        "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
       },
       "area": "time",
       "attribution": "stock",
@@ -157546,7 +157746,7 @@
       },
       "level": "member",
       "path": "rclpy.time.Duration.to_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -158157,8 +158357,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.stock_surface"
+        ],
+        "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
       },
       "area": "time",
       "attribution": "stock",
@@ -158180,7 +158382,7 @@
       },
       "level": "member",
       "path": "rclpy.time.Time.from_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -158299,8 +158501,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.stock_surface"
+        ],
+        "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
       },
       "area": "time",
       "attribution": "stock",
@@ -158322,7 +158526,7 @@
       },
       "level": "member",
       "path": "rclpy.time.Time.to_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -162298,8 +162502,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.stock_surface"
+        ],
+        "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
       },
       "area": "time",
       "attribution": "stock",
@@ -162321,7 +162527,7 @@
       },
       "level": "member",
       "path": "rclpy.time_source.Time.from_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -162440,8 +162646,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "time.stock_surface"
+        ],
+        "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
       },
       "area": "time",
       "attribution": "stock",
@@ -162463,7 +162671,7 @@
       },
       "level": "member",
       "path": "rclpy.time_source.Time.to_msg",
-      "status": "unassessed",
+      "status": "unchanged_stock_fallback",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -173868,8 +174076,10 @@
           "subscription.direct_cpp_wait_for_message",
           "subscription.wait_for_message"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "service.direct_cpp_setbool_first_slice"
+        ],
+        "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
       },
       "area": "subscription",
       "attribution": "direct_backend",
@@ -173891,7 +174101,7 @@
       },
       "level": "member",
       "path": "rclpy.wait_for_message.Node.create_client",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -174066,8 +174276,10 @@
           "subscription.direct_cpp_wait_for_message",
           "subscription.wait_for_message"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "service.direct_cpp_setbool_first_slice"
+        ],
+        "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
       },
       "area": "subscription",
       "attribution": "direct_backend",
@@ -174089,7 +174301,7 @@
       },
       "level": "member",
       "path": "rclpy.wait_for_message.Node.create_service",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -179902,12 +180114,12 @@
     "modules": 58,
     "signature_mismatches": 31,
     "statuses": {
-      "exact_direct_cpp_authority": 953,
+      "exact_direct_cpp_authority": 993,
       "explicit_fail_closed": 25,
       "missing_mismatch": 103,
       "mixed_control_direct_data": 0,
-      "unassessed": 273,
-      "unchanged_stock_fallback": 2420
+      "unassessed": 190,
+      "unchanged_stock_fallback": 2463
     },
     "stock_only_entries": 72,
     "stock_public_class_members": 3333,

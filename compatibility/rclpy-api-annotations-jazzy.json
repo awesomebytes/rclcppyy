@@ -27995,6 +27995,716 @@
       "path": "rclpy.waitable.Waitable.take_data",
       "rationale": "rclpy.waitable.Waitable.take_data resolves to the stock rclpy.waitable.Waitable implementation. activate() never patches the (rclpy.waitable, Waitable) pair in the 40-entry patch list. test_identity_qos_events.py compares fresh stock and direct processes and verifies the stock Waitable class descriptor, public member set, and module-alias identity. The direct profile does not construct stock Waitable instances; direct-created entity facades are tracked by their own creator and class rows. Stock behavior remains unchanged.",
       "status": "unchanged_stock_fallback"
+    },
+    {
+      "path": "rclpy.action.ActionClient",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "Under the direct profile this ActionClient class is backed by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), consistent with the already-proven exact_direct_cpp_authority status of ActionClient.destroy/send_goal_async/server_is_ready/wait_for_server. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
+    },
+    {
+      "path": "rclpy.action.ActionClient.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "Under the direct profile this ActionClient construction is owned by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public constructor contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), consistent with the already-proven exact_direct_cpp_authority status of ActionClient.destroy/send_goal_async/server_is_ready/wait_for_server. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
+    },
+    {
+      "path": "rclpy.action.ActionServer",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "Under the direct profile this ActionServer class is backed by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), consistent with the already-proven exact_direct_cpp_authority status of ActionServer.destroy/notify_execute/notify_goal_done/register_cancel_callback/register_execute_callback. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
+    },
+    {
+      "path": "rclpy.action.ActionServer.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "Under the direct profile this ActionServer construction is owned by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public constructor contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), consistent with the already-proven exact_direct_cpp_authority status of ActionServer.destroy/notify_execute/notify_goal_done/register_cancel_callback/register_execute_callback. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
+    },
+    {
+      "path": "rclpy.action.client.ActionClient",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "Under the direct profile this ActionClient class is backed by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), consistent with the already-proven exact_direct_cpp_authority status of ActionClient.destroy/send_goal_async/server_is_ready/wait_for_server. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
+    },
+    {
+      "path": "rclpy.action.client.ActionClient.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "Under the direct profile this ActionClient construction is owned by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public constructor contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action server), consistent with the already-proven exact_direct_cpp_authority status of ActionClient.destroy/send_goal_async/server_is_ready/wait_for_server. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
+    },
+    {
+      "path": "rclpy.action.graph.Node.create_client",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
+    },
+    {
+      "path": "rclpy.action.graph.Node.create_service",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
+    },
+    {
+      "path": "rclpy.action.server.ActionServer",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "Under the direct profile this ActionServer class is backed by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), consistent with the already-proven exact_direct_cpp_authority status of ActionServer.destroy/notify_execute/notify_goal_done/register_cancel_callback/register_execute_callback. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
+    },
+    {
+      "path": "rclpy.action.server.ActionServer.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "Under the direct profile this ActionServer construction is owned by rclcpp_action with generated C++ goal/feedback/result/UUID types; the test_prove_action_authority.py coverage tripwire proves the exact public constructor contract, poisoned-converter zero-crossing, and unchanged stock-peer interop (an external stock rclpy action client), consistent with the already-proven exact_direct_cpp_authority status of ActionServer.destroy/notify_execute/notify_goal_done/register_cancel_callback/register_execute_callback. Direct-C++ authority, not a performance claim; the reviewed dual-arch CPU gate is open."
+    },
+    {
+      "path": "rclpy.clock.Duration.from_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Duration.to_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Time.from_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.clock.Time.to_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Duration.from_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.duration.Duration.to_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.experimental.EventsExecutor",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "EventsExecutor is an unchanged stock rclpy.experimental.events_executor factory function; activate() does not patch rclpy.experimental or rclpy.experimental.events_executor, so both the direct and stock observations resolve to the identical stock callable, confirmed by test_events_executor.py. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.experimental.events_executor.EventsExecutor",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "EventsExecutor is an unchanged stock rclpy.experimental.events_executor factory function; activate() does not patch rclpy.experimental or rclpy.experimental.events_executor, so both the direct and stock observations resolve to the identical stock callable, confirmed by test_events_executor.py. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.lifecycle.LifecycleNode.create_client",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.LifecycleNode.create_lifecycle_publisher",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.LifecycleNode.create_service",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.LifecycleNodeMixin.create_lifecycle_publisher",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.LifecyclePublisher",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.LifecyclePublisher.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.Node.create_client",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.Node.create_lifecycle_publisher",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.Node.create_service",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.NodeMixin.create_lifecycle_publisher",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.Publisher",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.Publisher.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.node.LifecycleNode.create_client",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.node.LifecycleNode.create_lifecycle_publisher",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.node.LifecycleNode.create_service",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.node.LifecycleNodeMixin.create_lifecycle_publisher",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.node.LifecyclePublisher",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.node.LifecyclePublisher.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.node.Node.create_client",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.node.Node.create_service",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.publisher.LifecyclePublisher",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.lifecycle.publisher.LifecyclePublisher.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Under the direct profile, this member is reached through the rclpy.lifecycle (or rclpy.lifecycle.node) re-export of the same direct-backend facade already proven for the plain node/entity surface -- DirectLifecycleNode extends the identical private-seam routing (data-plane entities, parameter/graph introspection, teardown) that DirectNode itself proves elsewhere in this ledger, and DirectLifecycleNodeMixin/the lifecycle submodule's own Node/CallbackGroup re-exports resolve to the same direct-backend class objects (PLAN-lifecycle.md P3). No separate lifecycle-specific behavior is claimed here beyond the routing itself."
+    },
+    {
+      "path": "rclpy.node.Node.create_client",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
+    },
+    {
+      "path": "rclpy.node.Node.create_service",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
+    },
+    {
+      "path": "rclpy.node.QoSOverridingOptions",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "node.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "rationale": "rclpy.node re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions class unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.node.QoSOverridingOptions.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "node.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "rationale": "rclpy.node re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.__init__ unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.node.QoSOverridingOptions.callback",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "node.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "rationale": "rclpy.node re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.callback unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.node.QoSOverridingOptions.with_default_policies",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "node.extended_stock_surface",
+        "qos.stock_surface"
+      ],
+      "rationale": "rclpy.node re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.with_default_policies unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.parameter_client.AsyncParameterClient",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice",
+        "parameter.direct_cpp_remote_client",
+        "parameter.local",
+        "parameter.remote",
+        "parameter.value_and_event_helpers"
+      ],
+      "rationale": "The direct profile preserves this stock rclpy.parameter_client class unchanged; activate() never patches rclpy.parameter_client, and test_direct_parameter_client.py proves the unchanged stock source, member operation, response values, callbacks, and teardown over the direct backend. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.parameter_client.AsyncParameterClient.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice",
+        "parameter.direct_cpp_remote_client",
+        "parameter.local",
+        "parameter.remote",
+        "parameter.value_and_event_helpers"
+      ],
+      "rationale": "The direct profile preserves this stock rclpy.parameter_client method unchanged; activate() never patches rclpy.parameter_client, and test_direct_parameter_client.py proves the unchanged stock source, member operation, response values, callbacks, and teardown over the direct backend. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.parameter_client.AsyncParameterClient.on_parameter_event",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice",
+        "parameter.direct_cpp_remote_client",
+        "parameter.local",
+        "parameter.remote",
+        "parameter.value_and_event_helpers"
+      ],
+      "rationale": "The direct profile preserves this stock rclpy.parameter_client method unchanged; activate() never patches rclpy.parameter_client, and test_direct_parameter_client.py proves the unchanged stock source, member operation, response values, callbacks, and teardown over the direct backend. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.parameter_client.AsyncParameterClient.set_parameters",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice",
+        "parameter.direct_cpp_remote_client",
+        "parameter.local",
+        "parameter.remote",
+        "parameter.value_and_event_helpers"
+      ],
+      "rationale": "The direct profile preserves this stock rclpy.parameter_client method unchanged; activate() never patches rclpy.parameter_client, and test_direct_parameter_client.py proves the unchanged stock source, member operation, response values, callbacks, and teardown over the direct backend. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.parameter_client.AsyncParameterClient.set_parameters_atomically",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice",
+        "parameter.direct_cpp_remote_client",
+        "parameter.local",
+        "parameter.remote",
+        "parameter.value_and_event_helpers"
+      ],
+      "rationale": "The direct profile preserves this stock rclpy.parameter_client method unchanged; activate() never patches rclpy.parameter_client, and test_direct_parameter_client.py proves the unchanged stock source, member operation, response values, callbacks, and teardown over the direct backend. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.parameter_client.Node.create_client",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
+    },
+    {
+      "path": "rclpy.parameter_client.Node.create_service",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
+    },
+    {
+      "path": "rclpy.parameter_client.QoSOverridingOptions",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.local",
+        "qos.stock_surface"
+      ],
+      "rationale": "rclpy.parameter_client re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions class unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.parameter_client.QoSOverridingOptions.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.local",
+        "qos.stock_surface"
+      ],
+      "rationale": "rclpy.parameter_client re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.__init__ unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.parameter_client.QoSOverridingOptions.callback",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.local",
+        "qos.stock_surface"
+      ],
+      "rationale": "rclpy.parameter_client re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.callback unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.parameter_client.QoSOverridingOptions.with_default_policies",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.local",
+        "qos.stock_surface"
+      ],
+      "rationale": "rclpy.parameter_client re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.with_default_policies unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.parameter_event_handler.Node.create_client",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
+    },
+    {
+      "path": "rclpy.parameter_event_handler.Node.create_service",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
+    },
+    {
+      "path": "rclpy.parameter_event_handler.ParameterEventHandler",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice",
+        "parameter.direct_cpp_remote_client",
+        "parameter.local",
+        "parameter.remote",
+        "parameter.value_and_event_helpers"
+      ],
+      "rationale": "The direct profile preserves this stock ParameterEventHandler class unchanged; activate() never patches rclpy.parameter_event_handler (verified against the 40-entry patch list), so member presence and implementation remain stock. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.parameter_event_handler.ParameterEventHandler.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice",
+        "parameter.direct_cpp_remote_client",
+        "parameter.local",
+        "parameter.remote",
+        "parameter.value_and_event_helpers"
+      ],
+      "rationale": "The direct profile preserves this stock ParameterEventHandler member unchanged; activate() never patches rclpy.parameter_event_handler (verified against the 40-entry patch list), so member presence and implementation remain stock. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.parameter_event_handler.QoSOverridingOptions",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.local",
+        "qos.stock_surface"
+      ],
+      "rationale": "rclpy.parameter_event_handler re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions class unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.parameter_event_handler.QoSOverridingOptions.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.local",
+        "qos.stock_surface"
+      ],
+      "rationale": "rclpy.parameter_event_handler re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.__init__ unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.parameter_event_handler.QoSOverridingOptions.callback",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.local",
+        "qos.stock_surface"
+      ],
+      "rationale": "rclpy.parameter_event_handler re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.callback unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.parameter_event_handler.QoSOverridingOptions.with_default_policies",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "parameter.local",
+        "qos.stock_surface"
+      ],
+      "rationale": "rclpy.parameter_event_handler re-exports the stock rclpy.qos_overriding_options.QoSOverridingOptions.with_default_policies unchanged; the direct profile preserves the stock rclpy.qos policy/value object unchanged, and the fresh-process comparison in test_identity_qos.py proves identical type identity, member values, and integer enumeration (IntEnum) value semantics. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.publisher.Duration.from_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "publisher.basic",
+        "time.stock_surface"
+      ],
+      "rationale": "rclpy.publisher re-exports the stock rclpy.duration.Duration.from_msg unchanged; Duration is an unchanged stock class; activate() never patches rclpy.duration. The 40-entry patch list confirms activate() never patches rclpy.publisher.Duration. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.publisher.Duration.to_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "publisher.basic",
+        "time.stock_surface"
+      ],
+      "rationale": "rclpy.publisher re-exports the stock rclpy.duration.Duration.to_msg unchanged; Duration is an unchanged stock class; activate() never patches rclpy.duration. The 40-entry patch list confirms activate() never patches rclpy.publisher.Duration. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.qos.Duration.from_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "qos.stock_surface",
+        "time.stock_surface"
+      ],
+      "rationale": "rclpy.qos re-exports the stock rclpy.duration.Duration.from_msg unchanged; Duration is an unchanged stock class; activate() never patches rclpy.duration. The 40-entry patch list confirms activate() never patches rclpy.qos.Duration. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.qos.Duration.to_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "qos.stock_surface",
+        "time.stock_surface"
+      ],
+      "rationale": "rclpy.qos re-exports the stock rclpy.duration.Duration.to_msg unchanged; Duration is an unchanged stock class; activate() never patches rclpy.duration. The 40-entry patch list confirms activate() never patches rclpy.qos.Duration. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Duration.from_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "qos.stock_surface",
+        "time.stock_surface"
+      ],
+      "rationale": "rclpy.qos_overriding_options re-exports the stock rclpy.duration.Duration.from_msg unchanged; Duration is an unchanged stock class; activate() never patches rclpy.duration. The 40-entry patch list confirms activate() never patches rclpy.qos_overriding_options.Duration. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Duration.to_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "qos.stock_surface",
+        "time.stock_surface"
+      ],
+      "rationale": "rclpy.qos_overriding_options re-exports the stock rclpy.duration.Duration.to_msg unchanged; Duration is an unchanged stock class; activate() never patches rclpy.duration. The 40-entry patch list confirms activate() never patches rclpy.qos_overriding_options.Duration. Stock behavior remains unchanged."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.QoSOverridingOptions",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "qos.stock_surface"
+      ],
+      "rationale": "The direct profile preserves the stock rclpy.qos policy/value object unchanged; a fresh-process stock-vs-direct differential proves identical type identity, member values, and IntEnum value semantics. Stock behavior, not accelerated."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.QoSOverridingOptions.__init__",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "qos.stock_surface"
+      ],
+      "rationale": "The direct profile preserves the stock rclpy.qos policy/value object unchanged; a fresh-process stock-vs-direct differential proves identical type identity, member values, and IntEnum value semantics. Stock behavior, not accelerated."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.QoSOverridingOptions.callback",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "qos.stock_surface"
+      ],
+      "rationale": "The direct profile preserves the stock rclpy.qos policy/value object unchanged; a fresh-process stock-vs-direct differential proves identical type identity, member values, and IntEnum value semantics. Stock behavior, not accelerated."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.QoSOverridingOptions.with_default_policies",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "qos.stock_surface"
+      ],
+      "rationale": "The direct profile preserves the stock rclpy.qos policy/value object unchanged; a fresh-process stock-vs-direct differential proves identical type identity, member values, and IntEnum value semantics. Stock behavior, not accelerated."
+    },
+    {
+      "path": "rclpy.time.Duration.from_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Duration.to_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Duration is an unchanged stock class; activate() never patches rclpy.duration. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Duration itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Time.from_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time.Time.to_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.Time.from_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.time_source.Time.to_msg",
+      "status": "unchanged_stock_fallback",
+      "manifest_entry_ids": [
+        "time.stock_surface"
+      ],
+      "rationale": "Time is an unchanged stock class; activate() never patches rclpy.time. to_msg/from_msg operate on generated C++ builtin_interfaces payloads as an emergent consequence of direct_cpp's message installation (time.direct_cpp_payload), not because Time itself was modified -- this row's own code is unmodified stock and is not claimed as accelerated."
+    },
+    {
+      "path": "rclpy.wait_for_message.Node.create_client",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
+    },
+    {
+      "path": "rclpy.wait_for_message.Node.create_service",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "service.direct_cpp_setbool_first_slice"
+      ],
+      "rationale": "Under the direct profile, Node.create_client/create_service register the installed service type and create a real rclcpp service/client entity in C++ (service.direct_cpp_setbool_first_slice; test/test_direct_cpp.py, test/test_direct_services.py); this member is reached through a re-export of the same DirectNode class already proven throughout this ledger's node/action/parameter/subscription rows. No separate behavior beyond the proven create_service/create_client slice is claimed here."
     }
   ],
   "schema": "rclcppyy.rclpy-api-annotations/v1",
