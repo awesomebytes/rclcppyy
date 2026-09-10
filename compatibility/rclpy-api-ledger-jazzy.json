@@ -8599,14 +8599,14 @@
           "action.graph_queries"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "action",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -8616,12 +8616,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.client.Client"
         }
       },
       "level": "member",
       "path": "rclpy.action.graph.Node.create_client",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -8793,14 +8793,14 @@
           "action.graph_queries"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "action",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -8810,12 +8810,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, callback, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, callback: Callable[[~SrvTypeRequest, ~SrvTypeResponse], ~SrvTypeResponse], *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.service.Service"
         }
       },
       "level": "member",
       "path": "rclpy.action.graph.Node.create_service",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -55794,14 +55794,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -55811,12 +55811,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.client.Client"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNode.create_client",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -55886,14 +55886,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -55903,12 +55903,12 @@
         "owner": "rclcppyy.direct_lifecycle.DirectLifecycleNodeMixin",
         "signature": {
           "state": "inspectable",
-          "value": "(self, msg_type, topic, qos_profile, *, callback_group=None, event_callbacks=None, qos_overriding_options=None, publisher_class=None)"
+          "value": "(self, *args, **kwargs)"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNode.create_lifecycle_publisher",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -56025,14 +56025,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -56042,12 +56042,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, callback, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, callback: Callable[[~SrvTypeRequest, ~SrvTypeResponse], ~SrvTypeResponse], *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.service.Service"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNode.create_service",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -59513,14 +59513,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -59530,12 +59530,12 @@
         "owner": "rclcppyy.direct_lifecycle.DirectLifecycleNodeMixin",
         "signature": {
           "state": "inspectable",
-          "value": "(self, msg_type, topic, qos_profile, *, callback_group=None, event_callbacks=None, qos_overriding_options=None, publisher_class=None)"
+          "value": "(self, *args, **kwargs)"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecycleNodeMixin.create_lifecycle_publisher",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -60122,14 +60122,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -60139,12 +60139,12 @@
         "qualname": "DirectLifecyclePublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(msg_type, topic, qos_profile, logger_name, native, callback_group)"
+          "value": "(*args, **kwargs)"
         }
       },
       "level": "symbol",
       "path": "rclpy.lifecycle.LifecyclePublisher",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -60167,14 +60167,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -60184,12 +60184,12 @@
         "owner": "rclcppyy.direct_lifecycle.DirectLifecyclePublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(self, msg_type, topic, qos_profile, logger_name, native, callback_group)"
+          "value": "(self, *args, **kwargs)"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.LifecyclePublisher.__init__",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -62094,14 +62094,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -62111,12 +62111,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.client.Client"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.Node.create_client",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -62186,14 +62186,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -62203,12 +62203,12 @@
         "owner": "rclcppyy.direct_lifecycle.DirectLifecycleNodeMixin",
         "signature": {
           "state": "inspectable",
-          "value": "(self, msg_type, topic, qos_profile, *, callback_group=None, event_callbacks=None, qos_overriding_options=None, publisher_class=None)"
+          "value": "(self, *args, **kwargs)"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.Node.create_lifecycle_publisher",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -62325,14 +62325,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -62342,12 +62342,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, callback, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, callback: Callable[[~SrvTypeRequest, ~SrvTypeResponse], ~SrvTypeResponse], *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.service.Service"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.Node.create_service",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -65813,14 +65813,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -65830,12 +65830,12 @@
         "owner": "rclcppyy.direct_lifecycle.DirectLifecycleNodeMixin",
         "signature": {
           "state": "inspectable",
-          "value": "(self, msg_type, topic, qos_profile, *, callback_group=None, event_callbacks=None, qos_overriding_options=None, publisher_class=None)"
+          "value": "(self, *args, **kwargs)"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.NodeMixin.create_lifecycle_publisher",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -66422,14 +66422,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -66439,12 +66439,12 @@
         "qualname": "DirectLifecyclePublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(msg_type, topic, qos_profile, logger_name, native, callback_group)"
+          "value": "(*args, **kwargs)"
         }
       },
       "level": "symbol",
       "path": "rclpy.lifecycle.Publisher",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -66467,14 +66467,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -66484,12 +66484,12 @@
         "owner": "rclcppyy.direct_lifecycle.DirectLifecyclePublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(self, msg_type, topic, qos_profile, logger_name, native, callback_group)"
+          "value": "(self, *args, **kwargs)"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.Publisher.__init__",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -70941,14 +70941,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -70958,12 +70958,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.client.Client"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNode.create_client",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -71033,14 +71033,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -71050,12 +71050,12 @@
         "owner": "rclcppyy.direct_lifecycle.DirectLifecycleNodeMixin",
         "signature": {
           "state": "inspectable",
-          "value": "(self, msg_type, topic, qos_profile, *, callback_group=None, event_callbacks=None, qos_overriding_options=None, publisher_class=None)"
+          "value": "(self, *args, **kwargs)"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNode.create_lifecycle_publisher",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -71172,14 +71172,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -71189,12 +71189,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, callback, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, callback: Callable[[~SrvTypeRequest, ~SrvTypeResponse], ~SrvTypeResponse], *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.service.Service"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNode.create_service",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -74660,14 +74660,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -74677,12 +74677,12 @@
         "owner": "rclcppyy.direct_lifecycle.DirectLifecycleNodeMixin",
         "signature": {
           "state": "inspectable",
-          "value": "(self, msg_type, topic, qos_profile, *, callback_group=None, event_callbacks=None, qos_overriding_options=None, publisher_class=None)"
+          "value": "(self, *args, **kwargs)"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecycleNodeMixin.create_lifecycle_publisher",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -75269,14 +75269,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -75286,12 +75286,12 @@
         "qualname": "DirectLifecyclePublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(msg_type, topic, qos_profile, logger_name, native, callback_group)"
+          "value": "(*args, **kwargs)"
         }
       },
       "level": "symbol",
       "path": "rclpy.lifecycle.node.LifecyclePublisher",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -75314,14 +75314,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -75331,12 +75331,12 @@
         "owner": "rclcppyy.direct_lifecycle.DirectLifecyclePublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(self, msg_type, topic, qos_profile, logger_name, native, callback_group)"
+          "value": "(self, *args, **kwargs)"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecyclePublisher.__init__",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -77192,14 +77192,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -77209,12 +77209,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.client.Client"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.Node.create_client",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -77378,14 +77378,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -77395,12 +77395,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, callback, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, callback: Callable[[~SrvTypeRequest, ~SrvTypeResponse], ~SrvTypeResponse], *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.service.Service"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.Node.create_service",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -81947,14 +81947,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -81964,12 +81964,12 @@
         "qualname": "DirectLifecyclePublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(msg_type, topic, qos_profile, logger_name, native, callback_group)"
+          "value": "(*args, **kwargs)"
         }
       },
       "level": "symbol",
       "path": "rclpy.lifecycle.publisher.LifecyclePublisher",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -81992,14 +81992,14 @@
           "lifecycle.publisher"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -82009,12 +82009,12 @@
         "owner": "rclcppyy.direct_lifecycle.DirectLifecyclePublisher",
         "signature": {
           "state": "inspectable",
-          "value": "(self, msg_type, topic, qos_profile, logger_name, native, callback_group)"
+          "value": "(self, *args, **kwargs)"
         }
       },
       "level": "member",
       "path": "rclpy.lifecycle.publisher.LifecyclePublisher.__init__",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -92203,14 +92203,14 @@
           "node.subclass_existing_alias"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -92220,12 +92220,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.client.Client"
         }
       },
       "level": "member",
       "path": "rclpy.node.Node.create_client",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -92409,14 +92409,14 @@
           "node.subclass_existing_alias"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "node",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -92426,12 +92426,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, callback, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, callback: Callable[[~SrvTypeRequest, ~SrvTypeResponse], ~SrvTypeResponse], *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.service.Service"
         }
       },
       "level": "member",
       "path": "rclpy.node.Node.create_service",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -107650,14 +107650,14 @@
           "parameter.value_and_event_helpers"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -107667,12 +107667,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.client.Client"
         }
       },
       "level": "member",
       "path": "rclpy.parameter_client.Node.create_client",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -107836,14 +107836,14 @@
           "parameter.value_and_event_helpers"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -107853,12 +107853,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, callback, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, callback: Callable[[~SrvTypeRequest, ~SrvTypeResponse], ~SrvTypeResponse], *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.service.Service"
         }
       },
       "level": "member",
       "path": "rclpy.parameter_client.Node.create_service",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -113836,14 +113836,14 @@
           "parameter.value_and_event_helpers"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -113853,12 +113853,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.client.Client"
         }
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Node.create_client",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -114022,14 +114022,14 @@
           "parameter.value_and_event_helpers"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "parameter",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -114039,12 +114039,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, callback, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, callback: Callable[[~SrvTypeRequest, ~SrvTypeResponse], ~SrvTypeResponse], *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.service.Service"
         }
       },
       "level": "member",
       "path": "rclpy.parameter_event_handler.Node.create_service",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -173869,14 +173869,14 @@
           "subscription.wait_for_message"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "subscription",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -173886,12 +173886,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.client.Client"
         }
       },
       "level": "member",
       "path": "rclpy.wait_for_message.Node.create_client",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -174067,14 +174067,14 @@
           "subscription.wait_for_message"
         ],
         "manifest_entry_ids": [],
-        "rationale": "Mechanical stock/direct presence, kind, or signature mismatch."
+        "rationale": "Name and signature observations do not establish semantic parity."
       },
       "area": "subscription",
       "attribution": "direct_backend",
       "comparison": {
         "kind_match": true,
         "presence": "both",
-        "signature": "different"
+        "signature": "equal"
       },
       "direct": {
         "attribution": "direct_backend",
@@ -174084,12 +174084,12 @@
         "owner": "rclcppyy.direct_cpp.DirectNode",
         "signature": {
           "state": "inspectable",
-          "value": "(self, srv_type, srv_name, callback, *, qos_profile=<object object>, callback_group=None)"
+          "value": "(self, srv_type, srv_name: str, callback: Callable[[~SrvTypeRequest, ~SrvTypeResponse], ~SrvTypeResponse], *, qos_profile: rclpy.qos.QoSProfile = <rclpy.qos.QoSProfile object>, callback_group: Optional[rclpy.callback_groups.CallbackGroup] = None) -> rclpy.service.Service"
         }
       },
       "level": "member",
       "path": "rclpy.wait_for_message.Node.create_service",
-      "status": "missing_mismatch",
+      "status": "unassessed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -179900,13 +179900,13 @@
     "generated_interface_aliases": 21,
     "ledger_entries": 3774,
     "modules": 58,
-    "signature_mismatches": 114,
+    "signature_mismatches": 82,
     "statuses": {
       "exact_direct_cpp_authority": 953,
       "explicit_fail_closed": 25,
-      "missing_mismatch": 186,
+      "missing_mismatch": 154,
       "mixed_control_direct_data": 0,
-      "unassessed": 190,
+      "unassessed": 222,
       "unchanged_stock_fallback": 2420
     },
     "stock_only_entries": 72,

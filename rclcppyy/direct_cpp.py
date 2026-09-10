@@ -3341,6 +3341,21 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         _PUBLISHER_CLASS_DEFAULT = publisher_module.Publisher
         DirectNode.create_publisher.__kwdefaults__["publisher_class"] = (
             _PUBLISHER_CLASS_DEFAULT)
+        # create_client/create_service's qos_profile default starts life as
+        # the private _DEFAULT_SERVICE_QOS sentinel; rebind it to the
+        # pristine stock qos_profile_services_default singleton now, before
+        # mirror_class(DirectNode, ...) walks them below, so the structural
+        # gate in rclcppyy._signature_mirror sees a matching default and
+        # mirrors stock's exact signature onto both. _require_default_
+        # service_qos (above) already falls back to an equality check
+        # against qos_profile_services_default when the identity check
+        # against the sentinel misses, so a call with no qos_profile arg
+        # still resolves correctly once the kwdefault is this real object.
+        from rclpy.qos import qos_profile_services_default
+        DirectNode.create_client.__kwdefaults__["qos_profile"] = (
+            qos_profile_services_default)
+        DirectNode.create_service.__kwdefaults__["qos_profile"] = (
+            qos_profile_services_default)
         DirectParameter = direct_parameters.prepare(parameter_module.Parameter)
         direct_wait = direct_wait_for_message.prepare(
             wait_for_message_module.wait_for_message)
@@ -3509,6 +3524,25 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
                 default=None,
                 annotation=_payload_signature.Optional[_StockCallbackGroup]),
         ])
+        # Stock's own signatures for create_lifecycle_publisher and
+        # LifecyclePublisher.__init__ are themselves the bare
+        # (self, *args, **kwargs) passthrough (LifecycleNodeMixin.
+        # create_lifecycle_publisher forwards straight to Node.
+        # create_publisher; LifecyclePublisher.__init__ forwards straight to
+        # Publisher.__init__) -- there's no annotation to mirror, so
+        # hand-assign that exact trivial signature rather than pristine-
+        # capturing anything. inspect.signature(DirectLifecyclePublisher)
+        # (the "class" ledger row) derives from __init__ automatically, same
+        # as DirectLifecycleNodeMixin above.
+        _bare_args_kwargs_signature = inspect.Signature([
+            inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD),
+            inspect.Parameter("args", inspect.Parameter.VAR_POSITIONAL),
+            inspect.Parameter("kwargs", inspect.Parameter.VAR_KEYWORD),
+        ])
+        DirectLifecycleNodeMixin.create_lifecycle_publisher.__signature__ = (
+            _bare_args_kwargs_signature)
+        DirectLifecyclePublisher.__init__.__signature__ = (
+            _bare_args_kwargs_signature)
         # LifecycleNode/LifecycleNodeMixin/LifecyclePublisher are each bound
         # at three names -- the package-level name, its package-level alias
         # (Node/NodeMixin/Publisher), and the defining submodule's own
