@@ -459,6 +459,59 @@ def prepare(interfaces=()) -> DirectActionPlan:
     )
 
 
+def _rebind_stock_action_defaults() -> None:
+    """Point sentinel/private kwdefaults at stock's real default objects.
+
+    ``DirectActionClient.__init__``/``DirectActionServer.__init__`` default
+    their QoS and callback keyword-only parameters to private sentinels
+    (``_DEFAULT_QOS``, ``_default_goal_callback``, etc.) so ``_validate_qos``
+    can tell "caller passed nothing" apart from "caller passed stock's
+    default explicitly". That private identity is invisible to signature
+    parity, though: the generic mirror in ``rclcppyy._signature_mirror``
+    only accepts a member whose default repr already matches stock's, so it
+    refuses these until the defaults themselves point at the exact objects
+    stock's own functions capture.
+
+    Must run before ``rclpy.action.client``/``rclpy.action.server`` are
+    rebound to the direct facades -- i.e. from :func:`install`, called from
+    ``direct_cpp.activate()`` strictly before that module-attribute
+    rebinding -- so the imports below resolve stock's pristine
+    ``ActionClient``/``ActionServer``, not this package's own replacements.
+    """
+    from rclpy.action.client import ActionClient as _StockActionClient
+    from rclpy.action.server import ActionServer as _StockActionServer
+
+    if _StockActionClient is DirectActionClient or _StockActionServer is DirectActionServer:
+        return
+
+    client_defaults = _StockActionClient.__init__.__kwdefaults__
+    DirectActionClient.__init__.__kwdefaults__.update(
+        (name, client_defaults[name])
+        for name in (
+            "goal_service_qos_profile",
+            "result_service_qos_profile",
+            "cancel_service_qos_profile",
+            "feedback_sub_qos_profile",
+            "status_sub_qos_profile",
+        )
+    )
+
+    server_defaults = _StockActionServer.__init__.__kwdefaults__
+    DirectActionServer.__init__.__kwdefaults__.update(
+        (name, server_defaults[name])
+        for name in (
+            "goal_callback",
+            "handle_accepted_callback",
+            "cancel_callback",
+            "goal_service_qos_profile",
+            "result_service_qos_profile",
+            "cancel_service_qos_profile",
+            "feedback_pub_qos_profile",
+            "status_pub_qos_profile",
+        )
+    )
+
+
 def install(interfaces=(), *, plan=None) -> DirectActionInstallation:
     """Atomically install every prepared generated C++ action alias."""
     global _ACTIVE_INSTALLATION
@@ -467,6 +520,8 @@ def install(interfaces=(), *, plan=None) -> DirectActionInstallation:
     selected_plan = prepare(interfaces) if plan is None else plan
     if not isinstance(selected_plan, DirectActionPlan):
         raise TypeError("plan must be a DirectActionPlan")
+
+    _rebind_stock_action_defaults()
 
     pythonizations = []
     replacements = []

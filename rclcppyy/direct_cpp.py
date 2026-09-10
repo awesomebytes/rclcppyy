@@ -3267,6 +3267,9 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         ParameterValue,
         SetParametersResult,
     )
+    from rcl_interfaces.msg import Parameter as _StockParameterMsg
+    from builtin_interfaces.msg import Duration as _StockDurationMsg
+    from builtin_interfaces.msg import Time as _StockTimeMsg
     from rclpy.parameter import Parameter as _StockParameter
     from rclpy.callback_groups import CallbackGroup as _StockCallbackGroup
 
@@ -3314,6 +3317,14 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
         import rclpy.type_support as type_support_module
         import rclpy.type_description_service as type_description_service_module
         import rclpy.wait_for_message as wait_for_message_module
+
+        # Pristine captures for _payload_signature_ext.install_signatures
+        # below: Node/Subscription/Executor are still stock here, before the
+        # replacements loop further down rebinds their modules' attributes
+        # to the direct facades.
+        _StockNode = node_module.Node
+        _StockSubscription = subscription_module.Subscription
+        _StockExecutor = executors_module.Executor
 
         runtime = _DirectRuntime(
             normalized_optimizations, normalized_interfaces)
@@ -3478,6 +3489,8 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
             "Node",
             "Publisher",
             "Subscription",
+            "ActionClient",
+            "ActionServer",
         })
         mirrored_functions = frozenset({
             "init",
@@ -3496,6 +3509,19 @@ def activate(*, optimizations=(), interfaces=()) -> bool:
                 mirror_function(replacement, original)
             setattr(module, name, replacement)
             patches.append((module, name, original, replacement))
+
+        from rclcppyy import _payload_signature_ext
+        _payload_signature_ext.install_signatures(
+            duration_msg_class=_StockDurationMsg,
+            time_msg_class=_StockTimeMsg,
+            set_parameters_result=SetParametersResult,
+            parameter_msg_class=_StockParameterMsg,
+            parameter_class=_StockParameter,
+            node_class=_StockNode,
+            callback_group_class=_StockCallbackGroup,
+            subscription_class=_StockSubscription,
+            executor_class=_StockExecutor,
+        )
 
         # Import rclpy.lifecycle only after Node is already rebound to
         # DirectNode above: LifecycleNode(LifecycleNodeMixin, Node) resolves
