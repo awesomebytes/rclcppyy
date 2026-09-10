@@ -18602,8 +18602,10 @@
           "service.direct_cpp_setbool_first_slice",
           "service.extended_stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "service",
       "attribution": "direct_backend",
@@ -18625,7 +18627,7 @@
       },
       "level": "symbol",
       "path": "rclpy.client.CallbackGroup",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -18645,8 +18647,10 @@
           "service.direct_cpp_setbool_first_slice",
           "service.extended_stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "service",
       "attribution": "direct_backend",
@@ -18668,7 +18672,7 @@
       },
       "level": "member",
       "path": "rclpy.client.CallbackGroup.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -18688,8 +18692,10 @@
           "service.direct_cpp_setbool_first_slice",
           "service.extended_stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "service",
       "attribution": "direct_backend",
@@ -18711,7 +18717,7 @@
       },
       "level": "member",
       "path": "rclpy.client.CallbackGroup.add_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -18731,8 +18737,10 @@
           "service.direct_cpp_setbool_first_slice",
           "service.extended_stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "service",
       "attribution": "direct_backend",
@@ -18754,7 +18762,7 @@
       },
       "level": "member",
       "path": "rclpy.client.CallbackGroup.beginning_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -18774,8 +18782,10 @@
           "service.direct_cpp_setbool_first_slice",
           "service.extended_stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "service",
       "attribution": "direct_backend",
@@ -18797,7 +18807,7 @@
       },
       "level": "member",
       "path": "rclpy.client.CallbackGroup.can_execute",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -18817,8 +18827,10 @@
           "service.direct_cpp_setbool_first_slice",
           "service.extended_stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "service",
       "attribution": "direct_backend",
@@ -18840,7 +18852,7 @@
       },
       "level": "member",
       "path": "rclpy.client.CallbackGroup.ending_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -18860,8 +18872,10 @@
           "service.direct_cpp_setbool_first_slice",
           "service.extended_stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "service",
       "attribution": "direct_backend",
@@ -18883,7 +18897,7 @@
       },
       "level": "member",
       "path": "rclpy.client.CallbackGroup.has_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -31824,8 +31838,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -31847,7 +31863,7 @@
       },
       "level": "symbol",
       "path": "rclpy.event_handler.CallbackGroup",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -31865,8 +31881,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -31888,7 +31906,7 @@
       },
       "level": "member",
       "path": "rclpy.event_handler.CallbackGroup.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -31906,8 +31924,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -31929,7 +31949,7 @@
       },
       "level": "member",
       "path": "rclpy.event_handler.CallbackGroup.add_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -31947,8 +31967,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -31970,7 +31992,7 @@
       },
       "level": "member",
       "path": "rclpy.event_handler.CallbackGroup.beginning_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -31988,8 +32010,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -32011,7 +32035,7 @@
       },
       "level": "member",
       "path": "rclpy.event_handler.CallbackGroup.can_execute",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -32029,8 +32053,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -32052,7 +32078,7 @@
       },
       "level": "member",
       "path": "rclpy.event_handler.CallbackGroup.ending_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -32070,8 +32096,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -32093,7 +32121,7 @@
       },
       "level": "member",
       "path": "rclpy.event_handler.CallbackGroup.has_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -50753,8 +50781,10 @@
           "executor.spin_once",
           "executor.stock_extensions"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "executor",
       "attribution": "direct_backend",
@@ -50776,7 +50806,7 @@
       },
       "level": "member",
       "path": "rclpy.executors.Subscription.callback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -50806,8 +50836,10 @@
           "executor.spin_once",
           "executor.stock_extensions"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "executor",
       "attribution": "direct_backend",
@@ -50829,7 +50861,7 @@
       },
       "level": "member",
       "path": "rclpy.executors.Subscription.destroy",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -50859,8 +50891,10 @@
           "executor.spin_once",
           "executor.stock_extensions"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_content_filter"
+        ],
+        "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
       },
       "area": "executor",
       "attribution": "direct_backend",
@@ -50882,7 +50916,7 @@
       },
       "level": "member",
       "path": "rclpy.executors.Subscription.get_content_filter",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -50912,8 +50946,10 @@
           "executor.spin_once",
           "executor.stock_extensions"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "executor",
       "attribution": "direct_backend",
@@ -50935,7 +50971,7 @@
       },
       "level": "member",
       "path": "rclpy.executors.Subscription.get_publisher_count",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -50965,8 +51001,10 @@
           "executor.spin_once",
           "executor.stock_extensions"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_handle_fail_closed"
+        ],
+        "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_handle_fail_closed; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
       },
       "area": "executor",
       "attribution": "direct_backend",
@@ -50988,7 +51026,7 @@
       },
       "level": "member",
       "path": "rclpy.executors.Subscription.handle",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -51018,8 +51056,10 @@
           "executor.spin_once",
           "executor.stock_extensions"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_content_filter"
+        ],
+        "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
       },
       "area": "executor",
       "attribution": "direct_backend",
@@ -51041,7 +51081,7 @@
       },
       "level": "member",
       "path": "rclpy.executors.Subscription.is_cft_enabled",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -51071,8 +51111,10 @@
           "executor.spin_once",
           "executor.stock_extensions"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "executor",
       "attribution": "direct_backend",
@@ -51094,7 +51136,7 @@
       },
       "level": "member",
       "path": "rclpy.executors.Subscription.logger_name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -51124,8 +51166,10 @@
           "executor.spin_once",
           "executor.stock_extensions"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_content_filter"
+        ],
+        "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
       },
       "area": "executor",
       "attribution": "direct_backend",
@@ -51147,7 +51191,7 @@
       },
       "level": "member",
       "path": "rclpy.executors.Subscription.set_content_filter",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -51177,8 +51221,10 @@
           "executor.spin_once",
           "executor.stock_extensions"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "executor",
       "attribution": "direct_backend",
@@ -51200,7 +51246,7 @@
       },
       "level": "member",
       "path": "rclpy.executors.Subscription.topic_name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -76005,8 +76051,10 @@
           "lifecycle.node",
           "lifecycle.publisher"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectPublisher method already promoted for a sibling LifecyclePublisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "lifecycle",
       "attribution": "direct_backend",
@@ -76028,7 +76076,7 @@
       },
       "level": "member",
       "path": "rclpy.lifecycle.node.LifecyclePublisher.publish",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -86610,8 +86658,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -86633,7 +86683,7 @@
       },
       "level": "symbol",
       "path": "rclpy.node.CallbackGroup",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -86660,8 +86710,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -86683,7 +86735,7 @@
       },
       "level": "member",
       "path": "rclpy.node.CallbackGroup.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -86710,8 +86762,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -86733,7 +86787,7 @@
       },
       "level": "member",
       "path": "rclpy.node.CallbackGroup.add_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -86760,8 +86814,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -86783,7 +86839,7 @@
       },
       "level": "member",
       "path": "rclpy.node.CallbackGroup.beginning_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -86810,8 +86866,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -86833,7 +86891,7 @@
       },
       "level": "member",
       "path": "rclpy.node.CallbackGroup.can_execute",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -86860,8 +86918,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -86883,7 +86943,7 @@
       },
       "level": "member",
       "path": "rclpy.node.CallbackGroup.ending_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -86910,8 +86970,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -86933,7 +86995,7 @@
       },
       "level": "member",
       "path": "rclpy.node.CallbackGroup.has_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -88865,8 +88927,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor class already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -88888,7 +88952,7 @@
       },
       "level": "symbol",
       "path": "rclpy.node.Executor",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -88915,8 +88979,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -88938,7 +89004,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.__enter__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -88965,8 +89031,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -88988,7 +89056,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.__exit__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89015,8 +89083,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89038,7 +89108,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89065,8 +89135,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89088,7 +89160,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.add_node",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89115,8 +89187,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89138,7 +89212,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.can_execute",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89165,8 +89239,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89188,7 +89264,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.context",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89215,8 +89291,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89238,7 +89316,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.create_future",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89265,8 +89343,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_tasks"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_tasks; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89288,7 +89368,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.create_task",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89315,8 +89395,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89338,7 +89420,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.get_nodes",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89365,8 +89447,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89388,7 +89472,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.is_spinning",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89415,8 +89499,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89438,7 +89524,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.remove_node",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89465,8 +89551,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89488,7 +89576,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.shutdown",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89515,8 +89603,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89538,7 +89628,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.spin",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89565,8 +89655,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89588,7 +89680,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.spin_once",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89615,8 +89707,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89638,7 +89732,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.spin_once_until_future_complete",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89665,8 +89759,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89688,7 +89784,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.spin_until_future_complete",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89715,8 +89811,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_multi_threaded"
+        ],
+        "rationale": "Deliberately fail-closed: DirectExecutor already established as fail-closed for a sibling Executor alias in this ledger under executor.direct_cpp_multi_threaded; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89738,7 +89836,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.wait_for_ready_callbacks",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -89765,8 +89863,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_single_threaded"
+        ],
+        "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -89788,7 +89888,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Executor.wake",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -91271,8 +91371,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectMutuallyExclusiveCallbackGroup class already promoted for a sibling MutuallyExclusiveCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -91294,7 +91396,7 @@
       },
       "level": "symbol",
       "path": "rclpy.node.MutuallyExclusiveCallbackGroup",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -91321,8 +91423,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectMutuallyExclusiveCallbackGroup method already promoted for a sibling MutuallyExclusiveCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -91344,7 +91448,7 @@
       },
       "level": "member",
       "path": "rclpy.node.MutuallyExclusiveCallbackGroup.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -91371,8 +91475,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling MutuallyExclusiveCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -91394,7 +91500,7 @@
       },
       "level": "member",
       "path": "rclpy.node.MutuallyExclusiveCallbackGroup.add_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -91421,8 +91527,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectMutuallyExclusiveCallbackGroup method already promoted for a sibling MutuallyExclusiveCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -91444,7 +91552,7 @@
       },
       "level": "member",
       "path": "rclpy.node.MutuallyExclusiveCallbackGroup.beginning_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -91471,8 +91579,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectMutuallyExclusiveCallbackGroup method already promoted for a sibling MutuallyExclusiveCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -91494,7 +91604,7 @@
       },
       "level": "member",
       "path": "rclpy.node.MutuallyExclusiveCallbackGroup.can_execute",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -91521,8 +91631,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectMutuallyExclusiveCallbackGroup method already promoted for a sibling MutuallyExclusiveCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -91544,7 +91656,7 @@
       },
       "level": "member",
       "path": "rclpy.node.MutuallyExclusiveCallbackGroup.ending_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -91571,8 +91683,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling MutuallyExclusiveCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -91594,7 +91708,7 @@
       },
       "level": "member",
       "path": "rclpy.node.MutuallyExclusiveCallbackGroup.has_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -97828,8 +97942,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -97851,7 +97967,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Publisher.assert_liveliness",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -97878,8 +97994,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -97901,7 +98019,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Publisher.destroy",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -97928,8 +98046,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -97951,7 +98071,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Publisher.get_subscription_count",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -97978,8 +98098,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "publisher.direct_cpp_handle_fail_closed"
+        ],
+        "rationale": "Deliberately fail-closed: DirectPublisher already established as fail-closed for a sibling Publisher alias in this ledger under publisher.direct_cpp_handle_fail_closed; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -98001,7 +98123,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Publisher.handle",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -98028,8 +98150,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -98051,7 +98175,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Publisher.logger_name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -98078,8 +98202,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -98101,7 +98227,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Publisher.publish",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -98128,8 +98254,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -98151,7 +98279,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Publisher.topic_name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -100244,8 +100372,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectReentrantCallbackGroup class already promoted for a sibling ReentrantCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -100267,7 +100397,7 @@
       },
       "level": "symbol",
       "path": "rclpy.node.ReentrantCallbackGroup",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -100294,8 +100424,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectReentrantCallbackGroup method already promoted for a sibling ReentrantCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -100317,7 +100449,7 @@
       },
       "level": "member",
       "path": "rclpy.node.ReentrantCallbackGroup.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -100344,8 +100476,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling ReentrantCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -100367,7 +100501,7 @@
       },
       "level": "member",
       "path": "rclpy.node.ReentrantCallbackGroup.add_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -100394,8 +100528,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectReentrantCallbackGroup method already promoted for a sibling ReentrantCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -100417,7 +100553,7 @@
       },
       "level": "member",
       "path": "rclpy.node.ReentrantCallbackGroup.beginning_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -100444,8 +100580,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectReentrantCallbackGroup method already promoted for a sibling ReentrantCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -100467,7 +100605,7 @@
       },
       "level": "member",
       "path": "rclpy.node.ReentrantCallbackGroup.can_execute",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -100494,8 +100632,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectReentrantCallbackGroup method already promoted for a sibling ReentrantCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -100517,7 +100657,7 @@
       },
       "level": "member",
       "path": "rclpy.node.ReentrantCallbackGroup.ending_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -100544,8 +100684,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling ReentrantCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -100567,7 +100709,7 @@
       },
       "level": "member",
       "path": "rclpy.node.ReentrantCallbackGroup.has_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -101228,8 +101370,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -101251,7 +101395,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Subscription.callback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -101278,8 +101422,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -101301,7 +101447,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Subscription.destroy",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -101328,8 +101474,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_content_filter"
+        ],
+        "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -101351,7 +101499,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Subscription.get_content_filter",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -101378,8 +101526,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -101401,7 +101551,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Subscription.get_publisher_count",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -101428,8 +101578,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_handle_fail_closed"
+        ],
+        "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_handle_fail_closed; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -101451,7 +101603,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Subscription.handle",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -101478,8 +101630,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_content_filter"
+        ],
+        "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -101501,7 +101655,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Subscription.is_cft_enabled",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -101528,8 +101682,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -101551,7 +101707,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Subscription.logger_name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -101578,8 +101734,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_content_filter"
+        ],
+        "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -101601,7 +101759,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Subscription.set_content_filter",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -101628,8 +101786,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -101651,7 +101811,7 @@
       },
       "level": "member",
       "path": "rclpy.node.Subscription.topic_name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -104202,8 +104362,10 @@
           "node.private_destruction_order",
           "node.subclass_existing_alias"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "type_support.direct_rebound_validation"
+        ],
+        "rationale": "Inherited the direct_cpp check_is_valid_msg_type function already promoted for a sibling check_is_valid_msg_type alias in this ledger under type_support.direct_rebound_validation; identical stock signature and origin module."
       },
       "area": "node",
       "attribution": "direct_backend",
@@ -104225,7 +104387,7 @@
       },
       "level": "symbol",
       "path": "rclpy.node.check_is_valid_msg_type",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -119405,8 +119567,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -119428,7 +119592,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_service.Parameter.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -119450,8 +119614,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -119473,7 +119639,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_service.Parameter.from_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -119495,8 +119661,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -119518,7 +119686,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_service.Parameter.get_parameter_value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -119540,8 +119708,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -119563,7 +119733,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_service.Parameter.name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -119585,8 +119755,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -119608,7 +119780,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_service.Parameter.to_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -119630,8 +119802,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -119653,7 +119827,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_service.Parameter.type_",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -119675,8 +119849,10 @@
           "parameter.remote",
           "parameter.value_and_event_helpers"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "parameter",
       "attribution": "direct_backend",
@@ -119698,7 +119874,7 @@
       },
       "level": "member",
       "path": "rclpy.parameter_service.Parameter.value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -120421,8 +120597,10 @@
           "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "publisher",
       "attribution": "direct_backend",
@@ -120444,7 +120622,7 @@
       },
       "level": "symbol",
       "path": "rclpy.publisher.CallbackGroup",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -120465,8 +120643,10 @@
           "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "publisher",
       "attribution": "direct_backend",
@@ -120488,7 +120668,7 @@
       },
       "level": "member",
       "path": "rclpy.publisher.CallbackGroup.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -120509,8 +120689,10 @@
           "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "publisher",
       "attribution": "direct_backend",
@@ -120532,7 +120714,7 @@
       },
       "level": "member",
       "path": "rclpy.publisher.CallbackGroup.add_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -120553,8 +120735,10 @@
           "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "publisher",
       "attribution": "direct_backend",
@@ -120576,7 +120760,7 @@
       },
       "level": "member",
       "path": "rclpy.publisher.CallbackGroup.beginning_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -120597,8 +120781,10 @@
           "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "publisher",
       "attribution": "direct_backend",
@@ -120620,7 +120806,7 @@
       },
       "level": "member",
       "path": "rclpy.publisher.CallbackGroup.can_execute",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -120641,8 +120827,10 @@
           "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "publisher",
       "attribution": "direct_backend",
@@ -120664,7 +120852,7 @@
       },
       "level": "member",
       "path": "rclpy.publisher.CallbackGroup.ending_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -120685,8 +120873,10 @@
           "publisher.direct_cpp_handle_fail_closed",
           "publisher.node_constructor_infrastructure"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "publisher",
       "attribution": "direct_backend",
@@ -120708,7 +120898,7 @@
       },
       "level": "member",
       "path": "rclpy.publisher.CallbackGroup.has_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -133812,8 +134002,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -133835,7 +134027,7 @@
       },
       "level": "symbol",
       "path": "rclpy.qos_event.CallbackGroup",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -133853,8 +134045,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -133876,7 +134070,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_event.CallbackGroup.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -133894,8 +134088,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -133917,7 +134113,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_event.CallbackGroup.add_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -133935,8 +134131,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -133958,7 +134156,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_event.CallbackGroup.beginning_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -133976,8 +134174,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -133999,7 +134199,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_event.CallbackGroup.can_execute",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -134017,8 +134217,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -134040,7 +134242,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_event.CallbackGroup.ending_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -134058,8 +134260,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -134081,7 +134285,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_event.CallbackGroup.has_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -140749,8 +140953,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -140772,7 +140978,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Parameter.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -140790,8 +140996,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -140813,7 +141021,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Parameter.from_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -140831,8 +141039,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -140854,7 +141064,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Parameter.get_parameter_value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -140872,8 +141082,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -140895,7 +141107,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Parameter.name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -140913,8 +141125,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -140936,7 +141150,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Parameter.to_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -140954,8 +141168,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -140977,7 +141193,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Parameter.type_",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -140995,8 +141211,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -141018,7 +141236,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Parameter.value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -141331,8 +141549,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -141354,7 +141574,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Publisher.assert_liveliness",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -141372,8 +141592,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -141395,7 +141617,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Publisher.destroy",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -141413,8 +141635,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -141436,7 +141660,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Publisher.get_subscription_count",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -141454,8 +141678,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "publisher.direct_cpp_handle_fail_closed"
+        ],
+        "rationale": "Deliberately fail-closed: DirectPublisher already established as fail-closed for a sibling Publisher alias in this ledger under publisher.direct_cpp_handle_fail_closed; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -141477,7 +141703,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Publisher.handle",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -141495,8 +141721,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -141518,7 +141746,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Publisher.logger_name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -141536,8 +141764,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -141559,7 +141789,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Publisher.publish",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -141577,8 +141807,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -141600,7 +141832,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Publisher.topic_name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -146654,8 +146886,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -146677,7 +146911,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Subscription.callback",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -146695,8 +146929,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -146718,7 +146954,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Subscription.destroy",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -146736,8 +146972,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_content_filter"
+        ],
+        "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -146759,7 +146997,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Subscription.get_content_filter",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -146777,8 +147015,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -146800,7 +147040,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Subscription.get_publisher_count",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -146818,8 +147058,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_handle_fail_closed"
+        ],
+        "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_handle_fail_closed; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -146841,7 +147083,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Subscription.handle",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -146859,8 +147101,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_content_filter"
+        ],
+        "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -146882,7 +147126,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Subscription.is_cft_enabled",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -146900,8 +147144,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -146923,7 +147169,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Subscription.logger_name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -146941,8 +147187,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "subscription.direct_cpp_content_filter"
+        ],
+        "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -146964,7 +147212,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Subscription.set_content_filter",
-      "status": "unassessed",
+      "status": "explicit_fail_closed",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -146982,8 +147230,10 @@
         "area_manifest_entry_ids": [
           "qos.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "message.direct_cpp_first_slice"
+        ],
+        "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
       },
       "area": "qos",
       "attribution": "direct_backend",
@@ -147005,7 +147255,7 @@
       },
       "level": "member",
       "path": "rclpy.qos_overriding_options.Subscription.topic_name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -147206,8 +147456,10 @@
           "service.direct_cpp_setbool_first_slice",
           "service.extended_stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "service",
       "attribution": "direct_backend",
@@ -147229,7 +147481,7 @@
       },
       "level": "symbol",
       "path": "rclpy.service.CallbackGroup",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -147249,8 +147501,10 @@
           "service.direct_cpp_setbool_first_slice",
           "service.extended_stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "service",
       "attribution": "direct_backend",
@@ -147272,7 +147526,7 @@
       },
       "level": "member",
       "path": "rclpy.service.CallbackGroup.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -147292,8 +147546,10 @@
           "service.direct_cpp_setbool_first_slice",
           "service.extended_stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "service",
       "attribution": "direct_backend",
@@ -147315,7 +147571,7 @@
       },
       "level": "member",
       "path": "rclpy.service.CallbackGroup.add_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -147335,8 +147591,10 @@
           "service.direct_cpp_setbool_first_slice",
           "service.extended_stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "service",
       "attribution": "direct_backend",
@@ -147358,7 +147616,7 @@
       },
       "level": "member",
       "path": "rclpy.service.CallbackGroup.beginning_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -147378,8 +147636,10 @@
           "service.direct_cpp_setbool_first_slice",
           "service.extended_stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "service",
       "attribution": "direct_backend",
@@ -147401,7 +147661,7 @@
       },
       "level": "member",
       "path": "rclpy.service.CallbackGroup.can_execute",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -147421,8 +147681,10 @@
           "service.direct_cpp_setbool_first_slice",
           "service.extended_stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "service",
       "attribution": "direct_backend",
@@ -147444,7 +147706,7 @@
       },
       "level": "member",
       "path": "rclpy.service.CallbackGroup.ending_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -147464,8 +147726,10 @@
           "service.direct_cpp_setbool_first_slice",
           "service.extended_stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "service",
       "attribution": "direct_backend",
@@ -147487,7 +147751,7 @@
       },
       "level": "member",
       "path": "rclpy.service.CallbackGroup.has_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -151626,8 +151890,10 @@
           "subscription.direct_cpp_wait_for_message",
           "subscription.wait_for_message"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "subscription",
       "attribution": "direct_backend",
@@ -151649,7 +151915,7 @@
       },
       "level": "symbol",
       "path": "rclpy.subscription.CallbackGroup",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -151674,8 +151940,10 @@
           "subscription.direct_cpp_wait_for_message",
           "subscription.wait_for_message"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "subscription",
       "attribution": "direct_backend",
@@ -151697,7 +151965,7 @@
       },
       "level": "member",
       "path": "rclpy.subscription.CallbackGroup.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -151722,8 +151990,10 @@
           "subscription.direct_cpp_wait_for_message",
           "subscription.wait_for_message"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "subscription",
       "attribution": "direct_backend",
@@ -151745,7 +152015,7 @@
       },
       "level": "member",
       "path": "rclpy.subscription.CallbackGroup.add_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -151770,8 +152040,10 @@
           "subscription.direct_cpp_wait_for_message",
           "subscription.wait_for_message"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "subscription",
       "attribution": "direct_backend",
@@ -151793,7 +152065,7 @@
       },
       "level": "member",
       "path": "rclpy.subscription.CallbackGroup.beginning_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -151818,8 +152090,10 @@
           "subscription.direct_cpp_wait_for_message",
           "subscription.wait_for_message"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "subscription",
       "attribution": "direct_backend",
@@ -151841,7 +152115,7 @@
       },
       "level": "member",
       "path": "rclpy.subscription.CallbackGroup.can_execute",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -151866,8 +152140,10 @@
           "subscription.direct_cpp_wait_for_message",
           "subscription.wait_for_message"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "subscription",
       "attribution": "direct_backend",
@@ -151889,7 +152165,7 @@
       },
       "level": "member",
       "path": "rclpy.subscription.CallbackGroup.ending_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -151914,8 +152190,10 @@
           "subscription.direct_cpp_wait_for_message",
           "subscription.wait_for_message"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "subscription",
       "attribution": "direct_backend",
@@ -151937,7 +152215,7 @@
       },
       "level": "member",
       "path": "rclpy.subscription.CallbackGroup.has_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -159551,8 +159829,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "time",
       "attribution": "direct_backend",
@@ -159574,7 +159854,7 @@
       },
       "level": "member",
       "path": "rclpy.time_source.Parameter.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -159597,8 +159877,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "time",
       "attribution": "direct_backend",
@@ -159620,7 +159902,7 @@
       },
       "level": "member",
       "path": "rclpy.time_source.Parameter.from_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -159643,8 +159925,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "time",
       "attribution": "direct_backend",
@@ -159666,7 +159950,7 @@
       },
       "level": "member",
       "path": "rclpy.time_source.Parameter.get_parameter_value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -159689,8 +159973,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "time",
       "attribution": "direct_backend",
@@ -159712,7 +159998,7 @@
       },
       "level": "member",
       "path": "rclpy.time_source.Parameter.name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -159735,8 +160021,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "time",
       "attribution": "direct_backend",
@@ -159758,7 +160046,7 @@
       },
       "level": "member",
       "path": "rclpy.time_source.Parameter.to_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -159781,8 +160069,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "time",
       "attribution": "direct_backend",
@@ -159804,7 +160094,7 @@
       },
       "level": "member",
       "path": "rclpy.time_source.Parameter.type_",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -159827,8 +160117,10 @@
           "time.direct_cpp_sim_time",
           "time.stock_surface"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "time",
       "attribution": "direct_backend",
@@ -159850,7 +160142,7 @@
       },
       "level": "member",
       "path": "rclpy.time_source.Parameter.value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -163105,8 +163397,10 @@
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "timer",
       "attribution": "direct_backend",
@@ -163128,7 +163422,7 @@
       },
       "level": "symbol",
       "path": "rclpy.timer.CallbackGroup",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -163148,8 +163442,10 @@
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "timer",
       "attribution": "direct_backend",
@@ -163171,7 +163467,7 @@
       },
       "level": "member",
       "path": "rclpy.timer.CallbackGroup.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -163191,8 +163487,10 @@
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "timer",
       "attribution": "direct_backend",
@@ -163214,7 +163512,7 @@
       },
       "level": "member",
       "path": "rclpy.timer.CallbackGroup.add_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -163234,8 +163532,10 @@
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "timer",
       "attribution": "direct_backend",
@@ -163257,7 +163557,7 @@
       },
       "level": "member",
       "path": "rclpy.timer.CallbackGroup.beginning_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -163277,8 +163577,10 @@
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "timer",
       "attribution": "direct_backend",
@@ -163300,7 +163602,7 @@
       },
       "level": "member",
       "path": "rclpy.timer.CallbackGroup.can_execute",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -163320,8 +163622,10 @@
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "timer",
       "attribution": "direct_backend",
@@ -163343,7 +163647,7 @@
       },
       "level": "member",
       "path": "rclpy.timer.CallbackGroup.ending_execution",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -163363,8 +163667,10 @@
           "timer.direct_cpp_first_slice",
           "timer.wall"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "executor.direct_cpp_callback_groups"
+        ],
+        "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
       },
       "area": "timer",
       "attribution": "direct_backend",
@@ -163386,7 +163692,7 @@
       },
       "level": "member",
       "path": "rclpy.timer.CallbackGroup.has_entity",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -168981,8 +169287,10 @@
           "type_support.stock_surface",
           "type_support.type_description_service"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "type_support",
       "attribution": "direct_backend",
@@ -169004,7 +169312,7 @@
       },
       "level": "member",
       "path": "rclpy.type_description_service.Parameter.__init__",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -169025,8 +169333,10 @@
           "type_support.stock_surface",
           "type_support.type_description_service"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "type_support",
       "attribution": "direct_backend",
@@ -169048,7 +169358,7 @@
       },
       "level": "member",
       "path": "rclpy.type_description_service.Parameter.from_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -169069,8 +169379,10 @@
           "type_support.stock_surface",
           "type_support.type_description_service"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "type_support",
       "attribution": "direct_backend",
@@ -169092,7 +169404,7 @@
       },
       "level": "member",
       "path": "rclpy.type_description_service.Parameter.get_parameter_value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -169113,8 +169425,10 @@
           "type_support.stock_surface",
           "type_support.type_description_service"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "type_support",
       "attribution": "direct_backend",
@@ -169136,7 +169450,7 @@
       },
       "level": "member",
       "path": "rclpy.type_description_service.Parameter.name",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -169157,8 +169471,10 @@
           "type_support.stock_surface",
           "type_support.type_description_service"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "type_support",
       "attribution": "direct_backend",
@@ -169180,7 +169496,7 @@
       },
       "level": "member",
       "path": "rclpy.type_description_service.Parameter.to_parameter_msg",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -169201,8 +169517,10 @@
           "type_support.stock_surface",
           "type_support.type_description_service"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "type_support",
       "attribution": "direct_backend",
@@ -169224,7 +169542,7 @@
       },
       "level": "member",
       "path": "rclpy.type_description_service.Parameter.type_",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -169245,8 +169563,10 @@
           "type_support.stock_surface",
           "type_support.type_description_service"
         ],
-        "manifest_entry_ids": [],
-        "rationale": "Name and signature observations do not establish semantic parity."
+        "manifest_entry_ids": [
+          "parameter.direct_cpp_local_first_slice"
+        ],
+        "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
       },
       "area": "type_support",
       "attribution": "direct_backend",
@@ -169268,7 +169588,7 @@
       },
       "level": "member",
       "path": "rclpy.type_description_service.Parameter.value",
-      "status": "unassessed",
+      "status": "exact_direct_cpp_authority",
       "stock": {
         "attribution": "stock",
         "implementation": "python",
@@ -180143,11 +180463,11 @@
     "modules": 58,
     "signature_mismatches": 31,
     "statuses": {
-      "exact_direct_cpp_authority": 994,
-      "explicit_fail_closed": 25,
+      "exact_direct_cpp_authority": 1139,
+      "explicit_fail_closed": 40,
       "missing_mismatch": 103,
       "mixed_control_direct_data": 0,
-      "unassessed": 178,
+      "unassessed": 18,
       "unchanged_stock_fallback": 2474
     },
     "stock_only_entries": 72,

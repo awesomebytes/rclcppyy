@@ -28806,6 +28806,1286 @@
         "type_support.direct_rebound_validation"
       ],
       "rationale": "The direct-backed validator has stock's exact (msg_type) public signature. test_stock_residual_owner_identity.py provides a fresh-process stock/direct differential and one-row coverage tripwire: both profiles accept their valid Time message type with a None result and reject SetBool with the identical RuntimeError, while the direct input is the generated C++ Time class and the callable is owned by rclcppyy.direct_cpp. test_direct_cpp.py and its type-support helpers additionally prove registered direct-message acceptance, precise negative delegation, type-support side effects, and zero conversion-boundary crossings. This is a cold validation utility, so transport interoperability and hot-path benchmarking are not applicable."
+    },
+    {
+      "path": "rclpy.client.CallbackGroup",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.client.CallbackGroup.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.client.CallbackGroup.add_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.client.CallbackGroup.beginning_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.client.CallbackGroup.can_execute",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.client.CallbackGroup.ending_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.client.CallbackGroup.has_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.event_handler.CallbackGroup",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.event_handler.CallbackGroup.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.event_handler.CallbackGroup.add_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.event_handler.CallbackGroup.beginning_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.event_handler.CallbackGroup.can_execute",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.event_handler.CallbackGroup.ending_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.event_handler.CallbackGroup.has_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.executors.Subscription.callback",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.executors.Subscription.destroy",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.executors.Subscription.get_content_filter",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_content_filter"
+      ],
+      "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
+    },
+    {
+      "path": "rclpy.executors.Subscription.get_publisher_count",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.executors.Subscription.handle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_handle_fail_closed"
+      ],
+      "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_handle_fail_closed; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
+    },
+    {
+      "path": "rclpy.executors.Subscription.is_cft_enabled",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_content_filter"
+      ],
+      "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
+    },
+    {
+      "path": "rclpy.executors.Subscription.logger_name",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.executors.Subscription.set_content_filter",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_content_filter"
+      ],
+      "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
+    },
+    {
+      "path": "rclpy.executors.Subscription.topic_name",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.lifecycle.node.LifecyclePublisher.publish",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectPublisher method already promoted for a sibling LifecyclePublisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.CallbackGroup",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.CallbackGroup.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.CallbackGroup.add_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.CallbackGroup.beginning_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.CallbackGroup.can_execute",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.CallbackGroup.ending_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.CallbackGroup.has_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor class already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.__enter__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.__exit__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.add_node",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.can_execute",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.context",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.create_future",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.create_task",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_tasks"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_tasks; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.get_nodes",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.is_spinning",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.remove_node",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.shutdown",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.spin",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.spin_once",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.spin_once_until_future_complete",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.spin_until_future_complete",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Executor.wait_for_ready_callbacks",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_multi_threaded"
+      ],
+      "rationale": "Deliberately fail-closed: DirectExecutor already established as fail-closed for a sibling Executor alias in this ledger under executor.direct_cpp_multi_threaded; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
+    },
+    {
+      "path": "rclpy.node.Executor.wake",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_single_threaded"
+      ],
+      "rationale": "Inherited DirectExecutor method already promoted for a sibling Executor alias in this ledger under executor.direct_cpp_single_threaded; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.MutuallyExclusiveCallbackGroup",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectMutuallyExclusiveCallbackGroup class already promoted for a sibling MutuallyExclusiveCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.MutuallyExclusiveCallbackGroup.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectMutuallyExclusiveCallbackGroup method already promoted for a sibling MutuallyExclusiveCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.MutuallyExclusiveCallbackGroup.add_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling MutuallyExclusiveCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.MutuallyExclusiveCallbackGroup.beginning_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectMutuallyExclusiveCallbackGroup method already promoted for a sibling MutuallyExclusiveCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.MutuallyExclusiveCallbackGroup.can_execute",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectMutuallyExclusiveCallbackGroup method already promoted for a sibling MutuallyExclusiveCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.MutuallyExclusiveCallbackGroup.ending_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectMutuallyExclusiveCallbackGroup method already promoted for a sibling MutuallyExclusiveCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.MutuallyExclusiveCallbackGroup.has_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling MutuallyExclusiveCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Publisher.assert_liveliness",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Publisher.destroy",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Publisher.get_subscription_count",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Publisher.handle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "publisher.direct_cpp_handle_fail_closed"
+      ],
+      "rationale": "Deliberately fail-closed: DirectPublisher already established as fail-closed for a sibling Publisher alias in this ledger under publisher.direct_cpp_handle_fail_closed; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
+    },
+    {
+      "path": "rclpy.node.Publisher.logger_name",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Publisher.publish",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Publisher.topic_name",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.ReentrantCallbackGroup",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectReentrantCallbackGroup class already promoted for a sibling ReentrantCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.ReentrantCallbackGroup.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectReentrantCallbackGroup method already promoted for a sibling ReentrantCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.ReentrantCallbackGroup.add_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling ReentrantCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.ReentrantCallbackGroup.beginning_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectReentrantCallbackGroup method already promoted for a sibling ReentrantCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.ReentrantCallbackGroup.can_execute",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectReentrantCallbackGroup method already promoted for a sibling ReentrantCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.ReentrantCallbackGroup.ending_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectReentrantCallbackGroup method already promoted for a sibling ReentrantCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.ReentrantCallbackGroup.has_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling ReentrantCallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Subscription.callback",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Subscription.destroy",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Subscription.get_content_filter",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_content_filter"
+      ],
+      "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
+    },
+    {
+      "path": "rclpy.node.Subscription.get_publisher_count",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Subscription.handle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_handle_fail_closed"
+      ],
+      "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_handle_fail_closed; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
+    },
+    {
+      "path": "rclpy.node.Subscription.is_cft_enabled",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_content_filter"
+      ],
+      "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
+    },
+    {
+      "path": "rclpy.node.Subscription.logger_name",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.Subscription.set_content_filter",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_content_filter"
+      ],
+      "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
+    },
+    {
+      "path": "rclpy.node.Subscription.topic_name",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.node.check_is_valid_msg_type",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "type_support.direct_rebound_validation"
+      ],
+      "rationale": "Inherited the direct_cpp check_is_valid_msg_type function already promoted for a sibling check_is_valid_msg_type alias in this ledger under type_support.direct_rebound_validation; identical stock signature and origin module."
+    },
+    {
+      "path": "rclpy.parameter_service.Parameter.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.parameter_service.Parameter.from_parameter_msg",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.parameter_service.Parameter.get_parameter_value",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.parameter_service.Parameter.name",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.parameter_service.Parameter.to_parameter_msg",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.parameter_service.Parameter.type_",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.parameter_service.Parameter.value",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.publisher.CallbackGroup",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.publisher.CallbackGroup.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.publisher.CallbackGroup.add_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.publisher.CallbackGroup.beginning_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.publisher.CallbackGroup.can_execute",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.publisher.CallbackGroup.ending_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.publisher.CallbackGroup.has_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_event.CallbackGroup",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_event.CallbackGroup.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_event.CallbackGroup.add_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_event.CallbackGroup.beginning_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_event.CallbackGroup.can_execute",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_event.CallbackGroup.ending_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_event.CallbackGroup.has_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Parameter.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Parameter.from_parameter_msg",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Parameter.get_parameter_value",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Parameter.name",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Parameter.to_parameter_msg",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Parameter.type_",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Parameter.value",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Publisher.assert_liveliness",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Publisher.destroy",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Publisher.get_subscription_count",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Publisher.handle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "publisher.direct_cpp_handle_fail_closed"
+      ],
+      "rationale": "Deliberately fail-closed: DirectPublisher already established as fail-closed for a sibling Publisher alias in this ledger under publisher.direct_cpp_handle_fail_closed; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Publisher.logger_name",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Publisher.publish",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Publisher.topic_name",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectPublisher method already promoted for a sibling Publisher alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Subscription.callback",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Subscription.destroy",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Subscription.get_content_filter",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_content_filter"
+      ],
+      "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Subscription.get_publisher_count",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Subscription.handle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_handle_fail_closed"
+      ],
+      "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_handle_fail_closed; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Subscription.is_cft_enabled",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_content_filter"
+      ],
+      "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Subscription.logger_name",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Subscription.set_content_filter",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "subscription.direct_cpp_content_filter"
+      ],
+      "rationale": "Deliberately fail-closed: DirectSubscription already established as fail-closed for a sibling Subscription alias in this ledger under subscription.direct_cpp_content_filter; identical stock signature and owner class, same fail-closed condition applies to this alias verbatim."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Subscription.topic_name",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Inherited DirectSubscription method already promoted for a sibling Subscription alias in this ledger under message.direct_cpp_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.service.CallbackGroup",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.service.CallbackGroup.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.service.CallbackGroup.add_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.service.CallbackGroup.beginning_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.service.CallbackGroup.can_execute",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.service.CallbackGroup.ending_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.service.CallbackGroup.has_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.subscription.CallbackGroup",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.subscription.CallbackGroup.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.subscription.CallbackGroup.add_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.subscription.CallbackGroup.beginning_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.subscription.CallbackGroup.can_execute",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.subscription.CallbackGroup.ending_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.subscription.CallbackGroup.has_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.time_source.Parameter.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.time_source.Parameter.from_parameter_msg",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.time_source.Parameter.get_parameter_value",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.time_source.Parameter.name",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.time_source.Parameter.to_parameter_msg",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.time_source.Parameter.type_",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.time_source.Parameter.value",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.timer.CallbackGroup",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup class already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.timer.CallbackGroup.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.timer.CallbackGroup.add_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.timer.CallbackGroup.beginning_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.timer.CallbackGroup.can_execute",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.timer.CallbackGroup.ending_execution",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.timer.CallbackGroup.has_entity",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "executor.direct_cpp_callback_groups"
+      ],
+      "rationale": "Inherited DirectCallbackGroup method already promoted for a sibling CallbackGroup alias in this ledger under executor.direct_cpp_callback_groups; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.type_description_service.Parameter.__init__",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.type_description_service.Parameter.from_parameter_msg",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.type_description_service.Parameter.get_parameter_value",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.type_description_service.Parameter.name",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.type_description_service.Parameter.to_parameter_msg",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.type_description_service.Parameter.type_",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.type_description_service.Parameter.value",
+      "status": "exact_direct_cpp_authority",
+      "manifest_entry_ids": [
+        "parameter.direct_cpp_local_first_slice"
+      ],
+      "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
     }
   ],
   "schema": "rclcppyy.rclpy-api-annotations/v1",
