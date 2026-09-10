@@ -4,9 +4,11 @@ Evidence for the prove-authority lane's ``service.extended_stock_surface``
 batch-(b) annotations (PLAN-prove-authority §2c, uncommitted): the direct
 profile keeps ``Client``/``Service``/``ServiceIntrospectionState`` and the
 re-exported stock ``QoSProfile`` as the exact stock objects. ``Clock``
-(Lane 1), ``CallbackGroup``/``Future`` (Lane 2), and ``Context``
-re-exports are recorded as facts here (excluded_owner) but never claimed --
-Finding E: a type owned by another area/lane is not double-annotated.
+(Lane 1), ``Future`` (Lane 2), and ``Context`` re-exports are recorded as
+facts here (excluded_owner) but never claimed -- Finding E: a type owned by
+another area/lane is not double-annotated. ``CallbackGroup`` is rebound to
+the direct facade (Preserve direct facade identity across public aliases)
+and is recorded separately.
 """
 
 from __future__ import annotations
@@ -17,6 +19,10 @@ from _run_helper import format_output, run_helper
 
 
 PROBE_PREFIX = "RCLCPPYY_STOCK_SERVICE_IDENTITY_PROBE "
+
+# CallbackGroup aliases in client/service are rebound to the direct facade,
+# so their excluded_owner module differs from the stock backend's.
+DIRECT_REEXPORTS = ("client.CallbackGroup", "service.CallbackGroup")
 
 
 def _probe(backend):
@@ -36,6 +42,9 @@ def test_service_symbols_are_identical_under_both_backends():
 
     stock_payload = {key: value for key, value in stock.items() if key != "backend"}
     direct_payload = {key: value for key, value in direct.items() if key != "backend"}
+    for key in DIRECT_REEXPORTS:
+        stock_payload["excluded_owner"].pop(key)
+        direct_payload["excluded_owner"].pop(key)
     assert stock_payload == direct_payload
 
 
@@ -67,10 +76,12 @@ def test_qos_profile_reexport_is_the_exact_rclpy_qos_object():
 
 def test_lane_owned_reexports_are_recorded_but_not_claimed():
     direct = _probe("direct")
-    # Clock/CallbackGroup/Future/Context resolve to their owning modules --
-    # this lane records that fact and defers annotation to their own areas.
+    # Clock/Context resolve to their owning modules -- this lane records
+    # that fact and defers annotation to their own areas.
     assert direct["excluded_owner"]["client.Clock"] == "rclpy.clock"
     assert direct["excluded_owner"]["service.Clock"] == "rclpy.clock"
     assert direct["excluded_owner"]["client.Context"] == "rclpy.context"
-    for key in ("client.CallbackGroup", "service.CallbackGroup", "client.Future"):
-        assert direct["excluded_owner"][key].startswith("rclpy.")
+    assert direct["excluded_owner"]["client.Future"].startswith("rclpy.")
+    # CallbackGroup is rebound to the direct facade at both aliases.
+    for key in DIRECT_REEXPORTS:
+        assert direct["excluded_owner"][key] == "rclcppyy.direct_callback_groups"
