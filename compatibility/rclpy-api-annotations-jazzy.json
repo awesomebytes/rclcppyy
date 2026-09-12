@@ -30086,6 +30086,830 @@
         "parameter.direct_cpp_local_first_slice"
       ],
       "rationale": "Inherited Parameter method already promoted for a sibling Parameter alias in this ledger under parameter.direct_cpp_local_first_slice; identical stock signature and owner class."
+    },
+    {
+      "path": "rclpy.action.ActionClient.__enter__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: __enter__ (the context-manager entry point wrapping construction/destroy()) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionClient.__exit__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: __exit__ (the context-manager exit point wrapping destroy()) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionClient.add_future",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: add_future (registering a Future for the Waitable protocol's is_ready()/take_data() dispatch) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionClient.add_to_wait_set",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: add_to_wait_set (adding this entity's wait-set entities to a stock rclpy wait set) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionClient.execute",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: execute (the Waitable protocol's execute(taken_data) callback-dispatch hook) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionClient.get_num_entities",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: get_num_entities (the Waitable protocol's wait-set entity-count accessor) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionClient.is_ready",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: is_ready (the Waitable protocol's wait-set readiness check) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionClient.remove_future",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: remove_future (deregistering a Future from the Waitable protocol's dispatch set) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionClient.take_data",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: take_data (the Waitable protocol's take_data() extraction hook) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionServer.__enter__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: __enter__ (the context-manager entry point wrapping construction/destroy()) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionServer.__exit__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: __exit__ (the context-manager exit point wrapping destroy()) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionServer.add_future",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: add_future (registering a Future for the Waitable protocol's is_ready()/take_data() dispatch) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionServer.add_to_wait_set",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: add_to_wait_set (adding this entity's wait-set entities to a stock rclpy wait set) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionServer.execute",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: execute (the Waitable protocol's execute(taken_data) callback-dispatch hook) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionServer.get_num_entities",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: get_num_entities (the Waitable protocol's wait-set entity-count accessor) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionServer.is_ready",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: is_ready (the Waitable protocol's wait-set readiness check) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionServer.remove_future",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: remove_future (deregistering a Future from the Waitable protocol's dispatch set) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.ActionServer.take_data",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: take_data (the Waitable protocol's take_data() extraction hook) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.client.ActionClient.__enter__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: __enter__ (the context-manager entry point wrapping construction/destroy()) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.client.ActionClient.__exit__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: __exit__ (the context-manager exit point wrapping destroy()) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.client.ActionClient.add_future",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: add_future (registering a Future for the Waitable protocol's is_ready()/take_data() dispatch) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.client.ActionClient.add_to_wait_set",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: add_to_wait_set (adding this entity's wait-set entities to a stock rclpy wait set) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.client.ActionClient.execute",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: execute (the Waitable protocol's execute(taken_data) callback-dispatch hook) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.client.ActionClient.get_num_entities",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: get_num_entities (the Waitable protocol's wait-set entity-count accessor) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.client.ActionClient.is_ready",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: is_ready (the Waitable protocol's wait-set readiness check) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.client.ActionClient.remove_future",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: remove_future (deregistering a Future from the Waitable protocol's dispatch set) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.client.ActionClient.take_data",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionClient: take_data (the Waitable protocol's take_data() extraction hook) is not defined on the direct backend's ActionClient facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action client natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.client.ClientGoalHandle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: ClientGoalHandle objects are constructed internally by ActionClient when a goal is accepted, not by user code calling the constructor with stock's exact parameter list. The direct backend's constructor takes an additional internal token parameter its acceptance path actually produces. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor directly; the direct backend provides equivalent functionality through the action-client goal-acceptance path."
+    },
+    {
+      "path": "rclpy.action.client.ClientGoalHandle.__init__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_client_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: ClientGoalHandle objects are constructed internally by ActionClient when a goal is accepted, not by user code calling the constructor with stock's exact parameter list. The direct backend's constructor takes an additional internal token parameter its acceptance path actually produces. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor directly; the direct backend provides equivalent functionality through the action-client goal-acceptance path."
+    },
+    {
+      "path": "rclpy.action.graph.Node.add_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: add_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.action.graph.Node.handle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not expose the low-level pybind rcl node handle: Node.handle is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, node lifecycle and entity registration are managed by the native rclcpp::Node session, which has no pybind rcl handle for Python code to retrieve."
+    },
+    {
+      "path": "rclpy.action.graph.Node.remove_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: remove_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.action.graph.Node.waitables",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: waitables is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to enumerate user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.action.server.ActionServer.__enter__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: __enter__ (the context-manager entry point wrapping construction/destroy()) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.server.ActionServer.__exit__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: __exit__ (the context-manager exit point wrapping destroy()) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.server.ActionServer.add_future",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: add_future (registering a Future for the Waitable protocol's is_ready()/take_data() dispatch) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.server.ActionServer.add_to_wait_set",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: add_to_wait_set (adding this entity's wait-set entities to a stock rclpy wait set) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.server.ActionServer.execute",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: execute (the Waitable protocol's execute(taken_data) callback-dispatch hook) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.server.ActionServer.get_num_entities",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: get_num_entities (the Waitable protocol's wait-set entity-count accessor) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.server.ActionServer.is_ready",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: is_ready (the Waitable protocol's wait-set readiness check) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.server.ActionServer.remove_future",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: remove_future (deregistering a Future from the Waitable protocol's dispatch set) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.server.ActionServer.take_data",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "The direct backend does not implement the Waitable-protocol/context-manager interface for ActionServer: take_data (the Waitable protocol's take_data() extraction hook) is not defined on the direct backend's ActionServer facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor owns wait-set registration and dispatch for the action server natively in C++; the Python-side Waitable protocol stock rclpy's executor relies on is not exposed."
+    },
+    {
+      "path": "rclpy.action.server.ServerGoalHandle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: ServerGoalHandle objects are constructed internally by ActionServer when a goal is accepted, not by user code calling the constructor with stock's exact parameter list. The direct backend's constructor takes the single accepted-goal record its acceptance path actually produces instead of stock's separate goal_info/goal_request parameters. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor directly; the direct backend provides equivalent functionality through the action-server goal-acceptance path."
+    },
+    {
+      "path": "rclpy.action.server.ServerGoalHandle.__init__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "action.direct_cpp_server_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: ServerGoalHandle objects are constructed internally by ActionServer when a goal is accepted, not by user code calling the constructor with stock's exact parameter list. The direct backend's constructor takes the single accepted-goal record its acceptance path actually produces instead of stock's separate goal_info/goal_request parameters. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor directly; the direct backend provides equivalent functionality through the action-server goal-acceptance path."
+    },
+    {
+      "path": "rclpy.executors.Subscription",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Subscription objects are constructed via Node.create_subscription, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, callback, QoS profile, logger name, the native C++ subscription, callback group, and raw/message-info flags) instead of a pybind11 Subscription impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.executors.Subscription.__init__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Subscription objects are constructed via Node.create_subscription, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, callback, QoS profile, logger name, the native C++ subscription, callback group, and raw/message-info flags) instead of a pybind11 Subscription impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.lifecycle.LifecycleNode.add_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: add_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.lifecycle.LifecycleNode.handle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not expose the low-level pybind rcl node handle: Node.handle is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, node lifecycle and entity registration are managed by the native rclcpp::Node session, which has no pybind rcl handle for Python code to retrieve."
+    },
+    {
+      "path": "rclpy.lifecycle.LifecycleNode.remove_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: remove_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.lifecycle.LifecycleNode.waitables",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: waitables is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to enumerate user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.lifecycle.LifecyclePublisher.wait_for_all_acked",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Default timeout parameter representation differs between stock and direct backends: stock defaults to a sentinel Duration(nanoseconds=-1000000000) meaning 'wait indefinitely', while the direct backend defaults to None with equivalent indefinite-wait semantics; runtime behavior is equivalent."
+    },
+    {
+      "path": "rclpy.lifecycle.Node.add_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: add_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.lifecycle.Node.handle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not expose the low-level pybind rcl node handle: Node.handle is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, node lifecycle and entity registration are managed by the native rclcpp::Node session, which has no pybind rcl handle for Python code to retrieve."
+    },
+    {
+      "path": "rclpy.lifecycle.Node.remove_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: remove_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.lifecycle.Node.waitables",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: waitables is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to enumerate user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.lifecycle.Publisher.wait_for_all_acked",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Default timeout parameter representation differs between stock and direct backends: stock defaults to a sentinel Duration(nanoseconds=-1000000000) meaning 'wait indefinitely', while the direct backend defaults to None with equivalent indefinite-wait semantics; runtime behavior is equivalent."
+    },
+    {
+      "path": "rclpy.lifecycle.node.LifecycleNode.add_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: add_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.lifecycle.node.LifecycleNode.handle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not expose the low-level pybind rcl node handle: Node.handle is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, node lifecycle and entity registration are managed by the native rclcpp::Node session, which has no pybind rcl handle for Python code to retrieve."
+    },
+    {
+      "path": "rclpy.lifecycle.node.LifecycleNode.remove_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: remove_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.lifecycle.node.LifecycleNode.waitables",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: waitables is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to enumerate user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.lifecycle.node.LifecyclePublisher.wait_for_all_acked",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Default timeout parameter representation differs between stock and direct backends: stock defaults to a sentinel Duration(nanoseconds=-1000000000) meaning 'wait indefinitely', while the direct backend defaults to None with equivalent indefinite-wait semantics; runtime behavior is equivalent."
+    },
+    {
+      "path": "rclpy.lifecycle.node.Node.add_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: add_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.lifecycle.node.Node.handle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not expose the low-level pybind rcl node handle: Node.handle is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, node lifecycle and entity registration are managed by the native rclcpp::Node session, which has no pybind rcl handle for Python code to retrieve."
+    },
+    {
+      "path": "rclpy.lifecycle.node.Node.remove_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: remove_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.lifecycle.node.Node.waitables",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: waitables is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to enumerate user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.lifecycle.publisher.LifecyclePublisher.wait_for_all_acked",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Default timeout parameter representation differs between stock and direct backends: stock defaults to a sentinel Duration(nanoseconds=-1000000000) meaning 'wait indefinitely', while the direct backend defaults to None with equivalent indefinite-wait semantics; runtime behavior is equivalent."
+    },
+    {
+      "path": "rclpy.lifecycle.publisher.Publisher",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Publisher objects are constructed via Node.create_publisher, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, QoS profile, logger name, the native C++ publisher, and callback group) instead of a pybind11 Publisher impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.lifecycle.publisher.Publisher.__init__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Publisher objects are constructed via Node.create_publisher, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, QoS profile, logger name, the native C++ publisher, and callback group) instead of a pybind11 Publisher impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.lifecycle.publisher.Publisher.wait_for_all_acked",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "lifecycle.direct_cpp_first_slice"
+      ],
+      "rationale": "Default timeout parameter representation differs between stock and direct backends: stock defaults to a sentinel Duration(nanoseconds=-1000000000) meaning 'wait indefinitely', while the direct backend defaults to None with equivalent indefinite-wait semantics; runtime behavior is equivalent."
+    },
+    {
+      "path": "rclpy.node.Node.add_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: add_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.node.Node.handle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not expose the low-level pybind rcl node handle: Node.handle is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, node lifecycle and entity registration are managed by the native rclcpp::Node session, which has no pybind rcl handle for Python code to retrieve."
+    },
+    {
+      "path": "rclpy.node.Node.remove_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: remove_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.node.Node.waitables",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: waitables is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to enumerate user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.node.Publisher",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Publisher objects are constructed via Node.create_publisher, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, QoS profile, logger name, the native C++ publisher, and callback group) instead of a pybind11 Publisher impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.node.Publisher.__init__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Publisher objects are constructed via Node.create_publisher, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, QoS profile, logger name, the native C++ publisher, and callback group) instead of a pybind11 Publisher impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.node.Publisher.wait_for_all_acked",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Default timeout parameter representation differs between stock and direct backends: stock defaults to a sentinel Duration(nanoseconds=-1000000000) meaning 'wait indefinitely', while the direct backend defaults to None with equivalent indefinite-wait semantics; runtime behavior is equivalent."
+    },
+    {
+      "path": "rclpy.node.Subscription",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Subscription objects are constructed via Node.create_subscription, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, callback, QoS profile, logger name, the native C++ subscription, callback group, and raw/message-info flags) instead of a pybind11 Subscription impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.node.Subscription.__init__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Subscription objects are constructed via Node.create_subscription, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, callback, QoS profile, logger name, the native C++ subscription, callback group, and raw/message-info flags) instead of a pybind11 Subscription impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.parameter_client.Node.add_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: add_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.parameter_client.Node.handle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not expose the low-level pybind rcl node handle: Node.handle is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, node lifecycle and entity registration are managed by the native rclcpp::Node session, which has no pybind rcl handle for Python code to retrieve."
+    },
+    {
+      "path": "rclpy.parameter_client.Node.remove_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: remove_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.parameter_client.Node.waitables",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: waitables is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to enumerate user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.parameter_client.Subscription",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Subscription objects are constructed via Node.create_subscription, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, callback, QoS profile, logger name, the native C++ subscription, callback group, and raw/message-info flags) instead of a pybind11 Subscription impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.parameter_client.Subscription.__init__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Subscription objects are constructed via Node.create_subscription, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, callback, QoS profile, logger name, the native C++ subscription, callback group, and raw/message-info flags) instead of a pybind11 Subscription impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.parameter_event_handler.Node.add_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: add_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.parameter_event_handler.Node.handle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not expose the low-level pybind rcl node handle: Node.handle is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, node lifecycle and entity registration are managed by the native rclcpp::Node session, which has no pybind rcl handle for Python code to retrieve."
+    },
+    {
+      "path": "rclpy.parameter_event_handler.Node.remove_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: remove_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.parameter_event_handler.Node.waitables",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: waitables is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to enumerate user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.publisher.Publisher",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Publisher objects are constructed via Node.create_publisher, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, QoS profile, logger name, the native C++ publisher, and callback group) instead of a pybind11 Publisher impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.publisher.Publisher.__init__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Publisher objects are constructed via Node.create_publisher, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, QoS profile, logger name, the native C++ publisher, and callback group) instead of a pybind11 Publisher impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.publisher.Publisher.wait_for_all_acked",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Default timeout parameter representation differs between stock and direct backends: stock defaults to a sentinel Duration(nanoseconds=-1000000000) meaning 'wait indefinitely', while the direct backend defaults to None with equivalent indefinite-wait semantics; runtime behavior is equivalent."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Publisher",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Publisher objects are constructed via Node.create_publisher, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, QoS profile, logger name, the native C++ publisher, and callback group) instead of a pybind11 Publisher impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Publisher.__init__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Publisher objects are constructed via Node.create_publisher, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, QoS profile, logger name, the native C++ publisher, and callback group) instead of a pybind11 Publisher impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Publisher.wait_for_all_acked",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Default timeout parameter representation differs between stock and direct backends: stock defaults to a sentinel Duration(nanoseconds=-1000000000) meaning 'wait indefinitely', while the direct backend defaults to None with equivalent indefinite-wait semantics; runtime behavior is equivalent."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Subscription",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Subscription objects are constructed via Node.create_subscription, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, callback, QoS profile, logger name, the native C++ subscription, callback group, and raw/message-info flags) instead of a pybind11 Subscription impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.qos_overriding_options.Subscription.__init__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Subscription objects are constructed via Node.create_subscription, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, callback, QoS profile, logger name, the native C++ subscription, callback group, and raw/message-info flags) instead of a pybind11 Subscription impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.subscription.Subscription",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Subscription objects are constructed via Node.create_subscription, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, callback, QoS profile, logger name, the native C++ subscription, callback group, and raw/message-info flags) instead of a pybind11 Subscription impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.subscription.Subscription.__init__",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "message.direct_cpp_first_slice"
+      ],
+      "rationale": "Constructor parameter surface intentionally differs from stock: Subscription objects are constructed via Node.create_subscription, not by calling the constructor directly with stock's pybind11-impl-first parameter list. The direct backend's constructor takes the parameters its factory path actually produces (message type, topic, callback, QoS profile, logger name, the native C++ subscription, callback group, and raw/message-info flags) instead of a pybind11 Subscription impl object. Mirroring stock's exact constructor signature was explicitly declined since no supported code path calls this constructor positionally with stock's signature; the direct backend provides equivalent functionality through the factory path."
+    },
+    {
+      "path": "rclpy.try_shutdown",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "utility.process_surface"
+      ],
+      "rationale": "The direct backend adds a backward-compatible uninstall_handlers keyword argument not present in stock's try_shutdown signature; the extended signature is intentional and additive, and calling with stock's exact context=... surface behaves identically."
+    },
+    {
+      "path": "rclpy.wait_for_message.Node.add_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: add_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.wait_for_message.Node.handle",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not expose the low-level pybind rcl node handle: Node.handle is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, node lifecycle and entity registration are managed by the native rclcpp::Node session, which has no pybind rcl handle for Python code to retrieve."
+    },
+    {
+      "path": "rclpy.wait_for_message.Node.remove_waitable",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: remove_waitable is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to register user-defined waitables is not exposed."
+    },
+    {
+      "path": "rclpy.wait_for_message.Node.waitables",
+      "status": "explicit_fail_closed",
+      "manifest_entry_ids": [
+        "executor.stock_extensions"
+      ],
+      "rationale": "The direct backend does not implement the waitable-registration protocol for Node: waitables is not defined on the direct backend's Node facade at all, so access raises Python's standard AttributeError rather than a rclcppyy-specific error. Under the direct profile, the rclcpp executor assembles the wait set and dispatches callbacks natively in C++; the Python-side Waitable interface stock rclpy's executor uses to enumerate user-defined waitables is not exposed."
     }
   ],
   "schema": "rclcppyy.rclpy-api-annotations/v1",
