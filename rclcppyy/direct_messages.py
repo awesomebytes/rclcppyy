@@ -35,10 +35,12 @@ class DirectMessageBinding:
 
 
 class DirectMessageInstallation:
-    def __init__(self, replacements, bindings, pythonizations=(), type_support_mirrors=()):
+    def __init__(self, replacements, bindings, pythonizations=(), type_support_mirrors=(),
+                 pickle_pythonizations=()):
         self._replacements = tuple(replacements)
         self._pythonizations = tuple(pythonizations)
         self._type_support_mirrors = tuple(type_support_mirrors)
+        self._pickle_pythonizations = tuple(pickle_pythonizations)
         self.bindings = tuple(bindings)
         self._restored = False
 
@@ -52,6 +54,10 @@ class DirectMessageInstallation:
             if cpp_type.__init__ is direct_init:
                 cpp_type.__init__ = original_init
                 _PYTHONIZED.pop(cpp_type, None)
+        if self._pickle_pythonizations:
+            from rclcpp_kit.message_pickle import disable_pickling
+            for cpp_type in reversed(self._pickle_pythonizations):
+                disable_pickling(cpp_type)
         for cpp_metaclass, mirror in reversed(self._type_support_mirrors):
             if cpp_metaclass.__dict__.get("__import_type_support__") is mirror:
                 del cpp_metaclass.__import_type_support__
@@ -111,6 +117,25 @@ def _pythonize_constructor(binding: DirectMessageBinding):
     cpp_type.__init__ = direct_init
     _PYTHONIZED[cpp_type] = original_init
     return cpp_type, original_init, direct_init
+
+
+def _pythonize_pickle(binding: DirectMessageBinding):
+    """Give the C++ message class ``pickle`` support cppyy does not provide.
+
+    cppyy's generated Python classes raise ``TypeError: cannot pickle '...'
+    object`` -- there is no built-in ``__reduce__``. The field-type mapping
+    comes from ``binding.original_type`` -- the stock class this binding is
+    about to replace -- captured now because it is what
+    ``rclcpp_kit.message_pickle`` needs to walk the message's fields, and it
+    may stop being reachable once installation swaps it out below.
+    """
+    from rclcpp_kit.message_pickle import enable_pickling
+
+    cpp_type = binding.cpp_type
+    field_types = binding.original_type.get_fields_and_field_types()
+    if not enable_pickling(cpp_type, field_types):
+        return None
+    return cpp_type
 
 
 def _mirror_type_support_metadata(binding: DirectMessageBinding):
@@ -214,6 +239,7 @@ def install(interfaces=()) -> DirectMessageInstallation:
     replacements = []
     pythonizations = []
     type_support_mirrors = []
+    pickle_pythonizations = []
     try:
         for binding in bindings:
             pythonization = _pythonize_constructor(binding)
@@ -222,6 +248,9 @@ def install(interfaces=()) -> DirectMessageInstallation:
             mirror = _mirror_type_support_metadata(binding)
             if mirror is not None:
                 type_support_mirrors.append(mirror)
+            pickle_pythonization = _pythonize_pickle(binding)
+            if pickle_pythonization is not None:
+                pickle_pythonizations.append(pickle_pythonization)
         for module, name, original, cpp_type in targets:
             if getattr(module, name) is not original:
                 raise RuntimeError(
@@ -232,10 +261,12 @@ def install(interfaces=()) -> DirectMessageInstallation:
             replacements.append((module, name, original, cpp_type))
     except Exception:
         DirectMessageInstallation(
-            replacements, bindings, pythonizations, type_support_mirrors).restore()
+            replacements, bindings, pythonizations, type_support_mirrors,
+            pickle_pythonizations).restore()
         raise
     return DirectMessageInstallation(
-        replacements, bindings, pythonizations, type_support_mirrors)
+        replacements, bindings, pythonizations, type_support_mirrors,
+        pickle_pythonizations)
 
 
 __all__ = [

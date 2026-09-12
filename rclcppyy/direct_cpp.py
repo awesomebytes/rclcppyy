@@ -320,6 +320,7 @@ def _direct_node_options(
 
     from rclcpp_kit import native_parameters
     from rclcppyy import direct_parameters
+    from rclcppyy import intra_process as _intra_process
 
     native_overrides = tuple(
         direct_parameters.native_parameter(parameter)
@@ -337,6 +338,10 @@ def _direct_node_options(
     options.automatically_declare_parameters_from_overrides(
         automatically_declare_parameters_from_overrides)
     options.enable_logger_service(enable_logger_service)
+    # Experimental, process-global opt-in (see rclcppyy/intra_process.py) --
+    # deliberately not a create_node()/Node() keyword argument, so this
+    # never touches the stock-mirrored public constructor surface.
+    options.use_intra_process_comms(_intra_process.default_enabled())
     return options, len(native_overrides)
 
 
@@ -497,6 +502,13 @@ class DirectPublisher(metaclass=_DirectSurface):
         self._logger_name = str(logger_name)
         # This is a cppyy-bound ManagedPublisher<MessageT>::publish overload.
         # Do not replace it with a Python method: publish is the message hot path.
+        # Under RELIABLE QoS backpressure, rcl_publish can block for the DDS
+        # write (observed up to ~100ms); release the GIL for the call's
+        # duration exactly like direct_executors.py's spin_once and
+        # direct_guard_condition.py's wait_kind do for their blocking natives.
+        # The C++ message is already fully constructed at this point and no
+        # Python objects are touched during the write, so this is safe.
+        native.publish.__release_gil__ = True
         self.publish = native.publish
 
     def publish(self, msg):

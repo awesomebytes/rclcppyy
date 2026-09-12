@@ -180,6 +180,15 @@ def test_direct_cpp_publisher_interoperates_with_external_stock_subscriber():
     )
 
 
+def test_direct_cpp_publisher_releases_gil_during_native_publish():
+    process = run_helper("_direct_cpp_publish_release_gil_helper.py", timeout=180)
+    assert process.returncode == 0, format_output(process)
+    assert "DIRECT_CPP_PUBLISH_RELEASE_GIL_MARKER_OK" in process.stdout
+    assert "DIRECT_CPP_PUBLISH_RELEASE_GIL_ROUNDTRIP_OK" in process.stdout
+    assert "DIRECT_CPP_LIFECYCLE_PUBLISH_RELEASE_GIL_MARKER_OK" in process.stdout
+    assert "DIRECT_CPP_PUBLISH_RELEASE_GIL_TEARDOWN_OK" in process.stdout
+
+
 def test_direct_cpp_uninstalled_interface_fails_closed():
     process = run_helper(
         "_direct_cpp_missing_interface_helper.py", timeout=180)

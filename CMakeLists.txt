@@ -26,6 +26,20 @@ install(PROGRAMS scripts/ci/hook_launch_probe.py
   RENAME hook_launch_probe
 )
 
+# Installed to bin/ (not lib/${PROJECT_NAME}) so they land on PATH once the
+# workspace is sourced -- ament's generated path.dsv prepends bin/ if present,
+# letting `eval $(rclcppyy-env)` and `rclcppyy-run ...` run as plain shell
+# commands rather than needing `ros2 run rclcppyy ...`.
+install(PROGRAMS scripts/rclcppyy_env.py
+  DESTINATION bin
+  RENAME rclcppyy-env
+)
+
+install(PROGRAMS scripts/rclcppyy_run.py
+  DESTINATION bin
+  RENAME rclcppyy-run
+)
+
 install(DIRECTORY launch/
   DESTINATION share/${PROJECT_NAME}/launch
 )
