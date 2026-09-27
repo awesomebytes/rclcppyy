@@ -46,17 +46,17 @@ jobs:
             machine: aarch64
     steps:
       - name: Checkout exact tag source
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
 
       - name: Checkout pinned kit sources
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
         with:
           repository: awesomebytes/cppyy_kit
           ref: 6260ef0ab0c146951399441bbfdbae7a0f116e3a
           path: _deps/cppyy_kit
 
       - name: Checkout pinned upstream contract source
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
         with:
           repository: ros2/rclpy
           ref: baf9d72cfa127e391a89b4ab51ba9e55c37041fd
@@ -130,10 +130,10 @@ jobs:
       RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
     steps:
       - name: Checkout
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
 
       - name: Checkout pinned kit sources
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
         with:
           repository: awesomebytes/cppyy_kit
           ref: 6260ef0ab0c146951399441bbfdbae7a0f116e3a
@@ -274,7 +274,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout exact tag source
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
 
       - name: Download both verified publication bundles
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
