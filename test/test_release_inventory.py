@@ -43,14 +43,14 @@ def _metadata(name, version, build, subdir, depends=()):
 def _fixture(tmp_path, architecture="x86_64"):
     platform = "linux-64" if architecture == "x86_64" else "linux-aarch64"
     definitions = [
-        ("cppyy-kit", "0.2.0", "pyh4616a5c_2", "noarch", ()),
-        ("ros-jazzy-rclcpp-kit", "0.2.0", "pyh4616a5c_1", "noarch", ()),
+        ("cppyy-kit", "0.3.0", "pyh4616a5c_2", "noarch", ()),
+        ("ros-jazzy-rclcpp-kit", "0.3.0", "pyh4616a5c_1", "noarch", ()),
         (
             "ros-jazzy-rclcppyy",
             "0.3.0",
             "h_fixture_0",
             platform,
-            inventory._expected_product_dependencies("0.2.0"),
+            inventory._expected_product_dependencies("0.3.0"),
         ),
     ]
     if architecture != "x86_64":
@@ -96,7 +96,7 @@ def _fixture(tmp_path, architecture="x86_64"):
                 "verified_attestations": 1,
                 "repository": "awesomebytes/cppyy_kit",
                 "source_commit": SUITE_COMMIT,
-                "source_ref": "refs/tags/v0.2.0",
+                "source_ref": "refs/tags/v0.3.0",
             },
         })
     published_proof = {
@@ -105,7 +105,7 @@ def _fixture(tmp_path, architecture="x86_64"):
         "suite": {
             "repository": "awesomebytes/cppyy_kit",
             "commit": SUITE_COMMIT,
-            "package_version": "0.2.0",
+            "package_version": "0.3.0",
         },
         "packages": published_packages,
         "validated": {
@@ -135,7 +135,7 @@ def _fixture(tmp_path, architecture="x86_64"):
         "schema": inventory.SUITE_LOCK_SCHEMA,
         "repository": "awesomebytes/cppyy_kit",
         "commit": SUITE_COMMIT,
-        "package_version": "0.2.0",
+        "package_version": "0.3.0",
     }
 
     def extract(artifact, destination):
@@ -224,7 +224,7 @@ def test_inventory_rejects_dependency_or_source_identity_drift(tmp_path):
         index_path = destination / "info" / "index.json"
         index = json.loads(index_path.read_text())
         if index["name"] == inventory.PRODUCT_NAME:
-            index["depends"].remove("cppyy-kit ==0.2.0")
+            index["depends"].remove("cppyy-kit ==0.3.0")
             index["depends"].append("cppyy-kit >=0.1")
             index_path.write_text(json.dumps(index), encoding="utf-8")
 

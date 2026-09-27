@@ -17,14 +17,15 @@ channel before an rclcppyy release can build, prove, and upload.
 
 ## Dependency identities
 
-Suite 0.1.0 is published on `awesomebytes`, but this branch requires the unreleased
-suite 0.2.0 API. Development, CI, and release therefore use two explicit lanes:
+Suite 0.1.0 remains the published Pixi bootstrap dependency, while this branch uses
+the unreleased suite 0.3.0 API. Development, CI, and release therefore use two
+explicit lanes:
 
 - **Source lane:** `suite-source.lock.json` names one full suite commit and exact
   recipe version. Workspace activation overlays only that revision. The
   `suite-contract` task verifies its Git identity, clean state, all recipe versions,
   and active Python roots. CI checks out the same full commit.
-- **CI installed lane:** the package job builds suite 0.2.0 and rclcppyy 0.3.0 into
+- **CI installed lane:** the package job builds suite 0.3.0 and rclcppyy 0.3.0 into
   one isolated local channel, then proves imports and real ROS behavior without
   source paths on x86_64 and ARM64.
 - **Release installed lane:** each native runner first downloads the exact published
@@ -34,21 +35,22 @@ suite 0.2.0 API. Development, CI, and release therefore use two explicit lanes:
   channel. ARM64 also retains and verifies the published native `cppyy` 3.5.0
   bridge.
 
-The default lock still contains published suite 0.1.0 only as bootstrap dependency
-metadata. It is not accepted as source-test evidence, cannot satisfy
+The default Pixi dependencies and lock still contain published suite 0.1.0 only as
+bootstrap metadata. They remain unchanged until suite 0.3.0 is published. The old
+version is not accepted as source-test evidence, cannot satisfy
 `suite-contract`, and is not the release dependency set.
 
 ## Release choreography (do these in order)
 
 **Do not tag rclcppyy until step 1 is done.**
 
-1. **Tag and publish suite `v0.2.0`** from its locked commit after its release job
+1. **Tag and publish suite `v0.3.0`** from its locked commit after its release job
    builds, freshly installs, checksums, and attests the 11 suite artifacts plus
    the native ARM64 `cppyy` bridge. Prefix.dev OIDC authorization for that
    repository must already be enabled.
 
-2. **Confirm the published dependency set.** The exact `cppyy-kit ==0.2.0` and
-   `ros-jazzy-rclcpp-kit ==0.2.0` build identities must exist on `awesomebytes`
+2. **Confirm the published dependency set.** The exact `cppyy-kit ==0.3.0` and
+   `ros-jazzy-rclcpp-kit ==0.3.0` build identities must exist on `awesomebytes`
    with provenance from the locked suite commit. The same applies to the exact
    native `cppyy ==3.5.0` bridge identity on ARM64. A matching version or build
    string without matching retained channel bytes is not release evidence.

@@ -18,8 +18,8 @@ except ImportError:
 
 SCHEMA = "rclcppyy.local-package-attestation/v2"
 COMMON_ARTIFACT_PATTERNS = (
-    "noarch/cppyy-kit-0.2.0-*.conda",
-    "noarch/ros-jazzy-rclcpp-kit-0.2.0-*.conda",
+    "noarch/cppyy-kit-0.3.0-*.conda",
+    "noarch/ros-jazzy-rclcpp-kit-0.3.0-*.conda",
 )
 ARCHITECTURES = {
     "x86_64": ("linux-64", False),

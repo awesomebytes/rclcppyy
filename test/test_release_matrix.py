@@ -43,7 +43,7 @@ def _bundle(root, architecture, platform, *, support_suffix=""):
         "schema": "rclcppyy.release-package-inventory/v1",
         "architecture": architecture,
         "product_commit": PRODUCT_COMMIT,
-        "suite": {"commit": SUITE_COMMIT, "package_version": "0.2.0"},
+        "suite": {"commit": SUITE_COMMIT, "package_version": "0.3.0"},
         "validated": {
             "artifact_hashes": True,
             "conda_identities": True,
@@ -66,7 +66,7 @@ def _bundle(root, architecture, platform, *, support_suffix=""):
         }],
     }
     support_definitions = [
-        (name, "0.2.0", "pyh4616a5c_2" if name == "cppyy-kit" else "pyh4616a5c_1", "noarch")
+        (name, "0.3.0", "pyh4616a5c_2" if name == "cppyy-kit" else "pyh4616a5c_1", "noarch")
         for name in matrix.SUPPORT_NAMES
     ]
     if architecture == "aarch64":
@@ -93,7 +93,7 @@ def _bundle(root, architecture, platform, *, support_suffix=""):
                 "verified_attestations": 1,
                 "repository": "awesomebytes/cppyy_kit",
                 "source_commit": SUITE_COMMIT,
-                "source_ref": "refs/tags/v0.2.0",
+                "source_ref": "refs/tags/v0.3.0",
                 "signer_workflow": "awesomebytes/cppyy_kit/.github/workflows/release.yml",
             },
         })
@@ -115,7 +115,7 @@ def _bundle(root, architecture, platform, *, support_suffix=""):
     support = {
         "schema": "rclcppyy.published-support-proof/v2",
         "architecture": architecture,
-        "suite": {"commit": SUITE_COMMIT, "package_version": "0.2.0"},
+        "suite": {"commit": SUITE_COMMIT, "package_version": "0.3.0"},
         "validated": {
             "available_before_product_build": True,
             "exact_package_identities": True,
@@ -150,7 +150,7 @@ def _suite_lock():
         "schema": "rclcppyy.suite-source/v1",
         "repository": "awesomebytes/cppyy_kit",
         "commit": SUITE_COMMIT,
-        "package_version": "0.2.0",
+        "package_version": "0.3.0",
     }
 
 

@@ -2,7 +2,7 @@
 
 # Build the exact local-channel dependency stack for the rclcppyy artifact.
 # The suite packages are built first from their checkout, then rclcppyy resolves
-# its strict 0.2.0 dependencies from the same isolated channel.
+# its strict 0.3.0 dependencies from the same isolated channel.
 set -euo pipefail
 
 case "$(uname -m)" in

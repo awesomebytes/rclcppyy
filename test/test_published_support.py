@@ -8,7 +8,7 @@ from scripts.ci import verify_published_support as support
 
 
 SUITE_COMMIT = "a" * 40
-SUITE_VERSION = "0.2.0"
+SUITE_VERSION = "0.3.0"
 CHANNEL = "https://packages.example.invalid/channel"
 
 
@@ -17,7 +17,7 @@ def _verified_provenance(*_args):
         "verified_attestations": 1,
         "repository": "awesomebytes/cppyy_kit",
         "source_commit": SUITE_COMMIT,
-        "source_ref": "refs/tags/v0.2.0",
+        "source_ref": "refs/tags/v0.3.0",
     }
 
 
@@ -104,7 +104,7 @@ def test_published_support_retains_exact_x86_bytes_and_locked_provenance(tmp_pat
         for item in proof["packages"])
     assert len(calls) == 2
     assert all(call[1:] == (
-        "awesomebytes/cppyy_kit", SUITE_COMMIT, "refs/tags/v0.2.0")
+    "awesomebytes/cppyy_kit", SUITE_COMMIT, "refs/tags/v0.3.0")
         for call in calls)
 
 
@@ -128,7 +128,7 @@ def test_published_support_includes_exact_native_arm_bridge(tmp_path):
 
 def test_published_support_rejects_download_that_differs_from_repodata(tmp_path):
     suite_lock, repodata, _files, fetch = _fixture()
-    filename = "cppyy-kit-0.2.0-pyh4616a5c_2.conda"
+    filename = "cppyy-kit-0.3.0-pyh4616a5c_2.conda"
     repodata["noarch"][filename]["sha256"] = "0" * 64
 
     with pytest.raises(ValueError, match="downloaded bytes differ from repodata"):
@@ -144,7 +144,7 @@ def test_published_support_rejects_download_that_differs_from_repodata(tmp_path)
 
 def test_published_support_rejects_missing_identity_or_provenance(tmp_path):
     suite_lock, repodata, _files, fetch = _fixture()
-    repodata["noarch"].pop("cppyy-kit-0.2.0-pyh4616a5c_2.conda")
+    repodata["noarch"].pop("cppyy-kit-0.3.0-pyh4616a5c_2.conda")
     with pytest.raises(ValueError, match="lacks exact artifact"):
         support.verify_published_support(
             suite_lock=suite_lock,

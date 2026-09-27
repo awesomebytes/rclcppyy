@@ -25,11 +25,11 @@ psutil = ">=7.2.2,<8"
 ros-jazzy-rmw-zenoh-cpp = ">=0.2.9,<0.3"
 # M3: rclcppyy's rclcpp core + cppyy kits were carved into the cppyy_kit suite
 # (rclcpp_kit / cppyy_kit). rclcppyy re-exports them via deprecation shims, so both
-# must be IMPORTABLE at runtime. The suite is now published to prefix.dev
+# must be IMPORTABLE at runtime. Suite 0.1.0 remains published to prefix.dev
 # (awesomebytes channel, added above), so these are real conda deps pinned to the
-# last published version. The release recipe already requires suite 0.2.0; the
-# focused packaging task builds that strict dependency stack from the sibling
-# source checkout until 0.2.0 is published. See RELEASING.md.
+# latest published version. The release recipe requires suite 0.3.0; the focused
+# packaging task builds that strict dependency stack from the sibling source
+# checkout until 0.3.0 is published. See RELEASING.md.
 
 # cppyy 3.5 and the published kit artifacts are available together on x86-64.
 [target.linux-64.dependencies]

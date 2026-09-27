@@ -14,8 +14,8 @@ SUITE_COMMIT = "2" * 40
 
 def _write_artifacts(root: Path) -> dict[str, bytes]:
     contents = {
-        "noarch/cppyy-kit-0.2.0-test.conda": b"base",
-        "noarch/ros-jazzy-rclcpp-kit-0.2.0-test.conda": b"ros",
+        "noarch/cppyy-kit-0.3.0-test.conda": b"base",
+        "noarch/ros-jazzy-rclcpp-kit-0.3.0-test.conda": b"ros",
         "linux-64/ros-jazzy-rclcppyy-0.3.0-test.conda": b"product",
     }
     for relative, content in contents.items():
@@ -55,7 +55,7 @@ def test_attestation_binds_exact_commits_and_artifact_bytes(tmp_path):
 
 def test_attestation_rejects_ambiguous_or_missing_artifacts(tmp_path):
     _write_artifacts(tmp_path)
-    duplicate = tmp_path / "noarch" / "cppyy-kit-0.2.0-second.conda"
+    duplicate = tmp_path / "noarch" / "cppyy-kit-0.3.0-second.conda"
     duplicate.write_bytes(b"duplicate")
 
     with pytest.raises(ValueError, match="exactly one artifact"):
@@ -76,8 +76,8 @@ def test_attestation_rejects_non_commit_identity(tmp_path):
 
 def test_arm_attestation_requires_native_bridge_proof(tmp_path):
     contents = {
-        "noarch/cppyy-kit-0.2.0-test.conda": b"base",
-        "noarch/ros-jazzy-rclcpp-kit-0.2.0-test.conda": b"ros",
+        "noarch/cppyy-kit-0.3.0-test.conda": b"base",
+        "noarch/ros-jazzy-rclcpp-kit-0.3.0-test.conda": b"ros",
         "linux-aarch64/ros-jazzy-rclcppyy-0.3.0-test.conda": b"product",
         "linux-aarch64/cppyy-3.5.0-py312-test.conda": b"bridge",
     }
@@ -127,8 +127,8 @@ def test_arm_attestation_requires_native_bridge_proof(tmp_path):
 
 def test_release_attestation_binds_retained_published_support_bytes(tmp_path):
     contents = {
-        "noarch/cppyy-kit-0.2.0-pyh4616a5c_2.conda": b"published-base",
-        "noarch/ros-jazzy-rclcpp-kit-0.2.0-pyh4616a5c_1.conda": b"published-ros",
+        "noarch/cppyy-kit-0.3.0-pyh4616a5c_2.conda": b"published-base",
+        "noarch/ros-jazzy-rclcpp-kit-0.3.0-pyh4616a5c_1.conda": b"published-ros",
         "linux-64/ros-jazzy-rclcppyy-0.3.0-test.conda": b"product",
     }
     for relative, content in contents.items():
@@ -138,12 +138,12 @@ def test_release_attestation_binds_retained_published_support_bytes(tmp_path):
     packages = []
     for name in ("cppyy-kit", "ros-jazzy-rclcpp-kit"):
         build = "pyh4616a5c_2" if name == "cppyy-kit" else "pyh4616a5c_1"
-        relative = "noarch/%s-0.2.0-%s.conda" % (name, build)
+        relative = "noarch/%s-0.3.0-%s.conda" % (name, build)
         content = contents[relative]
         digest = hashlib.sha256(content).hexdigest()
         packages.append({
             "name": name,
-            "version": "0.2.0",
+            "version": "0.3.0",
             "build": build,
             "subdir": "noarch",
             "filename": Path(relative).name,
@@ -160,7 +160,7 @@ def test_release_attestation_binds_retained_published_support_bytes(tmp_path):
                 "verified_attestations": 1,
                 "repository": "awesomebytes/cppyy_kit",
                 "source_commit": SUITE_COMMIT,
-                "source_ref": "refs/tags/v0.2.0",
+                "source_ref": "refs/tags/v0.3.0",
             },
         })
     published_proof = {
@@ -169,7 +169,7 @@ def test_release_attestation_binds_retained_published_support_bytes(tmp_path):
         "suite": {
             "repository": "awesomebytes/cppyy_kit",
             "commit": SUITE_COMMIT,
-            "package_version": "0.2.0",
+            "package_version": "0.3.0",
         },
         "packages": packages,
         "validated": {

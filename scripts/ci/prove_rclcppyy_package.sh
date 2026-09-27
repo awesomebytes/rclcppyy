@@ -78,7 +78,7 @@ native_service_module = importlib.import_module("rclcpp_kit.native_service")
 type_adapter_module = importlib.import_module("rclcpp_kit.type_adapter")
 installed_records = {}
 for package_name in ("cppyy-kit", "ros-jazzy-rclcpp-kit"):
-    installed_records[package_name] = assert_conda_version(package_name, "0.2.0")
+    installed_records[package_name] = assert_conda_version(package_name, "0.3.0")
 assert installed_records["cppyy-kit"]["build_number"] == 2
 for package_name, package_version in (
     ("gcc", "14.3.0"),
