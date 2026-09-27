@@ -60,6 +60,12 @@ Archival note: commit IDs in this diary are pre-squash labels and may not resolv
 - Test-only client `send_cpp_value` prebinding: run 1 passed; run 2 faulted while creating the Node for service iteration 1, in `PyFunction_AsCPointer` / `StdFunctionConverter`. Piecemeal prebinding is insufficient.
 - Stop incremental warmup probes. No fix is established; no merge or push.
 
+## 2026-09-27: published suite and product-candidate overview
+
+- Updated `docs/PROJECT_OVERVIEW.md` to distinguish the published `cppyy_kit` 0.3.0 release, including its ARM64 `cppyy` Conda bridge, from the unreleased `rclcppyy` 0.3.0 candidate. The overview records its exact suite source pin, `6260ef0ab0c146951399441bbfdbae7a0f116e3a`.
+- Bound the previous x86 and ARM test counts to their exact earlier product/suite revisions and clarified that they are not CI evidence for the current candidate. Exact-candidate GitHub run 36340429159 did not complete (only API-ledger drift had finished before the candidate advanced), so no completed CI result is claimed here.
+- Documentation only; no code, Pixi manifests, packages, or refs were changed or published.
+
 ## 2026-09-26: compiled callback bridge experiment
 
 - Approved option-2 test-only bridge candidate `ad7b79ab47b2b7cf3a06b328fbfb8c5b0285b135` (temporary clone based on `d638a02c3fe28ba800fb32e7df293d64228310a`) passed 10/10 x86 repetitions. The exact generated-type assertion follow-up passed, as did the post-cleanup smoke. Logs: `/tmp/mte-callback-bridge-exp/candidate-01.log` through `candidate-10.log`, `candidate-11.log`, and `candidate-final.log`.

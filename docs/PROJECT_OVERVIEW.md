@@ -114,14 +114,18 @@ concurrent dispatch: tests check overlap with reentrant groups, serialization wi
 mutually-exclusive groups, exception containment, and teardown during dispatch.
 Callback groups are native and support the default, mutually-exclusive, and
 reentrant forms for supported entities.
-On x86-64 Jazzy/Cyclone, full CI passed on this branch's tested code with suite
-`0cdc18e` (844 passed, 14 skipped, 3 xfailed). The production compiled callback
-bridge covers ordinary typed `DirectNode` subscriptions and services; option-bearing
-and raw subscriptions; timers; supported publisher/subscription QoS events; and
-pre/on/post parameter callbacks through a separate compiled bridge.
+Earlier x86-64 Jazzy/Cyclone full CI passed at product
+`a8b38d41c373d599713160f377bc2c6fa4f56bdd` with suite
+`0cdc18ec1d584ec3cd558bb4f8c5c89b588ceaab` (844 passed, 14 skipped, 3 xfailed).
+That run covers the compiled callback bridge for ordinary typed `DirectNode`
+subscriptions and services; option-bearing and raw subscriptions; timers; supported
+publisher/subscription QoS events; and pre/on/post parameter callbacks through a
+separate compiled bridge. It is evidence for those exact revisions, not the current
+product candidate.
 
-Exact-source ARM64 product CI passed on this branch's tested code and suite `0cdc18e`
-(830 passed, 28 skipped, 3 xfailed). This includes the remote
+Earlier exact-source ARM64 product CI passed at product `c49daa4` with suite
+`0cdc18ec1d584ec3cd558bb4f8c5c89b588ceaab` (830 passed, 28 skipped, 3 xfailed).
+This includes the remote
 `AsyncParameterClient` parameter callback test under MTE. Focused checks also
 passed for local parameter callback teardown with the MTE live and the parameter
 set from an external Python thread (1 test), timer/service self-destruction (50
@@ -130,18 +134,17 @@ Fresh-process ARM repetitions then passed 5/5 for timer/service self-destruction
 (50 helper iterations per process) and 5/5 for QoS deadline-event teardown
 (50 iterations per process). These cohorts cover the exercised routes and do not
 establish universal MTE safety.
-The full `cppyy_kit` `rclcpp_kit/tests` suite also passed at suite `0cdc18e` on
-this branch's tested code: 265/265 tests in 1619.62 s. Its first attempt was invalid
-because `AMENT_PREFIX_PATH` was unset; the corrected run preserved the Pixi ROS
-environment. Log/XML: `arm64-artifacts/arm64-evidence/parameter-slice-c49daa4-0cdc18e/full-rclcpp-kit-arm-correct-env.log` and `.xml`.
+The full `cppyy_kit` `rclcpp_kit/tests` suite also passed at suite
+`0cdc18ec1d584ec3cd558bb4f8c5c89b588ceaab`: 265/265 tests in 1619.62 s. Its first
+attempt was invalid because `AMENT_PREFIX_PATH` was unset; the corrected run
+preserved the Pixi ROS environment. Log/XML:
+`arm64-artifacts/arm64-evidence/parameter-slice-c49daa4-0cdc18e/full-rclcpp-kit-arm-correct-env.log` and `.xml`.
 The suite recipe used the existing ARM `rattler-build` environment because its
 Pixi task is linux-64-only.
 
-The ARM cppyy package was built locally as
-`cppyy-3.5.0-py312h7e7ac48_2.conda` and passed a local file-channel Pixi proof for
-import and `cppdef` evaluation (`20 + 22 == 42`). This followed an initial lock and
-channel gap for a top-level ARM `cppyy` Conda package. The artifact has not been
-uploaded.
+The ARM64 `cppyy` Conda bridge first passed a local file-channel import and
+`cppdef` proof (`20 + 22 == 42`). The bridge is now published with the `cppyy_kit`
+0.3.0 suite release, so the earlier local-only artifact is historical evidence.
 
 An earlier ARM64 run on 2026-09-26, before this compiled bridge work, passed
 dispatch, wake/teardown, and true-parallelism checks, then hit SIGSEGV during
@@ -177,18 +180,19 @@ characterizations and do not promote a general performance claim.
 
 ## Published releases and source development
 
-The user-facing README documents the published `rclcppyy` **0.2.0** package. The
-development source tree declares `rclcppyy` **0.3.0** and its package recipe
-targets `cppyy_kit` **0.3.0**. Recent local x86-64 and ARM64 package proofs
-validate candidate build/install paths; those artifacts are local evidence, not
-published packages. For a released installation, follow the [README install
-instructions](../README.md#install-pixi--conda--no-build-needed). For source
-development, use the repository's `pixi` tasks and the pinned suite source
-described by [`suite-source.lock.json`](../suite-source.lock.json).
+`cppyy_kit` **0.3.0** is published, including its ARM64 `cppyy` Conda bridge.
+`rclcppyy` **0.3.0** remains an unreleased product candidate; the published product
+documented by the [README install instructions](../README.md#install-pixi--conda--no-build-needed)
+is **0.2.0**. The current candidate pins suite source commit
+`6260ef0ab0c146951399441bbfdbae7a0f116e3a` in
+[`suite-source.lock.json`](../suite-source.lock.json). The x86-64 and ARM64 test
+results above are tied to their stated earlier product and suite revisions; they
+are not a claim that the current candidate has passed CI. For source development,
+use the repository's `pixi` tasks and this exact pinned suite source.
 For a new `cppyy_kit` project, start with the suite's
 [installation guide](https://github.com/awesomebytes/cppyy_kit#install) and install
-only the kits for the C++ libraries you use. The verified local package builds and
-ARM64 bridge proof use Python 3.12.
+only the kits for the C++ libraries you use. The package and bridge proofs use
+Python 3.12.
 
 ## Where to go next
 
