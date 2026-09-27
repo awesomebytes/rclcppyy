@@ -53,7 +53,7 @@ jobs:
           path: _deps/cppyy_kit
       - name: Verify architecture
         run: test "$(uname -m)" = "${{ matrix.machine }}"
-      - uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
+      - uses: prefix-dev/setup-pixi@d3f436a425481402e6a95a1d1fc10331c708cd9e # v0.10.2
         with:
           pixi-version: v0.70.0
           environments: default
@@ -181,7 +181,7 @@ jobs:
           repository: awesomebytes/cppyy_kit
           ref: 6260ef0ab0c146951399441bbfdbae7a0f116e3a
           path: _deps/cppyy_kit
-      - uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
+      - uses: prefix-dev/setup-pixi@d3f436a425481402e6a95a1d1fc10331c708cd9e # v0.10.2
         with:
           pixi-version: v0.70.0
           environments: default
