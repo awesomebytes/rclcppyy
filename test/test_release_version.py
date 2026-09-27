@@ -115,25 +115,51 @@ def test_release_requires_dual_arch_source_preflight_and_exact_suite_build():
     }
 
 
-def test_ci_requires_installed_package_proof_on_both_architectures():
-    workflow = yaml.safe_load(
+def test_ci_uses_fast_two_architecture_smoke_and_release_proves_native_packages():
+    ci_workflow = yaml.safe_load(
         (ROOT / ".github" / "workflows" / "ci.yml").read_text())
-    native = workflow["jobs"]["native-architecture"]
-    matrix = native["strategy"]["matrix"]["include"]
-
-    assert {
-        (item["platform"], item["machine"], item["package_proof"])
-        for item in matrix
-    } == {
-        ("linux-64", "x86_64", True),
-        ("linux-aarch64", "aarch64", True),
+    expected_native_runners = {
+        ("ubuntu-24.04", "linux-64", "x86_64"),
+        ("ubuntu-24.04-arm", "linux-aarch64", "aarch64"),
     }
-    commands = "\n".join(step.get("run", "") for step in native["steps"])
-    assert "build_local_package_stack.sh" in commands
-    assert "prove_rclcppyy_package.sh" in commands
-    assert "local-package-attestation.json" in commands
-    direct_benchmark = next(
-        step for step in native["steps"]
-        if step.get("name") == "Prove direct C++ pub/sub on this architecture")
-    assert "rclpy,rclcppyy-direct-copy" in direct_benchmark["run"]
-    assert "small-string,nested-header" in direct_benchmark["run"]
+    smoke_jobs = []
+    for job in ci_workflow["jobs"].values():
+        matrix = job.get("strategy", {}).get("matrix", {}).get("include", [])
+        runners = {
+            (item.get("runner"), item.get("platform"), item.get("machine"))
+            for item in matrix
+        }
+        commands = "\n".join(step.get("run", "") for step in job.get("steps", []))
+        if (len(matrix) == 2 and runners == expected_native_runners
+                and "test-ci-fast" in commands):
+            smoke_jobs.append((job, commands))
+
+    assert len(smoke_jobs) == 1
+    smoke, smoke_commands = smoke_jobs[0]
+    assert smoke["name"] == "fast source smoke (${{ matrix.platform }})"
+    assert smoke["runs-on"] == "${{ matrix.runner }}"
+    assert "test-ci-fast" in smoke_commands
+
+    release_workflow = yaml.safe_load(
+        (ROOT / ".github" / "workflows" / "release.yml").read_text())
+    package_jobs = []
+    for job in release_workflow["jobs"].values():
+        matrix = job.get("strategy", {}).get("matrix", {}).get("include", [])
+        runners = {
+            (item.get("runner"), item.get("platform"), item.get("machine"))
+            for item in matrix
+        }
+        proof_steps = [
+            step for step in job.get("steps", [])
+            if "prove_rclcppyy_package.sh" in step.get("run", "")
+        ]
+        if len(matrix) == 2 and runners == expected_native_runners and proof_steps:
+            package_jobs.append((job, proof_steps))
+
+    assert len(package_jobs) == 1
+    package, proof_steps = package_jobs[0]
+    assert package["needs"] == "preflight"
+    assert len(proof_steps) == 1
+    proof = proof_steps[0]
+    assert proof["name"] == "Prove the artifact installs and runs from a channel"
+    assert "output build/release/published-support.json" in proof["run"]
