@@ -17,17 +17,23 @@ channel before an rclcppyy release can build, prove, and upload.
 
 ## Dependency identities
 
-Suite 0.1.0 remains the published Pixi bootstrap dependency, while this branch uses
-the unreleased suite 0.3.0 API. Development, CI, and release therefore use two
-explicit lanes:
+Suite 0.3.0 is published and is the locked suite dependency for the product. The
+linux-64 Pixi package dependencies pin both suite packages to 0.3.0; source tests
+on both architectures also check out the exact suite source commit from
+`suite-source.lock.json`.
 
 - **Source lane:** `suite-source.lock.json` names one full suite commit and exact
   recipe version. Workspace activation overlays only that revision. The
   `suite-contract` task verifies its Git identity, clean state, all recipe versions,
   and active Python roots. CI checks out the same full commit.
-- **CI installed lane:** the package job builds suite 0.3.0 and rclcppyy 0.3.0 into
-  one isolated local channel, then proves imports and real ROS behavior without
-  source paths on x86_64 and ARM64.
+- **Routine CI lane:** on pushes and pull requests, native x86_64 and ARM64 jobs
+  verify the pinned source, build, lint, validate the compatibility manifest, and
+  run the nine selected `test-ci-fast` integration checks. This smoke lane is kept
+  targeted to finish under 10 minutes per architecture; it is not the full release
+  test suite.
+- **Release preflight lane:** the version-tag workflow runs the full product test
+  suite plus launch/custom-interface and reviewed upstream-contract checks on both
+  native architectures before package jobs begin.
 - **Release installed lane:** each native runner first downloads the exact published
   suite artifacts, verifies their channel digests and GitHub provenance against
   `suite-source.lock.json`, and exposes only those retained bytes through a local
@@ -35,19 +41,19 @@ explicit lanes:
   channel. ARM64 also retains and verifies the published native `cppyy` 3.5.0
   bridge.
 
-The default Pixi dependencies and lock still contain published suite 0.1.0 only as
-bootstrap metadata. They remain unchanged until suite 0.3.0 is published. The old
-version is not accepted as source-test evidence, cannot satisfy
-`suite-contract`, and is not the release dependency set.
+The default Pixi manifest and lock use suite 0.3.0 on linux-64. ARM64 source tests
+use the exact source pin and native cppyy bridge; release package jobs separately
+verify the published ARM64 suite and bridge artifacts.
 
 ## Release choreography (do these in order)
 
 **Do not tag rclcppyy until step 1 is done.**
 
-1. **Tag and publish suite `v0.3.0`** from its locked commit after its release job
-   builds, freshly installs, checksums, and attests the 11 suite artifacts plus
-   the native ARM64 `cppyy` bridge. Prefix.dev OIDC authorization for that
-   repository must already be enabled.
+1. **Confirm the published suite `v0.3.0` release.** Verify that its tag matches
+   the locked commit and that its release job built, freshly installed, checksummed,
+   and attested the 11 suite artifacts plus the native ARM64 `cppyy` bridge.
+   Prefix.dev OIDC authorization for the product repository must be enabled before
+   its package workflow runs.
 
 2. **Confirm the published dependency set.** The exact `cppyy-kit ==0.3.0` and
    `ros-jazzy-rclcpp-kit ==0.3.0` build identities must exist on `awesomebytes`
@@ -55,27 +61,28 @@ version is not accepted as source-test evidence, cannot satisfy
    native `cppyy ==3.5.0` bridge identity on ARM64. A matching version or build
    string without matching retained channel bytes is not release evidence.
 
-3. **Verify** source and installed lanes: `pixi run suite-contract`, `pixi run build`,
-   `pixi run lint`, `pixi run test`, the backend-required benchmark smoke, and the
-   local package-stack proof. Push; all required x86-64 and ARM64 source and
-   installed-package jobs must be green. The ARM proof must contain the clean
-   suite commit, exact upstream source and patch hashes, local bridge artifact
-   hash, and native import/`cppdef` runtime-log hash.
+3. **Push the product candidate and pass routine CI.** Both native x86_64 and ARM64
+   jobs must pass the pinned-source check, build, lint, compatibility contract, and
+   nine-test `test-ci-fast` smoke. The full suite, reviewed upstream contracts, and
+   installed package proofs run in the version-tag release workflow, not this
+   routine push/PR lane.
 
 4. **Tag `v0.3.0`.** The release workflow first rejects any tag that differs from
-   `pixi.toml`, `package.xml`, or `recipe/recipe.yaml`. It then retains the exact
-   published dependency bytes, builds the x86_64 and ARM64 product packages against
-   them, and proves each throwaway install selected those same dependency hashes
-   while running same-handle pub/sub plus a native service. Each runner records a
+   `pixi.toml`, `package.xml`, or `recipe/recipe.yaml`. Its x86_64 and ARM64
+   preflight jobs run the full `test-ci` suite, reviewed upstream contracts, and
+   launch/custom-interface proofs. After both preflights pass, the package jobs
+   retain the exact published dependency bytes, build product packages against them,
+   and prove each throwaway install selected those same dependency hashes while
+   running same-handle pub/sub plus a native service. Each runner records a
    validated conda inventory, file-level SPDX SBOM, provenance, and portable
    attestation bundles. The inventory checks and records the product artifact's
    exact direct dependency metadata. The SPDX document covers the retained release
    artifacts and their files; external ROS and conda runtime packages are not
    expanded into SPDX package records or dependency relationships. A single
-   publication job re-verifies both complete bundles
-   before channel access. It rejects conflicting existing identities, uploads only
-   missing product artifacts, and polls until both published architecture bytes
-   match the verified local artifacts.
+   publication job re-verifies both complete bundles before channel access. It
+   rejects conflicting existing identities, uploads only missing product artifacts,
+   and polls until both published architecture bytes match the verified local
+   artifacts.
 
 ## Deprecation timeline
 

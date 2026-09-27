@@ -25,11 +25,10 @@ psutil = ">=7.2.2,<8"
 ros-jazzy-rmw-zenoh-cpp = ">=0.2.9,<0.3"
 # M3: rclcppyy's rclcpp core + cppyy kits were carved into the cppyy_kit suite
 # (rclcpp_kit / cppyy_kit). rclcppyy re-exports them via deprecation shims, so both
-# must be IMPORTABLE at runtime. Suite 0.1.0 remains published to prefix.dev
-# (awesomebytes channel, added above), so these are real conda deps pinned to the
-# latest published version. The release recipe requires suite 0.3.0; the focused
-# packaging task builds that strict dependency stack from the sibling source
-# checkout until 0.3.0 is published. See RELEASING.md.
+# must be IMPORTABLE at runtime. Suite 0.3.0 is published; the linux-64 package
+# dependencies below pin that version. ARM64 source tests use the pinned suite
+# source and bridge declared by suite-source.lock.json; release jobs verify and
+# prove the published ARM64 artifacts. See RELEASING.md.
 
 # cppyy 3.5 and the published kit artifacts are available together on x86-64.
 [target.linux-64.dependencies]
@@ -145,12 +144,10 @@ demo-pointcloud-voxelgrid = "python roscon_uk_2025/presentation/2_pointcloud_vox
 
 # Optional "heavydemo" feature/environment: the heavy-topic `ros2 topic hz`
 # showcase (scripts/heavy_hz_demo/). It reuses the default ROS/cppyy stack
-# (solve-group "default", no extra conda deps) but bridges rclcpp_kit/cppyy_kit
-# from a sibling *source* checkout, because the cold-vs-warm startup story needs
-# the zero-config auto-PCH that postdates the published suite 0.1.0 the default
-# env pins. The bridge is DEV/demo-only and gated on CPPYY_KIT_SRC (see
-# workspace_activation.sh); the default env's published-channel dependency is
-# untouched. Run with `pixi run -e heavydemo demo-heavy-hz` (see README).
+# (solve-group "default", no extra conda deps). When available, the shared
+# activation hook overlays the sibling suite source only if it matches
+# suite-source.lock.json; see workspace_activation.sh. The PCH cache is isolated
+# below. Run with `pixi run -e heavydemo demo-heavy-hz` (see README).
 [feature.heavydemo.activation.env]
 # Isolate the auto-PCH cache to a repo-local (gitignored) dir so the demo never
 # reads or writes the shared ~/.cache/cppyy_kit, and the startup-story runner can
