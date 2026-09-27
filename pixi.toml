@@ -34,8 +34,8 @@ ros-jazzy-rmw-zenoh-cpp = ">=0.2.9,<0.3"
 # cppyy 3.5 and the published kit artifacts are available together on x86-64.
 [target.linux-64.dependencies]
 cppyy = ">=3.5,<4"
-ros-jazzy-rclcpp-kit = "==0.1.0"
-cppyy-kit = "==0.1.0"
+ros-jazzy-rclcpp-kit = "==0.3.0"
+cppyy-kit = "==0.3.0"
 
 # ARM64 source tests retain the exact small upstream Python shim while every
 # compiled component comes from conda-forge. The package lane separately builds

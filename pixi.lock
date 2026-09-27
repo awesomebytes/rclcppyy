@@ -478,8 +478,8 @@ environments:
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros-jazzy-zenoh-cpp-vendor-0.2.9-np2py312h6b96cb9_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros-jazzy-zstd-vendor-0.26.10-np2py312h2ed9cc7_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros2-distro-mutex-0.15.0-jazzy_18.conda
-      - conda: https://repo.prefix.dev/awesomebytes/noarch/cppyy-kit-0.1.0-pyh4616a5c_0.conda
-      - conda: https://repo.prefix.dev/awesomebytes/noarch/ros-jazzy-rclcpp-kit-0.1.0-pyh4616a5c_0.conda
+      - conda: https://repo.prefix.dev/awesomebytes/noarch/cppyy-kit-0.3.0-pyh4616a5c_2.conda
+      - conda: https://repo.prefix.dev/awesomebytes/noarch/ros-jazzy-rclcpp-kit-0.3.0-pyh4616a5c_1.conda
       linux-aarch64:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/at-spi2-atk-2.38.0-h1f2db35_3.tar.bz2
@@ -1600,8 +1600,8 @@ environments:
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros-jazzy-zenoh-cpp-vendor-0.2.9-np2py312h6b96cb9_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros-jazzy-zstd-vendor-0.26.10-np2py312h2ed9cc7_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros2-distro-mutex-0.15.0-jazzy_18.conda
-      - conda: https://repo.prefix.dev/awesomebytes/noarch/cppyy-kit-0.1.0-pyh4616a5c_0.conda
-      - conda: https://repo.prefix.dev/awesomebytes/noarch/ros-jazzy-rclcpp-kit-0.1.0-pyh4616a5c_0.conda
+      - conda: https://repo.prefix.dev/awesomebytes/noarch/cppyy-kit-0.3.0-pyh4616a5c_2.conda
+      - conda: https://repo.prefix.dev/awesomebytes/noarch/ros-jazzy-rclcpp-kit-0.3.0-pyh4616a5c_1.conda
       linux-aarch64:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/aiohttp-3.14.1-py312he7e3343_0.conda
@@ -2710,8 +2710,8 @@ environments:
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros-jazzy-zenoh-cpp-vendor-0.2.9-np2py312h6b96cb9_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros-jazzy-zstd-vendor-0.26.10-np2py312h2ed9cc7_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros2-distro-mutex-0.15.0-jazzy_18.conda
-      - conda: https://repo.prefix.dev/awesomebytes/noarch/cppyy-kit-0.1.0-pyh4616a5c_0.conda
-      - conda: https://repo.prefix.dev/awesomebytes/noarch/ros-jazzy-rclcpp-kit-0.1.0-pyh4616a5c_0.conda
+      - conda: https://repo.prefix.dev/awesomebytes/noarch/cppyy-kit-0.3.0-pyh4616a5c_2.conda
+      - conda: https://repo.prefix.dev/awesomebytes/noarch/ros-jazzy-rclcpp-kit-0.3.0-pyh4616a5c_1.conda
       linux-aarch64:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/at-spi2-atk-2.38.0-h1f2db35_3.tar.bz2
@@ -3714,8 +3714,8 @@ environments:
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros-jazzy-zenoh-cpp-vendor-0.2.9-np2py312h6b96cb9_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros-jazzy-zstd-vendor-0.26.10-np2py312h2ed9cc7_18.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros2-distro-mutex-0.15.0-jazzy_18.conda
-      - conda: https://repo.prefix.dev/awesomebytes/noarch/cppyy-kit-0.1.0-pyh4616a5c_0.conda
-      - conda: https://repo.prefix.dev/awesomebytes/noarch/ros-jazzy-rclcpp-kit-0.1.0-pyh4616a5c_0.conda
+      - conda: https://repo.prefix.dev/awesomebytes/noarch/cppyy-kit-0.3.0-pyh4616a5c_2.conda
+      - conda: https://repo.prefix.dev/awesomebytes/noarch/ros-jazzy-rclcpp-kit-0.3.0-pyh4616a5c_1.conda
       linux-aarch64:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/at-spi2-atk-2.38.0-h1f2db35_3.tar.bz2
@@ -25228,27 +25228,42 @@ packages:
   license: BSD-3-Clause
   size: 2367
   timestamp: 1782298961415
-- conda: https://repo.prefix.dev/awesomebytes/noarch/cppyy-kit-0.1.0-pyh4616a5c_0.conda
-  sha256: d7ff140b805ff6a289f1defc3211e51a25aaa7ac7e8f2021f81f7dc9dd7a8b1b
-  md5: d140dea3d97fa18691d4491f81470710
+- conda: https://repo.prefix.dev/awesomebytes/noarch/cppyy-kit-0.3.0-pyh4616a5c_2.conda
+  sha256: 3b3424ac0d87e92daa1df5695a30c56c980b245af19eceedd391e177a877019a
+  md5: 0e38e54a3f71e962e4885ec17e23b596
   depends:
-  - python
+  - python 3.12.*
   - cppyy >=3.5,<4
-  license: BSD-3-Clause
-  size: 55751
-  timestamp: 1783873093580
-- conda: https://repo.prefix.dev/awesomebytes/noarch/ros-jazzy-rclcpp-kit-0.1.0-pyh4616a5c_0.conda
-  sha256: 3ca15f6fbc5fd56e61de960b86897c303880f7b410cca76459d9328acd084c75
-  md5: 77fda079b26f18adc9929775427092fc
-  depends:
   - python
-  - cppyy-kit ==0.1.0
-  - ros-jazzy-rclcpp
-  - ros-jazzy-rclpy
-  - ros-jazzy-ament-index-python
+  constrains:
+  - gcc ==14.3.0
+  - gxx ==14.3.0
+  - libgcc ==15.2.0
+  - libstdcxx ==15.2.0
   license: BSD-3-Clause
-  size: 28348
-  timestamp: 1783873108241
+  run_exports: {}
+  size: 82981
+  timestamp: 1790532167163
+- conda: https://repo.prefix.dev/awesomebytes/noarch/ros-jazzy-rclcpp-kit-0.3.0-pyh4616a5c_1.conda
+  sha256: 41816677b4fa4d38cda8751cc889fb881e0ac6f2c8256f27422589ae497965af
+  md5: 82982eed15d194b3e0d8f972dfdeb58b
+  depends:
+  - python 3.12.*
+  - cppyy-kit ==0.3.0
+  - ros-jazzy-rclcpp
+  - ros-jazzy-rclcpp-action
+  - ros-jazzy-rclcpp-components
+  - ros-jazzy-rclcpp-lifecycle
+  - ros-jazzy-rclpy
+  - ros-jazzy-action-msgs
+  - ros-jazzy-composition-interfaces
+  - ros-jazzy-lifecycle-msgs
+  - ros-jazzy-ament-index-python
+  - python
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 136048
+  timestamp: 1790532181097
 - pypi: https://files.pythonhosted.org/packages/17/9d/cddfb8112428bd1b4b8a240c25131111bc6c249c3fb0856f2b1db2adad81/cppyy-3.5.0.tar.gz
   name: cppyy
   version: 3.5.0
