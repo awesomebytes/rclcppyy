@@ -21,6 +21,7 @@ from std_msgs.msg import String  # noqa: E402
 
 
 SPIN_DEADLINE_S = 15.0
+GRAPH_DISCOVERY_TIMEOUT_S = 5.0
 N_MESSAGES = 5
 NAMESPACE = "/rclcppyy_compatible"
 TOPIC = NAMESPACE + "/roundtrip"
@@ -70,10 +71,16 @@ def main():
     identity = (node_name, NAMESPACE)
     assert node.get_node_names_and_namespaces().count(identity) == 1
     assert not any(name.endswith("_rclcpp") for name, _ in node.get_node_names_and_namespaces())
-    endpoint_identities = [
-        (item.node_name, item.node_namespace)
-        for item in node.get_publishers_info_by_topic(TOPIC)
-    ]
+    graph_deadline = time.monotonic() + GRAPH_DISCOVERY_TIMEOUT_S
+    endpoint_identities = []
+    while time.monotonic() < graph_deadline:
+        endpoint_identities = [
+            (item.node_name, item.node_namespace)
+            for item in node.get_publishers_info_by_topic(TOPIC)
+        ]
+        if identity in endpoint_identities:
+            break
+        time.sleep(0.01)
     assert endpoint_identities == [identity], endpoint_identities
     print("GRAPH_IDENTITY_OK", flush=True)
 
