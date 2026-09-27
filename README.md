@@ -447,14 +447,10 @@ large-message workload harness (`pixi run -e heavydemo demo-heavy-hz`), but its
 subscriber timing is not evidence of a transparent C++ subscription route while compatible
 subscription take and dispatch remain stock Python.
 
-> **Dev bridge.** The startup measurement and the fastest bring-up use the
-> zero-config auto-PCH, which postdates the published suite 0.1.0. Until the next
-> suite release the `heavydemo` pixi env bridges the newer `rclcpp_kit`/`cppyy_kit`
-> from a sibling `cppyy_kit` source checkout (default `../cppyy_kit`, override
-> `CPPYY_KIT_SRC`) and isolates its PCH cache under `.heavy_demo_cache/`. It shares
-> the default solve (no extra conda deps) and leaves the default env's
-> published-channel dependency untouched (`workspace_activation.sh`, gated on the
-> `heavydemo` env).
+> **Dev bridge.** The `heavydemo` pixi env can use a sibling `cppyy_kit` source
+> checkout (default `../cppyy_kit`, override `CPPYY_KIT_SRC`) and isolates its PCH
+> cache under `.heavy_demo_cache/`. This is a source-development path; released
+> installations can use the published `cppyy_kit` 0.3.0 packages.
 
 ### Extra demos (optional env)
 

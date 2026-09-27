@@ -200,8 +200,8 @@ teardown (50 iterations per process); these results cover those exercised routes
 not universal MTE safety. The full `cppyy_kit` `rclcpp_kit/tests` suite also passed at suite
 `0cdc18e` on this branch's tested code (265/265 in 1619.62 s). Its first attempt was
 invalidated by an unset `AMENT_PREFIX_PATH`; the passing corrected run preserved
-the Pixi ROS environment. The ARM cppyy package was built locally and passed a local
-file-channel Pixi import/`cppdef` proof; it has not been uploaded. An earlier ARM64
+the Pixi ROS environment. The ARM `cppyy` bridge, first validated with a local
+file-channel import/`cppdef` proof, is now published with suite 0.3.0. An earlier ARM64
 timer/service self-destruction crash occurred before the current compiled callback
 bridge work; its cause remains unclassified. Earlier x86 focused executor-startup
 timeouts also predate this validation. MTE remains experimental.
