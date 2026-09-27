@@ -3273,7 +3273,7 @@ def _check_runtime() -> None:
         _unsupported("direct_cpp requires ROS_DISTRO=jazzy")
     import rclpy
 
-    implementation = rclpy.get_rmw_implementation_identifier()
+    rclpy.get_rmw_implementation_identifier()
     # RMW gate removed: the direct_cpp backend calls rclcpp which is
     # RMW-agnostic. Benchmarks confirm correct operation on CycloneDDS,
     # Fast DDS, and Zenoh (2026-09-13).

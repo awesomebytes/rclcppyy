@@ -61,7 +61,7 @@ def main():
 
     # Construct on the (not-yet-attached) node first -- see the module
     # docstring for why.
-    server = ActionServer(
+    _ = ActionServer(
         node, LookupTransform, action_name, execute_callback,
         callback_group=group)
     client = ActionClient(node, LookupTransform, action_name)

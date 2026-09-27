@@ -7,7 +7,6 @@ cover callback lifetime while a native dispatch is in flight.
 """
 import gc
 import os
-import sys
 import weakref
 
 import rclcppyy

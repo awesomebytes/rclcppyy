@@ -6,7 +6,7 @@ import time
 
 os.environ.setdefault("ROS_DOMAIN_ID", "77")
 
-import rclcppyy
+import rclcppyy  # noqa: E402  (ROS_DOMAIN_ID must be set before importing it)
 
 rclcppyy.enable_cpp_acceleration(profile="direct_cpp")
 
