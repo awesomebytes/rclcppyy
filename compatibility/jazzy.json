@@ -366,9 +366,10 @@
       "fallback": "none",
       "default": false,
       "evidence": [
-        "test/test_node.py"
+        "test/test_lazy_imports.py",
+        "rclcppyy/node.py"
       ],
-      "notes": "Direct construction and get_name are tested; broader Node behavior is covered by individual entries."
+      "notes": "The legacy alias and implementation remain available as a companion-node prototype; the public export identity is covered by the lazy-import test. Broader node behavior is covered by individual entries."
     },
     {
       "id": "node.direct_cpp_options",

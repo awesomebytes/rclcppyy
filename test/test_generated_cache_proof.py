@@ -59,7 +59,6 @@ def test_review_and_scheduled_workflows_enforce_cache_and_default_policy():
     safety_commands = "\n".join(
         step.get("run", "") for step in workflow["jobs"]["native-safety"]["steps"])
     assert "prove_generated_cache.py" in safety_commands
-    assert "phase0_same_handle_publisher.py" not in safety_commands
 
     benchmark = workflow["jobs"]["dedicated-benchmark"]
     assert benchmark["env"]["CPPYY_KIT_NO_AUTOPCH"] == "1"

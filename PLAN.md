@@ -14,7 +14,7 @@ prefix.dev channel.
 | conda-forge ships `cppyy` 3.5.0 with **correctly capitalized** headers (`include/python3.12/CPyCppyy/API.h`), builds for py310–py313 | verified by inspecting `cpycppyy-1.13.0-py312h0a2e395_0.conda` from conda-forge (2026-07) |
 | README's recommended `pixi.toml` cannot actually build or run the demos | missing `colcon-common-extensions`, `cmake`, `compilers`/`ninja`, and `ros-jazzy-rmw-cyclonedds-cpp` (the Run section exports `RMW_IMPLEMENTATION=rmw_cyclonedds_cpp`) |
 | No `pixi.toml`, no `pixi.lock`, no `.gitignore`, no CI in the repo | repo root listing |
-| Broken test | `test/test_node.py:6` does `from rclcppyy import Node` — `rclcppyy/__init__.py` exports `RclcppyyNode`, not `Node` |
+| Obsolete smoke tests | The original `test_bringup.py` and `test_node.py` checks were superseded by clean-exit and runtime integration coverage; removed 2026-09-27 |
 | Unused/stale packaging file | `setup.py` is dead code for an `ament_cmake` package (install goes through `ament_python_install_package`, `CMakeLists.txt:15`) and globs a nonexistent `launch/` dir |
 | Everything under `scripts/` gets installed, including non-scripts | `CMakeLists.txt:18-22` — `PATTERN "*.py"` without `FILES_MATCHING` filters nothing; stray extensionless `scripts/target` file included |
 | Committed junk | `roscon_uk_2025/presentation/.hypothesis/` (hypothesis example DB) |
@@ -114,15 +114,15 @@ Locked: cppyy 3.5.0, cppyy-cling 6.32.8, ros-jazzy-ros-base 0.11.0, python 3.12.
       external-dependency demos. PCL include path made version-robust
       (glob `pcl-*`). Notable versions: opencv 5.0.0 headless, pcl 1.15.1.
 - [x] Repo/packaging hygiene (done 2026-07-10, cb2114d + a021d17):
-  `Node` alias exported and `test_node.py` green (the alias exposed a real
+  `Node` alias exported and the then-current `test_node.py` green (the alias exposed a real
   `RclcppyyNode.destroy_node` bug — cppyy publishers stored in rclpy's
   `_publishers` broke rclpy teardown — fixed); `setup.py` and `scripts/target`
   removed; CMake install now `FILES_MATCHING PATTERN "*.py"` (verified: only
   .py files install); `package.xml` deps completed from actual imports,
   version bumped to 0.1.0.
 - [x] Add smoke tests: rclpy-API pub/sub roundtrip through C++ backend,
-  message monkeypatch, serialization parity (today only `test_bringup.py`
-  and `test_node.py` exist).
+      message monkeypatch, serialization parity (at that point only the initial
+      bringup and node checks existed).
   **Done (f98db15):** 3 new test modules + subprocess helpers (monkeypatch is
   process-global/irreversible, so contaminating scenarios run in throwaway
   subprocesses asserting on marker output; helpers `os._exit(0)` past the
