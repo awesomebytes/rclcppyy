@@ -1,195 +1,27 @@
 name: CI
 
-# Enforce the Phase 1 guarantee mechanically: a clean checkout must build,
-# pass the smoke suite, and actually publish over the C++ backend, with no
-# manual steps beyond `pixi run`.
+# Keep push and pull request feedback focused on source build, safety checks,
+# and representative runtime behavior on both supported architectures. The
+# full suite and package proof run on release; upstream contracts, hardening,
+# and benchmark matrices run in the scheduled/manual workflow.
 on:
   push:
     branches: [main, 'ci/**']
   pull_request:
 
-# A newer push to the same branch/PR cancels the in-flight run.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-test:
-    name: build + test + bench smoke
-    runs-on: ubuntu-latest
-    env:
-      RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
-      RCLPY_CONTRACT_SRC: ${{ github.workspace }}/_deps/rclpy-contract
-      PYTHONPATH: ${{ github.workspace }}/_deps/cppyy_kit:${{ github.workspace }}/_deps/cppyy_kit/rclcpp_kit
-    steps:
-      - name: Checkout
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-
-      - name: Checkout pinned kit sources
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-        with:
-          repository: awesomebytes/cppyy_kit
-          ref: 6260ef0ab0c146951399441bbfdbae7a0f116e3a
-          path: _deps/cppyy_kit
-
-      - name: Checkout pinned upstream rclpy contract source
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-        with:
-          repository: ros2/rclpy
-          ref: baf9d72cfa127e391a89b4ab51ba9e55c37041fd
-          path: _deps/rclpy-contract
-
-      - name: Set up pixi
-        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
-        with:
-          # Pin pixi to the version that generated and validated pixi.lock
-          # locally, so CI resolves the same environment.
-          pixi-version: v0.70.0
-          # Default environment only. The `demos` env pulls multi-GB extras
-          # (opencv / pcl / gstreamer) that none of the CI steps below need.
-          environments: default
-          # setup-pixi caches the solved environment keyed on pixi.lock. Only
-          # write the cache from main so PR runs restore it without racing to
-          # overwrite the shared entry.
-          cache: true
-          cache-key: rclcppyy-linux-64-
-          cache-write: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-
-      - name: Verify pinned suite source identity
-        id: suite
-        run: |
-          mkdir -p build/test-results
-          pixi run suite-contract | tee build/test-results/suite-source.json
-
-      # The pixi environment's activation provides RMW_IMPLEMENTATION,
-      # ROS_AUTOMATIC_DISCOVERY_RANGE and LD_LIBRARY_PATH (see pixi.toml
-      # [activation.env]); every `pixi run` below inherits them, so the
-      # workflow deliberately sets no ROS env vars of its own.
-      - name: Build
-        id: build
-        run: pixi run build
-
-      # flake8 scoped to rclcppyy/ + test/ (see .flake8); style codes relaxed,
-      # real defects (unused imports/locals, etc.) are enforced.
-      - name: Lint
-        id: lint
-        run: pixi run lint
-
-      - name: Validate compatibility contract
-        id: contract
-        run: pixi run contract
-
-      - name: Test (pub/sub roundtrip, monkeypatch, serialization parity)
-        id: test
-        run: pixi run test-ci
-
-      - name: Run reviewed upstream rclpy contract
-        id: upstream_contract
-        run: pixi run -e upstream-contract upstream-contract
-
-      # End-to-end proof that the source-compatible direct lane publishes and
-      # subscribes with actual generated C++ messages beside the stock control.
-      # Cold cppyy JIT of rclcpp on a 2-core hosted runner is far slower than a
-      # dev box, so the warmup budget is generous; run_benchmarks.py already
-      # exits non-zero if the subscriber never receives a message.
-      - name: Bench smoke (assert rclcppyy publishes)
-        id: benchmark
-        run: >-
-          pixi run bench --smoke --backends rclpy,rclcppyy-direct-copy
-          --workloads small-string --rate 1000 --duration 3
-          --warmup-timeout 300 --json --output build/bench-smoke.json
-
-      - name: Render benchmark evidence
-        id: report
-        run: >-
-          pixi run bench-report build/bench-smoke.json
-          --output build/bench-smoke.md
-
-      - name: Record primary job outcomes
-        if: always()
-        env:
-          SUITE_OUTCOME: ${{ steps.suite.outcome }}
-          BUILD_OUTCOME: ${{ steps.build.outcome }}
-          LINT_OUTCOME: ${{ steps.lint.outcome }}
-          CONTRACT_OUTCOME: ${{ steps.contract.outcome }}
-          TEST_OUTCOME: ${{ steps.test.outcome }}
-          UPSTREAM_CONTRACT_OUTCOME: ${{ steps.upstream_contract.outcome }}
-          BENCHMARK_OUTCOME: ${{ steps.benchmark.outcome }}
-          REPORT_OUTCOME: ${{ steps.report.outcome }}
-        run: |
-          mkdir -p build/test-results
-          python3 - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-          names = (
-              "suite", "build", "lint", "contract", "test", "upstream_contract",
-              "benchmark", "report")
-          outcomes = {name: os.environ[name.upper() + "_OUTCOME"] for name in names}
-          Path("build/test-results/job-outcomes.json").write_text(
-              json.dumps(outcomes, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-          PY
-
-      - name: Upload test and benchmark evidence
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: rclcppyy-linux-64-primary-evidence
-          path: |
-            build/test-results
-            build/bench-smoke.json
-            build/bench-smoke.md
-          if-no-files-found: error
-          retention-days: 14
-
-  ledger-drift:
-    name: API ledger drift
-    runs-on: ubuntu-latest
-    env:
-      RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
-      PYTHONPATH: ${{ github.workspace }}/_deps/cppyy_kit:${{ github.workspace }}/_deps/cppyy_kit/rclcpp_kit
-    steps:
-      - name: Checkout
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-
-      - name: Checkout pinned kit sources
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-        with:
-          repository: awesomebytes/cppyy_kit
-          ref: 6260ef0ab0c146951399441bbfdbae7a0f116e3a
-          path: _deps/cppyy_kit
-
-      - name: Set up pixi
-        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
-        with:
-          pixi-version: v0.70.0
-          environments: default
-          cache: true
-          cache-key: rclcppyy-linux-64-
-          cache-write: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-
-      - name: Build
-        run: pixi run build
-
-      # Regenerates stock + direct observations against this checkout and fails
-      # on any drift vs. the committed baseline: a missing or changed public
-      # symbol, signature, or semantic contract in the pinned Jazzy rclpy surface.
-      - name: Check API ledger drift
-        run: pixi run ledger-verify
-
-  native-architecture:
-    name: native source + package (${{ matrix.platform }})
+  smoke:
+    name: fast source smoke (${{ matrix.platform }})
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 180
+    timeout-minutes: 20
     env:
-      # ARM64 builds only the small top-level cppyy shim from its exact source;
-      # CPyCppyy, backend, and Cling are pinned conda-forge packages.
-      MAKE_NPROCS: "2"
-      STDCXX: "17"
+      MAKE_NPROCS: '2'
+      STDCXX: '17'
       RCLCPPYY_SUITE_SRC: ${{ github.workspace }}/_deps/cppyy_kit
-      RCLPY_CONTRACT_SRC: ${{ github.workspace }}/_deps/rclpy-contract
-      # ARM source tests and the x86 local-channel package build use this pinned
-      # dependency checkout. suite-contract proves this exact source identity.
       PYTHONPATH: ${{ github.workspace }}/_deps/cppyy_kit:${{ github.workspace }}/_deps/cppyy_kit/rclcpp_kit
     strategy:
       fail-fast: false
@@ -198,11 +30,9 @@ jobs:
           - runner: ubuntu-24.04
             platform: linux-64
             machine: x86_64
-            package_proof: true
           - runner: ubuntu-24.04-arm
             platform: linux-aarch64
             machine: aarch64
-            package_proof: true
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
@@ -213,13 +43,6 @@ jobs:
           repository: awesomebytes/cppyy_kit
           ref: 6260ef0ab0c146951399441bbfdbae7a0f116e3a
           path: _deps/cppyy_kit
-
-      - name: Checkout pinned upstream rclpy contract source
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-        with:
-          repository: ros2/rclpy
-          ref: baf9d72cfa127e391a89b4ab51ba9e55c37041fd
-          path: _deps/rclpy-contract
 
       - name: Verify native runner architecture
         run: test "$(uname -m)" = "${{ matrix.machine }}"
@@ -234,129 +57,27 @@ jobs:
           cache-write: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
       - name: Verify pinned suite source identity
-        id: suite
-        run: |
-          mkdir -p build/test-results
-          pixi run suite-contract | tee build/test-results/suite-source.json
+        run: pixi run suite-contract
 
-      - name: Restore generated C++ caches
+      - name: Restore generated C++ cache
         id: generated-cache
         uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: ~/.cache/cppyy_kit
           key: generated-cppyy-kit-${{ matrix.platform }}-${{ hashFiles('pixi.lock') }}
 
-      - name: Record runtime and dependency evidence
-        run: |
-          set -euo pipefail
-          mkdir -p build/test-results
-          uname -a | tee build/test-results/runtime.txt
-          pixi run python -c \
-            'import cppyy, platform, sys; print(f"machine={platform.machine()} python={sys.version} cppyy={cppyy.__version__}")' \
-            | tee -a build/test-results/runtime.txt
-          pixi run python -c \
-            'import cppyy_kit, rclcpp_kit; print(f"cppyy_kit={cppyy_kit.__file__}\nrclcpp_kit={rclcpp_kit.__file__}")' \
-            | tee -a build/test-results/runtime.txt
-          pixi list > build/test-results/packages.txt
-
       - name: Build source
-        id: build
         run: pixi run build
 
-      - name: Prove startup hook through ROS launch and CLI
-        id: launch
-        run: pixi run launch-contract
-
-      - name: Prove custom-interface AOT interoperability
-        id: custom_interfaces
-        run: pixi run custom-interfaces
-
-      - name: Lint source
-        id: lint
-        run: pixi run lint
-
-      - name: Validate compatibility contract
-        id: contract
-        run: pixi run contract
-
-      - name: Test source
-        id: test
-        run: pixi run test-ci
-
-      - name: Prove direct C++ pub/sub on this architecture
-        id: direct_benchmark
-        run: >-
-          pixi run bench --smoke --backends rclpy,rclcppyy-direct-copy
-          --workloads small-string,nested-header --rate 1000 --payload-bytes 0
-          --duration 2 --warmup-timeout 300
-          --output build/test-results/direct-cpp-bench-smoke.json
-
-      - name: Run reviewed upstream rclpy contract
-        id: upstream_contract
-        run: pixi run -e upstream-contract upstream-contract
-
-      - name: Prove Fast DDS subscription content filters without skips
-        id: upstream_content_filter
-        run: pixi run -e upstream-contract upstream-content-filter-contract
-
-      - name: Build and prove conda package
-        if: ${{ always() && matrix.package_proof }}
+      - name: Lint and validate compatibility contract
         run: |
-          set -euo pipefail
-          mkdir -p build/test-results
-          pixi run -e pkg bash scripts/ci/build_local_package_stack.sh \
-            _deps/cppyy_kit build/package-channel 2>&1 \
-            | tee build/test-results/package-build.log
-          find build/package-channel -name '*.conda' -print \
-            | sort | tee build/test-results/package-artifacts.txt
-          scripts/ci/prove_rclcppyy_package.sh build/package-channel 2>&1 \
-            | tee build/test-results/package-proof.txt
-          cp build/package-channel/local-package-attestation.json \
-            build/test-results/
-          if [ -f build/package-channel/cppyy-arm-package-proof.json ]; then
-            cp build/package-channel/cppyy-arm-package-proof.json \
-              build/package-channel/cppyy-arm-runtime-proof.log \
-              build/test-results/
-          fi
+          pixi run lint
+          pixi run contract
 
-      - name: Record native job outcomes
-        if: always()
-        env:
-          SUITE_OUTCOME: ${{ steps.suite.outcome }}
-          BUILD_OUTCOME: ${{ steps.build.outcome }}
-          LAUNCH_OUTCOME: ${{ steps.launch.outcome }}
-          CUSTOM_INTERFACES_OUTCOME: ${{ steps.custom_interfaces.outcome }}
-          LINT_OUTCOME: ${{ steps.lint.outcome }}
-          CONTRACT_OUTCOME: ${{ steps.contract.outcome }}
-          TEST_OUTCOME: ${{ steps.test.outcome }}
-          DIRECT_BENCHMARK_OUTCOME: ${{ steps.direct_benchmark.outcome }}
-          UPSTREAM_CONTRACT_OUTCOME: ${{ steps.upstream_contract.outcome }}
-          UPSTREAM_CONTENT_FILTER_OUTCOME: ${{ steps.upstream_content_filter.outcome }}
-        run: |
-          mkdir -p build/test-results
-          python3 - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-          names = (
-              "suite", "build", "launch", "custom_interfaces", "lint", "contract",
-              "test", "direct_benchmark", "upstream_contract",
-              "upstream_content_filter")
-          outcomes = {name: os.environ[name.upper() + "_OUTCOME"] for name in names}
-          Path("build/test-results/job-outcomes.json").write_text(
-              json.dumps(outcomes, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-          PY
+      - name: Run focused runtime smoke tests
+        run: pixi run test-ci-fast
 
-      - name: Upload native test and package evidence
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: rclcppyy-${{ matrix.platform }}-test-evidence
-          path: build/test-results
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Save generated C++ caches
+      - name: Save generated C++ cache
         if: >-
           github.event_name == 'push' &&
           github.ref == 'refs/heads/main' &&
