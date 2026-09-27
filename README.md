@@ -161,9 +161,11 @@ suite, including the freeze/AOT optimization ladder — see the
 
 ## Install (pixi / conda — no build needed)
 
-`rclcppyy` 0.2.0 is published as `ros-jazzy-rclcppyy` on the prefix.dev
-[`awesomebytes` channel](https://prefix.dev/channels/awesomebytes). To *use* it (no clone, no `colcon build`), add the channel
-and the package to your own pixi workspace:
+`rclcppyy` is published as `ros-jazzy-rclcppyy` on the prefix.dev
+[`awesomebytes` channel](https://prefix.dev/channels/awesomebytes). Check [GitHub
+Releases](https://github.com/awesomebytes/rclcppyy/releases) or Prefix for the
+currently published version. To *use* it (no clone, no `colcon build`), add the
+channel and the package to your own pixi workspace:
 
 ```toml
 # pixi.toml

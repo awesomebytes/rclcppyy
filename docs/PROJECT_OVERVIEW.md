@@ -181,14 +181,14 @@ characterizations and do not promote a general performance claim.
 ## Published releases and source development
 
 `cppyy_kit` **0.3.0** is published, including its ARM64 `cppyy` Conda bridge.
-`rclcppyy` **0.3.0** remains an unreleased product candidate; the published product
-documented by the [README install instructions](../README.md#install-pixi--conda--no-build-needed)
-is **0.2.0**. The current candidate pins suite source commit
+The `rclcppyy` source declares version **0.3.0** and pins suite source commit
 `6260ef0ab0c146951399441bbfdbae7a0f116e3a` in
 [`suite-source.lock.json`](../suite-source.lock.json). The x86-64 and ARM64 test
 results above are tied to their stated earlier product and suite revisions; they
-are not a claim that the current candidate has passed CI. For source development,
-use the repository's `pixi` tasks and this exact pinned suite source.
+are not a claim about the current source revision. Check [GitHub Releases](https://github.com/awesomebytes/rclcppyy/releases)
+and the [Prefix channel](https://prefix.dev/channels/awesomebytes) for the current
+published `rclcppyy` version. For source development, use the repository's `pixi`
+tasks and this exact pinned suite source.
 For a new `cppyy_kit` project, start with the suite's
 [installation guide](https://github.com/awesomebytes/cppyy_kit#install) and install
 only the kits for the C++ libraries you use. The package and bridge proofs use
