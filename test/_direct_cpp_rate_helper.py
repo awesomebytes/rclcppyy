@@ -9,6 +9,7 @@ context-shutdown interrupt are driven from small, self-contained native
 (non-Python) threads compiled here rather than a second Python thread.
 """
 
+import atexit
 import importlib
 import os
 import subprocess
@@ -65,12 +66,21 @@ cppyy.cppdef(
 
     namespace direct_cpp_rate_probe {
 
+    std::thread shutdown_worker;
+
     void shutdown_after(std::shared_ptr<rclcpp::Context> context, int64_t delay_ms)
     {
-      std::thread([context, delay_ms]() {
+      shutdown_worker = std::thread([context, delay_ms]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(delay_ms));
         context->shutdown("direct_cpp_rate_probe interrupt test");
-      }).detach();
+      });
+    }
+
+    void join_shutdown_worker()
+    {
+      if (shutdown_worker.joinable()) {
+        shutdown_worker.join();
+      }
     }
 
     void publish_clock_after(
@@ -96,6 +106,14 @@ probe = cppyy.gbl.direct_cpp_rate_probe
 
 rclpy.init(args=[])
 runtime = direct_cpp._runtime()
+
+
+def orderly_shutdown():
+    probe.join_shutdown_worker()
+    rclpy.shutdown()
+
+
+atexit.register(orderly_shutdown)
 
 # 0. Argument validation (mirrors _direct_cpp_timer_helper.py's own
 # expect_rejected style for create_timer's analogous checks).
@@ -208,7 +226,10 @@ except ROSInterruptException:
     pass
 else:
     raise AssertionError("rate sleep succeeded after context shutdown")
+finally:
+    probe.join_shutdown_worker()
 interrupt_elapsed = time.monotonic() - start
 assert interrupt_elapsed < 3.0, (
     "context shutdown did not wake the rate sleep early: %.3fs" % interrupt_elapsed)
 print("DIRECT_CPP_RATE_SHUTDOWN_OK")
+orderly_shutdown()

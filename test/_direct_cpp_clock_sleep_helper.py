@@ -13,6 +13,7 @@ threads compiled here, mirroring how the suite's own
 ``_native_clock_sleep_helper.py`` proves the same primitive.
 """
 
+import atexit
 import importlib
 import os
 import time
@@ -70,17 +71,25 @@ cppyy.cppdef(
 
     namespace direct_cpp_clock_sleep_probe {
 
-    // Both helpers below run their blocking/delayed work on a detached,
-    // purely-native std::thread: no Python or cppyy call happens on that
-    // thread, so it never touches the GIL and can make the process's other
-    // (GIL-holding, Python-blocked) thread progress regardless.
+    // The shutdown helper runs on a joinable native std::thread; the delayed
+    // publisher below is detached. Neither thread calls Python or cppyy, so
+    // both can make progress while the GIL-holding caller is blocked.
+
+    std::thread shutdown_worker;
 
     void shutdown_after(std::shared_ptr<rclcpp::Context> context, int64_t delay_ms)
     {
-      std::thread([context, delay_ms]() {
+      shutdown_worker = std::thread([context, delay_ms]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(delay_ms));
         context->shutdown("direct_cpp_clock_sleep_probe interrupt test");
-      }).detach();
+      });
+    }
+
+    void join_shutdown_worker()
+    {
+      if (shutdown_worker.joinable()) {
+        shutdown_worker.join();
+      }
     }
 
     void publish_clock_after(
@@ -106,6 +115,14 @@ probe = cppyy.gbl.direct_cpp_clock_sleep_probe
 
 rclpy.init(args=[])
 runtime = direct_cpp._runtime()
+
+
+def orderly_shutdown():
+    probe.join_shutdown_worker()
+    rclpy.shutdown()
+
+
+atexit.register(orderly_shutdown)
 
 # 1. Wall-time sleep_for, plus an in-process stock differential: rclpy.clock.Clock
 # is never patched by direct_cpp (finding #8), so a bare stock Clock genuinely
@@ -199,7 +216,10 @@ LONG_SLEEP_S = 10.0  # never meant to complete normally
 probe.shutdown_after(runtime.session.context, 200)
 
 start = time.monotonic()
-interrupt_result = interrupt_clock.sleep_for(Duration(seconds=LONG_SLEEP_S))
+try:
+    interrupt_result = interrupt_clock.sleep_for(Duration(seconds=LONG_SLEEP_S))
+finally:
+    probe.join_shutdown_worker()
 interrupt_elapsed = time.monotonic() - start
 assert interrupt_result is False
 assert interrupt_elapsed < 3.0, (
@@ -215,3 +235,4 @@ except NotInitializedException:
 else:
     raise AssertionError("sleep_for succeeded after context shutdown")
 print("DIRECT_CPP_CLOCK_SLEEP_NOTINIT_OK")
+orderly_shutdown()
