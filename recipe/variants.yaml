@@ -1,0 +1,6 @@
+# GCC 16 run exports require libgcc >=16, incompatible with the proven
+# ARM cppyy bridge package's libgcc 15.2 runtime.
+c_compiler_version:
+  - "14.3"
+cxx_compiler_version:
+  - "14.3"

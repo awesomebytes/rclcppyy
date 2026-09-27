@@ -37,6 +37,18 @@ class TestCleanExit(unittest.TestCase):
         for marker in _FAULT_MARKERS:
             self.assertNotIn(marker, lowered, format_output(proc))
 
+    def test_default_context_reinitializes_after_cpp_publish(self):
+        proc = run_helper("_default_context_reinit_helper.py", timeout=180)
+        self.assertIn(
+            "DEFAULT_CONTEXT_REINIT_AFTER_CPP_PUBLISH_OK",
+            proc.stdout,
+            format_output(proc),
+        )
+        self.assertEqual(proc.returncode, 0, format_output(proc))
+        lowered = proc.stderr.lower()
+        for marker in _FAULT_MARKERS:
+            self.assertNotIn(marker, lowered, format_output(proc))
+
 
 if __name__ == "__main__":
     unittest.main()

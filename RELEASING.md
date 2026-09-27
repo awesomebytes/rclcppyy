@@ -1,4 +1,4 @@
-# Releasing rclcppyy (0.2.0+)
+# Releasing rclcppyy 0.3.0
 
 As of 0.2.0, rclcppyy is the **drop-in rclpy accelerator product built on top of the
 cppyy_kit suite**. Its rclcpp core was carved into the standalone `rclcpp_kit`
@@ -15,57 +15,69 @@ moved pieces through deprecation shims, so it now **depends on the suite at runt
 This creates a **publish order**: the suite must be on the prefix.dev `awesomebytes`
 channel before an rclcppyy release can build, prove, and upload.
 
-## Channel swap: done (suite published, bridge removed)
+## Dependency identities
 
-The suite is live on `awesomebytes` (all 11 packages, artifact-proven). The
-pre-release PYTHONPATH bridge described below has been removed:
+Suite 0.1.0 is published on `awesomebytes`, but this branch requires the unreleased
+suite 0.2.0 API. Development, CI, and release therefore use two explicit lanes:
 
-- `pixi.toml` now carries `https://repo.prefix.dev/awesomebytes` as a channel and
-  `ros-jazzy-rclcpp-kit ==0.1.0` / `cppyy-kit ==0.1.0` as real conda deps (re-locked).
-- `workspace_activation.sh` no longer sets up the `.suite_bridge` PYTHONPATH shim.
-- `.github/workflows/ci.yml` no longer checks out `awesomebytes/cppyy_kit` or sets
-  `CPPYY_KIT_SRC` — rclcpp_kit/cppyy_kit resolve as ordinary conda deps in the
-  `default` pixi env.
-- `pkg-build`'s `-c` now points at `https://repo.prefix.dev/awesomebytes` instead of
-  a local rattler-build channel.
+- **Source lane:** `suite-source.lock.json` names one full suite commit and exact
+  recipe version. Workspace activation overlays only that revision. The
+  `suite-contract` task verifies its Git identity, clean state, all recipe versions,
+  and active Python roots. CI checks out the same full commit.
+- **CI installed lane:** the package job builds suite 0.2.0 and rclcppyy 0.3.0 into
+  one isolated local channel, then proves imports and real ROS behavior without
+  source paths on x86_64 and ARM64.
+- **Release installed lane:** each native runner first downloads the exact published
+  suite artifacts, verifies their channel digests and GitHub provenance against
+  `suite-source.lock.json`, and exposes only those retained bytes through a local
+  conda channel. The product build and throwaway install proof both consume that
+  channel. ARM64 also retains and verifies the published native `cppyy` 3.5.0
+  bridge.
 
-The old wiring (kept here for history / for anyone bringing up a similar bridge
-before their own suite is published):
-
-- **Dev + CI import** rclcpp_kit / cppyy_kit from a **sibling `cppyy_kit` source
-  checkout** via a PYTHONPATH bridge — `workspace_activation.sh` put exactly those
-  two packages on `PYTHONPATH` (default `../cppyy_kit`; override with `CPPYY_KIT_SRC`).
-  CI checked out `awesomebytes/cppyy_kit` and set `CPPYY_KIT_SRC`. No file:// channel
-  was committed to `pixi.lock` (it would not resolve on other machines / CI).
-- **Local recipe validation** used a **local rattler-build channel**: `pixi run -e
-  pkg pkg-build` passed `-c file://.../cppyy_kit/output` so the recipe's import-smoke
-  test env could resolve the suite run-deps.
+The default lock still contains published suite 0.1.0 only as bootstrap dependency
+metadata. It is not accepted as source-test evidence, cannot satisfy
+`suite-contract`, and is not the release dependency set.
 
 ## Release choreography (do these in order)
 
 **Do not tag rclcppyy until step 1 is done.**
 
-1. ~~**Publish the suite** from the cppyy_kit repo to `awesomebytes`~~ — **done.**
-   `cppyy-kit`, `ros-jazzy-rclcpp-kit`, and the domain kits are live, all
-   artifact-proven from a fresh env first (the suite's own release discipline).
+1. **Tag and publish suite `v0.2.0`** from its locked commit after its release job
+   builds, freshly installs, checksums, and attests the 11 suite artifacts plus
+   the native ARM64 `cppyy` bridge. Prefix.dev OIDC authorization for that
+   repository must already be enabled.
 
-2. ~~**Swap rclcppyy from the pre-release bridge to the published channel**~~ — **done**
-   (see "Channel swap: done" above).
+2. **Confirm the published dependency set.** The exact `cppyy-kit ==0.2.0` and
+   `ros-jazzy-rclcpp-kit ==0.2.0` build identities must exist on `awesomebytes`
+   with provenance from the locked suite commit. The same applies to the exact
+   native `cppyy ==3.5.0` bridge identity on ARM64. A matching version or build
+   string without matching retained channel bytes is not release evidence.
 
-3. **Verify** on a clean checkout: `pixi run build`, `pixi run lint`, `pixi run test`
-   (core suite + kit-shim smokes), `pixi run bench --variants rclcppyy --rate 1000
-   --duration 3 --json` (≈3000 msgs, 0 dropped). Push; CI must be green.
+3. **Verify** source and installed lanes: `pixi run suite-contract`, `pixi run build`,
+   `pixi run lint`, `pixi run test`, the backend-required benchmark smoke, and the
+   local package-stack proof. Push; all required x86-64 and ARM64 source and
+   installed-package jobs must be green. The ARM proof must contain the clean
+   suite commit, exact upstream source and patch hashes, local bridge artifact
+   hash, and native import/`cppdef` runtime-log hash.
 
-4. **Tag `v0.2.0`.** `.github/workflows/release.yml` then: builds the
-   `ros-jazzy-rclcppyy` conda package (recipe run-deps resolve from `awesomebytes`),
-   proves it installs + runs a pub/sub roundtrip in a throwaway workspace whose
-   channels include `awesomebytes`, and uploads via OIDC. `recipe/recipe.yaml` and
-   `release.yml` are already prepared for this (they reference `awesomebytes`); step 2
-   only touched the dev/CI wiring.
+4. **Tag `v0.3.0`.** The release workflow first rejects any tag that differs from
+   `pixi.toml`, `package.xml`, or `recipe/recipe.yaml`. It then retains the exact
+   published dependency bytes, builds the x86_64 and ARM64 product packages against
+   them, and proves each throwaway install selected those same dependency hashes
+   while running same-handle pub/sub plus a native service. Each runner records a
+   validated conda inventory, file-level SPDX SBOM, provenance, and portable
+   attestation bundles. The inventory checks and records the product artifact's
+   exact direct dependency metadata. The SPDX document covers the retained release
+   artifacts and their files; external ROS and conda runtime packages are not
+   expanded into SPDX package records or dependency relationships. A single
+   publication job re-verifies both complete bundles
+   before channel access. It rejects conflicting existing identities, uploads only
+   missing product artifacts, and polls until both published architecture bytes
+   match the verified local artifacts.
 
 ## Deprecation timeline
 
 The `rclcppyy.*` re-export shims and `rclcppyy.kits.*` shims emit `DeprecationWarning`
 (except `rclcppyy.bringup_rclcpp`, which the product itself uses internally). They
-keep existing imports working across 0.2.x; plan removal for a later major bump once
+keep existing imports working across 0.3.x; plan removal for a later major bump once
 downstreams have moved to `rclcpp_kit.*` / the standalone kit packages.

@@ -7,7 +7,7 @@ from rclpy.node import Node
 from std_msgs.msg import String
 import time
 import numpy as np
-import sys
+from _backend_marker import emit_stock_backend
 
 class PerfSubscriber(Node):
     def __init__(self):
@@ -63,6 +63,7 @@ def main(args=None):
     print("Starting Python subscriber benchmark")
     rclpy.init(args=args)
     subscriber = PerfSubscriber()
+    emit_stock_backend("subscriber", subscriber.subscription)
     
     try:
         rclpy.spin(subscriber)
@@ -81,4 +82,4 @@ def main(args=None):
         rclpy.shutdown()
 
 if __name__ == '__main__':
-    main() 
+    main()

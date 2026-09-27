@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.16)
+project(rclcppyy_action_client_aot LANGUAGES CXX)
+
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(rmw REQUIRED)
+find_package(tf2_msgs REQUIRED)
+
+foreach(target action_benchmark_server action_benchmark_client)
+  add_executable(${target} ${target}.cpp)
+  target_compile_features(${target} PRIVATE cxx_std_17)
+  target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
+  ament_target_dependencies(${target} rclcpp rclcpp_action rmw tf2_msgs)
+endforeach()

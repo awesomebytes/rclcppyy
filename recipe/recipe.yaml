@@ -3,7 +3,7 @@ schema_version: 1
 context:
   name: ros-jazzy-rclcppyy
   # Keep in sync with package.xml <version>.
-  version: "0.2.0"
+  version: "0.3.0"
 
 package:
   name: ${{ name }}
@@ -16,7 +16,7 @@ source:
   use_gitignore: true
 
 build:
-  number: 0
+  number: 1
   # build.sh (auto-detected) runs the ament_cmake build.
 
 requirements:
@@ -38,9 +38,18 @@ requirements:
   run:
     - python
     - cppyy >=3.5,<4
+    - ros-jazzy-action-msgs
     - ros-jazzy-ament-index-python
+    - ros-jazzy-builtin-interfaces
+    - ros-jazzy-geometry-msgs
+    - ros-jazzy-rcl-interfaces
     - ros-jazzy-rclcpp
     - ros-jazzy-rclpy
+    - ros-jazzy-rosidl-pycommon
+    - ros-jazzy-rosidl-runtime-py
+    - ros-jazzy-std-msgs
+    - ros-jazzy-std-srvs
+    - ros-jazzy-tf2-msgs
     # 0.2.0: the rclcpp core was carved into rclcpp_kit; rclcppyy re-exports it via
     # deprecation shims, so the product depends on it at runtime. cppyy-kit comes in
     # transitively but is pinned so the kit shims (rclcppyy.kits.cppyy_kit / .freeze)
@@ -48,8 +57,8 @@ requirements:
     # until the suite publishes to prefix.dev — the pkg-build task and the release
     # workflow must pass that channel (local file:// now → awesomebytes after
     # publish; see RELEASING.md).
-    - ros-jazzy-rclcpp-kit ==0.1.0
-    - cppyy-kit ==0.1.0
+    - ros-jazzy-rclcpp-kit ==0.2.0
+    - cppyy-kit ==0.2.0
 
 tests:
   - script:
@@ -72,9 +81,9 @@ about:
   summary: rclcpp bindings via cppyy — use ROS 2 C++ APIs from Python
   description: |
     rclcppyy exposes rclcpp (and related ROS 2 C++ APIs) to Python via cppyy,
-    letting rclpy-style code run on the C++ backend for lower CPU usage. It also
-    provides an enable_cpp_acceleration() monkeypatch so existing rclpy code can
-    use the C++ backend with a single line.
+    preserving stock rclpy objects while certified operations use explicit C++
+    routes with backend evidence. It also provides an enable_cpp_acceleration()
+    entry point so existing rclpy code can opt into those routes with a single line.
 
 extra:
   recipe-maintainers:

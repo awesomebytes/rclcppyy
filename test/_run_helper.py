@@ -14,7 +14,7 @@ import sys
 DEFAULT_TIMEOUT_S = 120
 
 
-def run_helper(helper_filename, timeout=DEFAULT_TIMEOUT_S):
+def run_helper(helper_filename, *arguments, timeout=DEFAULT_TIMEOUT_S):
     """Run test/<helper_filename> in a subprocess, returning the CompletedProcess.
 
     The child inherits the current environment (activated pixi env, RMW choice,
@@ -22,7 +22,7 @@ def run_helper(helper_filename, timeout=DEFAULT_TIMEOUT_S):
     """
     helper = os.path.join(os.path.dirname(__file__), helper_filename)
     return subprocess.run(
-        [sys.executable, helper],
+        [sys.executable, helper, *arguments],
         capture_output=True,
         text=True,
         timeout=timeout,

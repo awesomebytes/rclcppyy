@@ -1,0 +1,7 @@
+int32 target
+---
+int64 total
+rclcppyy_test_interfaces/StampedValue summary
+---
+int32 current
+int64 partial_total

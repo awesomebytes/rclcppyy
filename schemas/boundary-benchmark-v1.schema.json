@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/awesomebytes/rclcppyy/schemas/boundary-benchmark-v1.schema.json",
+  "title": "rclcppyy native Python boundary benchmark v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "generated_at",
+    "command",
+    "environment",
+    "benchmark",
+    "results",
+    "comparison",
+    "failures"
+  ],
+  "properties": {
+    "schema": {"const": "rclcppyy.boundary-benchmark/v1"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "command": {"type": "array", "items": {"type": "string"}},
+    "environment": {"type": "object"},
+    "benchmark": {
+      "type": "object",
+      "required": [
+        "name",
+        "mode",
+        "performance_claims_allowed",
+        "parameters",
+        "isolation",
+        "aot_build",
+        "statistics",
+        "scope"
+      ],
+      "properties": {
+        "name": {"const": "native_python_boundary_vs_aot"},
+        "mode": {"enum": ["smoke", "measurement"]},
+        "performance_claims_allowed": {"const": false},
+        "parameters": {
+          "type": "object",
+          "required": ["variants", "iterations", "repetitions", "seed", "expected_checksum"],
+          "properties": {
+            "variants": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": ["cppyy-python-boundary", "cppyy-fused", "aot-cpp"]
+              }
+            },
+            "iterations": {"type": "integer", "minimum": 1, "maximum": 10000000},
+            "repetitions": {"type": "integer", "minimum": 1, "maximum": 30},
+            "seed": {"type": "integer", "minimum": 0},
+            "expected_checksum": {"type": "integer", "minimum": 0}
+          }
+        },
+        "isolation": {
+          "type": "object",
+          "required": [
+            "fresh_process_per_sample",
+            "new_process_group_per_sample",
+            "unique_run_token_per_sample",
+            "private_aot_build_directory",
+            "ros_domain_id",
+            "sample_process_ids",
+            "sample_run_tokens"
+          ],
+          "properties": {
+            "fresh_process_per_sample": {"const": true},
+            "new_process_group_per_sample": {"const": true},
+            "unique_run_token_per_sample": {"const": true},
+            "private_aot_build_directory": {"const": true},
+            "ros_domain_id": {"type": "integer", "minimum": 0, "maximum": 232},
+            "sample_process_ids": {
+              "type": "array",
+              "items": {"type": "integer", "minimum": 1}
+            },
+            "sample_run_tokens": {
+              "type": "array",
+              "items": {"type": "string", "pattern": "^run_[a-f0-9]{32}$"}
+            }
+          }
+        },
+        "aot_build": {
+          "type": "object",
+          "required": [
+            "compiler",
+            "compiler_version",
+            "flags",
+            "source_sha256",
+            "kernel_sha256",
+            "executable_sha256",
+            "executable_format",
+            "build_elapsed_ns",
+            "build_directory_persisted"
+          ],
+          "properties": {
+            "executable_format": {"const": "ELF"},
+            "build_directory_persisted": {"const": false}
+          }
+        },
+        "statistics": {"type": "object"},
+        "scope": {"type": "object"}
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "schema",
+          "case_id",
+          "variant",
+          "repetition",
+          "backend_verified",
+          "backend",
+          "run_token",
+          "pid",
+          "process_group_id",
+          "iterations",
+          "checksum",
+          "elapsed_ns",
+          "cpu_time_ns",
+          "python_callback_count",
+          "ns_per_iteration",
+          "process_total_wall_ns",
+          "worker_source_sha256",
+          "kernel_sha256"
+        ],
+        "properties": {
+          "schema": {"const": "rclcppyy.boundary-sample/v1"},
+          "variant": {
+            "enum": ["cppyy-python-boundary", "cppyy-fused", "aot-cpp"]
+          },
+          "backend_verified": {"const": true},
+          "run_token": {"type": "string", "pattern": "^run_[a-f0-9]{32}$"},
+          "pid": {"type": "integer", "minimum": 1},
+          "process_group_id": {"type": "integer", "minimum": 1},
+          "iterations": {"type": "integer", "minimum": 1},
+          "checksum": {"type": "integer", "minimum": 0},
+          "elapsed_ns": {"type": "integer", "minimum": 1},
+          "cpu_time_ns": {"type": "integer", "minimum": 0},
+          "python_callback_count": {"type": "integer", "minimum": 0},
+          "ns_per_iteration": {"type": "number", "exclusiveMinimum": 0},
+          "backend": {
+            "type": "object",
+            "required": ["schema", "backend", "execution_model", "evidence"],
+            "properties": {
+              "schema": {"const": "rclcppyy.boundary-backend/v1"},
+              "backend": {"enum": ["cppyy", "aot-cpp"]},
+              "execution_model": {
+                "enum": [
+                  "cppyy-cpp-to-python-to-cpp-callback",
+                  "cppyy-jit-fused-cpp",
+                  "standalone-optimized-executable"
+                ]
+              },
+              "evidence": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {"variant": {"const": "cppyy-python-boundary"}},
+              "required": ["variant"]
+            },
+            "then": {
+              "properties": {
+                "python_callback_count": {"type": "integer", "minimum": 1},
+                "backend": {
+                  "properties": {
+                    "backend": {"const": "cppyy"},
+                    "execution_model": {
+                      "const": "cppyy-cpp-to-python-to-cpp-callback"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {"variant": {"const": "cppyy-fused"}},
+              "required": ["variant"]
+            },
+            "then": {
+              "properties": {
+                "python_callback_count": {"const": 0},
+                "backend": {
+                  "properties": {
+                    "backend": {"const": "cppyy"},
+                    "execution_model": {"const": "cppyy-jit-fused-cpp"}
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {"variant": {"const": "aot-cpp"}},
+              "required": ["variant"]
+            },
+            "then": {
+              "properties": {
+                "python_callback_count": {"const": 0},
+                "backend": {
+                  "required": ["executable_sha256"],
+                  "properties": {
+                    "backend": {"const": "aot-cpp"},
+                    "execution_model": {
+                      "const": "standalone-optimized-executable"
+                    },
+                    "executable_sha256": {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "required": [
+        "checksum_consistent",
+        "raw_median_ns_per_iteration",
+        "raw_ratio_to_aot",
+        "raw_boundary_increment_over_cppyy_fused_ns_per_iteration",
+        "raw_boundary_ratio_to_cppyy_fused",
+        "interpretation_allowed",
+        "note"
+      ],
+      "properties": {
+        "checksum_consistent": {"type": "boolean"},
+        "interpretation_allowed": {"const": false},
+        "raw_median_ns_per_iteration": {"type": "object"},
+        "raw_ratio_to_aot": {"type": "object"},
+        "raw_boundary_increment_over_cppyy_fused_ns_per_iteration": {
+          "type": ["number", "null"]
+        },
+        "raw_boundary_ratio_to_cppyy_fused": {"type": ["number", "null"]},
+        "note": {"type": "string", "minLength": 1}
+      }
+    },
+    "failures": {"type": "array", "items": {"type": "object"}}
+  }
+}

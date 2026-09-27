@@ -1,120 +1,1142 @@
-"""
-This file handles monkey-patching rclpy to use rclcpp implementations.
-"""
+"""Transparent acceleration patches over authoritative stock rclpy objects."""
+
+from __future__ import annotations
+
+import importlib.metadata
+import os
+import warnings
+from functools import wraps
+from inspect import signature
 
 import rclpy
+from rclpy.action import ActionClient, ActionServer
+from rclpy.executors import (
+    Executor,
+    MultiThreadedExecutor,
+    SingleThreadedExecutor,
+    await_or_execute,
+)
+from rclpy.lifecycle import LifecycleNode
 from rclpy.node import Node
-from rclcppyy.node import RclcppyyNode
-from rclcppyy.monkeypatch_messages import install_ros_message_hook, convert_already_imported_python_msgs_to_cpp
-from rclcppyy.bringup_rclcpp import bringup_rclcpp
+from rclpy.publisher import Publisher
+from rclpy.subscription import Subscription
+from rclpy.utilities import get_rmw_implementation_identifier
+from rclpy._rclpy_pybind11 import InvalidHandle
 
-# Store original functions
-_original_create_node = rclpy.create_node
-_original_node_create_subscription = Node.create_subscription
+from rclcppyy._status import record_decision
+from rclcppyy.policy import BackendUnavailableError, resolve_policy
+
+
+_original_create_publisher = Node.create_publisher
+_original_create_subscription = Node.create_subscription
+_original_create_timer = Node.create_timer
+_original_create_service = Node.create_service
+_original_create_client = Node.create_client
+_original_create_guard_condition = Node.create_guard_condition
+_original_set_parameters = Node.set_parameters
+_original_set_parameters_atomically = Node.set_parameters_atomically
+_original_publish = Publisher.publish
+_original_take_subscription = Executor._take_subscription
+_original_spin = rclpy.spin
 _original_spin_once = rclpy.spin_once
+_original_single_threaded_spin = SingleThreadedExecutor.spin
+_original_multi_threaded_spin = MultiThreadedExecutor.spin
+_original_lifecycle_node_init = LifecycleNode.__init__
+_original_action_client_init = ActionClient.__init__
+_original_action_server_init = ActionServer.__init__
 
-def patch_ros2():
-    """
-    Monkey-patch ROS2 Python API to use C++ implementations.
-    This makes existing Python ROS2 code use C++ under the hood.
-    """
-    # Initialize rclcpp
-    bringup_rclcpp()
+_PATCHED = False
+_POLICY = resolve_policy()
+_WARNED_FALLBACKS = set()
+_OPTIMIZED_SPIN_TIMEOUT_SEC = 0.1
+_FACADE_INSTALLATION = None
+_FACADE_BINDINGS = ()
+_FACADE_MODULE = None
+_BORROWED_SUBSCRIPTION_MODULE = None
+_SUPPORTED_RCLPY_VERSION = "7.1.11"
 
-    # Set up automatic message conversion
-    install_ros_message_hook()
-    
-    # Convert already imported Python messages to C++
-    convert_already_imported_python_msgs_to_cpp()
-    
-    # Monkey-patch rclpy.create_node
-    rclpy.create_node = _create_node_wrapper
 
-    # Monkey-patch rclpy.spin
-    rclpy.spin = _spin_wrapper
-
-    # Monkey-patch rclpy.spin_once. Tools that drive their own loop -- notably the
-    # ros2 CLI (ros2cli's DirectNode discovery loop and `ros2 topic hz`) -- call
-    # rclpy.spin_once(node) rather than rclpy.spin(node). The stock rclpy executor
-    # cannot service an rclcpp-backed node's timers/subscriptions, so without this
-    # the discovery loop spins forever. Delegate to an rclcpp executor instead.
-    rclpy.spin_once = _spin_once_wrapper
-
-    # Monkey-patch Node.create_subscription
-    Node.create_subscription = _create_subscription_wrapper
-    
-    print("ROS2 C++ acceleration enabled!")
+def _claim_once(owner, key):
+    reported = getattr(owner, "_rclcppyy_reported_operations", None)
+    if reported is None:
+        reported = set()
+        try:
+            owner._rclcppyy_reported_operations = reported
+        except (AttributeError, TypeError):
+            return True
+    if key in reported:
+        return False
+    reported.add(key)
     return True
 
-def _create_node_wrapper(*args, **kwargs):
-    """
-    Wrapper for rclpy.create_node that returns RclcppyyNode instead.
-    This maintains the same API but uses our C++-backed node.
-    """
-    return RclcppyyNode(*args, **kwargs)
 
-def _spin_wrapper(*args, **kwargs):
-    """
-    Wrapper for rclpy.spin that uses rclcpp.spin
-    """
-    rclcpp = bringup_rclcpp()
-    node = args[0]
-    rclcpp.spin(node._rclcpp_node)
+def _warn_once(reason):
+    if not _POLICY.warn_fallback or reason in _WARNED_FALLBACKS:
+        return
+    _WARNED_FALLBACKS.add(reason)
+    warnings.warn("rclcppyy fell back to stock rclpy: %s" % reason, RuntimeWarning)
 
 
-def _get_spin_executor(node):
-    """A persistent rclcpp SingleThreadedExecutor bound to this node.
+def _record_node_once(node):
+    status_id = getattr(node, "_rclcppyy_status_id", None)
+    if status_id is not None:
+        return status_id
+    status_id = record_decision(
+        "nodes",
+        "python",
+        "stock rclpy Node and Context remain authoritative",
+        policies=("stock_node_authority", _POLICY.name),
+        metadata={
+            "name": node.get_name(),
+            "namespace": node.get_namespace(),
+            "profile": _POLICY.name,
+        },
+    )
+    node._rclcppyy_status_id = status_id
+    return status_id
 
-    Created once and cached on the node so repeated spin_once calls reuse it (and
-    so the node is never added to two executors). The executor picks up entities
-    the node creates later -- e.g. the hz verb's subscription after DirectNode's
-    discovery timer -- via the node's guard condition.
-    """
-    executor = getattr(node, "_rclcppyy_spin_executor", None)
-    if executor is None:
-        rclcpp = bringup_rclcpp()
-        executor = rclcpp.executors.SingleThreadedExecutor()
-        executor.add_node(node._rclcpp_node)
-        node._rclcppyy_spin_executor = executor
-    return executor
+
+def _record_python_entity(
+    node,
+    entity_type,
+    reason,
+    metadata=None,
+    *,
+    warn=True,
+    policies=None,
+):
+    if warn:
+        _warn_once(reason)
+    values = {
+        "entity_type": entity_type,
+        "node_id": _record_node_once(node),
+        "profile": _POLICY.name,
+    }
+    values.update(metadata or {})
+    record_decision(
+        "entities",
+        "python",
+        reason,
+        policies=policies or ("stock_fallback", _POLICY.name),
+        metadata=values,
+    )
 
 
+def _record_python_operation(
+    node,
+    operation,
+    reason,
+    metadata=None,
+    *,
+    once_key=None,
+    policies=None,
+):
+    if once_key is not None and not _claim_once(node, once_key):
+        return
+    _warn_once(reason)
+    values = {
+        "operation": operation,
+        "node_id": _record_node_once(node),
+        "profile": _POLICY.name,
+    }
+    values.update(metadata or {})
+    record_decision(
+        "operations",
+        "python",
+        reason,
+        policies=policies or ("stock_fallback", _POLICY.name),
+        metadata=values,
+    )
+
+
+def _record_runtime_operation(
+    owner,
+    operation,
+    reason,
+    metadata=None,
+    *,
+    once_key=None,
+    warn=False,
+    authority="stock_runtime_authority",
+    policies=None,
+):
+    if once_key is not None and not _claim_once(owner, once_key):
+        return
+    if warn:
+        _warn_once(reason)
+    values = {"operation": operation, "profile": _POLICY.name}
+    values.update(metadata or {})
+    record_decision(
+        "operations",
+        "python",
+        reason,
+        policies=policies or (authority, _POLICY.name),
+        metadata=values,
+    )
+
+
+def _unavailable(operation, reason):
+    record_decision(
+        "operations",
+        "unsupported",
+        reason,
+        policies=("required_cpp", "fail_closed"),
+        metadata={"operation": operation, "profile": _POLICY.name},
+    )
+    raise BackendUnavailableError(reason)
+
+
+def _stock_entity(node, operation, entity_type, reason, create, metadata=None):
+    """Create one stock entity or fail before invoking its constructor."""
+    initializing = not hasattr(node, "_type_description_service")
+    if _POLICY.require_cpp and not initializing:
+        _unavailable(operation, reason)
+    entity = create()
+    values = metadata(entity) if callable(metadata) else (metadata or {})
+    if initializing:
+        values["requested_operation"] = operation
+        _record_python_entity(
+            node,
+            entity_type,
+            "stock Node constructor owns this compatibility entity",
+            values,
+            warn=False,
+            policies=("stock_node_infrastructure", _POLICY.name),
+        )
+    else:
+        _record_python_entity(node, entity_type, reason, values)
+    return entity
+
+
+def _stock_operation(node, operation, reason, invoke, metadata=None):
+    """Run one stock operation or fail before it can mutate the node."""
+    if _POLICY.require_cpp:
+        _unavailable(operation, reason)
+    result = invoke()
+    values = metadata(result) if callable(metadata) else (metadata or {})
+    _record_python_operation(node, operation, reason, values)
+    return result
+
+
+def _load_borrowed_publish():
+    try:
+        from rclcpp_kit import borrowed_publish
+    except (ImportError, AttributeError) as exc:
+        return None, "installed rclcpp_kit has no same-handle publisher route: %s" % exc
+    return borrowed_publish, None
+
+
+def _message_facade_binding(message_type):
+    if _FACADE_MODULE is None:
+        return None
+    binding = _FACADE_MODULE.binding_for_type(message_type)
+    if binding is None or message_type is not binding.facade_type:
+        return None
+    return binding
+
+
+def _message_facade_runtime_error():
+    if os.environ.get("ROS_DISTRO") != "jazzy":
+        return "message_facade requires ROS_DISTRO=jazzy"
+    implementation = get_rmw_implementation_identifier()
+    if implementation != "rmw_cyclonedds_cpp":
+        return (
+            "message_facade requires rmw_cyclonedds_cpp, got %s" %
+            implementation)
+    try:
+        version = importlib.metadata.version("rclpy")
+    except importlib.metadata.PackageNotFoundError:
+        return "message_facade could not identify the installed rclpy version"
+    if version != _SUPPORTED_RCLPY_VERSION:
+        return (
+            "message_facade requires the reviewed rclpy 7.1.11 executor ABI, "
+            "got %s" % version)
+    parameters = tuple(signature(_original_take_subscription).parameters)
+    if parameters != ("self", "sub"):
+        return (
+            "message_facade requires Executor._take_subscription(self, sub), "
+            "got %s" % (parameters,))
+    return None
+
+
+def _prepare_message_facades():
+    global _FACADE_BINDINGS, _FACADE_MODULE
+    global _BORROWED_SUBSCRIPTION_MODULE, _FACADE_INSTALLATION
+    reason = _message_facade_runtime_error()
+    if reason is not None:
+        _unavailable("enable_cpp_acceleration", reason)
+    try:
+        from rclcpp_kit import borrowed_publish, borrowed_subscription
+        from rclcpp_kit import message_facade
+        from std_msgs.msg import String, UInt64
+
+        bindings = (
+            message_facade.prepare(UInt64),
+            message_facade.prepare(String),
+        )
+        # Resolve all JIT work before module replacement. Benchmarks measure only
+        # after activation and endpoint warmup, never this setup boundary.
+        for binding in bindings:
+            borrowed_publish.prepare(binding.original_type)
+            borrowed_subscription.prepare(binding)
+        installation = message_facade.install(bindings)
+    except Exception as exc:
+        _unavailable(
+            "enable_cpp_acceleration",
+            "message facade preparation failed before activation: %s" % exc,
+        )
+    _FACADE_BINDINGS = bindings
+    _FACADE_MODULE = message_facade
+    _BORROWED_SUBSCRIPTION_MODULE = borrowed_subscription
+    _FACADE_INSTALLATION = installation
+
+
+def _create_publisher_wrapper(
+    self,
+    msg_type,
+    topic,
+    qos_profile,
+    *,
+    callback_group=None,
+    event_callbacks=None,
+    qos_overriding_options=None,
+    publisher_class=Publisher,
+):
+    initializing = not hasattr(self, "_type_description_service")
+    if initializing:
+        publisher = _original_create_publisher(
+            self,
+            msg_type,
+            topic,
+            qos_profile,
+            callback_group=callback_group,
+            event_callbacks=event_callbacks,
+            qos_overriding_options=qos_overriding_options,
+            publisher_class=publisher_class,
+        )
+        _record_python_entity(
+            self,
+            "publisher",
+            "stock Node constructor owns this compatibility entity",
+            metadata={
+                "topic": publisher.topic_name,
+                "requested_operation": "create_publisher",
+            },
+            warn=False,
+            policies=("stock_node_infrastructure", _POLICY.name),
+        )
+        return publisher
+
+    facade_binding = _message_facade_binding(msg_type)
+    facade_stock_reason = None
+    if _POLICY.use_cpp_message_facade:
+        if facade_binding is None:
+            facade_stock_reason = (
+                "requested message class has no active certified C++ facade")
+        elif publisher_class is not Publisher:
+            facade_stock_reason = (
+                "custom publisher classes remain stock under message_facade")
+
+    if not _POLICY.use_cpp_publisher or facade_stock_reason is not None:
+        original_type = (
+            facade_binding.original_type if facade_binding is not None else msg_type)
+        publisher = _original_create_publisher(
+            self,
+            original_type,
+            topic,
+            qos_profile,
+            callback_group=callback_group,
+            event_callbacks=event_callbacks,
+            qos_overriding_options=qos_overriding_options,
+            publisher_class=publisher_class,
+        )
+        if facade_binding is not None:
+            publisher.msg_type = facade_binding.facade_type
+        _record_python_entity(
+            self,
+            "publisher",
+            facade_stock_reason or
+            "stock rclpy Publisher.publish remains authoritative by policy",
+            metadata={
+                "topic": publisher.topic_name,
+                "callback_group_requested": callback_group is not None,
+                "event_callbacks_requested": event_callbacks is not None,
+                "qos_overrides_requested": qos_overriding_options is not None,
+                "custom_publisher_class_requested": publisher_class is not Publisher,
+            },
+            warn=False,
+            policies=("stock_publish_authority", _POLICY.name),
+        )
+        return publisher
+
+    borrowed_publish, unavailable_reason = _load_borrowed_publish()
+    route = None
+    if borrowed_publish is not None:
+        try:
+            # Resolve/JIT before creating the endpoint. Required-C++ failure must
+            # not leave a partially created stock entity behind.
+            route_type = (
+                facade_binding.original_type
+                if facade_binding is not None else msg_type)
+            route = borrowed_publish.prepare(route_type)
+        except Exception as exc:
+            unavailable_reason = "same-handle publisher preparation failed: %s" % exc
+
+    if route is None and _POLICY.require_cpp:
+        _unavailable("create_publisher", unavailable_reason)
+
+    entity_type = (
+        facade_binding.original_type if facade_binding is not None else msg_type)
+    publisher = _original_create_publisher(
+        self,
+        entity_type,
+        topic,
+        qos_profile,
+        callback_group=callback_group,
+        event_callbacks=event_callbacks,
+        qos_overriding_options=qos_overriding_options,
+        publisher_class=publisher_class,
+    )
+    if facade_binding is not None:
+        publisher.msg_type = facade_binding.facade_type
+    node_id = _record_node_once(self)
+    if route is None:
+        _record_python_entity(
+            self,
+            "publisher",
+            unavailable_reason,
+            metadata={
+                "topic": publisher.topic_name,
+                "callback_group_requested": callback_group is not None,
+                "event_callbacks_requested": event_callbacks is not None,
+                "qos_overrides_requested": qos_overriding_options is not None,
+                "custom_publisher_class_requested": publisher_class is not Publisher,
+            },
+        )
+        return publisher
+
+    publisher._rclcppyy_publish_route = route
+    publisher._rclcppyy_facade_binding = facade_binding
+    publisher._rclcppyy_policy = _POLICY
+    publisher._rclcppyy_reported_fallbacks = set()
+    publisher._rclcppyy_publish_tainted = False
+    publisher._rclcppyy_last_publish_backend = None
+    record_decision(
+        "entities",
+        "cpp",
+        "stock publisher endpoint uses a same-handle C++ publish route",
+        policies=(
+            "stock_entity_contract",
+            "borrowed_rcl_handle",
+            "direct_cpp_message"
+            if facade_binding is not None else
+            "python_to_cpp_message_conversion",
+            _POLICY.name,
+        ),
+        metadata={
+            "entity_type": "publisher",
+            "node_id": node_id,
+            "topic": publisher.topic_name,
+            "message_type": route.cpp_type_name,
+            "profile": _POLICY.name,
+            "callback_group_requested": callback_group is not None,
+            "event_callbacks_requested": event_callbacks is not None,
+            "qos_overrides_requested": qos_overriding_options is not None,
+            "custom_publisher_class_requested": publisher_class is not Publisher,
+        },
+    )
+    return publisher
+
+
+def _record_publish_fallback_once(publisher, reason):
+    reported = getattr(publisher, "_rclcppyy_reported_fallbacks", None)
+    if reported is not None:
+        if reason in reported:
+            return
+        reported.add(reason)
+    _warn_once(reason)
+    record_decision(
+        "operations",
+        "python",
+        reason,
+        policies=("stock_fallback", _POLICY.name),
+        metadata={
+            "operation": "publish",
+            "topic": getattr(publisher, "topic_name", None),
+            "profile": _POLICY.name,
+        },
+    )
+
+
+def _record_cpp_publish_once(publisher):
+    if not _claim_once(publisher, "publish_cpp"):
+        return
+    policy = getattr(publisher, "_rclcppyy_policy", _POLICY)
+    record_decision(
+        "operations",
+        "cpp",
+        "same-handle C++ publish completed",
+        policies=(
+            "borrowed_rcl_handle",
+            "direct_cpp_message"
+            if getattr(publisher, "_rclcppyy_facade_binding", None) is not None
+            else "python_to_cpp_message_conversion",
+            policy.name,
+        ),
+        metadata={
+            "operation": "publish",
+            "topic": getattr(publisher, "topic_name", None),
+            "profile": policy.name,
+        },
+    )
+
+
+def _publish_wrapper(self, message):
+    route = getattr(self, "_rclcppyy_publish_route", None)
+    if route is None:
+        return _original_publish(self, message)
+    policy = getattr(self, "_rclcppyy_policy", _POLICY)
+    facade_binding = getattr(self, "_rclcppyy_facade_binding", None)
+    if (facade_binding is not None and
+            type(message) is not facade_binding.facade_type):
+        reason = "message is not the exact C++-owning facade class"
+        _record_publish_fallback_once(self, reason)
+        result = _original_publish(self, message)
+        self._rclcppyy_publish_tainted = True
+        self._rclcppyy_last_publish_backend = "python"
+        return result
+    if isinstance(message, (bytes, bytearray, memoryview)):
+        reason = "serialized-byte publishing has no certified C++ route"
+        if policy.require_cpp:
+            _unavailable("publish", reason)
+        _record_publish_fallback_once(self, reason)
+        result = _original_publish(self, message)
+        self._rclcppyy_publish_tainted = True
+        self._rclcppyy_last_publish_backend = "python"
+        return result
+    try:
+        result = route.publish(self, message)
+    except TypeError as exc:
+        reason = "same-handle C++ publish rejected the message: %s" % exc
+        if policy.require_cpp:
+            _unavailable("publish", reason)
+        # Compatible mode preserves the stock exception contract for invalid
+        # objects, but also records the complete-operation fallback.
+        _record_publish_fallback_once(self, reason)
+        result = _original_publish(self, message)
+        self._rclcppyy_publish_tainted = True
+        self._rclcppyy_last_publish_backend = "python"
+        return result
+    except Exception as exc:
+        reason = "same-handle C++ publish failed: %s" % exc
+        if policy.require_cpp:
+            _unavailable("publish", reason)
+        _record_publish_fallback_once(self, reason)
+        result = _original_publish(self, message)
+        self._rclcppyy_publish_tainted = True
+        self._rclcppyy_last_publish_backend = "python"
+        return result
+    _record_cpp_publish_once(self)
+    if not self._rclcppyy_publish_tainted:
+        self._rclcppyy_last_publish_backend = "cpp"
+    return result
+
+
+def _create_subscription_wrapper(
+    self,
+    msg_type,
+    topic,
+    callback,
+    qos_profile,
+    *,
+    callback_group=None,
+    event_callbacks=None,
+    qos_overriding_options=None,
+    raw=False,
+    content_filter_options=None,
+):
+    reason = "subscription take/dispatch has no certified same-handle C++ route"
+
+    def create_stock(requested_type=msg_type):
+        return _original_create_subscription(
+            self,
+            requested_type,
+            topic,
+            callback,
+            qos_profile,
+            callback_group=callback_group,
+            event_callbacks=event_callbacks,
+            qos_overriding_options=qos_overriding_options,
+            raw=raw,
+            content_filter_options=content_filter_options,
+        )
+    metadata = {
+        "topic": topic,
+        "raw_requested": bool(raw),
+        "callback_group_requested": callback_group is not None,
+        "event_callbacks_requested": event_callbacks is not None,
+        "qos_overrides_requested": qos_overriding_options is not None,
+        "content_filter_requested": content_filter_options is not None,
+    }
+    if (not _POLICY.use_cpp_message_facade or
+            not hasattr(self, "_type_description_service")):
+        return _stock_entity(
+            self,
+            "create_subscription",
+            "subscription",
+            reason,
+            create_stock,
+            metadata=metadata,
+        )
+
+    binding = _message_facade_binding(msg_type)
+    option_reason = None
+    if raw:
+        option_reason = "raw subscriptions remain stock under message_facade"
+    elif event_callbacks is not None:
+        option_reason = (
+            "subscriptions with event callbacks remain stock under message_facade")
+    elif content_filter_options is not None:
+        option_reason = (
+            "content-filtered subscriptions remain stock under message_facade")
+    can_route = (
+        _POLICY.use_cpp_message_facade and
+        binding is not None and
+        option_reason is None
+    )
+    route = None
+    if can_route:
+        try:
+            route = _BORROWED_SUBSCRIPTION_MODULE.prepare(binding)
+        except Exception as exc:
+            option_reason = "same-handle subscription preparation failed: %s" % exc
+
+    entity_type = binding.original_type if binding is not None else msg_type
+    subscription = create_stock(entity_type)
+    if binding is not None:
+        subscription.msg_type = binding.facade_type
+    if route is None:
+        _record_python_entity(
+            self,
+            "subscription",
+            option_reason or reason,
+            metadata,
+            warn=option_reason is not None,
+            policies=("stock_subscription_authority", _POLICY.name),
+        )
+        return subscription
+
+    subscription._rclcppyy_take_route = route
+    subscription._rclcppyy_policy = _POLICY
+    subscription._rclcppyy_last_take_backend = None
+    record_decision(
+        "entities",
+        "cpp",
+        "stock subscription endpoint uses same-handle serialized C++ take",
+        policies=(
+            "stock_entity_contract",
+            "borrowed_rcl_handle",
+            "direct_cpp_message",
+            _POLICY.name,
+        ),
+        metadata={
+            "entity_type": "subscription",
+            "node_id": _record_node_once(self),
+            "message_type": binding.cpp_type_name,
+            "profile": _POLICY.name,
+            **metadata,
+        },
+    )
+    return subscription
+
+
+def _record_cpp_take_once(subscription):
+    if not _claim_once(subscription, "subscription_take_cpp"):
+        return
+    policy = getattr(subscription, "_rclcppyy_policy", _POLICY)
+    record_decision(
+        "operations",
+        "cpp",
+        "same-handle serialized C++ subscription take completed",
+        policies=("borrowed_rcl_handle", "direct_cpp_message", policy.name),
+        metadata={
+            "operation": "subscription_take",
+            "topic": getattr(subscription, "topic_name", None),
+            "profile": policy.name,
+        },
+    )
+
+
+@wraps(_original_take_subscription)
+def _take_subscription_wrapper(self, sub):
+    route = getattr(sub, "_rclcppyy_take_route", None)
+    if route is None:
+        return _original_take_subscription(self, sub)
+    try:
+        result = route.take(sub)
+    except InvalidHandle:
+        return None
+    except Exception as exc:
+        record_decision(
+            "operations",
+            "unsupported",
+            "same-handle serialized C++ subscription take failed: %s" % exc,
+            policies=("no_unsafe_retry", "message_facade"),
+            metadata={
+                "operation": "subscription_take",
+                "topic": getattr(sub, "topic_name", None),
+                "profile": _POLICY.name,
+            },
+        )
+        raise
+    if result is None:
+        return None
+    message, message_info = result
+    arguments = (
+        (message,)
+        if sub._callback_type is Subscription.CallbackType.MessageOnly
+        else (message, message_info)
+    )
+
+    async def execute():
+        await await_or_execute(sub.callback, *arguments)
+
+    sub._rclcppyy_last_take_backend = "cpp"
+    _record_cpp_take_once(sub)
+    return execute
+
+
+def _create_timer_wrapper(self, *args, **kwargs):
+    reason = "timer/executor integration has no certified same-handle C++ route"
+    period = args[0] if args else kwargs.get("timer_period_sec")
+    return _stock_entity(
+        self,
+        "create_timer",
+        "timer",
+        reason,
+        lambda: _original_create_timer(self, *args, **kwargs),
+        metadata={"period_sec": period},
+    )
+
+
+def _create_service_wrapper(self, *args, **kwargs):
+    reason = "service request/response has no certified same-handle C++ route"
+    requested_name = args[1] if len(args) > 1 else kwargs.get("srv_name")
+    return _stock_entity(
+        self,
+        "create_service",
+        "service",
+        reason,
+        lambda: _original_create_service(self, *args, **kwargs),
+        metadata=lambda service: {
+            "requested_name": requested_name,
+            "service_name": service.service_name,
+        },
+    )
+
+
+def _create_client_wrapper(self, *args, **kwargs):
+    reason = "client request/response has no certified same-handle C++ route"
+    requested_name = args[1] if len(args) > 1 else kwargs.get("srv_name")
+    return _stock_entity(
+        self,
+        "create_client",
+        "client",
+        reason,
+        lambda: _original_create_client(self, *args, **kwargs),
+        metadata=lambda client: {
+            "requested_name": requested_name,
+            "service_name": client.service_name,
+        },
+    )
+
+
+def _create_guard_condition_wrapper(self, *args, **kwargs):
+    reason = "guard conditions have no certified C++ executor route"
+    return _stock_entity(
+        self,
+        "create_guard_condition",
+        "guard_condition",
+        reason,
+        lambda: _original_create_guard_condition(self, *args, **kwargs),
+    )
+
+
+def _set_parameters_wrapper(self, parameter_list):
+    reason = "parameter mutation has no certified same-handle C++ route"
+    return _stock_operation(
+        self,
+        "set_parameters",
+        reason,
+        lambda: _original_set_parameters(self, parameter_list),
+        metadata=lambda results: {
+            "parameter_names": [parameter.name for parameter in parameter_list],
+            "successful": all(result.successful for result in results),
+        },
+    )
+
+
+def _set_parameters_atomically_wrapper(self, parameter_list):
+    reason = "parameter mutation has no certified same-handle C++ route"
+    return _stock_operation(
+        self,
+        "set_parameters_atomically",
+        reason,
+        lambda: _original_set_parameters_atomically(self, parameter_list),
+        metadata=lambda result: {
+            "parameter_names": [parameter.name for parameter in parameter_list],
+            "successful": result.successful,
+        },
+    )
+
+
+def _record_executor_exception(node, source_operation, exception):
+    _record_python_operation(
+        node,
+        "callback_exception",
+        "stock executor propagated an exception without translation",
+        metadata={
+            "source_operation": source_operation,
+            "exception_type": type(exception).__name__,
+        },
+        once_key=("callback_exception", source_operation, type(exception).__name__),
+    )
+
+
+def _optimized_spin_metadata(outcome, **values):
+    metadata = {
+        "outcome": outcome,
+        "bounded_wait_timeout_sec": _OPTIMIZED_SPIN_TIMEOUT_SEC,
+        "mitigation": "signal_guard_lost_wake",
+    }
+    metadata.update(values)
+    return metadata
+
+
+def _bounded_rclpy_spin(node, executor=None):
+    executor = rclpy.get_global_executor() if executor is None else executor
+    try:
+        executor.add_node(node)
+        while executor.context.ok():
+            executor.spin_once(timeout_sec=_OPTIMIZED_SPIN_TIMEOUT_SEC)
+    finally:
+        executor.remove_node(node)
+
+
+def _bounded_executor_spin(executor):
+    executor._enter_spin()
+    try:
+        while executor._context.ok() and not executor._is_shutdown:
+            executor._spin_once_impl(_OPTIMIZED_SPIN_TIMEOUT_SEC)
+    finally:
+        executor._exit_spin()
+
+
+@wraps(_original_spin)
+def _spin_wrapper(node, executor=None):
+    optimized = _POLICY.allow_contract_changes
+    reason = (
+        "optimized profile bounds stock executor waits after signal shutdown"
+        if optimized else
+        "rclpy.spin has no certified C++ executor route"
+    )
+    if _POLICY.require_cpp:
+        _unavailable("spin", reason)
+    try:
+        result = (
+            _bounded_rclpy_spin(node, executor=executor)
+            if optimized else
+            _original_spin(node, executor=executor)
+        )
+    except BaseException as exc:
+        metadata = {"outcome": "exception", "exception_type": type(exc).__name__}
+        if optimized:
+            metadata = _optimized_spin_metadata(
+                "exception", exception_type=type(exc).__name__)
+        _record_python_operation(
+            node,
+            "spin",
+            reason,
+            metadata=metadata,
+            once_key=("spin", "exception", type(exc).__name__),
+            policies=("stock_executor_authority", "optimized_bounded_wait", "optimized")
+            if optimized else None,
+        )
+        _record_executor_exception(node, "spin", exc)
+        raise
+    metadata = {"outcome": "returned"}
+    if optimized:
+        metadata = _optimized_spin_metadata("returned")
+    _record_python_operation(
+        node,
+        "spin",
+        reason,
+        metadata=metadata,
+        once_key=("spin", "returned"),
+        policies=("stock_executor_authority", "optimized_bounded_wait", "optimized")
+        if optimized else None,
+    )
+    return result
+
+
+@wraps(_original_spin_once)
 def _spin_once_wrapper(node, *, executor=None, timeout_sec=None):
-    """
-    Wrapper for rclpy.spin_once that drives an rclcpp executor for accelerated
-    nodes (rclpy's executor cannot service rclcpp-backed entities). Non-accelerated
-    nodes fall back to the original rclpy.spin_once unchanged.
+    reason = "rclpy.spin_once has no certified C++ executor route"
+    if _POLICY.require_cpp:
+        _unavailable("spin_once", reason)
+    try:
+        result = _original_spin_once(
+            node, executor=executor, timeout_sec=timeout_sec)
+    except BaseException as exc:
+        _record_python_operation(
+            node,
+            "spin_once",
+            reason,
+            metadata={"outcome": "exception", "exception_type": type(exc).__name__},
+            once_key=("spin_once", "exception", type(exc).__name__),
+        )
+        _record_executor_exception(node, "spin_once", exc)
+        raise
+    _record_python_operation(
+        node,
+        "spin_once",
+        reason,
+        metadata={"outcome": "returned"},
+        once_key=("spin_once", "returned"),
+    )
+    return result
 
-    Matches rclpy semantics: timeout_sec=None blocks until one piece of work is
-    ready; a finite timeout waits at most that long (rclcpp uses -1ns for "block").
-    """
-    if not isinstance(node, RclcppyyNode):
-        return _original_spin_once(node, executor=executor, timeout_sec=timeout_sec)
-    import cppyy
-    _get_spin_executor(node)  # ensure created + node added
-    ex = node._rclcppyy_spin_executor
-    if timeout_sec is None:
-        ex.spin_once()
-    else:
-        ex.spin_once(cppyy.gbl.std.chrono.nanoseconds(int(timeout_sec * 1e9)))
 
-def _create_subscription_wrapper(self, *args, **kwargs):
-    """
-    Wrapper for Node.create_subscription that uses RclcppyyNode implementation
-    when the node is an RclcppyyNode, otherwise falls back to original.
-    """
-    if isinstance(self, RclcppyyNode):
-        return self.create_subscription(*args, **kwargs)
+@wraps(_original_multi_threaded_spin)
+def _multi_threaded_spin_wrapper(self):
+    reason = "MultiThreadedExecutor.spin has no certified C++ executor route"
+    if _POLICY.require_cpp:
+        _unavailable("multi_threaded_spin", reason)
+    try:
+        result = _original_multi_threaded_spin(self)
+    except BaseException as exc:
+        _record_runtime_operation(
+            self,
+            "multi_threaded_spin",
+            reason,
+            metadata={"outcome": "exception", "exception_type": type(exc).__name__},
+            once_key=("multi_threaded_spin", "exception", type(exc).__name__),
+            warn=True,
+            authority="stock_executor_authority",
+        )
+        raise
+    _record_runtime_operation(
+        self,
+        "multi_threaded_spin",
+        reason,
+        metadata={"outcome": "returned"},
+        once_key=("multi_threaded_spin", "returned"),
+        warn=True,
+        authority="stock_executor_authority",
+    )
+    return result
+
+
+@wraps(_original_single_threaded_spin)
+def _optimized_executor_spin_wrapper(self):
+    operation = (
+        "multi_threaded_spin"
+        if isinstance(self, MultiThreadedExecutor) else
+        "single_threaded_spin"
+    )
+    reason = "optimized profile bounds stock executor waits after signal shutdown"
+    executor_type = type(self).__name__
+    try:
+        result = _bounded_executor_spin(self)
+    except BaseException as exc:
+        _record_runtime_operation(
+            self,
+            operation,
+            reason,
+            metadata=_optimized_spin_metadata(
+                "exception",
+                executor_type=executor_type,
+                exception_type=type(exc).__name__,
+            ),
+            once_key=(operation, "exception", type(exc).__name__),
+            policies=("stock_executor_authority", "optimized_bounded_wait", "optimized"),
+        )
+        raise
+    _record_runtime_operation(
+        self,
+        operation,
+        reason,
+        metadata=_optimized_spin_metadata("returned", executor_type=executor_type),
+        once_key=(operation, "returned"),
+        policies=("stock_executor_authority", "optimized_bounded_wait", "optimized"),
+    )
+    return result
+
+
+@wraps(_original_lifecycle_node_init)
+def _lifecycle_node_init_wrapper(
+    self,
+    node_name,
+    *,
+    enable_communication_interface=True,
+    **kwargs,
+):
+    reason = "lifecycle state machines have no certified C++ ownership route"
+    if _POLICY.require_cpp:
+        _unavailable("create_lifecycle_node", reason)
+    _original_lifecycle_node_init(
+        self,
+        node_name,
+        enable_communication_interface=enable_communication_interface,
+        **kwargs,
+    )
+    _record_python_entity(
+        self,
+        "lifecycle_node",
+        reason,
+        metadata={
+            "communication_interface": enable_communication_interface,
+            "node_class": "%s.%s" % (type(self).__module__, type(self).__qualname__),
+        },
+    )
+
+
+def _action_type_name(action_type):
+    return "%s.%s" % (action_type.__module__, action_type.__qualname__)
+
+
+@wraps(_original_action_client_init)
+def _action_client_init_wrapper(
+    self,
+    node,
+    action_type,
+    action_name,
+    *args,
+    **kwargs,
+):
+    reason = "action clients have no certified C++ ownership route"
+    if _POLICY.require_cpp:
+        _unavailable("create_action_client", reason)
+    _original_action_client_init(
+        self, node, action_type, action_name, *args, **kwargs)
+    _record_python_entity(
+        node,
+        "action_client",
+        reason,
+        metadata={
+            "action_name": action_name,
+            "action_type": _action_type_name(action_type),
+        },
+        policies=("stock_action_authority", _POLICY.name),
+    )
+
+
+@wraps(_original_action_server_init)
+def _action_server_init_wrapper(
+    self,
+    node,
+    action_type,
+    action_name,
+    *args,
+    **kwargs,
+):
+    reason = "action servers have no certified C++ ownership route"
+    if _POLICY.require_cpp:
+        _unavailable("create_action_server", reason)
+    _original_action_server_init(
+        self, node, action_type, action_name, *args, **kwargs)
+    _record_python_entity(
+        node,
+        "action_server",
+        reason,
+        metadata={
+            "action_name": action_name,
+            "action_type": _action_type_name(action_type),
+        },
+        policies=("stock_action_authority", _POLICY.name),
+    )
+
+
+_NODE_PATCHES = (
+    ("create_publisher", _create_publisher_wrapper, _original_create_publisher),
+    ("create_subscription", _create_subscription_wrapper, _original_create_subscription),
+    ("create_timer", _create_timer_wrapper, _original_create_timer),
+    ("create_service", _create_service_wrapper, _original_create_service),
+    ("create_client", _create_client_wrapper, _original_create_client),
+    (
+        "create_guard_condition",
+        _create_guard_condition_wrapper,
+        _original_create_guard_condition,
+    ),
+    ("set_parameters", _set_parameters_wrapper, _original_set_parameters),
+    (
+        "set_parameters_atomically",
+        _set_parameters_atomically_wrapper,
+        _original_set_parameters_atomically,
+    ),
+)
+for _name, _wrapper, _original in _NODE_PATCHES:
+    # Keep inspect.signature-compatible call surfaces without changing wrapper
+    # names used by startup-hook diagnostics.
+    _wrapper.__signature__ = signature(_original)
+
+
+def patch_ros2(profile="compatible", *, warn_fallback=False):
+    """Install idempotent method patches while retaining stock object identity."""
+    global _PATCHED, _POLICY
+    requested = resolve_policy(profile, warn_fallback=warn_fallback)
+    if _PATCHED:
+        if requested != _POLICY:
+            raise RuntimeError(
+                "rclcppyy is already active with profile %r" % _POLICY.name)
+        return True
+
+    _POLICY = requested
+    if requested.use_cpp_message_facade:
+        _prepare_message_facades()
+    for name, wrapper, _original in _NODE_PATCHES:
+        setattr(Node, name, wrapper)
+    Publisher.publish = (
+        _publish_wrapper if requested.use_cpp_publisher else _original_publish)
+    Executor._take_subscription = (
+        _take_subscription_wrapper
+        if requested.use_cpp_message_facade else
+        _original_take_subscription)
+    rclpy.spin = _spin_wrapper
+    rclpy.spin_once = _spin_once_wrapper
+    if requested.allow_contract_changes:
+        SingleThreadedExecutor.spin = _optimized_executor_spin_wrapper
+        MultiThreadedExecutor.spin = _optimized_executor_spin_wrapper
     else:
-        return _original_node_create_subscription(self, *args, **kwargs)
+        MultiThreadedExecutor.spin = _multi_threaded_spin_wrapper
+    LifecycleNode.__init__ = _lifecycle_node_init_wrapper
+    ActionClient.__init__ = _action_client_init_wrapper
+    ActionServer.__init__ = _action_server_init_wrapper
+    _PATCHED = True
+    activation_backend = "cpp" if requested.use_cpp_publisher else "python"
+    record_decision(
+        "operations",
+        activation_backend,
+        "installed compatibility routing with explicit backend authority",
+        policies=("stock_node_authority", requested.name),
+        metadata={
+            "operation": "enable_cpp_acceleration",
+            "profile": requested.name,
+            "publisher_backend": (
+                "cpp" if requested.use_cpp_publisher else "python"),
+            "subscription_take_backend": (
+                "cpp" if requested.use_cpp_message_facade else "python"),
+            "facade_message_types": (
+                [binding.cpp_type_name for binding in _FACADE_BINDINGS]
+                if requested.use_cpp_message_facade else []),
+        },
+    )
+    return True
+
 
 def patch_node_class():
-    """
-    Monkey-patch the Node class so that any direct instantiations
-    of rclpy.node.Node get our RclcppyyNode instead.
-    """
-    # Replace the Node class with RclcppyyNode
-    # This is a more aggressive approach and might cause issues
-    # so we make it optional
-    rclpy.node.Node = RclcppyyNode
-    return True 
+    """Compatibility alias retained; stock Node identity is intentionally unchanged."""
+    return True
+
+
+__all__ = ["patch_ros2", "patch_node_class"]

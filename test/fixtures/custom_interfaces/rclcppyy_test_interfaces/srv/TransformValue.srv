@@ -1,0 +1,4 @@
+rclcppyy_test_interfaces/StampedValue input
+int32 scale
+---
+rclcppyy_test_interfaces/StampedValue output

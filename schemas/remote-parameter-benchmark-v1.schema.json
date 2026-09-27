@@ -1,0 +1,433 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/awesomebytes/rclcppyy/schemas/remote-parameter-benchmark-v1.schema.json",
+  "title": "rclcppyy Jazzy/Cyclone remote parameter benchmark v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generated_at",
+    "command",
+    "environment",
+    "benchmark",
+    "execution_order",
+    "samples",
+    "summary"
+  ],
+  "properties": {
+    "schema": {"const": "rclcppyy.remote-parameter-benchmark/v1"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "command": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string"}
+    },
+    "environment": {"type": "object"},
+    "benchmark": {"$ref": "#/$defs/benchmark"},
+    "execution_order": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 120,
+      "items": {"$ref": "#/$defs/order_item"}
+    },
+    "samples": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 120,
+      "items": {"$ref": "#/$defs/sample"}
+    },
+    "summary": {"$ref": "#/$defs/summary"}
+  },
+  "$defs": {
+    "variant": {"enum": ["stock-rclpy", "direct-rclcppyy"]},
+    "workload": {"enum": ["get-one", "set-atomically-one"]},
+    "positive_number": {"type": "number", "exclusiveMinimum": 0},
+    "benchmark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "performance_claims_allowed",
+        "primary_metric",
+        "warmup_operations",
+        "measured_operations",
+        "repetitions",
+        "variants",
+        "workloads",
+        "execution_order_policy",
+        "setup_init_jit_graph_excluded",
+        "post_init_settle_ns",
+        "cpu_scope"
+      ],
+      "properties": {
+        "name": {"const": "remote-parameter-cpu-characterization"},
+        "performance_claims_allowed": {"const": false},
+        "primary_metric": {"const": "process_cpu_ns_per_operation"},
+        "warmup_operations": {"type": "integer", "minimum": 1, "maximum": 20000},
+        "measured_operations": {"type": "integer", "minimum": 1, "maximum": 20000},
+        "repetitions": {"type": "integer", "minimum": 1, "maximum": 30},
+        "variants": {"const": ["stock-rclpy", "direct-rclcppyy"]},
+        "workloads": {"const": ["get-one", "set-atomically-one"]},
+        "execution_order_policy": {"const": "deterministic-rotating-variant"},
+        "setup_init_jit_graph_excluded": {"const": true},
+        "post_init_settle_ns": {"const": 250000000},
+        "cpu_scope": {"const": "combined-server-client-process"}
+      }
+    },
+    "order_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repetition", "workload", "variant"],
+      "properties": {
+        "repetition": {"type": "integer", "minimum": 0, "maximum": 29},
+        "workload": {"$ref": "#/$defs/workload"},
+        "variant": {"$ref": "#/$defs/variant"}
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fresh_process",
+        "setup_excluded",
+        "jit_excluded",
+        "warmup_completed",
+        "post_init_settle_completed",
+        "post_init_settle_ns",
+        "fixed_work",
+        "teardown_clean",
+        "cleanup_error",
+        "ros_distribution",
+        "rmw_implementation",
+        "domain_id"
+      ],
+      "properties": {
+        "fresh_process": {"const": true},
+        "setup_excluded": {"const": true},
+        "jit_excluded": {"const": true},
+        "warmup_completed": {"const": true},
+        "post_init_settle_completed": {"const": true},
+        "post_init_settle_ns": {"const": 250000000},
+        "fixed_work": {"const": true},
+        "teardown_clean": {"const": true},
+        "cleanup_error": {"type": ["string", "null"]},
+        "ros_distribution": {"const": "jazzy"},
+        "rmw_implementation": {"const": "rmw_cyclonedds_cpp"},
+        "domain_id": {
+          "type": ["string", "null"],
+          "pattern": "^(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-2][0-9]|23[0-2])$"
+        }
+      }
+    },
+    "topology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "process_count",
+        "node_count",
+        "server_node",
+        "client_node",
+        "remote_node_name",
+        "executor",
+        "one_outstanding_request",
+        "server_parameter_service_count",
+        "client_parameter_client_count",
+        "same_context",
+        "graph_verified",
+        "service_qos"
+      ],
+      "properties": {
+        "process_count": {"const": 1},
+        "node_count": {"const": 2},
+        "server_node": {"type": "string", "minLength": 1},
+        "client_node": {"type": "string", "minLength": 1},
+        "remote_node_name": {"type": "string", "minLength": 1},
+        "executor": {"const": "rclpy.executors.SingleThreadedExecutor"},
+        "one_outstanding_request": {"const": true},
+        "server_parameter_service_count": {"const": 6},
+        "client_parameter_client_count": {"const": 6},
+        "same_context": {"const": true},
+        "graph_verified": {"const": true},
+        "service_qos": {"$ref": "#/$defs/service_qos"}
+      }
+    },
+    "service_qos": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["history", "depth", "reliability", "durability"],
+      "properties": {
+        "history": {"const": "keep_last"},
+        "depth": {"const": 10},
+        "reliability": {"const": "reliable"},
+        "durability": {"const": "volatile"}
+      }
+    },
+    "correctness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "completed_operations",
+        "expected_operations",
+        "exceptions",
+        "responses_verified",
+        "pending_futures",
+        "final_value",
+        "verified"
+      ],
+      "properties": {
+        "completed_operations": {"type": "integer", "minimum": 1, "maximum": 20000},
+        "expected_operations": {"type": "integer", "minimum": 1, "maximum": 20000},
+        "exceptions": {"const": 0},
+        "responses_verified": {"type": "integer", "minimum": 1, "maximum": 20000},
+        "pending_futures": {"const": 0},
+        "final_value": {"type": "integer"},
+        "verified": {"const": true}
+      }
+    },
+    "latency_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["p50_ns", "p95_ns", "p99_ns", "max_ns"],
+      "properties": {
+        "p50_ns": {"type": "integer", "minimum": 1},
+        "p95_ns": {"type": "integer", "minimum": 1},
+        "p99_ns": {"type": "integer", "minimum": 1},
+        "max_ns": {"type": "integer", "minimum": 1}
+      }
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_metric",
+        "cpu_clock",
+        "cpu_scope",
+        "process_cpu_time_ns",
+        "process_cpu_ns_per_operation",
+        "wall_time_ns",
+        "wall_ns_per_operation",
+        "operations_per_second",
+        "latency_ns",
+        "latency"
+      ],
+      "properties": {
+        "primary_metric": {"const": "process_cpu_ns_per_operation"},
+        "cpu_clock": {"const": "CLOCK_PROCESS_CPUTIME_ID"},
+        "cpu_scope": {"const": "combined-server-client-process"},
+        "process_cpu_time_ns": {"type": "integer", "minimum": 1},
+        "process_cpu_ns_per_operation": {"$ref": "#/$defs/positive_number"},
+        "wall_time_ns": {"type": "integer", "minimum": 1},
+        "wall_ns_per_operation": {"$ref": "#/$defs/positive_number"},
+        "operations_per_second": {"$ref": "#/$defs/positive_number"},
+        "latency_ns": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20000,
+          "items": {"type": "integer", "minimum": 1}
+        },
+        "latency": {"$ref": "#/$defs/latency_summary"}
+      }
+    },
+    "boundary_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "conversion_poison_installed",
+        "serialization_poison_installed",
+        "application_message_conversions",
+        "serialization_calls",
+        "cdr_calls",
+        "exact_cpp_data_path_required"
+      ],
+      "properties": {
+        "conversion_poison_installed": {"const": true},
+        "serialization_poison_installed": {"const": true},
+        "application_message_conversions": {"const": 0},
+        "serialization_calls": {"const": 0},
+        "cdr_calls": {"const": 0},
+        "exact_cpp_data_path_required": {"type": "boolean"}
+      }
+    },
+    "backend_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verified",
+        "operation_route",
+        "async_parameter_client_source",
+        "source_shape_verified",
+        "source_path",
+        "source_sha256",
+        "python_payload_cache",
+        "retained_response_verified",
+        "server_authority",
+        "client_authority",
+        "request_representation",
+        "response_representation",
+        "parameter_representation",
+        "all_parameter_service_aliases_exact_cpp",
+        "request_alias_exact_cpp",
+        "response_exact_cpp",
+        "parameter_value_exact_cpp",
+        "parameter_message_alias_exact_cpp",
+        "client_entities_exact_cpp",
+        "set_result_exact_cpp",
+        "server_node_exact_cpp",
+        "client_node_exact_cpp",
+        "parameter_owner_exact_cpp",
+        "cpp_node_addresses"
+      ],
+      "properties": {
+        "verified": {"const": true},
+        "operation_route": {
+          "enum": [
+            "rclpy.parameter_client.AsyncParameterClient.get_parameters",
+            "rclpy.parameter_client.AsyncParameterClient.set_parameters_atomically"
+          ]
+        },
+        "async_parameter_client_source": {
+          "const": "rclpy.parameter_client.AsyncParameterClient"
+        },
+        "source_shape_verified": {"const": true},
+        "source_path": {"type": "string", "pattern": "rclpy/parameter_client\\.py$"},
+        "source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "python_payload_cache": {"const": false},
+        "retained_response_verified": {"const": true},
+        "server_authority": {"enum": ["python", "cpp"]},
+        "client_authority": {"enum": ["python", "cpp"]},
+        "request_representation": {
+          "enum": ["generated-python", "actual-generated-cpp"]
+        },
+        "response_representation": {
+          "enum": ["generated-python", "actual-generated-cpp"]
+        },
+        "parameter_representation": {
+          "enum": ["generated-python", "actual-generated-cpp"]
+        },
+        "all_parameter_service_aliases_exact_cpp": {"type": "boolean"},
+        "request_alias_exact_cpp": {"type": "boolean"},
+        "response_exact_cpp": {"type": "boolean"},
+        "parameter_value_exact_cpp": {"type": "boolean"},
+        "parameter_message_alias_exact_cpp": {"type": "boolean"},
+        "client_entities_exact_cpp": {"type": "boolean"},
+        "set_result_exact_cpp": {"type": "boolean"},
+        "server_node_exact_cpp": {"type": "boolean"},
+        "client_node_exact_cpp": {"type": "boolean"},
+        "parameter_owner_exact_cpp": {"type": "boolean"},
+        "cpp_node_addresses": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {"type": "integer", "minimum": 1}
+            }
+          ]
+        }
+      }
+    },
+    "sample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "variant",
+        "workload",
+        "repetition",
+        "order_index",
+        "run_token",
+        "pid",
+        "warmup_operations",
+        "measured_operations",
+        "runtime",
+        "topology",
+        "correctness",
+        "timing",
+        "boundary_evidence",
+        "backend_evidence"
+      ],
+      "properties": {
+        "schema": {"const": "rclcppyy.remote-parameter-sample/v1"},
+        "variant": {"$ref": "#/$defs/variant"},
+        "workload": {"$ref": "#/$defs/workload"},
+        "repetition": {"type": "integer", "minimum": 0, "maximum": 29},
+        "order_index": {"type": "integer", "minimum": 0, "maximum": 119},
+        "run_token": {"type": "string", "minLength": 1},
+        "pid": {"type": "integer", "minimum": 1},
+        "warmup_operations": {"type": "integer", "minimum": 1, "maximum": 20000},
+        "measured_operations": {"type": "integer", "minimum": 1, "maximum": 20000},
+        "runtime": {"$ref": "#/$defs/runtime"},
+        "topology": {"$ref": "#/$defs/topology"},
+        "correctness": {"$ref": "#/$defs/correctness"},
+        "timing": {"$ref": "#/$defs/timing"},
+        "boundary_evidence": {"$ref": "#/$defs/boundary_evidence"},
+        "backend_evidence": {"$ref": "#/$defs/backend_evidence"},
+        "stdout_diagnostics": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "stderr_diagnostics": {"type": ["string", "null"]}
+      }
+    },
+    "paired_ratio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repetition",
+        "workload",
+        "direct_over_stock_process_cpu",
+        "direct_over_stock_latency_p50",
+        "direct_over_stock_latency_p99",
+        "direct_over_stock_throughput"
+      ],
+      "properties": {
+        "repetition": {"type": "integer", "minimum": 0, "maximum": 29},
+        "workload": {"$ref": "#/$defs/workload"},
+        "direct_over_stock_process_cpu": {"$ref": "#/$defs/positive_number"},
+        "direct_over_stock_latency_p50": {"$ref": "#/$defs/positive_number"},
+        "direct_over_stock_latency_p99": {"$ref": "#/$defs/positive_number"},
+        "direct_over_stock_throughput": {"$ref": "#/$defs/positive_number"}
+      }
+    },
+    "metric_ratios": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "direct_over_stock_process_cpu",
+        "direct_over_stock_latency_p50",
+        "direct_over_stock_latency_p99",
+        "direct_over_stock_throughput"
+      ],
+      "properties": {
+        "direct_over_stock_process_cpu": {"$ref": "#/$defs/positive_number"},
+        "direct_over_stock_latency_p50": {"$ref": "#/$defs/positive_number"},
+        "direct_over_stock_latency_p99": {"$ref": "#/$defs/positive_number"},
+        "direct_over_stock_throughput": {"$ref": "#/$defs/positive_number"}
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary_metric", "paired_ratios", "median_ratios"],
+      "properties": {
+        "primary_metric": {"const": "process_cpu_ns_per_operation"},
+        "paired_ratios": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 60,
+          "items": {"$ref": "#/$defs/paired_ratio"}
+        },
+        "median_ratios": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["get-one", "set-atomically-one"],
+          "properties": {
+            "get-one": {"$ref": "#/$defs/metric_ratios"},
+            "set-atomically-one": {"$ref": "#/$defs/metric_ratios"}
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,121 @@
+# Controlled relay-boundary benchmark
+
+This benchmark characterizes one fixed ROS 2 relay across eleven execution
+boundaries. It is a raw evidence generator, not a release gate or a source of
+performance claims. Jazzy with CycloneDDS is the current validated gate; the
+protocol retains explicit RMW evidence so later backends cannot be conflated
+with that baseline.
+
+## Variants
+
+1. `stock-rclpy`: the unmodified Python relay.
+2. `stock-info-rclpy`: the stock relay with the standard two-argument
+   `(message, info)` subscription callback.
+3. `compatible-rclcppyy`: the same Python relay function, with compatible
+   activation as the only setup difference. Stock `rclpy.Publisher.publish`
+   remains authoritative.
+4. `publisher-cpp-rclcppyy`: the same Python relay function, explicitly
+   activated with `profile="publisher_cpp"` for same-handle C++ publishing.
+5. `direct-cpp-rclcppyy`: the same Python transform and publish body, activated
+   with `profile="direct_cpp"` so messages and entities are actual C++ objects;
+   each callback receives one owning C++ value copy.
+6. `direct-info-rclcppyy`: the direct C++ relay with a two-argument
+   `(message, info)` callback. The message remains the actual C++ `UInt64`; the
+   info mapping is produced directly from `rclcpp::MessageInfo`.
+7. `direct-raw-publish-rclcppyy`: a benchmark-only A/B control with the same
+   direct node, facade publisher, owning-copy subscription, callback, and bound
+   publish-call shape. It binds `publisher.native_entity.publish` once instead
+   of the managed holder's `publisher.publish`; product behavior is unchanged.
+8. `direct-lease-rclcppyy`: the same direct C++ source shape with
+   `optimizations=("subscription_shared_lease",)`. The rclcpp unique message
+   allocation transfers into shared ownership without copying `MessageT`.
+9. `native-python-callback`: native rclcpp entities with a Python transform
+   callback.
+10. `native-fused`: a prebuilt, content-addressed C++ fused pipeline.
+11. `aot-staged`: a conventional Release-mode C++ relay.
+
+Every variant is driven by the same Release-mode AOT executable, transform,
+reliable/volatile `KeepLast(1)` QoS, closed-loop message sequence, warmup, and
+two-process topology. There is one outstanding `UInt64` message at a time and
+the transform is `output = input * 2 + 1`.
+
+## Evidence
+
+The driver verifies exact endpoint cardinality, topics, QoS, node ownership,
+wire values, checksums, and teardown. CycloneDDS can report remote node owner
+metadata as unknown; in that case the artifact preserves both observed and
+expected identities and accepts the unknown value only with the exact
+two-process-group and unique-topic proof. Other owner mismatches fail.
+
+Generated routes must hit artifacts built during isolated cold/warm prewarm
+phases. The AOT relay records its compiler, Release command, executable hash,
+and source hashes. Versioned sentinel records separate machine evidence from
+captured initialization diagnostics.
+
+Primary observations are relay and combined relay-plus-driver process CPU time.
+Secondary observations are every raw
+round-trip latency, p50/p95/p99/max latency, and closed-loop throughput. Relay
+emits an `armed` record after its CPU clock starts, and only then may the driver
+enter its measured loop. Both clocks stop immediately at measured completion.
+Driver teardown is held until the relay CPU window has stopped. Post-warmup
+peak-RSS growth is only a bounded 64 MiB runaway guard; it is never summarized,
+ranked, or compared.
+
+The explicit `publisher_cpp` publish-operation evidence is captured after
+warmup, before the CPU window starts. The measured window then requires the
+publisher's permanent fallback taint to remain clear and its final backend to
+remain C++. Compatible mode instead proves a Python publisher decision and the
+absence of a C++ publish-operation marker. Teardown phases are versioned stderr
+diagnostics. If a Python relay report times out, the parent asks for an
+all-thread stack dump before terminating its process group and retains that
+stderr in the failure artifact.
+
+The direct-C++ lanes prove that `UInt64`, the native node, publisher,
+subscription, and executor are cppyy C++ objects owned by one `NativeSession`.
+The kit counter at the copy-construction point must equal the callback count,
+proving exactly one owning native C++ copy per callback. Converter and
+serialization entry points are replaced with fail-closed guards; the report must
+contain zero guard calls, zero Python-message conversions, and zero serialization
+operations. The direct lanes use integer-depth QoS and the patched public
+`SingleThreadedExecutor`, backed by its native rclcpp executor; the artifact
+records the concrete native executor type.
+
+The MessageInfo lanes validate the exact four-key metadata contract:
+`source_timestamp`, `received_timestamp`, `publication_sequence_number`, and
+`reception_sequence_number`. Validation is captured once per sample so repeated
+Python key checking does not pollute the measured feature cost. The direct lane
+also proves the `rclcpp_template_with_message_info` creation route, native
+MessageInfo policy marker, actual C++ message class, and poisoned conversion and
+serialization boundaries.
+
+The direct-lease lane has the same C++ authority and Python callback body. Its
+native and Python-observed message addresses must match, and the callback count
+must equal its lease, shared-control-block, shared-owner, and Python-crossing
+counters. It requires zero `MessageT` deep copies and zero lease exceptions. The
+copy and lease routes are separate production options in the same rotating run so
+CPU effects are paired without conflating representation or application work.
+
+The comparison section reports paired medians for `direct-info-rclcppyy` over
+`stock-info-rclpy`, with relay and combined CPU per message as the primary
+metrics and latency/throughput as secondary metrics. It separately reports the
+paired delta and ratio from the direct message-only lane to the direct info lane,
+which isolates the incremental metadata cost under the same C++ representation.
+
+The raw-publish control and managed direct-copy lane each bind exactly one cppyy
+publish callable before warmup. Their subscription, callback body, message
+construction, executor, graph, QoS, conversion guards, and teardown are identical.
+This isolates the managed publisher holder from unrelated historical-run noise.
+
+## Running
+
+```bash
+pixi run relay-boundary-smoke --output build/relay-boundary-smoke.json
+pixi run relay-boundary-bench --output build/relay-boundary-measurement.json
+```
+
+Smoke mode uses one short repetition to validate compilation, backend markers,
+parity, protocol, and teardown. Measurement mode defaults to five rotating
+repetitions of 2,000 measured messages after 100 warmup messages. Run
+measurement mode only on a quiet, controlled host and retain the JSON artifact;
+the schema and in-process validator deliberately keep performance claims and
+automatic winner selection disabled.

@@ -1,0 +1,255 @@
+"""Stable, strict-JSON result envelope for rclcppyy benchmarks."""
+
+from __future__ import annotations
+
+import datetime
+import importlib.util
+import importlib.metadata
+import json
+import math
+import os
+import platform
+import subprocess
+import sys
+from pathlib import Path
+
+
+SCHEMA_ID = "rclcppyy.benchmark/v3"
+MODES = ("measurement", "smoke")
+PACKAGE_NAMES = (
+    "rclcppyy",
+    "ros-jazzy-rclcppyy",
+    "rclcpp-kit",
+    "ros-jazzy-rclcpp-kit",
+    "cppyy-kit",
+    "cppyy",
+    "numpy",
+    "psutil",
+)
+SOURCE_MODULE_NAMES = ("rclcppyy", "rclcpp_kit", "cppyy_kit", "rclpy", "cppyy")
+CACHE_ENV_NAMES = (
+    "CPPYY_KIT_NO_AUTOPCH",
+    "CPPYY_KIT_NO_CACHE",
+    "RCLCPPYY_DISABLE_CACHE",
+    "XDG_CACHE_HOME",
+)
+
+
+def _run_git(repo_root: Path, *args: str) -> str | None:
+    try:
+        proc = subprocess.run(
+            ["git", *args],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if proc.returncode != 0:
+        return None
+    return proc.stdout.strip()
+
+
+def _source_metadata(repo_root: Path) -> dict:
+    commit = _run_git(repo_root, "rev-parse", "HEAD")
+    status = _run_git(repo_root, "status", "--porcelain")
+    return {
+        "repository": str(repo_root),
+        "commit": commit,
+        "dirty": bool(status) if status is not None else None,
+    }
+
+
+def _module_source_metadata(repo_root: Path) -> tuple[dict, dict]:
+    origins = {}
+    checkouts = {}
+    for module_name in SOURCE_MODULE_NAMES:
+        try:
+            spec = importlib.util.find_spec(module_name)
+        except (ImportError, AttributeError, ValueError):
+            spec = None
+        origin = None if spec is None else spec.origin
+        origins[module_name] = origin
+        if not origin or origin in ("built-in", "frozen"):
+            checkouts[module_name] = None
+            continue
+        module_path = Path(origin).resolve()
+        checkout = _run_git(module_path.parent, "rev-parse", "--show-toplevel")
+        if not checkout:
+            checkouts[module_name] = None
+            continue
+        checkout_root = Path(checkout).resolve()
+        checkouts[module_name] = {
+            "repository": str(checkout_root),
+            "commit": _run_git(checkout_root, "rev-parse", "HEAD"),
+            "dirty": bool(_run_git(checkout_root, "status", "--porcelain")),
+            "is_benchmark_repository": checkout_root == repo_root.resolve(),
+        }
+    return origins, checkouts
+
+
+def _cpu_model() -> str | None:
+    cpuinfo = Path("/proc/cpuinfo")
+    if not cpuinfo.exists():
+        return platform.processor() or None
+    candidates = {}
+    try:
+        for line in cpuinfo.read_text(encoding="utf-8", errors="replace").splitlines():
+            key, separator, value = line.partition(":")
+            key = key.strip().lower()
+            if separator and key in ("model name", "hardware", "processor"):
+                value = value.strip()
+                if value:
+                    candidates.setdefault(key, value)
+    except OSError:
+        pass
+    for key in ("model name", "hardware", "processor"):
+        if key in candidates:
+            return candidates[key]
+    return platform.processor() or None
+
+
+def _package_versions() -> dict[str, str | None]:
+    versions = {}
+    for package in PACKAGE_NAMES:
+        try:
+            versions[package] = importlib.metadata.version(package)
+        except importlib.metadata.PackageNotFoundError:
+            versions[package] = None
+    return versions
+
+
+def environment_metadata(repo_root: Path) -> dict:
+    """Collect enough immutable context to interpret or reproduce a result."""
+    uname = platform.uname()
+    module_origins, source_dependencies = _module_source_metadata(repo_root)
+    return {
+        "source": _source_metadata(repo_root),
+        "host": {
+            "architecture": platform.machine(),
+            "system": uname.system,
+            "kernel": uname.release,
+            "cpu_model": _cpu_model(),
+            "logical_cpu_count": os.cpu_count(),
+        },
+        "runtime": {
+            "python": platform.python_version(),
+            "python_implementation": platform.python_implementation(),
+            "python_abi": getattr(sys.implementation, "cache_tag", None),
+            "packages": _package_versions(),
+            "module_origins": module_origins,
+        },
+        "source_dependencies": source_dependencies,
+        "ros": {
+            "distribution": os.environ.get("ROS_DISTRO"),
+            "rmw_implementation": os.environ.get("RMW_IMPLEMENTATION"),
+            "domain_id": os.environ.get("ROS_DOMAIN_ID"),
+            "automatic_discovery_range": os.environ.get("ROS_AUTOMATIC_DISCOVERY_RANGE"),
+        },
+        "cache": {name: os.environ.get(name) for name in CACHE_ENV_NAMES},
+    }
+
+
+def _strict_json_value(value):
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    if isinstance(value, dict):
+        return {str(key): _strict_json_value(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_strict_json_value(item) for item in value]
+    return value
+
+
+def build_document(
+    *,
+    repo_root: Path,
+    benchmark_name: str,
+    mode: str,
+    matrix: dict,
+    results: list,
+    failures: list,
+    command: list[str] | None = None,
+) -> dict:
+    """Build and validate one versioned benchmark result document."""
+    document = {
+        "schema": SCHEMA_ID,
+        "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
+        "command": list(command if command is not None else sys.argv),
+        "environment": environment_metadata(repo_root),
+        "benchmark": {
+            "name": benchmark_name,
+            "mode": mode,
+            # Raw executions are characterization inputs. A separate reviewed
+            # repeated-run analysis may make claims; this artifact never does.
+            "performance_claims_allowed": False,
+            "matrix": matrix,
+            "statistics": {
+                "window": "subscriber acknowledged explicit start/stop control messages",
+                "latency_percentile": "nearest-rank over every received message in the window",
+                "cpu": "per-process psutil cpu_percent samples; children included recursively",
+            },
+        },
+        "results": list(results),
+        "failures": failures,
+    }
+    document = _strict_json_value(document)
+    validate_document(document)
+    return document
+
+
+def validate_document(document: dict) -> None:
+    """Reject malformed documents before they are stored or published."""
+    if document.get("schema") != SCHEMA_ID:
+        raise ValueError("unsupported benchmark schema")
+    if not isinstance(document.get("generated_at"), str):
+        raise ValueError("generated_at must be an ISO-8601 string")
+    if not isinstance(document.get("environment"), dict):
+        raise ValueError("environment metadata is required")
+    benchmark = document.get("benchmark")
+    if not isinstance(benchmark, dict) or not benchmark.get("name"):
+        raise ValueError("benchmark name is required")
+    if benchmark.get("mode") not in MODES:
+        raise ValueError("benchmark mode must be measurement or smoke")
+    if not isinstance(benchmark.get("matrix"), dict):
+        raise ValueError("benchmark matrix must be an object")
+    if not isinstance(benchmark.get("statistics"), dict):
+        raise ValueError("benchmark statistics definitions are required")
+    if benchmark["mode"] == "smoke" and benchmark.get("performance_claims_allowed") is not False:
+        raise ValueError("smoke results cannot allow performance claims")
+    if benchmark.get("performance_claims_allowed") is not False:
+        raise ValueError("raw benchmark results cannot allow performance claims")
+    if not isinstance(document.get("results"), list):
+        raise ValueError("results must be a list")
+    if not isinstance(document.get("failures"), list):
+        raise ValueError("failures must be a list")
+    for row in document["results"]:
+        if not isinstance(row, dict):
+            raise ValueError("benchmark result rows must be objects")
+        for field in ("case_id", "backend", "workload", "target_rate_hz", "payload_bytes"):
+            if field not in row:
+                raise ValueError(f"benchmark result missing {field}")
+        if row.get("backend_verified") is not True:
+            raise ValueError("successful benchmark results require verified backends")
+        wire_values = row.get("wire_values")
+        if not isinstance(wire_values, dict):
+            raise ValueError("successful benchmark results require wire-value evidence")
+        if wire_values.get("value_contract_verified") is not True:
+            raise ValueError("successful benchmark results require verified wire values")
+        if wire_values.get("checked_messages") != row.get("messages", {}).get("received"):
+            raise ValueError("wire-value count must equal received messages")
+
+
+def dumps(document: dict) -> str:
+    """Serialize strict JSON; NaN and Infinity indicate a schema bug."""
+    validate_document(document)
+    return json.dumps(document, indent=2, sort_keys=True, allow_nan=False) + "\n"
+
+
+def write(document: dict, path: Path) -> None:
+    """Atomically write a result document."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.write_text(dumps(document), encoding="utf-8")
+    temporary.replace(path)

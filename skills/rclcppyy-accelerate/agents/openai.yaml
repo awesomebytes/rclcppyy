@@ -1,0 +1,4 @@
+interface:
+  display_name: "Accelerate rclcppyy"
+  short_description: "Measure and lower ROS 2 Python hot paths"
+  default_prompt: "Use $rclcppyy-accelerate to analyze this ROS 2 Python project and implement the lowest-risk measured optimization."

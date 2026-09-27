@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "contract_id": "rclpy-jazzy-7.1.11-reviewed-v4",
+  "source": {
+    "repository": "https://github.com/ros2/rclpy.git",
+    "revision": "baf9d72cfa127e391a89b4ab51ba9e55c37041fd",
+    "release": "7.1.11",
+    "package_version": "7.1.11",
+    "test_root": "rclpy/test"
+  },
+  "inventory": {
+    "algorithm": "sha256-path-content-v1",
+    "file_pattern": "test_*.py",
+    "file_count": 52,
+    "digest": "42afd6886e22b637020cc3ab81291153e3a6d819caf521e16c2571414bd8306e"
+  },
+  "support_files": [
+    {
+      "path": "mock_compat.py",
+      "digest": "b47e582512d4755fe5b3c2350a4fa888e957f8b782732afbf45d711915a507e8"
+    },
+    {
+      "path": "resources/test_node/complicated_wildcards.yaml",
+      "digest": "7d0c2308368b5e480722b8ec00018391164ed3b84b5e2b5559e0cd0ae02f0daf"
+    },
+    {
+      "path": "resources/test_node/params_by_order.yaml",
+      "digest": "98f86743ea0a429f5b3f3ca825f631d41f816976d9e6e8078c2491c95b337e53"
+    },
+    {
+      "path": "resources/test_node/test_parameters.yaml",
+      "digest": "8b1042257d5b95d05d58316b7e2f948564d108576609e776edf968b556631ba7"
+    },
+    {
+      "path": "resources/test_node/wildcards.yaml",
+      "digest": "b52388a36af10bec68a01c2331e068c0b4f5f828e0cee7d225b54fdbea963adb"
+    }
+  ],
+  "selection": [
+    {
+      "path": "test_action_graph.py",
+      "reason": "Action graph discovery by action name and node identity covers unchanged action graph behavior."
+    },
+    {
+      "path": "test_action_client.py",
+      "reason": "Action-client construction, discovery, goals, feedback, cancellation, and results exercise unchanged action behavior."
+    },
+    {
+      "path": "test_action_server.py",
+      "reason": "Action-server goal, cancel, execute, feedback, expiry, and error contracts exercise unchanged action behavior."
+    },
+    {
+      "path": "test_callback_group.py",
+      "reason": "Callback-group entity assignment and mutual-exclusion behavior cover a core executor contract."
+    },
+    {
+      "path": "test_client.py",
+      "reason": "Client discovery, synchronous and asynchronous calls, concurrency, remapping, and timeout behavior cover unchanged client operation."
+    },
+    {
+      "path": "test_create_node.py",
+      "reason": "Node construction, namespaces, validation, and parameter overrides cover unchanged node identity."
+    },
+    {
+      "path": "test_create_while_spinning.py",
+      "reason": "Creating subscriptions, services, guard conditions, timers, and waitables while spinning covers runtime entity mutation."
+    },
+    {
+      "path": "test_destruction.py",
+      "reason": "Node and entity destruction during active execution covers unchanged ownership, invalid-handle, and teardown behavior."
+    },
+    {
+      "path": "test_events_executor.py",
+      "reason": "Experimental event-driven execution across topics, services, timers, and actions covers unchanged opt-in executor behavior."
+    },
+    {
+      "path": "test_executor.py",
+      "reason": "Single- and multi-threaded execution, futures, coroutine tasks, shutdown, and reentrancy cover executor behavior."
+    },
+    {
+      "path": "test_guard_condition.py",
+      "reason": "Guard-condition triggering and repeated triggering cover unchanged executor wake-up behavior."
+    },
+    {
+      "path": "test_init_shutdown.py",
+      "reason": "Context initialization, shutdown, signals, domain IDs, and invalid sequences cover process lifecycle behavior."
+    },
+    {
+      "path": "test_lifecycle.py",
+      "reason": "Lifecycle construction, transitions, services, and publishers cover lifecycle compatibility."
+    },
+    {
+      "path": "test_logging.py",
+      "reason": "Logger hierarchy, severity, formatting, directories, throttling, and time sources cover unchanged logging behavior."
+    },
+    {
+      "path": "test_logging_rosout.py",
+      "reason": "Rosout delivery, severity, names, disabled output, and node destruction cover unchanged logging transport behavior."
+    },
+    {
+      "path": "test_logging_service.py",
+      "reason": "Logger-level get and set services cover unchanged node logging control-plane behavior."
+    },
+    {
+      "path": "test_node.py",
+      "reason": "The full node contract covers graph queries, entities, parameters, remapping, clocks, rosout, and service configuration."
+    },
+    {
+      "path": "test_parameter.py",
+      "reason": "Parameter values, conversions, YAML parsing, equality, arrays, and validation cover unchanged value semantics."
+    },
+    {
+      "path": "test_parameter_client.py",
+      "reason": "Asynchronous parameter client get, set, describe, list, delete, and YAML loading cover remote parameter behavior."
+    },
+    {
+      "path": "test_parameter_event_handler.py",
+      "reason": "Parameter event handlers and callback registration, matching, removal, and cleanup cover event behavior."
+    },
+    {
+      "path": "test_parameter_service.py",
+      "reason": "Node parameter services cover declare, describe, get, set, atomic set, list, and undeclared behavior."
+    },
+    {
+      "path": "test_publisher.py",
+      "reason": "Publisher naming, remapping, acknowledgement, and logging cover the stock-authoritative compatible publisher.",
+      "expected_publish_backend": "python"
+    },
+    {
+      "path": "test_qos.py",
+      "reason": "QoS construction, conversion, presets, validation, and compatibility cover policy fidelity."
+    },
+    {
+      "path": "test_qos_event.py",
+      "reason": "Publisher and subscription QoS events cover unchanged callback, matched-status, and event lifetime behavior."
+    },
+    {
+      "path": "test_qos_overriding_options.py",
+      "reason": "QoS override declaration, validation, callbacks, and entity identifiers cover unchanged runtime configuration behavior."
+    },
+    {
+      "path": "test_rate.py",
+      "reason": "Rate periods, destruction, executor interaction, and shutdown wake-up cover unchanged rate behavior."
+    },
+    {
+      "path": "test_rosout_subscription.py",
+      "reason": "Parent, child, hierarchical, parameterized, and disabled rosout logging cover unchanged log transport behavior."
+    },
+    {
+      "path": "test_serialization.py",
+      "reason": "Message serialization round trips cover message and type-support fidelity."
+    },
+    {
+      "path": "test_service.py",
+      "reason": "Service naming, namespaces, remapping, and logging cover unchanged service construction."
+    },
+    {
+      "path": "test_service_introspection.py",
+      "reason": "Service introspection metadata and contents cover unchanged request, response, sequence, and timestamp event behavior."
+    },
+    {
+      "path": "test_subscription.py",
+      "reason": "Subscription naming, remapping, counts, callbacks, and content filtering cover unchanged subscription behavior."
+    },
+    {
+      "path": "test_timer.py",
+      "reason": "Timer periods, callback counts, cancel/reset, scheduling, and autostart cover timer behavior."
+    },
+    {
+      "path": "test_time_source.py",
+      "reason": "Clock attachment, simulated time, jumps, parameters, and clock topics cover unchanged time-source behavior."
+    },
+    {
+      "path": "test_wait_for_message.py",
+      "reason": "Synchronous message waiting with default and explicit QoS plus timeout covers unchanged convenience API behavior."
+    },
+    {
+      "path": "test_waitable.py",
+      "reason": "Custom client, service, timer, subscription, guard-condition, and mutually-exclusive waitables cover executor extension behavior."
+    },
+    {
+      "path": "test_clock.py",
+      "reason": "Clock construction, sleep, jump callbacks, ROS time overrides, and shutdown behavior cover the clock contract."
+    },
+    {
+      "path": "test_context.py",
+      "reason": "Context construction and repeated shutdown cover the base context lifetime contract."
+    },
+    {
+      "path": "test_expand_topic_name.py",
+      "reason": "Topic-name expansion across node names and namespaces covers unchanged name resolution behavior."
+    },
+    {
+      "path": "test_messages.py",
+      "reason": "Generated message equality, inequality, constants, defaults, and serialization errors cover message semantics."
+    },
+    {
+      "path": "test_task.py",
+      "reason": "Future and Task completion, cancellation, exceptions, callbacks, and coroutine behavior cover executor primitives."
+    },
+    {
+      "path": "test_time.py",
+      "reason": "Time construction, arithmetic, comparison, conversion, and message round trips cover value semantics."
+    },
+    {
+      "path": "test_topic_endpoint_info.py",
+      "reason": "Topic endpoint type, names, namespaces, type hashes, GIDs, and QoS cover graph-query value behavior."
+    },
+    {
+      "path": "test_topic_or_service_is_hidden.py",
+      "reason": "Hidden topic and service name classification covers unchanged graph visibility rules."
+    },
+    {
+      "path": "test_type_hash.py",
+      "reason": "Type-hash construction, equality, representation, versioning, and detail values cover introspection semantics."
+    },
+    {
+      "path": "test_utilities.py",
+      "reason": "Default contexts, initialization helpers, RMW identity, and timeout conversion cover process utilities."
+    },
+    {
+      "path": "test_validate_full_topic_name.py",
+      "reason": "Full topic and service name validation covers unchanged validation results and exception contracts."
+    },
+    {
+      "path": "test_validate_namespace.py",
+      "reason": "Namespace validation covers unchanged accepted values, invalid indices, and exception contracts."
+    },
+    {
+      "path": "test_validate_node_name.py",
+      "reason": "Node-name validation covers unchanged accepted values, invalid indices, and exception contracts."
+    },
+    {
+      "path": "test_validate_topic_name.py",
+      "reason": "Topic and service name validation covers unchanged accepted values, invalid indices, and exceptions."
+    }
+  ],
+  "reviewed_exclusions": [
+    {
+      "id": "fails-with-stock-installed-extension",
+      "paths": [
+        "test_destruction_order.py",
+        "test_type_description_service.py"
+      ],
+      "reason": "These unchanged tests fail with stock rclpy 7.1.11: the installed pybind Node rejects destruction-order's ad hoc context_handle assignment, and the stock client rejects the graph-derived TypeHash in the type-description request. They cannot provide backend evidence in this source-only gate."
+    },
+    {
+      "id": "requires-upstream-built-test-extension",
+      "paths": [
+        "test_type_support.py"
+      ],
+      "reason": "Requires the upstream repository's separately built test_rclpy extension, which the source-only contract environment intentionally does not build."
+    }
+  ]
+}

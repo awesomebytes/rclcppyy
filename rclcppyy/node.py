@@ -1,6 +1,5 @@
 import inspect
 import re
-import uuid
 from typing import Union, Optional, Callable, Any, List
 import rclpy
 from rclpy.callback_groups import CallbackGroup
@@ -16,6 +15,7 @@ from rclpy.parameter import Parameter
 import cppyy
 from rclcppyy import bringup_rclcpp
 from rclcppyy.bringup_rclcpp import _resolve_message_type, _is_msg_python, convert_python_msg_to_cpp
+from rclcppyy._status import record_decision
 
 
 def _subscription_header(cpp_type_str):
@@ -65,34 +65,20 @@ class RclcppyyNode(Node):
             rclpy.init()
         
         self._rclcpp_node = self._rclcpp.Node(node_name + "_rclcpp")
+        self._rclcppyy_status_id = record_decision(
+            "nodes",
+            "cpp",
+            "rclpy-compatible node facade backed by an rclcpp sidecar node",
+            policies=("rclpy_compatibility", "rclcpp_entities"),
+            metadata={
+                "name": node_name,
+                "namespace": namespace,
+                "rclcpp_name": node_name + "_rclcpp",
+            },
+        )
+        self._rclcppyy_reported_operations = set()
         self._cpp_publishers = {}
         
-        # Define the C++ callback wrapper template for timers
-        # cppyy.cppdef("""
-        #     #include <Python.h>
-        #     #include <functional>
-            
-        #     static std::function<void()> create_node_timer_callback_PLACEHOLDER_UUID(PyObject* self) {
-        #         return [self]() {
-        #             if (self && PyObject_HasAttrString(self, "_node_timer_callback_PLACEHOLDER_UUID")) {
-        #                 PyObject_CallMethod(self, "_node_timer_callback_PLACEHOLDER_UUID", nullptr);
-        #             }
-        #         };
-        #     }
-        # """)
-
-        self._timer_cpp_template = """
-            #include <Python.h>
-            #include <functional>
-            
-            static std::function<void()> create_node_timer_callback_PLACEHOLDER_UUID(PyObject* self) {
-                return [self]() {
-                    if (self && PyObject_HasAttrString(self, "_node_timer_callback_PLACEHOLDER_UUID")) {
-                        PyObject_CallMethod(self, "_node_timer_callback_PLACEHOLDER_UUID", nullptr);
-                    }
-                };
-            }
-        """
         self._cpp_timers = {}
 
         self._cpp_subscriptions = {}
@@ -246,6 +232,33 @@ class RclcppyyNode(Node):
                 
             publisher.publish = publish_wrapper
         # else: no wrapping needed, publish directly uses C++ messages
+
+        policies = []
+        if _is_msg_python(msg_type):
+            policies.append("python_to_cpp_message_conversion")
+        else:
+            policies.append("direct_cpp_message")
+        if callback_group is not None:
+            policies.append("callback_group_ignored")
+        if event_callbacks is not None:
+            policies.append("event_callbacks_ignored")
+        if qos_overriding_options is not None:
+            policies.append("qos_overrides_ignored")
+        record_decision(
+            "entities",
+            "cpp",
+            "publisher transport and publish operation use rclcpp",
+            policies=policies,
+            metadata={
+                "entity_type": "publisher",
+                "node_id": self._rclcppyy_status_id,
+                "topic": final_topic,
+                "message_type": rclcpp_msg_type,
+                "callback_group_requested": callback_group is not None,
+                "event_callbacks_requested": event_callbacks is not None,
+                "qos_overrides_requested": qos_overriding_options is not None,
+            },
+        )
         
         return publisher
 
@@ -258,26 +271,41 @@ class RclcppyyNode(Node):
         """
         # Convert period to nanoseconds for rclcpp  
         period_ns = int(period * 1e9)
-        # Generate a unique UUID for the timer
-        uuid_str = str(uuid.uuid4()).replace("-", "_")
-        # Replace the PLACEHOLDER_UUID in the C++ template with the actual UUID
-        cpp_timer_template = self._timer_cpp_template.replace("PLACEHOLDER_UUID", uuid_str)
-        # Compile the C++ callback wrapper
-        cppyy.cppdef(cpp_timer_template)
-        # Add dynamically a method to the node that will call the callback
-        setattr(self, f"_node_timer_callback_{uuid_str}", callback)
-
-        # Create the C++ callback wrapper
-        cpp_callback = getattr(cppyy.gbl, f"create_node_timer_callback_{uuid_str}")(self)
+        # cppyy's reusable std::function bridge owns the Python callable. This
+        # avoids compiling one unique C++ function for every timer instance.
+        cpp_callback = cppyy.gbl.std.function["void()"](callback)
         
         # Create the timer using the rclcpp node's create_wall_timer
         wall_timer = self._rclcpp_node.create_wall_timer(
             cppyy.gbl.std.chrono.nanoseconds(period_ns),
             cpp_callback
         )
+        self._cpp_timers[wall_timer] = {
+            "callback": callback,
+            "cpp_callback": cpp_callback,
+        }
         
         # TODO: Handle oneshot and callback_group parameters if needed
         # For now, we ignore these parameters as the provided implementation doesn't handle them
+
+        policies = ["python_callback", "reusable_cppyy_std_function"]
+        if oneshot:
+            policies.append("oneshot_ignored")
+        if callback_group is not None:
+            policies.append("callback_group_ignored")
+        record_decision(
+            "entities",
+            "cpp",
+            "wall timer scheduling uses rclcpp with a Python callback trampoline",
+            policies=policies,
+            metadata={
+                "entity_type": "timer",
+                "node_id": self._rclcppyy_status_id,
+                "period_ns": period_ns,
+                "oneshot_requested": oneshot,
+                "callback_group_requested": callback_group is not None,
+            },
+        )
         
         return wall_timer
 
@@ -328,6 +356,7 @@ class RclcppyyNode(Node):
         # or when the message header can't be derived -- correctness first, the cache
         # is a pure speedup.
         subscription = None
+        used_cached_factory = False
         if callback_group is None and qos_overriding_options is None:
             try:
                 # subscription_cache postdates rclcpp_kit 0.1.0; on an older suite it
@@ -338,6 +367,7 @@ class RclcppyyNode(Node):
                     subscription = subscription_cache.make_subscription(
                         self._rclcpp_node, rclcpp_msg_type, header, final_topic,
                         rclcpp_qos, cpp_callback)
+                    used_cached_factory = subscription is not None
             except ImportError:
                 subscription = None
         if subscription is None:
@@ -358,6 +388,33 @@ class RclcppyyNode(Node):
 
         # Wake executor like rclpy does
         self._wake_executor()
+
+        policies = ["python_callback"]
+        policies.append("cached_typed_factory" if used_cached_factory else "direct_typed_factory")
+        if callback_group is not None:
+            policies.append("callback_group_ignored")
+        if event_callbacks is not None:
+            policies.append("event_callbacks_ignored")
+        if qos_overriding_options is not None:
+            policies.append("qos_overrides_ignored")
+        if raw:
+            policies.append("raw_mode_ignored")
+        record_decision(
+            "entities",
+            "cpp",
+            "subscription take uses rclcpp and dispatches to a Python callback",
+            policies=policies,
+            metadata={
+                "entity_type": "subscription",
+                "node_id": self._rclcppyy_status_id,
+                "topic": final_topic,
+                "message_type": rclcpp_msg_type,
+                "callback_group_requested": callback_group is not None,
+                "event_callbacks_requested": event_callbacks is not None,
+                "qos_overrides_requested": qos_overriding_options is not None,
+                "raw_requested": raw,
+            },
+        )
 
         return subscription
 

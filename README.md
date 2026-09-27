@@ -2,16 +2,19 @@
 
 [![CI](https://github.com/awesomebytes/rclcppyy/actions/workflows/ci.yml/badge.svg)](https://github.com/awesomebytes/rclcppyy/actions/workflows/ci.yml)
 
-**Prototype in Python, run at C++ speed.** `rclcppyy` is a drop-in accelerator for
-`rclpy`: add one line at the top of an existing ROS 2 Python node and its
-publishers, subscriptions, timers, and messages run on the `rclcpp` C++ backend
-instead — no rewrite, no bindings to maintain, no Python⇄C++ message copies on the
-hot path. It is powered by [**cppyy**](https://cppyy.readthedocs.io), which calls
-C++ from Python directly via reflection and just-in-time compilation, and built on
+**Keep the `rclpy` contract; opt into proven C++ paths.** `rclcppyy` is a
+compatibility-first C++ backend for existing ROS 2 Python software. Its default
+profile keeps the exact stock node, context, executor, message classes, entity
+objects, and publish operation. Explicit profiles route an operation through C++
+only when that route has contract and backend evidence. It is powered by
+[**cppyy**](https://cppyy.readthedocs.io), which calls C++ from Python directly via
+reflection and just-in-time compilation, and built on
 the [**cppyy_kit suite**](https://github.com/awesomebytes/cppyy_kit) (docs:
 [awesomebytes.github.io/cppyy_kit](https://awesomebytes.github.io/cppyy_kit/)),
 which packages the same "mix Python and C++ with ease" machinery for ROS 2 and a
 family of C++ robotics libraries.
+
+New to the two projects? Start with the [user overview](docs/PROJECT_OVERVIEW.md).
 
 ![](media/rclcppyy_presentation_logo.jpg)
 
@@ -22,47 +25,135 @@ Take any ordinary `rclpy` node and add a single line at the top:
 ```python
 import rclcppyy; rclcppyy.enable_cpp_acceleration()
 
-# Everything below is unchanged rclpy — but now runs on the rclcpp C++ backend.
+# Everything below remains ordinary rclpy code and ordinary rclpy objects.
 import rclpy
 from std_msgs.msg import String
 
 rclpy.init()
-node = rclpy.create_node('talker')          # actually an rclcpp-backed node
+node = rclpy.create_node('talker')
 pub = node.create_publisher(String, 'chatter', 10)
 node.create_timer(0.5, lambda: pub.publish(String(data='hello')))
 rclpy.spin(node)
 ```
 
-`enable_cpp_acceleration()` monkeypatches `rclpy` so `create_node`, `spin`,
-publishers, subscriptions, and wall timers are served by `rclcpp`, and message
-classes (e.g. `std_msgs.msg.String`) resolve to their C++ types — the payload lives
-as a C++ object end to end, so there is no per-message Python conversion.
+`enable_cpp_acceleration()` patches methods on the original `rclpy` classes. The
+publisher above remains a stock `rclpy.Publisher` registered with the stock node;
+the default compatible profile also leaves its stock `Publisher.publish` method
+authoritative. The subscription, timer, executor, context, and message class remain
+stock Python, and `rclcppyy.status()` makes those choices explicit.
+
+Select same-handle C++ publishing only after measuring the application:
+
+```python
+import rclcppyy
+rclcppyy.enable_cpp_acceleration(profile="publisher_cpp")
+```
+
+That profile serializes with `rclcpp::Serialization<T>` and publishes through the
+existing native publisher handle. It creates no companion node or endpoint.
+
+On Jazzy with Cyclone DDS, the narrower C++-owning message tier is explicit:
+
+```python
+import rclcppyy
+rclcppyy.enable_cpp_acceleration(profile="message_facade")
+
+from std_msgs.msg import String, UInt64
+```
+
+These two late-imported generated-style classes own `std_msgs::msg::String` or
+`std_msgs::msg::UInt64` C++ storage. Their stock publisher and subscription
+entities borrow the same native handles for C++ serialization and take, so the
+hot path does not perform Python-to-C++ whole-message conversion. All other
+message layouts, pre-activation class aliases, raw subscriptions, subscriptions
+with event callbacks or content filters, and custom publisher classes remain
+stock and are reported as such.
+
+The experimental `profile="direct_cpp"` first slice goes further: on Jazzy with
+Cyclone DDS, unchanged `Node` subclasses can use actual `rclcpp` nodes, entities,
+and generated C++ messages. It supports `std_srvs/SetBool` by default and explicitly
+registered installed services such as `std_srvs/srv/Trigger`. Service clients offer
+`call_async()` and blocking `call()`; service and subscription callbacks receive
+owning native C++ values, without generated Python message conversion or
+serialization. The profile also defaults to a direct
+`tf2_msgs/action/LookupTransform` client and accepts explicitly registered installed
+actions. A first direct ActionServer slice supports synchronous callbacks, feedback,
+results, and cancellation on the direct single-threaded executor, with a
+mutually-exclusive callback group and default action QoS. Direct single-threaded
+executors are available, and the direct MultiThreadedExecutor is experimental.
+Enable this profile before importing `rclpy.node`, `rclpy.executors`, or supported
+interfaces. Unsupported options fail before entity creation.
 
 ## What you get
 
-Publishing and subscribing on the C++ backend uses **a fraction of the CPU** of
-plain `rclpy` at the same message rate, because the hot path (executor, DDS calls,
-message handling) runs in C++ instead of the Python interpreter. In the run below —
-a small `std_msgs/String` at 1 kHz on the reference machine — the monkeypatched
-node used **roughly 4–6× less CPU** than `rclpy` (publisher *and* subscriber), at
-the same throughput and about half the latency. Measure it on your own machine in
-one command:
+- In the compatible profile, existing node, graph, context, remapping, parameter,
+  executor, and teardown behavior stays authoritative in `rclpy`.
+- Importing and enabling the compatible profile does not initialize cppyy, Cling,
+  native factories, or the legacy companion-node implementation. Explicit C++
+  profiles and APIs load those dependencies only when first used.
+- `rclcppyy.status()` reports the backend selected for each routed entity and
+  operation.
+- `profile="publisher_cpp"` explicitly enables the permissive same-handle C++
+  publisher route and reports any fallback to stock publishing.
+- `profile="message_facade"` opts `String` and `UInt64` into C++-owning storage
+  and direct same-handle publish/take on the reviewed Jazzy/Cyclone executor ABI.
+- `profile="direct_cpp"` is the bounded source-compatible correctness lane for a
+  single native node authority and fully C++ pub/sub data representation.
+- `profile="required_cpp"` fails before creating an entity when no certified C++
+  route exists, so tests and benchmarks cannot pass through silent fallback.
+- The separate native lane exposes `rclcpp` and other C++ libraries directly when
+  compatibility is not the primary constraint.
+- The [backend selection and promotion guide](docs/backend-selection.md) defines
+  when to use compatible, strict, managed native, and fused C++ execution lanes.
+
+The native lane adds lifecycle management but does not replace the C++ API:
+
+```python
+from std_msgs.msg import String
+import rclcppyy
+
+with rclcppyy.native(["my_program"]) as ros:
+    options = ros.rclcpp.NodeOptions()
+    node = ros.create_node("native_node", options=options, use_intra_process=True)
+    publisher = node.create_publisher(String, "chatter", 10)
+    executor = ros.create_executor("multi_threaded", threads=2)
+    executor.add_node(node)
+    lifecycle = ros.create_native_lifecycle_node("managed_worker")
+    lifecycle.attach_executor(executor)
+    container = ros.create_native_component_manager(
+        executor, name="managed_container")
+    relay = ros.create_fused_pipeline(
+        node, String, String, "input", "output",
+        'output.data = input.data + ":native";',
+        delivery="latest",
+    )
+```
+
+Nodes, options, publishers, callback groups, and executors in this block are the
+real cppyy-backed C++ objects. The session owns a custom `rclcpp::Context`, orders
+shutdown, and exposes `ros.rclcpp` as the unrestricted escape hatch. Loaned-message
+availability is queried per publisher with `rclcppyy.publisher_capabilities()`.
+The same session offers thin factories for typed C++ services, clients, action
+clients, lifecycle nodes, and standard AOT component containers; their original
+C++ objects remain available through explicit raw accessors.
+
+Measure routes on the target workload rather than assuming that crossing into C++
+is automatically faster:
 
 ```bash
-pixi run bench     # rclpy vs rclcppyy CPU comparison table (1 kHz + 10 kHz)
+pixi run bench
 ```
 
-Example output (absolute numbers vary by machine — reproduce it yourself with the
-command above):
-
-```
-  Benchmark @ 1000 Hz target
-  =======================================================================================
-  variant                   pub CPU%  sub CPU%  msgs recv  eff Hz    dropped  avg lat us
-  ---------------------------------------------------------------------------------------
-  rclpy                     17.9      19.2      6000       968.9     0        174.8
-  rclcppyy (monkeypatched)  4.4       3.4       6000       969.4     0        89.0
-```
+The benchmark runner requires machine-readable publisher and subscriber backend
+evidence and decoded wire-value evidence before it records a result. Its default
+compatibility comparison is Python/Python; the controlled relay benchmark has a
+separate `publisher_cpp` lane. The same-handle route is correctness-certified but
+is not advertised as a performance win. Native-message and fused C++ paths must
+clear workload-specific performance gates before they are advertised. See the
+[benchmark evidence guide](docs/benchmarks.md) for the repeated local gate.
+That guide also indexes the controlled pub/sub, service, client, timer, and action
+CPU protocols, with C++-representation lanes reported separately from conversion
+or activation-only compatibility lanes.
 
 For the full, consolidated and freshly-measured benchmark set — across the whole
 suite, including the freeze/AOT optimization ladder — see the
@@ -96,38 +187,87 @@ subscribe (e.g. `ros-jazzy-std-msgs`) are separate dependencies, as in any ROS 2
 project. Installing rclcppyy pulls its runtime deps `ros-jazzy-rclcpp-kit` and
 `cppyy-kit` (the suite) transitively.
 
-## What accelerates, and what stays rclpy
+## What routes through C++, and what stays rclpy
 
-`rclcppyy` accelerates the pub/sub hot path and keeps everything else on stock
-`rclpy`, so unpatched code keeps working. Be aware of the boundaries:
+The default compatible profile keeps the stock contract and records every current
+boundary. It intentionally leaves `Publisher.publish` on stock `rclpy`.
 
-**Runs on the C++ backend after `enable_cpp_acceleration()`:**
+**Explicit same-handle C++ route:**
 
-- Nodes created via `rclpy.create_node(...)` (returned as C++-backed nodes)
-- Publishers, subscriptions, and wall timers on those nodes
-- `rclpy.spin(node)` (delegates to `rclcpp::spin`)
-- Message types — resolved to their `rclcpp` C++ equivalents on import, kept as C++
-  objects with no Python⇄C++ conversion on publish/receive
+- `profile="publisher_cpp"` is permissive and reports fallback.
+- `profile="required_cpp"` fails closed when this route cannot be prepared or
+  completed.
+- Both operate on the existing `rcl_publisher_t`; neither creates a companion node
+  or publisher.
 
-**Stays on stock rclpy (not accelerated):**
+| Transparent path | Backend evidence | Wire evidence | Performance status |
+|---|---|---|---|
+| compatible `Publisher.publish` | publisher `python`; subscriber `python` | flat and nested workloads validate the same decoded value contract | stock authority; activation-overhead characterization only |
+| `publisher_cpp` / `required_cpp` on the existing stock handle | publisher `cpp`; stock subscriber `python` | dedicated round trips validate decoded values and backend completion | no benefit advertised; controlled results remain raw evidence |
 
-- Services and actions
-- Parameters, parameter services, and parameter events
-- Custom executors, callback groups, and multi-threaded spinning — acceleration
-  targets the default single-threaded spin
-- Publisher/subscription event callbacks and QoS overriding options
+No compatible path currently advertises a performance benefit. C++ routing is a
+backend fact; a benefit requires separate, repeated, architecture-specific evidence.
+
+**Stays on stock `rclpy` in the compatible and optimized profiles:**
+
+- Nodes, contexts, graph identity, message classes, subscriptions, timers, spin,
+  services, actions, parameters, lifecycle nodes, callback groups, and executors.
+- Publisher creation, publishing, and destruction, QoS, event callbacks, callback
+  groups, and override options in compatible and optimized profiles.
 
 **Known walls:**
 
-- `enable_cpp_acceleration()` monkeypatches `rclpy` **process-globally and
-  irreversibly** — call it once, at the very top, before creating nodes.
+- Activation patches methods **process-globally and irreversibly**. Call it once
+  before creating nodes. Existing Node aliases and subclasses retain their class
+  identity because the original class is patched rather than replaced.
+- `profile="publisher_cpp"` and `profile="required_cpp"` currently support the
+  publisher route; required mode rejects subscriptions and timers.
+  `profile="optimized"` preserves stock publishing and opts into 100 ms bounded
+  waits for `rclpy.spin()` and direct stock single- and multi-threaded executor
+  `spin()` calls. This prevents a missed signal guard wake from leaving an
+  invalid Context blocked indefinitely, at the cost of periodic idle wake-ups.
+  It is a reliability mitigation, not a C++ route or performance claim.
+- `profile="direct_cpp"` defaults to `std_msgs/String`, `UInt64`, and
+  `std_srvs/SetBool`, plus the `tf2_msgs/LookupTransform` action client. Additional
+  installed message, service, and action interfaces can be registered by canonical
+  name. It supports native default, mutually-exclusive, and reentrant callback
+  groups; the direct single-threaded executor; and an experimental direct
+  MultiThreadedExecutor. The first direct ActionServer slice is limited to
+  synchronous callbacks on the single-threaded executor, with a mutually-exclusive
+  group and default QoS. Service clients support `call_async()` and blocking
+  `call()`; blocking calls need another thread to service the executor, as in stock
+  `rclpy`. Callback-group subclasses that override Python scheduling hooks fail
+  closed. Service introspection and uncovered options remain unsupported. The
+  direct profile is not yet a general `rclpy` replacement. The
+  subscription callback copy is measured by the dedicated `direct-cpp-rclcppyy`
+  controlled relay lane. Service/client copy and crossing counts are exposed as
+  correctness evidence; no service performance benefit is claimed yet.
+- `rclcppyy.Node` remains the legacy companion-node prototype. It is not the
+  transparent compatibility architecture and should not be used for new
+  compatibility work.
 - The **first** `rclcpp` bringup JIT-compiles headers. The suite ships a zero-config
   Cling PCH cache (`cppyy_kit` auto-PCH) that makes subsequent process starts far
   cheaper (a warm `rclcpp` bringup measured ~1.73 s → ~0.064 s); see the
   [Freeze & Cache](https://awesomebytes.github.io/cppyy_kit/docs/FREEZE/) docs and the
   [benchmarks page](https://awesomebytes.github.io/cppyy_kit/docs/benchmarks/).
-- Acceleration is opt-in per process; without the one-line call, your code is
+- C++ routing is opt-in per process; without the one-line call, your code is
   ordinary `rclpy`.
+
+### Inspect backend decisions
+
+`rclcppyy.status()` returns a JSON-serializable process snapshot of the backend
+selected for routed nodes, entities, and operations:
+
+```python
+report = rclcppyy.status()
+for entity in report["entities"]:
+    print(entity["backend"], entity["reason"], entity["policies"])
+```
+
+Each decision reports `cpp`, `python`, or `unsupported`, along with active
+policies and value-only metadata such as the entity type, topic, and message
+type. History is bounded to the latest 256 records per category; aggregate
+counts and dropped-record counts remain available for long-running processes.
 
 ## Powered by the cppyy_kit suite
 
@@ -189,9 +329,12 @@ Tasks:
 |---|---|
 | `pixi run build` | `colcon build --packages-select rclcppyy` into `install/` |
 | `pixi run test` | `pytest test/` (bringup, monkeypatch, pub/sub roundtrip, serialization parity, tf, clean-exit, kit shims) |
+| `pixi run -e upstream-contract upstream-contract` | validate and run the exact [reviewed upstream rclpy contract slice](docs/upstream-rclpy-contract.md) |
+| `pixi run -e upstream-contract upstream-content-filter-contract` | rerun the reviewed subscription contract on Fast DDS and reject content-filter skips |
 | `pixi run lint` | `flake8 rclcppyy test` |
 | `pixi run clean` | remove `build/ install/ log/` |
-| `pixi run bench` | rclpy-vs-rclcppyy CPU comparison table (1 kHz + 10 kHz) |
+| `pixi run bench` | raw stock/compatibility backend, wire-value, CPU, throughput, and latency observations |
+| `pixi run bench-compatibility-evidence` | validate five controlled raw runs and map the transparent route to its observed directions |
 | `pixi run demo-tutorial` | the rclpy pub/sub tutorial, on the rclcppyy C++ backend |
 | `pixi run demo-pubsub` | a live pub/sub pair (rclcppyy backend), stats streamed |
 
@@ -218,7 +361,7 @@ overlay are applied automatically), then, one per shell:
 ros2 run rclcppyy bench_pub_rclpy.py 10000
 ros2 run rclcppyy bench_sub_rclpy.py
 
-# rclcppyy (monkeypatched rclpy → C++ backend)
+# rclcppyy (compatible activation; stock publish authority)
 ros2 run rclcppyy bench_pub_rclcppyy_monkeypatch.py 10000
 ros2 run rclcppyy bench_sub_rclcppyy_monkeypatched.py
 
@@ -229,75 +372,54 @@ Without entering a shell, any command can be run through pixi directly, e.g.
 `pixi run ros2 run rclcppyy bench_sub_rclcppyy_monkeypatched.py`.
 </details>
 
-### Accelerate the *real* `ros2 topic hz` with `RCLCPPYY_ENABLE_HOOK`
+### Activate unedited software with `RCLCPPYY_ENABLE_HOOK`
 
 `enable_cpp_acceleration()` normally has to be called from inside your process. To
-accelerate a process you cannot edit — notably the stock **`ros2` CLI** — rclcppyy
-ships an **opt-in startup hook**. Install it once, then set `RCLCPPYY_ENABLE_HOOK=1` and
-the stock `ros2 topic hz` (and other rclpy-based verbs) runs on the C++ backend with
-**zero code changes**:
+activate a process you cannot edit, including stock **`ros2` CLI** commands, rclcppyy
+ships an **opt-in startup hook**. Install it once, then set
+`RCLCPPYY_ENABLE_HOOK=1` to enable the current certified routes with **zero code
+changes**:
 
 ```bash
 python -m rclcppyy.hook install          # once per environment (uninstall/status too)
 
-RCLCPPYY_ENABLE_HOOK=1 ros2 topic hz /some_topic  # runs on the rclcpp backend
+RCLCPPYY_ENABLE_HOOK=1 ros2 topic hz /some_topic  # activated; inspect status for routes
 ros2 topic hz /some_topic                   # env var unset -> ordinary rclpy, untouched
 ```
 
-`RCLCPPYY_ENABLE_HOOK` is the single control: `RCLCPPYY_ENABLE_HOOK=1` turns the
-hook on for a process; unset, `0`, or any other value leaves it off. `install`
+The hook defaults to the stock-authoritative `compatible` profile. An unchanged
+application whose API use is inside the current direct surface can instead select
+the generated-C++ backend before its imports:
+
+```bash
+RCLCPPYY_ENABLE_HOOK=1 \
+RCLCPPYY_HOOK_PROFILE=direct_cpp \
+RCLCPPYY_DIRECT_INTERFACES=std_msgs/msg/Header \
+python existing_application.py
+```
+
+`RCLCPPYY_DIRECT_INTERFACES` and `RCLCPPYY_DIRECT_OPTIMIZATIONS` are optional
+comma-separated inputs to `direct_cpp`. Unsupported direct operations fail closed;
+they do not silently convert application messages or create a second node authority.
+
+`RCLCPPYY_ENABLE_HOOK=1` turns the hook on for a process; unset, `0`, or any other
+value leaves it off. `install`
 writes a `.pth` into the environment's site-packages that runs at every interpreter
 start; when the hook is off it is a near-zero-cost no-op, and `python -m
 rclcppyy.hook uninstall` removes it.
 
 At interpreter start the `.pth` registers a post-import hook on `rclpy`; the first
 `import rclpy` triggers `enable_cpp_acceleration()`, after rclpy is importable but
-before the tool builds its node. `ros2 topic hz` drives its loop with
-`rclpy.spin_once` (in ros2cli's `DirectNode` discovery loop and in the hz loop), so
-`enable_cpp_acceleration()` also patches `rclpy.spin_once` to run an rclcpp executor;
-otherwise the CLI would stall at node bring-up.
+before the tool builds its node. The current compatibility architecture leaves
+`rclpy.spin_once`, subscriptions, and executors stock. The startup hook therefore
+provides zero-edit activation and backend reporting, but it must not be described as
+a C++ subscription/executor route until that route has current contract evidence.
 
-**Measured** (stock `ros2 topic hz` vs the same binary under
-`RCLCPPYY_ENABLE_HOOK=1`, against a C++ publisher of a `sensor_msgs/Image`,
-BEST_EFFORT, `--window 100`, with `net.core.rmem_max` raised (see below);
-`pixi run -e heavydemo demo-topic-hz-cli`; numbers vary by machine and run):
-
-| payload | target Hz | rclpy Hz | rclcppyy Hz | rclpy CPU % | rclcppyy CPU % |
-|---|---|---|---|---|---|
-| 3.0 MB  | 100  | 99.0   | 97.0   | 48.7  | 18.8 |
-| 3.0 MB  | 200  | 195.1  | 197.0  | 92.2  | 34.5 |
-| 3.0 MB  | 300  | 291.4  | 296.7  | 102.7 | 42.6 |
-| 0.05 MB | 1000 | 998.2  | 999.7  | 19.3  | 7.3  |
-| 0.05 MB | 3000 | 2967.6 | 2985.0 | 46.6  | 17.2 |
-
-Both backends deliver essentially the publisher's rate wherever the publisher can
-sustain it; the difference is CPU — the accelerated backend uses about a third to a
-half as much. `ros2 topic hz` (without `--filter`) subscribes with `raw=True`, so
-stock rclpy does not deserialise the payload; the saving is the C++ executor and
-message handling replacing the Python executor, not avoiding a per-message copy.
-Delivered rates stay close because the raw stock reader is cheap enough to keep up
-where the publisher can feed it — but note where the CPU lands: on the 3 MB stream
-stock rclpy crosses one full core near 200–250 Hz (92–107 %), while the accelerated
-backend stays around a third of a core, so on a busier machine or at a higher rate
-the stock reader saturates first.
-
-**Startup: a one-time cost.** Time to first hz line
-(`pixi run -e heavydemo demo-topic-hz-startup`):
-
-| `ros2 topic hz` first hz line | time |
-|---|---|
-| stock (no acceleration) | ~1.7 s |
-| `RCLCPPYY_ENABLE_HOOK=1`, cold cache | ~8.3 s |
-| `RCLCPPYY_ENABLE_HOOK=1`, warm cache | ~4.1 s |
-
-Two caches cut the warm start: the suite's Cling PCH removes the `rclcpp` header
-parse, and a per-message-type subscription cache removes the ~2.8 s one-time JIT of
-`create_subscription<MsgT>` (both built on the first run and loaded on later ones,
-cold → warm above). The warm figure is still above stock because the rest of the
-rclcpp bring-up — cppyy symbol discovery and the rclpy-compatibility adapters — is
-not yet cached. Acceleration therefore remains a one-time startup cost that pays off
-over a long-running `hz` session rather than a single short call. (Needs the newer
-suite; see the dev-bridge note below.)
+Older measurements for this hook used a companion-node C++ subscription/executor
+prototype. They do not describe the current stock-authority architecture and have
+therefore been removed. Current startup-hook claims are limited to activation,
+object/behavior compatibility, backend reporting, and whichever individual routes
+are certified in the compatibility manifest.
 
 ### Large messages under BEST_EFFORT QoS
 
@@ -306,7 +428,7 @@ image fragments into roughly two thousand UDP datagrams, and if the OS socket
 receive buffer is smaller than one message a single dropped fragment loses the whole
 message. On a stock Linux install `net.core.rmem_max` defaults to about 200 KB, so a
 BEST_EFFORT reader receives little or nothing on a 3 MB topic — for stock rclpy and
-for the accelerated backend alike, since both use the same reader QoS. Raising the
+for the compatible backend alike, since both use the same reader QoS. Raising the
 kernel limit resolves it (this needs root, and applies to any DDS user, not only
 rclcppyy):
 
@@ -319,11 +441,11 @@ BEST_EFFORT topic is received normally; no `CYCLONEDDS_URI` tuning is required. 
 3 MB figures above were measured with this setting.
 
 The startup hook is covered by `test/test_hook.py` (install / uninstall / status;
-`RCLCPPYY_ENABLE_HOOK=1` accelerates a fresh `import rclpy`; unset and `=0` leave
-stock rclpy untouched). For the acceleration on a node that *reads* message fields —
-where stock rclpy pays a per-message Python deserialisation that `ros2 topic hz`
-(raw subscription) does not — `scripts/heavy_hz_demo/run_heavy_hz.py` is a controlled
-publisher/subscriber harness (`pixi run -e heavydemo demo-heavy-hz`).
+`RCLCPPYY_ENABLE_HOOK=1` activates routing for a fresh `import rclpy`; unset and `=0` leave
+stock rclpy untouched). `scripts/heavy_hz_demo/run_heavy_hz.py` remains a controlled
+large-message workload harness (`pixi run -e heavydemo demo-heavy-hz`), but its
+subscriber timing is not evidence of a transparent C++ subscription route while compatible
+subscription take and dispatch remain stock Python.
 
 > **Dev bridge.** The startup measurement and the fastest bring-up use the
 > zero-config auto-PCH, which postdates the published suite 0.1.0. Until the next

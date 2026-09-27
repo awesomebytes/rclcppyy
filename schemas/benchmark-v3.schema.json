@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/awesomebytes/rclcppyy/schemas/benchmark-v3.schema.json",
+  "title": "rclcppyy benchmark matrix result v3",
+  "type": "object",
+  "required": [
+    "schema",
+    "generated_at",
+    "command",
+    "environment",
+    "benchmark",
+    "results",
+    "failures"
+  ],
+  "properties": {
+    "schema": {"const": "rclcppyy.benchmark/v3"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "command": {"type": "array", "items": {"type": "string"}},
+    "environment": {"type": "object"},
+    "benchmark": {
+      "type": "object",
+      "required": ["name", "mode", "performance_claims_allowed", "matrix", "statistics"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "mode": {"enum": ["measurement", "smoke"]},
+        "performance_claims_allowed": {"const": false},
+        "matrix": {"type": "object"},
+        "statistics": {"type": "object"}
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "case_id",
+          "backend",
+          "workload",
+          "target_rate_hz",
+          "payload_bytes",
+          "backend_verified",
+          "publisher_backend",
+          "subscriber_backend",
+          "wire_values",
+          "messages",
+          "latency_us",
+          "cpu_pct"
+        ],
+        "properties": {
+          "case_id": {"type": "string", "minLength": 1},
+          "backend": {"type": "string", "minLength": 1},
+          "workload": {"type": "string", "minLength": 1},
+          "target_rate_hz": {"type": "integer", "minimum": 1},
+          "payload_bytes": {"type": "integer", "minimum": 0},
+          "backend_verified": {"const": true},
+          "publisher_backend": {
+            "$ref": "#/$defs/backendMarker"
+          },
+          "subscriber_backend": {
+            "$ref": "#/$defs/backendMarker"
+          },
+          "wire_values": {
+            "type": "object",
+            "required": [
+              "schema",
+              "contract_id",
+              "expected_payload_bytes",
+              "checked_messages",
+              "violations",
+              "violation_types",
+              "value_contract_verified"
+            ],
+            "properties": {
+              "schema": {"const": "rclcppyy.benchmark-wire-values/v1"},
+              "contract_id": {"type": "string", "minLength": 1},
+              "expected_payload_bytes": {"type": "integer", "minimum": 0},
+              "checked_messages": {"type": "integer", "minimum": 1},
+              "violations": {"const": 0},
+              "violation_types": {"type": "object", "maxProperties": 0},
+              "value_contract_verified": {"const": true}
+            }
+          },
+          "messages": {
+            "type": "object",
+            "required": ["received", "dropped", "effective_rate_hz"]
+          },
+          "latency_us": {
+            "type": "object",
+            "required": ["count", "mean", "p50", "p95", "p99", "min", "max"]
+          },
+          "cpu_pct": {
+            "type": "object",
+            "required": ["publisher", "subscriber"]
+          }
+        }
+      }
+    },
+    "failures": {"type": "array", "items": {"type": "object"}}
+  },
+  "$defs": {
+    "backendMarker": {
+      "type": "object",
+      "required": ["schema", "role", "backend", "evidence", "metadata"],
+      "properties": {
+        "schema": {"const": "rclcppyy.benchmark-backend/v1"},
+        "role": {"enum": ["publisher", "subscriber"]},
+        "backend": {"enum": ["python", "cpp"]},
+        "evidence": {"type": "string", "minLength": 1},
+        "metadata": {"type": "object"}
+      }
+    }
+  }
+}

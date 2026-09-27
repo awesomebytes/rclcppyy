@@ -1,0 +1,27 @@
+{
+  "schema": "rclcppyy.differential-limitations/v1",
+  "reviewed_at": "2026-07-18",
+  "entries": [
+    {
+      "id": "subscription.same_handle_cpp",
+      "coverage": "probed",
+      "check": "status_record",
+      "expected": {"kind": "entities", "backend": "cpp", "metadata": {"entity_type": "subscription"}},
+      "reason": "Subscription take and dispatch remain an explicit stock fallback."
+    },
+    {
+      "id": "timer.same_handle_cpp",
+      "coverage": "probed",
+      "check": "status_record",
+      "expected": {"kind": "entities", "backend": "cpp", "metadata": {"entity_type": "timer"}},
+      "reason": "Timer scheduling remains an explicit stock fallback."
+    },
+    {
+      "id": "actions.application_corpus",
+      "coverage": "excluded",
+      "check": "none",
+      "expected": null,
+      "reason": "No action package is installed in the base corpus; generated-action differential coverage runs in the custom-interfaces task."
+    }
+  ]
+}

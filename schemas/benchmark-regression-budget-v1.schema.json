@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/awesomebytes/rclcppyy/schemas/benchmark-regression-budget-v1.schema.json",
+  "title": "rclcppyy architecture benchmark regression budget v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "architecture",
+    "status",
+    "minimum_repetitions",
+    "machine",
+    "environment",
+    "comparisons"
+  ],
+  "properties": {
+    "schema": {"const": "rclcppyy.benchmark-regression-budget/v1"},
+    "architecture": {"enum": ["x86_64", "aarch64"]},
+    "status": {"enum": ["calibration_required", "reviewed"]},
+    "minimum_repetitions": {"type": "integer", "minimum": 3},
+    "reviewed_at": {"type": "string", "format": "date-time"},
+    "reviewed_by": {"type": "string", "minLength": 1},
+    "machine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cpu_model", "logical_cpu_count"],
+      "properties": {
+        "cpu_model": {"type": ["string", "null"]},
+        "logical_cpu_count": {"type": ["integer", "null"], "minimum": 1}
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ros_distribution", "rmw_implementation"],
+      "properties": {
+        "ros_distribution": {"type": "string", "minLength": 1},
+        "rmw_implementation": {"type": "string", "minLength": 1}
+      }
+    },
+    "comparisons": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/comparison"}
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "calibration_required"}}},
+      "then": {
+        "properties": {
+          "comparisons": {"maxItems": 0},
+          "machine": {
+            "properties": {
+              "cpu_model": {"const": null},
+              "logical_cpu_count": {"const": null}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "reviewed"}}},
+      "then": {
+        "required": ["reviewed_at", "reviewed_by"],
+        "properties": {
+          "comparisons": {"minItems": 1},
+          "machine": {
+            "properties": {
+              "cpu_model": {"type": "string", "minLength": 1},
+              "logical_cpu_count": {"type": "integer", "minimum": 1}
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "selectorStrings": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "selectorIntegers": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "integer", "minimum": 0}
+    },
+    "minThreshold": {
+      "type": "object",
+      "required": ["min_ratio"],
+      "properties": {"min_ratio": {"type": "number", "exclusiveMinimum": 0}},
+      "additionalProperties": false
+    },
+    "maxThreshold": {
+      "type": "object",
+      "required": ["max_ratio"],
+      "properties": {"max_ratio": {"type": "number", "exclusiveMinimum": 0}},
+      "additionalProperties": false
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "candidate_backend",
+        "reference_backend",
+        "selectors",
+        "metrics"
+      ],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "candidate_backend": {"type": "string", "minLength": 1},
+        "reference_backend": {"type": "string", "minLength": 1},
+        "selectors": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["workloads", "target_rates_hz", "payload_bytes"],
+          "properties": {
+            "workloads": {"$ref": "#/$defs/selectorStrings"},
+            "target_rates_hz": {"$ref": "#/$defs/selectorIntegers"},
+            "payload_bytes": {"$ref": "#/$defs/selectorIntegers"}
+          }
+        },
+        "metrics": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": false,
+          "properties": {
+            "messages.effective_rate_hz": {"$ref": "#/$defs/minThreshold"},
+            "latency_us.p50": {"$ref": "#/$defs/maxThreshold"},
+            "latency_us.p95": {"$ref": "#/$defs/maxThreshold"},
+            "latency_us.p99": {"$ref": "#/$defs/maxThreshold"},
+            "cpu_pct.publisher.mean": {"$ref": "#/$defs/maxThreshold"},
+            "cpu_pct.subscriber.mean": {"$ref": "#/$defs/maxThreshold"}
+          }
+        }
+      }
+    }
+  }
+}

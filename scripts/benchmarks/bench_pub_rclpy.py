@@ -8,6 +8,8 @@ from std_msgs.msg import String
 import time
 import sys
 
+from _backend_marker import emit_stock_backend
+
 class PerfPublisher(Node):
     def __init__(self, rate_hz=1000):
         super().__init__('perf_publisher_py')
@@ -44,6 +46,7 @@ def main(args=None):
     print(f"Starting Python publisher benchmark at target rate: {rate_hz} Hz")
     rclpy.init(args=args)
     publisher = PerfPublisher(rate_hz)
+    emit_stock_backend("publisher", publisher.publisher)
     
     try:
         rclpy.spin(publisher)
@@ -54,4 +57,4 @@ def main(args=None):
         rclpy.shutdown()
 
 if __name__ == '__main__':
-    main() 
+    main()
