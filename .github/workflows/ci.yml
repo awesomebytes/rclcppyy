@@ -14,6 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Branch-protection required checks are exactly:
+  # `fast source smoke (linux-64)` and `fast source smoke (linux-aarch64)`.
   smoke:
     name: fast source smoke (${{ matrix.platform }})
     runs-on: ${{ matrix.runner }}
@@ -68,6 +70,10 @@ jobs:
 
       - name: Build source
         run: pixi run build
+
+      - name: Verify API ledger drift (x86 only)
+        if: matrix.platform == 'linux-64'
+        run: pixi run ledger-verify
 
       - name: Lint and validate compatibility contract
         run: |
