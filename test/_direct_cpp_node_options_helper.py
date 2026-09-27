@@ -47,6 +47,20 @@ def service_names(node):
     return names
 
 
+def has_rosout_publisher(node):
+    deadline = time.monotonic() + 3.0
+    while time.monotonic() < deadline:
+        publishers = node.get_publishers_info_by_topic("/rosout")
+        if any(
+            publisher.node_name == node.get_name()
+            and publisher.node_namespace == node.get_namespace()
+            for publisher in publishers
+        ):
+            return True
+        time.sleep(0.01)
+    return False
+
+
 rclpy.init(args=[
     "--ros-args",
     "-r", "__node:=global_options_name",
@@ -142,7 +156,7 @@ assert local_prefix + "get_parameters" not in local_services
 assert local_prefix + "list_parameters" not in local_services
 assert local_prefix + "get_logger_levels" in local_services
 assert local_prefix + "set_logger_levels" in local_services
-assert local.count_publishers("/rosout") == 0
+assert not has_rosout_publisher(local)
 print("DIRECT_CPP_NODE_OPTIONS_LOCAL_NATIVE_OK")
 
 local.destroy_node()
@@ -182,7 +196,7 @@ global_prefix = "/global_options_name/"
 assert global_prefix + "get_parameters" in global_services
 assert global_prefix + "list_parameters" in global_services
 assert global_prefix + "get_logger_levels" not in global_services
-assert global_node.count_publishers("/rosout") >= 1
+assert has_rosout_publisher(global_node)
 global_node.destroy_node()
 print("DIRECT_CPP_NODE_OPTIONS_GLOBAL_NATIVE_OK")
 
