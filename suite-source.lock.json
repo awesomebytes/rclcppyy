@@ -1,6 +1,6 @@
 {
   "schema": "rclcppyy.suite-source/v1",
   "repository": "awesomebytes/cppyy_kit",
-  "commit": "425b20c763753d06a19b88439f604a0e2bf2b826",
+  "commit": "5c69c4124ea2d295452b2c977c8a738848018ddf",
   "package_version": "0.3.0"
 }
