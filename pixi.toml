@@ -48,6 +48,12 @@ cppyy-cling = "==6.32.8"
 [target.linux-aarch64.pypi-dependencies]
 cppyy = "==3.5.0"
 
+# Install the pure-Python cppyy shim against the conda-forge components above.
+# Isolated sdist builds resolve the compiled stack from PyPI and attempt an
+# unsupported cppyy-cling 6.30.0 source build on clean ARM environments.
+[pypi-options]
+no-build-isolation = ["cppyy"]
+
 [activation]
 scripts = ["workspace_activation.sh"]
 
