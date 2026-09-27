@@ -179,7 +179,7 @@ characterizations and do not promote a general performance claim.
 
 The user-facing README documents the published `rclcppyy` **0.2.0** package. The
 development source tree declares `rclcppyy` **0.3.0** and its package recipe
-targets `cppyy_kit` **0.2.0**. Recent local x86-64 and ARM64 package proofs
+targets `cppyy_kit` **0.3.0**. Recent local x86-64 and ARM64 package proofs
 validate candidate build/install paths; those artifacts are local evidence, not
 published packages. For a released installation, follow the [README install
 instructions](../README.md#install-pixi--conda--no-build-needed). For source

@@ -50,7 +50,7 @@ requirements:
     - ros-jazzy-std-msgs
     - ros-jazzy-std-srvs
     - ros-jazzy-tf2-msgs
-    # 0.2.0: the rclcpp core was carved into rclcpp_kit; rclcppyy re-exports it via
+    # Since 0.2.0, the rclcpp core has lived in rclcpp_kit; rclcppyy re-exports it via
     # deprecation shims, so the product depends on it at runtime. cppyy-kit comes in
     # transitively but is pinned so the kit shims (rclcppyy.kits.cppyy_kit / .freeze)
     # resolve. NOTE (pre-release): both live only in the local rattler-build channel

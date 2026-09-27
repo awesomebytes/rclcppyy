@@ -22,7 +22,7 @@
        has no rosdep key; it is installed via conda-forge/pip. Likewise the carved
        core now lives in rclcpp_kit (conda: ros-jazzy-rclcpp-kit) and the cppyy kit
        shims re-export cppyy_kit (conda: cppyy-kit); these have no rosdep keys and are
-       declared as conda run-deps in recipe/recipe.yaml (0.2.0). -->
+       declared as conda run-deps in recipe/recipe.yaml (0.3.0). -->
   <exec_depend>ament_index_python</exec_depend>
   <exec_depend>rosidl_runtime_py</exec_depend>
   <exec_depend>rosbag2_py</exec_depend>
